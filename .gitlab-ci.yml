@@ -1,0 +1,19 @@
+image: python
+
+stages:
+  - build
+  - test
+
+before_script:
+  script:
+    - pip install cython
+
+build:
+  stage: build
+  script:
+    - python setup.py build_ext
+
+ReplayBuffer:
+  stage: test
+  script:
+    - python -c "import ReplayBuffer"
