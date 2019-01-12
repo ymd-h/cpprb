@@ -9,4 +9,8 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
   cdef cppclass ReplayBuffer:
     ReplayBuffer(size_t)
     void add(vector[double],vector[double],double,vector[double],bool)
-    tuple[vector[vector[double]],vector[vector[double]],vector[double],vector[vector],vector[bool]] sample(size_t)
+    tuple[vector[vector[double]],
+          vector[vector[double]],
+          vector[double],
+          vector[vector[double]],
+          vector[bool]] sample(size_t)
