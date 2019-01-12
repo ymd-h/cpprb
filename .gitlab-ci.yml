@@ -17,6 +17,7 @@ SegmentTree.cpp:
   script:
     - g++ --version
     - g++ -std=c++17 -O3 -march=native -Wall -Wextra -I./SegmentTree -o test/SegmentTree test/SegmentTree.cpp
+    - test/SegmentTree
     
 py_build:
   image: python
