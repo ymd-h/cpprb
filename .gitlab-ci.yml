@@ -5,8 +5,7 @@ stages:
   - test
 
 before_script:
-  script:
-    - pip install cython
+  - pip install cython
 
 build:
   stage: build
