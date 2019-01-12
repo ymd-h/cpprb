@@ -7,14 +7,14 @@ ReplayBuffer.cpp:
   image: gcc
   stage: cpp_test
   script:
-    - g++ -std=c++17 -O3 -march=native -Wa -I./ReplayBuffer -o test/ReplayBuffer test/ReplayBuffer.cpp
+    - g++ -std=c++17 -O3 -march=native -Wall -Wextra -I./ReplayBuffer -o test/ReplayBuffer test/ReplayBuffer.cpp
     - test/ReplayBuffer
 
 SegmentTree.cpp:
   image: gcc
   stage: cpp_test
   script:
-    - g++ -std=c++17 -O3 -march=native -Wa -I./SegmentTree -o test/SegmentTree test/SegmentTree.cpp
+    - g++ -std=c++17 -O3 -march=native -Wall -Wextra -I./SegmentTree -o test/SegmentTree test/SegmentTree.cpp
     
 py_build:
   image: python
