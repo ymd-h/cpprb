@@ -11,6 +11,9 @@ build:
   stage: build
   script:
     - python setup.py build_ext --inplace
+  artifacts:
+    paths:
+      - *.so
 
 ReplayBuffer:
   stage: test
