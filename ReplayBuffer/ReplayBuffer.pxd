@@ -1,5 +1,9 @@
 from libcpp.vector cimport vector
-from libcpp.tuple cimport tuple
+
+cdef extern from "<tuple>" namespace "std" nogil:
+  cdef cppclass tuple[T1,T2,T3,T4]:
+    tuple(T1,T2,T3,T4) except +
+
 
 cdef extern from "ReplayBuffer.hh" namespace "ymd":
   cdef cppclass ReplayBuffer:
