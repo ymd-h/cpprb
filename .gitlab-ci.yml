@@ -1,21 +1,37 @@
-image: python
-
 stages:
-  - build
-  - test
+  - cpp_test
+  - py_build
+  - py_test
 
-before_script:
-  - pip install cython
-
-build:
-  stage: build
+ReplayBuffer.cpp:
+  image: gcc
+  stage: cpp_test
   script:
+    - g++ -std=c++17 -O3 -march=native -Wa -I./ReplayBuffer -o test/ReplayBuffer test/ReplayBuffer.cpp
+    - test/ReplayBuffer
+
+SegmentTree.cpp:
+  image: gcc
+  stage: cpp_test
+  script:
+    - g++ -std=c++17 -O3 -march=native -Wa -I./SegmentTree -o test/SegmentTree test/SegmentTree.cpp
+    
+py_build:
+  image: python
+  stage: py_build
+  script:
+    - pip install cython
     - python setup.py build_ext --inplace
   artifacts:
     paths:
       - "*.so"
 
 ReplayBuffer:
-  stage: test
+  stage: py_test
   script:
     - python -c "import ReplayBuffer"
+
+SegmentTree:
+  stage: py_test
+  script:
+    - python -c "import SegmentTree"
