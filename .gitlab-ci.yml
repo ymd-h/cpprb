@@ -10,7 +10,7 @@ before_script:
 build:
   stage: build
   script:
-    - python setup.py build_ext
+    - python setup.py build_ext --inplace
 
 ReplayBuffer:
   stage: test
