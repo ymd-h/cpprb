@@ -1,0 +1,65 @@
+#ifndef YMD_REPLAY_BUFFER_HH
+#define YMD_REPLAY_BUFFER_HH 1
+
+#include <cmath>
+#include <vector>
+#include <random>
+#include <utility>
+#include <deque>
+#include <tuple>
+#include <functional>
+
+namespace ymd {
+  template<typename Observation,typename Action,typename Reward,typename Done>
+  class ReplayBuffer {
+  public:
+    using buffer_t = std::deque<std::tuple<Observation,Action,Reward,Observation,Done>>;
+  private:
+    const std::size_t size;
+    buffer_t buffer;
+    std::function<std::size_t()> random;
+  public:
+    ReplayBuffer(std::size_t n): size(n),random{[g=std::mt19937{std::random_device{}()},
+						 d=std::uniform_int_distribution<std::size_t>{0,n-1}]() mutable { return d(g); }} {}
+    ReplayBuffer(): ReplayBuffer{1} {}
+    ReplayBuffer(const ReplayBuffer&) = default;
+    ReplayBuffer(ReplayBuffer&&) = default;
+    ReplayBuffer& operator=(const ReplayBuffer&) = default;
+    ReplayBuffer& operator=(ReplayBuffer&&) = default;
+    ~ReplayBuffer() = default;
+
+    void add(Observation obs,Action act,Reward rew,Observation next_obs,Done done){
+      if(size == buffer.size()){
+	buffer.pop_front();
+      }
+      buffer.emplace_back(std::move(obs),std::move(act),std::move(rew),std::move(next_obs),std::move(done));
+    }
+
+    auto sample(std::size_t batch_size){
+      std::vector<Observation> obs{},next_obs{};
+      std::vector<Action> act{};
+      std::vector<Reward> rew{};
+      std::vector<Done> done{};
+
+      obs.reserve(batch_size);
+      act.reserve(batch_size);
+      rew.reserve(batch_size);
+      next_obs.reserve(batch_size);
+      done.reserve(batch_size);
+
+      for(auto i = 0ul; i < batch_size; ++i){
+	auto [o,a,r,no,d] = buffer[random()];
+
+	obs.push_back(std::move(o));
+	act.push_back(std::move(a));
+	rew.push_back(std::move(r));
+	next_obs.push_back(std::move(no));
+	done.push_back(std::move(d));
+      }
+
+      return std::make_tuple(obs,act,rew,next_obs,done);
+    }
+  };
+
+}
+#endif // YMD_REPLAY_BUFFER_HH
