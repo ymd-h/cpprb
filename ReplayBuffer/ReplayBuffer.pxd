@@ -1,7 +1,7 @@
 from libcpp.vector cimport vector
 from libcpp.tuple cimport tuple
 
-cdef extern "ReplayBuffer.hh" namespace ymd:
+cdef extern from "ReplayBuffer.hh" namespace ymd:
   cdef cppclass ReplayBuffer:
     ReplayBuffer(std::size_t)
     void add(vector[double],vector[double],double,vector[double],bool)
