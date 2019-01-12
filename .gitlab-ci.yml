@@ -13,7 +13,7 @@ build:
     - python setup.py build_ext --inplace
   artifacts:
     paths:
-      - *.so
+      - "*.so"
 
 ReplayBuffer:
   stage: test
