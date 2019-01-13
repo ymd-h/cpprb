@@ -1,3 +1,6 @@
+variables:
+  CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -I./include"
+
 stages:
   - cpp_test
   - py_build
@@ -8,7 +11,7 @@ ReplayBuffer.cpp:
   stage: cpp_test
   script:
     - g++ --version
-    - g++ -std=c++17 -O3 -march=native -Wall -Wextra -I./ReplayBuffer -o test/ReplayBuffer test/ReplayBuffer.cpp
+    - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
     - test/ReplayBuffer
 
 SegmentTree.cpp:
@@ -16,7 +19,7 @@ SegmentTree.cpp:
   stage: cpp_test
   script:
     - g++ --version
-    - g++ -std=c++17 -O3 -march=native -Wall -Wextra -I./SegmentTree -o test/SegmentTree test/SegmentTree.cpp
+    - $CXX -o test/SegmentTree test/SegmentTree.cpp
     - test/SegmentTree
     
 py_build:
