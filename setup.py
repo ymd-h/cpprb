@@ -14,4 +14,4 @@ ext_modules = cythonize([Extension("SegmentTree",
                          compiler_directives={'language_level':"3"},
                          include_path=["."])
 
-setup(ext_modules = ext_modules,include_dirs=["."])
+setup(ext_modules = ext_modules,include_dirs=["./include"])
