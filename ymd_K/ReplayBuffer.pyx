@@ -22,7 +22,7 @@ cdef class PyReplayBuffer:
         self.done = new vector[bool]()
 
     def add(self,observation,action,reward,next_observation,done):
-        self.thisptr.add(observation.action,reward,next_observation,done)
+        self.thisptr.add(observation,action,reward,next_observation,done)
 
     def sample(self,size):
         self.thisptr.sample(size,obs,act,rew,next_obs,done)
