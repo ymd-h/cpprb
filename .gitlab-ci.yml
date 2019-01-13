@@ -29,6 +29,7 @@ py_build:
   script:
     - pip3 install cython
     - CC=g++ python3 setup.py build_ext --inplace
+    - python3 setup.py install
   artifacts:
     paths:
       - "*.so"
@@ -41,5 +42,4 @@ ReplayBuffer:
 SegmentTree:
   stage: py_test
   script:
-    - mv SegmentTree*.so SegmentTree/
-    - python3 -c test/SegmentTree.py
+    - python3 test/SegmentTree.py
