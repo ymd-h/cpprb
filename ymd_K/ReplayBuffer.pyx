@@ -12,7 +12,7 @@ cdef class PyReplayBuffer:
                                         double,double](size)
 
     def add(self,observation,action,reward,next_observation,done):
-        pass
+        thisptr.add(observation.action,reward,next_observation,done)
 
     def sample(self,size):
         pass
