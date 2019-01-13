@@ -1,4 +1,4 @@
-from distutils.core import setup,Extension
+from setuptools import setup,Extension,find_packages
 from Cython.Build import cythonize
 
 ext_modules = cythonize([Extension("SegmentTree",
@@ -14,6 +14,5 @@ ext_modules = cythonize([Extension("SegmentTree",
                          compiler_directives={'language_level':"3"},
                          include_path=["."])
 
-setup(name = "ymd",
-      ext_modules = ext_modules,
-      include_dirs=["./include"])
+setup(name = "ymd", ext_modules = ext_modules, include_dirs=["./include"],
+      packages=find_packages())
