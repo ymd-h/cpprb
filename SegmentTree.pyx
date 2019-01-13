@@ -3,7 +3,7 @@
 from SegmentTree cimport SegmentTree as cppSegmentTree
 
 cdef class SegmentTree:
-    def __cinit__(self, size=2,f):
+    def __cinit__(self, size=2,f=lambda a,b: a+b):
         print("Segment Tree")
 
         self.st = cppSegmentTree(size,f)
