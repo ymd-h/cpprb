@@ -12,7 +12,22 @@ cdef class PyReplayBuffer:
                                         double,double](size)
 
     def add(self,observation,action,reward,next_observation,done):
-        thisptr.add(observation.action,reward,next_observation,done)
+        self.thisptr.add(observation.action,reward,next_observation,done)
 
     def sample(self,size):
-        pass
+        cdef s = self.thisptr.sample(size)
+        return {'obs': get[0,tuple[vector[double],
+                                   vector[double],
+                                   double,double]](s),
+                'act': get[1,tuple[vector[double],
+                                   vector[double],
+                                   double,double]](s),
+                'rew': get[2,tuple[vector[double],
+                                   vector[double],
+                                   double,double]](s),
+                'next_obs': get[3,tuple[vector[double],
+                                        vector[double],
+                                        double,double]](s),
+                'done': get[4,tuple[vector[double],
+                                    vector[double],
+                                    double,double]](s)}
