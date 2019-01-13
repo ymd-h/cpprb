@@ -41,4 +41,5 @@ ReplayBuffer:
 SegmentTree:
   stage: py_test
   script:
+    - python3 setup.py install
     - python3 -c test/SegmentTree.py
