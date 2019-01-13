@@ -7,4 +7,6 @@ cdef class PyReplayBuffer:
     def __cinit__(self,size):
         print("Hello World")
 
-        self.thisptr = new ReplayBuffer[vector[double],vector[double],double,double](size)
+        self.thisptr = new ReplayBuffer[vector[double],
+                                        vector[double],
+                                        double,double](size)
