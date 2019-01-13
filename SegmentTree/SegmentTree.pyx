@@ -1,12 +1,12 @@
 # distutils: language = c++
 
-from SegmentTree cimport SegmentTree as cppSegmentTree
+from SegmentTree cimport SegmentTree
 
-cdef class SegmentTree:
+cdef class PySegmentTree:
     def __cinit__(self, size=2,f=lambda a,b: a+b):
         print("Segment Tree")
 
-        self.st = cppSegmentTree(size,f)
+        self.st = SegmentTree(size,f)
 
     def __setitem__(self,i,v):
         self.st.set(i,v)
