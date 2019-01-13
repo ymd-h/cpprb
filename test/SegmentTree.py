@@ -1,6 +1,6 @@
-import SegmentTree
+from ymd_K.SegmentTree import SegmentTree
 
-sg = SegmantTree.SegmentTree(16,lambda a,b: a+b)
+sg = PySegmentTree(16,lambda a,b: a+b)
 
 for i in range(16):
     sg[i] = i * 1.0
