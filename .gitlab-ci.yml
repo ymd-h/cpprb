@@ -26,6 +26,8 @@ py_build:
   image: python
   stage: py_build
   script:
+    - python --version
+    - g++ --version
     - pip install cython
     - python setup.py build_ext --inplace
   artifacts:
