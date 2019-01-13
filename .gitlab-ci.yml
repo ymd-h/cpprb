@@ -1,5 +1,11 @@
+image: yamada4docker/gcc8_python372
+
 variables:
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -I./include"
+
+before_script:
+  - g++ --version
+  - python3 --version
 
 stages:
   - cpp_test
@@ -7,29 +13,22 @@ stages:
   - py_test
 
 ReplayBuffer.cpp:
-  image: gcc
   stage: cpp_test
   script:
-    - g++ --version
     - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
     - test/ReplayBuffer
 
 SegmentTree.cpp:
-  image: gcc
   stage: cpp_test
   script:
-    - g++ --version
     - $CXX -o test/SegmentTree test/SegmentTree.cpp
     - test/SegmentTree
-    
+
 py_build:
-  image: python
   stage: py_build
   script:
-    - python --version
-    - g++ --version
-    - pip install cython
-    - CC=g++ python setup.py build_ext --inplace
+    - pip3 install cython
+    - CC=g++ python3 setup.py build_ext --inplace
   artifacts:
     paths:
       - "*.so"
@@ -37,9 +36,9 @@ py_build:
 ReplayBuffer:
   stage: py_test
   script:
-    - python -c "import ReplayBuffer"
+    - python3 -c "import ReplayBuffer"
 
 SegmentTree:
   stage: py_test
   script:
-    - python -c "import SegmentTree"
+    - python3 -c "import SegmentTree"
