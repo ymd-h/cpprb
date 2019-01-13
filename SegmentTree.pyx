@@ -9,7 +9,7 @@ cdef class SegmentTree:
         self.st = cppSegmentTree(size,f)
 
     def __setitem__(self,i,v):
-        st.set(i,v)
+        self.st.set(i,v)
 
     def __getitem__(self,i):
-        return st.get(i)
+        return self.st.get(i)
