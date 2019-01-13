@@ -11,3 +11,5 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
     ReplayBuffer(size_t)
     void add(T1,T2,T3,T1,T4)
     tuple[T1,T2,T3,T1,T4] sample(size_t)
+
+  cdef get[T,T2]
