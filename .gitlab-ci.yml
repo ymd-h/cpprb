@@ -37,9 +37,11 @@ py_build:
 ReplayBuffer:
   stage: py_test
   script:
-    - python3 -c "import ReplayBuffer"
+    - cd test
+    - python3 ReplayBuffer.py
 
 SegmentTree:
   stage: py_test
   script:
-    - python3 test/SegmentTree.py
+    - cd test
+    - python3 SegmentTree.py
