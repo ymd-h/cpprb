@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from SegmentTree cimport SegmentTree[double] as cppSegmentTree
+from SegmentTree cimport SegmentTree as cppSegmentTree
 
 class SegmentTree:
     def __init__(self):
