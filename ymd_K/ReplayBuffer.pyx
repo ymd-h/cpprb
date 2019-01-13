@@ -4,23 +4,23 @@ from cython.operator cimport dereference
 from ymd_K cimport ReplayBuffer
 
 cdef class PyReplayBuffer:
-    cdef ReplayBuffer[vector[double],vector[double],double,bool] *thisptr
+    cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
     cdef vector[vector[double]] *obs
     cdef vector[vector[double]] *act
     cdef vector[double] *rew
     cdef vector[vector[double]] *next_obs
-    cdef vector[bool] *done
+    cdef vector[int] *done
     def __cinit__(self,size):
         print("Replay Buffer")
 
         self.thisptr = new ReplayBuffer[vector[double],
                                         vector[double],
-                                        double,bool](size)
+                                        double,int](size)
         self.obs = new vector[vector[double]]()
         self.act = new vector[vector[double]]()
         self.rew = new vector[double]()
         self.next_obs = new vector[vector[double]]()
-        self.done = new vector[bool]()
+        self.done = new vector[int]()
 
     def add(self,observation,action,reward,next_observation,done):
         self.thisptr.add(observation,action,reward,next_observation,done)
