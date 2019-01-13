@@ -3,11 +3,13 @@
 from SegmentTree cimport SegmentTree
 
 cdef class PySegmentTree:
-    cdef SegmentTree *thisptr
+    cdef SegmentTree[double] *thisptr
+    cdef function[double] f
     def __cinit__(self, size=2,f=lambda a,b: a+b):
         print("Segment Tree")
 
-        self.thisptr = new SegmentTree(size,f)
+        self.f = f
+        self.thisptr = new SegmentTree[double](size,self.f)
 
     def __setitem__(self,i,v):
         self.thisptr.set(i,v)
