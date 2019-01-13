@@ -7,11 +7,7 @@ cdef extern from "<tuple>" namespace "std" nogil:
 
 
 cdef extern from "ReplayBuffer.hh" namespace "ymd":
-  cdef cppclass ReplayBuffer:
+  cdef cppclass ReplayBuffer[T1,T2,T3,T4]:
     ReplayBuffer(size_t)
-    void add(vector[double],vector[double],double,vector[double],bool)
-    tuple[vector[vector[double]],
-          vector[vector[double]],
-          vector[double],
-          vector[vector[double]],
-          vector[bool]] sample(size_t)
+    void add(T1,T2,T3,T1,T4)
+    tuple[T1,T2,T3,T1,T4] sample(size_t)
