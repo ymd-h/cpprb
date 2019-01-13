@@ -28,7 +28,7 @@ py_build:
   stage: py_build
   script:
     - pip3 install cython
-    - CC=g++ python3 setup.py build_ext --inplace
+    - CC=g++ python3 setup.py build_ext
     - python3 setup.py install
   artifacts:
     paths:
