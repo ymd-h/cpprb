@@ -35,11 +35,17 @@ namespace ymd {
       buffer.emplace_back(std::move(obs),std::move(act),std::move(rew),std::move(next_obs),std::move(done));
     }
 
-    auto sample(std::size_t batch_size){
-      std::vector<Observation> obs{},next_obs{};
-      std::vector<Action> act{};
-      std::vector<Reward> rew{};
-      std::vector<Done> done{};
+    void sample(std::size_t batch_size,
+		std::vector<Observation>& obs,
+		std::vector<Action>& act,
+		std::vector<Reward>& rew,
+		std::vector<Observation>& next_obs,
+		std::vector<Done>& done){
+      obs.resize(0);
+      act.resize(0);
+      rew.resize(0);
+      next_obs.resize(0);
+      done.resize(0);
 
       obs.reserve(batch_size);
       act.reserve(batch_size);
@@ -48,6 +54,7 @@ namespace ymd {
       done.reserve(batch_size);
 
       for(auto i = 0ul; i < batch_size; ++i){
+	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
 	auto [o,a,r,no,d] = buffer[random()];
 
 	obs.push_back(std::move(o));
@@ -56,6 +63,15 @@ namespace ymd {
 	next_obs.push_back(std::move(no));
 	done.push_back(std::move(d));
       }
+    }
+
+    auto sample(std::size_t batch_size){
+      std::vector<Observation> obs{},next_obs{};
+      std::vector<Action> act{};
+      std::vector<Reward> rew{};
+      std::vector<Done> done{};
+
+      sample(batch_size,obs,act,rew,next,done);
 
       return std::make_tuple(obs,act,rew,next_obs,done);
     }
