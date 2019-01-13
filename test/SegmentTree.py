@@ -1,6 +1,6 @@
-from SegmentTree import SegmentTree
+import SegmentTree
 
-sg = SegmentTree(16,lambda a,b: a+b)
+sg = SegmantTree.SegmentTree(16,lambda a,b: a+b)
 
 for i in range(16):
     sg[i] = i * 1.0
