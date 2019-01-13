@@ -29,7 +29,7 @@ py_build:
     - python --version
     - g++ --version
     - pip install cython
-    - python setup.py build_ext --inplace
+    - CC=g++ python setup.py build_ext --inplace
   artifacts:
     paths:
       - "*.so"
