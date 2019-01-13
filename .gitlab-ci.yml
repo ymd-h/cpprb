@@ -41,4 +41,4 @@ ReplayBuffer:
 SegmentTree:
   stage: py_test
   script:
-    - python3 -c "import SegmentTree"
+    - python3 -c test/SegmentTree.py
