@@ -1,5 +1,6 @@
 # distutils: language = c++
 
+from cython.operator cimport dereference
 from ymd_K cimport ReplayBuffer
 
 cdef class PyReplayBuffer:
@@ -25,9 +26,14 @@ cdef class PyReplayBuffer:
         self.thisptr.add(observation,action,reward,next_observation,done)
 
     def sample(self,size):
-        self.thisptr.sample(size,self.obs,self.act,self.rew,self.next_obs,self.done)
-        return {'obs': *self.obs,
-                'act': *self.act,
-                'rew': *self.rew,
-                'next_obs': *self.next_obs,
-                'done': *self.done}
+        self.thisptr.sample(size,
+                            dereference(self.obs),
+                            dereference(self.act),
+                            dereference(self.rew),
+                            dereference(self.next_obs),
+                            dereference(self.done))
+        return {'obs': dereference(self.obs),
+                'act': dereference(self.act),
+                'rew': dereference(self.rew),
+                'next_obs': dereference(self.next_obs),
+                'done': dereference(self.done)}
