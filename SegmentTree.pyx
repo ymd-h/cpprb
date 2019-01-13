@@ -8,5 +8,11 @@ cdef class SegmentTree:
 
         self.st = cppSegmentTree(size)
 
+    def __setitem__(i,v):
+        st.set(i,v)
+
+    def __getitem__(i):
+        return st.get(i)
+
 if __name__ is "main":
     sg = SegmentTree()
