@@ -2,9 +2,11 @@
 
 from SegmentTree cimport SegmentTree as cppSegmentTree
 
-class SegmentTree:
-    def __init__(self):
+cdef class SegmentTree:
+    def __cinit__(self, size=2):
         print("Segment Tree")
+
+        self.st = cppSegmentTree(size)
 
 if __name__ is "main":
     sg = SegmentTree()
