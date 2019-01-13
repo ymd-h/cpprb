@@ -4,7 +4,7 @@ from cython.operator cimport dereference
 from ymd_K cimport ReplayBuffer
 
 cdef class PyReplayBuffer:
-    cdef ReplayBuffer[vector[double],vector[double],double,double] *thisptr
+    cdef ReplayBuffer[vector[double],vector[double],double,bool] *thisptr
     cdef vector[vector[double]] *obs
     cdef vector[vector[double]] *act
     cdef vector[double] *rew
@@ -15,7 +15,7 @@ cdef class PyReplayBuffer:
 
         self.thisptr = new ReplayBuffer[vector[double],
                                         vector[double],
-                                        double,double](size)
+                                        double,bool](size)
         self.obs = new vector[vector[double]]()
         self.act = new vector[vector[double]]()
         self.rew = new vector[double]()
