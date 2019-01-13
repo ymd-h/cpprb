@@ -29,19 +29,22 @@ py_build:
   script:
     - pip3 install cython
     - CC=g++ python3 setup.py build_ext
-    - python3 setup.py install
   artifacts:
     paths:
-      - "*.so"
+      - build
 
 ReplayBuffer:
   stage: py_test
   script:
+    - pip3 install cython
+    - python3 setup.py install
     - cd test
     - python3 ReplayBuffer.py
 
 SegmentTree:
   stage: py_test
   script:
+    - pip3 install cython
+    - python3 setup.py install
     - cd test
     - python3 SegmentTree.py
