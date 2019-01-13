@@ -10,3 +10,9 @@ cdef class PyReplayBuffer:
         self.thisptr = new ReplayBuffer[vector[double],
                                         vector[double],
                                         double,double](size)
+
+    def add(self,observation,action,reward,next_observation,done):
+        pass
+
+    def sample(self,size):
+        pass
