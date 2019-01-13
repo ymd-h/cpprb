@@ -71,7 +71,7 @@ namespace ymd {
       std::vector<Reward> rew{};
       std::vector<Done> done{};
 
-      sample(batch_size,obs,act,rew,next,done);
+      sample(batch_size,obs,act,rew,next_obs,done);
 
       return std::make_tuple(obs,act,rew,next_obs,done);
     }
