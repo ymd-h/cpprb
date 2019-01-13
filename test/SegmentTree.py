@@ -1,4 +1,4 @@
-from ymd_K.SegmentTree import SegmentTree
+from ymd_K import SegmentTree
 
 sg = PySegmentTree(16,lambda a,b: a+b)
 
