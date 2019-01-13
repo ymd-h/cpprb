@@ -25,9 +25,9 @@ cdef class PyReplayBuffer:
         self.thisptr.add(observation,action,reward,next_observation,done)
 
     def sample(self,size):
-        self.thisptr.sample(size,obs,act,rew,next_obs,done)
-        return {'obs': *obs,
-                'act': *act,
-                'rew': *rew,
-                'next_obs': *next_obs,
-                'done': *done}
+        self.thisptr.sample(size,self.obs,self.act,self.rew,self.next_obs,self.done)
+        return {'obs': *self.obs,
+                'act': *self.act,
+                'rew': *self.rew,
+                'next_obs': *self.next_obs,
+                'done': *self.done}
