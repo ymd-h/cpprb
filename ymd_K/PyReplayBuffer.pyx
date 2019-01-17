@@ -49,9 +49,9 @@ cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
     cdef vector[vector[double]] *obs
     cdef vector[vector[double]] *act
-    cdef vector[double] *rew
+    cdef VectorWrapper[double] rew
     cdef vector[vector[double]] *next_obs
-    cdef vector[int] *done
+    cdef VectorWrapper[int] done
     def __cinit__(self,size):
         print("Replay Buffer")
 
@@ -60,9 +60,9 @@ cdef class PyReplayBuffer:
                                         double,int](size)
         self.obs = new vector[vector[double]]()
         self.act = new vector[vector[double]]()
-        self.rew = new vector[double]()
+        self.rew = VectorWrapper[double]()
         self.next_obs = new vector[vector[double]]()
-        self.done = new vector[int]()
+        self.done = VectorWrapper[int]()
 
     def add(self,observation,action,reward,next_observation,done):
         self.thisptr.add(observation,action,reward,next_observation,done)
@@ -71,11 +71,11 @@ cdef class PyReplayBuffer:
         self.thisptr.sample(size,
                             dereference(self.obs),
                             dereference(self.act),
-                            dereference(self.rew),
+                            self.rew.vec,
                             dereference(self.next_obs),
-                            dereference(self.done))
+                            self.done.vec)
         return {'obs': dereference(self.obs),
                 'act': dereference(self.act),
-                'rew': dereference(self.rew),
+                'rew': np.asarray(self.rew),
                 'next_obs': dereference(self.next_obs),
-                'done': dereference(self.done)}
+                'done': np.asarray(self.done)}
