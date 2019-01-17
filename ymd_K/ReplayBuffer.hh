@@ -33,7 +33,7 @@ namespace ymd {
     template<typename T>
     void flatten_push_back(T&& v,
 			   std::vector<std::remove_reference_t<T>>& to){
-      to.push_back(std::forward<T>(V));
+      to.push_back(std::forward<T>(v));
     }
 
     template<typename T>
