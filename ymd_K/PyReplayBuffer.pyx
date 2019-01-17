@@ -33,6 +33,9 @@ cdef class VectorWrapper[T]:
         buffer.strides = self.strides
         buffer.suboffsets = NULL
 
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
     cdef vector[vector[double]] *obs
