@@ -1,7 +1,37 @@
 # distutils: language = c++
 
 from cython.operator cimport dereference
+from cpython cimport PyObject, Py_INCREF
+cimport numpy as np
+import numpy as np
+
 from ymd_K cimport ReplayBuffer
+
+cdef class VectorWrapper[T]:
+    cdef vector[T] vec
+    cdef Py_ssize_t shape[1]
+    cdef Py_ssize_t strides[1]
+
+    def __cinit__(self):
+        vec = vector[T]()
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        # relevant documentation http://cython.readthedocs.io/en/latest/src/userguide/buffer.html#a-matrix-class
+        cdef Py_ssize_t itemsize = sizeof(self.vec[0])
+
+        self.shape[0] = self.vec.size()
+        self.strides[0] = sizeof(T)
+        buffer.buf = <char *>&(self.vec[0])
+        buffer.format = 'f' # float
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = self.v.size() * itemsize   # product(shape) * itemsize
+        buffer.ndim = 1
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.shape
+        buffer.strides = self.strides
+        buffer.suboffsets = NULL
 
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
