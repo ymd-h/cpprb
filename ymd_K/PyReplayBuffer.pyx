@@ -12,6 +12,15 @@ cdef class VectorWrapper[T]:
     cdef Py_ssize_t shape[1]
     cdef Py_ssize_t strides[1]
 
+    cdef format_type(int _):
+        return 'i'
+
+    cdef format_type(double _):
+        return 'f'
+
+    cdef format_type(float _):
+        return 'f'
+
     def __cinit__(self):
         vec = vector[T]()
 
@@ -22,7 +31,7 @@ cdef class VectorWrapper[T]:
         self.shape[0] = self.vec.size()
         self.strides[0] = sizeof(T)
         buffer.buf = <char *>&(self.vec[0])
-        buffer.format = 'f' # float
+        buffer.format = self.format_type(<T>( 1 )) # float or int
         buffer.internal = NULL
         buffer.itemsize = itemsize
         buffer.len = self.v.size() * itemsize   # product(shape) * itemsize
