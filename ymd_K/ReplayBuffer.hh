@@ -9,6 +9,9 @@
 #include <tuple>
 #include <functional>
 
+template<typename T> struct UnderlyingType { using type = T; };
+template<typename T> struct UnderlyingType<std::vector<T>>{ using type = T; };
+
 namespace ymd {
   template<typename Observation,typename Action,typename Reward,typename Done>
   class ReplayBuffer {
