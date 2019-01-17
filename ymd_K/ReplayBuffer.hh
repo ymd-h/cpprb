@@ -14,13 +14,13 @@ namespace ymd {
   class ReplayBuffer {
   public:
     using buffer_t = std::deque<std::tuple<Observation,Action,Reward,Observation,Done>>;
+    using rand_t = std::uniform_int_distribution<std::size_t>;
   private:
     const std::size_t size;
     buffer_t buffer;
-    std::function<std::size_t()> random;
+    std::mt19937 g;
   public:
-    ReplayBuffer(std::size_t n): size(n),random{[g=std::mt19937{std::random_device{}()},
-						 d=std::uniform_int_distribution<std::size_t>{0,n-1}]() mutable { return d(g); }} {}
+    ReplayBuffer(std::size_t n): size(n),g{std::random_device{}()} {}
     ReplayBuffer(): ReplayBuffer{1} {}
     ReplayBuffer(const ReplayBuffer&) = default;
     ReplayBuffer(ReplayBuffer&&) = default;
@@ -52,6 +52,8 @@ namespace ymd {
       rew.reserve(batch_size);
       next_obs.reserve(batch_size);
       done.reserve(batch_size);
+
+      auto random = [&g,d=rand_t{0,buffer.size()-1}] () mutable { return d(g); };
 
       for(auto i = 0ul; i < batch_size; ++i){
 	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
