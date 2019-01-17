@@ -86,7 +86,7 @@ namespace ymd {
       done.reserve(batch_size *
 		   UnderlyingType<Done>::size(std::get<4>(buffer[0])));
 
-      auto random = [&g,d=rand_t{0,buffer.size()-1}] () mutable { return d(g); };
+      auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
 
       for(auto i = 0ul; i < batch_size; ++i){
 	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
@@ -119,7 +119,7 @@ namespace ymd {
       next_obs.reserve(batch_size);
       done.reserve(batch_size);
 
-      auto random = [&g,d=rand_t{0,buffer.size()-1}] () mutable { return d(g); };
+      auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
 
       for(auto i = 0ul; i < batch_size; ++i){
 	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
