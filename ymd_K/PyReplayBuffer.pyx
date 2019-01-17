@@ -17,11 +17,11 @@ cdef class VectorWrapper:
 
         self.shape[0] = self.vec.size()
         self.strides[0] = self.itemsize
-        buffer.buf = <char *>(self.vec.data())
+        buffer.buf = <char *>&(self.vec[0])
         buffer.format = self.format_type # float or int
         buffer.internal = NULL
         buffer.itemsize = self.itemsize
-        buffer.len = self.v.size() * self.itemsize   # product(shape) * itemsize
+        buffer.len = self.vec.size() * self.itemsize   # product(shape) * itemsize
         buffer.ndim = 1
         buffer.obj = self
         buffer.readonly = 0
