@@ -12,16 +12,22 @@ cdef class VectorWrapper:
     cdef Py_ssize_t strides[1]
     cdef Py_ssize_t itemsize
 
+    def vec_size(self):
+        pass
+
+    cdef char* vec_addr(self):
+        pass
+
     def __getbuffer__(self, Py_buffer *buffer, int flags):
         # relevant documentation http://cython.readthedocs.io/en/latest/src/userguide/buffer.html#a-matrix-class
 
-        self.shape[0] = self.vec.size()
+        self.shape[0] = self.vec_size()
         self.strides[0] = self.itemsize
-        buffer.buf = <char *>&(self.vec[0])
+        buffer.buf = self.vec_addr()
         buffer.format = self.format_type # float or int
         buffer.internal = NULL
         buffer.itemsize = self.itemsize
-        buffer.len = self.vec.size() * self.itemsize   # product(shape) * itemsize
+        buffer.len = self.vec_size() * self.itemsize   # product(shape) * itemsize
         buffer.ndim = 1
         buffer.obj = self
         buffer.readonly = 0
@@ -40,6 +46,12 @@ cdef class VectorWrapperInt(VectorWrapper):
        self.vec = vector[int]()
        self.itemsize = sizeof(int)
 
+   def vec_size(self):
+       return self.vec.size()
+
+   cdef char* vec_addr(self):
+       return <char*>(self.vec.data())
+
 cdef class VectorWrapperDouble(VectorWrapper):
    cdef vector[double] vec
    format_type = 'f'
@@ -48,6 +60,11 @@ cdef class VectorWrapperDouble(VectorWrapper):
        self.vec = vector[double]()
        self.itemsize = sizeof(double)
 
+   def vec_size(self):
+       return self.vec.size()
+
+   cdef char* vec_addr(self):
+       return <char*>(self.vec.data())
 
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
