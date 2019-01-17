@@ -7,34 +7,21 @@ import numpy as np
 
 from ymd_K cimport ReplayBuffer
 
-cdef class VectorWrapper[T]:
-    cdef vector[T] vec
+cdef class VectorWrapper:
     cdef Py_ssize_t shape[1]
     cdef Py_ssize_t strides[1]
-
-    cdef format_type(int _):
-        return 'i'
-
-    cdef format_type(double _):
-        return 'f'
-
-    cdef format_type(float _):
-        return 'f'
-
-    def __cinit__(self):
-        vec = vector[T]()
+    cdef Py_ssize_t itemsize
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
         # relevant documentation http://cython.readthedocs.io/en/latest/src/userguide/buffer.html#a-matrix-class
-        cdef Py_ssize_t itemsize = sizeof(self.vec[0])
 
         self.shape[0] = self.vec.size()
-        self.strides[0] = sizeof(T)
-        buffer.buf = <char *>&(self.vec[0])
-        buffer.format = self.format_type(<T>( 1 )) # float or int
+        self.strides[0] = self.itemsize
+        buffer.buf = <char *>(self.vec.data())
+        buffer.format = self.format_type # float or int
         buffer.internal = NULL
-        buffer.itemsize = itemsize
-        buffer.len = self.v.size() * itemsize   # product(shape) * itemsize
+        buffer.itemsize = self.itemsize
+        buffer.len = self.v.size() * self.itemsize   # product(shape) * itemsize
         buffer.ndim = 1
         buffer.obj = self
         buffer.readonly = 0
@@ -45,13 +32,30 @@ cdef class VectorWrapper[T]:
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
+cdef class VectorWrapperInt(VectorWrapper):
+   cdef vector[int] vec
+   format_type = 'i'
+
+   def __cinit__(self):
+       self.vec = vector[int]()
+       self.itemsize = sizeof(int)
+
+cdef class VectorWrapperDouble(VectorWrapper):
+   cdef vector[double] vec
+   format_type = 'f'
+
+   def __cinit__(self):
+       self.vec = vector[double]()
+       self.itemsize = sizeof(double)
+
+
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
     cdef vector[vector[double]] *obs
     cdef vector[vector[double]] *act
-    cdef VectorWrapper[double] rew
+    cdef VectorWrapperDouble rew
     cdef vector[vector[double]] *next_obs
-    cdef VectorWrapper[int] done
+    cdef VectorWrapperInt done
     def __cinit__(self,size):
         print("Replay Buffer")
 
@@ -60,9 +64,9 @@ cdef class PyReplayBuffer:
                                         double,int](size)
         self.obs = new vector[vector[double]]()
         self.act = new vector[vector[double]]()
-        self.rew = VectorWrapper[double]()
+        self.rew = VectorWrapperDouble()
         self.next_obs = new vector[vector[double]]()
-        self.done = VectorWrapper[int]()
+        self.done = VectorWrapperInt()
 
     def add(self,observation,action,reward,next_observation,done):
         self.thisptr.add(observation,action,reward,next_observation,done)
