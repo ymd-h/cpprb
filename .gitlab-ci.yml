@@ -39,7 +39,7 @@ ReplayBuffer:
     - pip3 install cython
     - python3 setup.py install
     - cd test
-    - python3 ReplayBuffer.py
+    - python3 PyReplayBuffer.py
 
 SegmentTree:
   stage: py_test
@@ -47,4 +47,4 @@ SegmentTree:
     - pip3 install cython
     - python3 setup.py install
     - cd test
-    - python3 SegmentTree.py
+    - python3 PySegmentTree.py
