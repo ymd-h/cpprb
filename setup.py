@@ -1,5 +1,6 @@
 from setuptools import setup,Extension,find_packages
 from Cython.Build import cythonize
+import numpy as np
 
 ext_modules = cythonize([Extension("ymd_K.SegmentTree",
                                    sources=["ymd_K/PySegmentTree.pyx"],
@@ -14,5 +15,7 @@ ext_modules = cythonize([Extension("ymd_K.SegmentTree",
                          compiler_directives={'language_level':"3"},
                          include_path=["."])
 
-setup(name = "ymd_K", ext_modules = ext_modules, include_dirs=["ymd_K"],
+setup(name = "ymd_K",
+      ext_modules = ext_modules,
+      include_dirs=["ymd_K",np.get_include()],
       packages=["ymd_K"])
