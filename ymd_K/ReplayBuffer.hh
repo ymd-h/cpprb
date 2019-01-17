@@ -29,6 +29,23 @@ namespace ymd {
     const std::size_t size;
     buffer_t buffer;
     std::mt19937 g;
+
+    template<typename T>
+    void flatten_push_back(T&& v,
+			   std::vector<std::remove_reference_t<T>>& to){
+      to.push_back(std::forward<T>(V));
+    }
+
+    template<typename T>
+    void flatten_push_back(const std::vector<T>& v,std::vector<T>& to){
+      std::copy(v.begin(),v.end(),std::back_inserter(to));
+    }
+
+    template<typename T>
+    void flatten_push_back(std::vector<T>&& v,std::vector<T>& to){
+      std::move(v.begin(),v.end(),std::back_inserter(to));
+    }
+
   public:
     ReplayBuffer(std::size_t n): size(n),g{std::random_device{}()} {}
     ReplayBuffer(): ReplayBuffer{1} {}
