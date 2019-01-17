@@ -27,7 +27,7 @@ SegmentTree.cpp:
 py_build:
   stage: py_build
   script:
-    - pip3 install cython
+    - pip3 install cython numpy
     - CC=g++ python3 setup.py build_ext
   artifacts:
     paths:
@@ -36,7 +36,7 @@ py_build:
 ReplayBuffer:
   stage: py_test
   script:
-    - pip3 install cython
+    - pip3 install cython numpy
     - python3 setup.py install
     - cd test
     - python3 PyReplayBuffer.py
@@ -44,7 +44,7 @@ ReplayBuffer:
 SegmentTree:
   stage: py_test
   script:
-    - pip3 install cython
+    - pip3 install cython numpy
     - python3 setup.py install
     - cd test
     - python3 PySegmentTree.py
