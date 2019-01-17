@@ -63,6 +63,45 @@ namespace ymd {
     }
 
     void sample(std::size_t batch_size,
+		std::vector<typename UnderlyingType<Observation>::type>& obs,
+		std::vector<typename UnderlyingType<Action>::type>& act,
+		std::vector<typename UnderlyingType<Reward>::type>& rew,
+		std::vector<typename UnderlyingType<Observation>::type>& next_obs,
+		std::vector<typename UnderlyingType<Done>::type>& done,
+		...){
+      obs.resize(0);
+      act.resize(0);
+      rew.resize(0);
+      next_obs.resize(0);
+      done.resize(0);
+
+      obs.reserve(batch_size *
+		  UnderlyingType<Observation>::size(std::get<0>(buffer[0])));
+      act.reserve(batch_size *
+		  UnderlyingType<Action>::size(std::get<1>(buffer[0])));
+      rew.reserve(batch_size *
+		  UnderlyingType<Reward>::size(std::get<2>(buffer[0])));
+      next_obs.reserve(batch_size *
+		       UnderlyingType<Observation>::size(std::get<3>(buffer[0])));
+      done.reserve(batch_size *
+		   UnderlyingType<Done>::size(std::get<4>(buffer[0])));
+
+      auto random = [&g,d=rand_t{0,buffer.size()-1}] () mutable { return d(g); };
+
+      for(auto i = 0ul; i < batch_size; ++i){
+	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
+	auto [o,a,r,no,d] = buffer[random()];
+
+	flatten_push_back(std::move(o),obs);
+	flatten_push_back(std::move(a),act);
+	flatten_push_back(std::move(r),rew);
+	flatten_push_back(std::move(no),next_obs);
+	flatten_push_back(std::move(d),done);
+      }
+
+    }
+
+    void sample(std::size_t batch_size,
 		std::vector<Observation>& obs,
 		std::vector<Action>& act,
 		std::vector<Reward>& rew,
