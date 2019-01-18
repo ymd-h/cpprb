@@ -16,7 +16,7 @@ cdef class VectorWrapper:
     def vec_size(self):
         pass
 
-    cdef char* vec_addr(self):
+    cdef void* vec_addr(self):
         pass
 
     cdef void update_buffer(self):
@@ -63,8 +63,8 @@ cdef class VectorWrapperInt(VectorWrapper):
     def vec_size(self):
         return self.vec.size()
 
-    cdef char* vec_addr(self):
-        return <char*>(self.vec.data())
+    cdef void* vec_addr(self):
+        return <void*>(self.vec.data())
 
     cdef void set_format(self,Py_buffer* buffer):
         buffer.format = 'i'
@@ -82,8 +82,8 @@ cdef class VectorWrapperDouble(VectorWrapper):
     def vec_size(self):
         return self.vec.size()
 
-    cdef char* vec_addr(self):
-        return <char*>(self.vec.data())
+    cdef void* vec_addr(self):
+        return <void*>(self.vec.data())
 
     cdef void set_format(self,Py_buffer* buffer):
          buffer.format = 'd'
