@@ -1,5 +1,5 @@
-from ymd_K import ReplayBuffer
 import numpy as np
+from ymd_K import ReplayBuffer
 
 print("=== PyReplayBuffer.py ===")
 
