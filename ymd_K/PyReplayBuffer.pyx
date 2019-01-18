@@ -11,21 +11,24 @@ from ymd_K cimport ReplayBuffer
 cdef class VectorWrapper:
     cdef Py_ssize_t *shape
     cdef Py_ssize_t *strides
-    cdef Py_ssize_t itemsize
-    cdef Py_buffer buffer
 
-    def vec_size(self):
-        pass
+    def __cinit__(self):
+        self.shape   = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * 2)
+        self.strides = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * 2)
 
-    cdef void* vec_addr(self):
-        pass
+    def __dealloc__(self):
+        free(self.shape)
+        free(self.strides)
 
-    cdef void update_buffer(self):
-        self.buffer.shape = [<Py_ssize_t> self.vec_size()]
-        self.buffer.strides = [<Py_ssize_t> self.itemsize]
-        self.buffer.ndim = 1
+    cdef void update_size(self):
+        self.shape[self.ndim -1]   = <Py_ssize_t> self.vec_size()
+        self.strides[self.ndim -1] = <Py_ssize_t> self.itemsize
 
-    cdef void set_format(self,Py_buffer *buffer):
+        if self.ndim is 2:
+            self.shape[0] = <Py_ssize_t> (self.vec_size()//self.value_dim)
+            self.strides[0] = self.value_dim * <Py_ssize_t> self.itemsize
+
+    cdef void set_buffer(self,Py_buffer *buffer):
         pass
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
@@ -33,18 +36,14 @@ cdef class VectorWrapper:
 
         print("__getbuffer__")
 
-        self.update_buffer()
-        self.shape = self.buffer.shape
-        self.strides = self.buffer.strides
+        self.update_size()
 
-
-        buffer.buf = self.vec_addr()
-        buffer.len = self.vec_size() * self.itemsize   # product(shape) * itemsize
+        self.set_buffer(buffer)
+        buffer.len = self.vec_size() * self.itemsize
         buffer.readonly = 0
-        self.set_format(buffer)
-        buffer.ndim = self.buffer.ndim
-        buffer.shape = self.buffer.shape
-        buffer.strides = self.buffer.strides
+        buffer.ndim = self.ndim
+        buffer.shape = self.shape
+        buffer.strides = self.strides
         buffer.suboffsets = NULL
         buffer.itemsize = self.itemsize
         buffer.internal = NULL
@@ -54,70 +53,61 @@ cdef class VectorWrapper:
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
-cdef class VectorWrapperInt(VectorWrapper):
+cdef class VectorIntWrapper(VectorWrapper):
     cdef vector[int] vec
 
-    def __cinit__(self):
+    def __cinit__(self,value_dim=1):
         self.vec = vector[int]()
         self.itemsize = sizeof(int)
+
+        self.ndim = 1 if value_dim is 1 else 2
+        self.value_dim = value_dim
 
     def vec_size(self):
         return self.vec.size()
 
-    cdef void* vec_addr(self):
-        return <void*>(self.vec.data())
-
-    cdef void set_format(self,Py_buffer* buffer):
+    cdef void set_buffer(self,Py_buffer* buffer):
+        buffer.buf = <void*>(self.vec.data())
         buffer.format = 'i'
 
     def _push_back(self,v):
         self.vec.push_back(v)
 
-cdef class VectorWrapperDouble(VectorWrapper):
+cdef class VectorDoubleWrapper(VectorWrapper):
     cdef vector[double] vec
 
-    def __cinit__(self):
+    def __cinit__(self,value_dim=1):
         self.vec = vector[double]()
         self.itemsize = sizeof(double)
+
+        self.ndim = 1 if value_dim is 1 else 2
+        self.value_dim = value_dim
 
     def vec_size(self):
         return self.vec.size()
 
-    cdef void* vec_addr(self):
-        return <void*>(self.vec.data())
-
-    cdef void set_format(self,Py_buffer* buffer):
+    cdef void set_buffer(self,Py_buffer* buffer):
+         buffer.buf = <void*>(self.vec.data())
          buffer.format = 'd'
-
-cdef class VectorWrapperDouble2d(VectorWrapperDouble):
-    cdef Py_ssize_t ndim
-    def __cinit__(self,ndim=2):
-        self.ndim = ndim
-
-    cdef void update_buffer(self):
-        self.buffer.shape = [<Py_ssize_t> (self.vec_size()//self.ndim),self.ndim]
-        self.buffer.strides = [self.ndim * <Py_ssize_t> self.itemsize,
-                               <Py_ssize_t> self.itemsize]
-        self.buffer.ndim = 2
 
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
-    cdef VectorWrapperDouble2d obs
-    cdef VectorWrapperDouble2d act
-    cdef VectorWrapperDouble rew
-    cdef VectorWrapperDouble2d next_obs
-    cdef VectorWrapperInt done
+    cdef VectorDoubleWrapper obs
+    cdef VectorDoubleWrapper act
+    cdef VectorDoubleWrapper rew
+    cdef VectorDoubleWrapper next_obs
+    cdef VectorIntWrapper done
     def __cinit__(self,size,obs_dim,act_dim):
         print("Replay Buffer")
 
         self.thisptr = new ReplayBuffer[vector[double],
                                         vector[double],
                                         double,int](size)
-        self.obs = VectorWrapperDouble2d(obs_dim)
-        self.act = VectorWrapperDouble2d(act_dim)
-        self.rew = VectorWrapperDouble()
-        self.next_obs = VectorWrapperDouble2d(obs_dim)
-        self.done = VectorWrapperInt()
+        self.obs = VectorDoubleWrapper(obs_dim)
+        self.act = VectorDoubleWrapper(act_dim)
+        self.rew = VectorDoubleWrapper()
+        self.next_obs = VectorDoubleWrapper(obs_dim)
+        self.done = VectorIntWrapper()
 
     def add(self,observation,action,reward,next_observation,done):
         self.thisptr.add(observation,action,reward,next_observation,done)
