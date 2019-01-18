@@ -12,7 +12,7 @@ class TestVectorWrapperInt(unittest.TestCase):
             cls.vwi._push_back(i)
 
     def test_asarray(self):
-        array = np.asarray(cls.vwi)
+        array = np.asarray(self.vwi)
 
         self.assertEqual(1,array.ndim)
         self.assertEqual((N_buffer_size),array.shape)
