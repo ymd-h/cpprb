@@ -27,7 +27,7 @@ cdef class VectorWrapper:
 
         self.update_buffer()
         buffer.buf = self.vec_addr()
-        buffer.format = self.format_type # float or int
+        buffer.format = <char*>(self.format_type)
         buffer.internal = NULL
         buffer.itemsize = self.itemsize
         buffer.len = self.vec_size() * self.itemsize   # product(shape) * itemsize
