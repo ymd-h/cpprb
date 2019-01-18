@@ -70,6 +70,17 @@ cdef class VectorWrapperDouble(VectorWrapper):
    cdef char* vec_addr(self):
        return <char*>(self.vec.data())
 
+cdef class VectorWrapperDouble2d(VectorWrapperDouble):
+    cdef Py_ssize_t ndim
+    cdef __cinit__(self,ndim=2):
+        super().__cinit__()
+        self.ndim = ndim
+
+    cdef void update_buffer(self):
+        self.buffer.shape = [self.vec_size()/self.ndim,self.ndim]
+        self.buffer.strides = [self.ndim * <Py_ssize_t> self.itemsize,
+                               <Py_ssize_t> self.itemsize]
+
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
     cdef vector[vector[double]] *obs
