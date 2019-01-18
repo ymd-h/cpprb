@@ -43,7 +43,7 @@ cdef class VectorWrapper:
 
 cdef class VectorWrapperInt(VectorWrapper):
    cdef vector[int] vec
-   format_type = 'i'
+   format_type = "i"
 
    def __cinit__(self):
        self.vec = vector[int]()
@@ -57,7 +57,7 @@ cdef class VectorWrapperInt(VectorWrapper):
 
 cdef class VectorWrapperDouble(VectorWrapper):
    cdef vector[double] vec
-   format_type = 'd'
+   format_type = "d"
 
    def __cinit__(self):
        self.vec = vector[double]()

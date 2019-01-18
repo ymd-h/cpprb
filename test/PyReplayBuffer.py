@@ -1,6 +1,8 @@
 from ymd_K import ReplayBuffer
 import numpy as np
 
+print("=== PyReplayBuffer.py ===")
+
 obs_dim = 3
 act_dim = 5
 
