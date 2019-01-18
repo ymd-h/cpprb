@@ -24,11 +24,11 @@ cdef class VectorWrapper:
         free(self.strides)
 
     cdef void update_size(self):
-        self.shape[self.ndim -1]   = <Py_ssize_t> self.vec_size()
+        self.shape[0] = <Py_ssize_t>(self.vec_size()//self.value_dim)
         self.strides[self.ndim -1] = <Py_ssize_t> self.itemsize
 
         if self.ndim is 2:
-            self.shape[0] = <Py_ssize_t> (self.vec_size()//self.value_dim)
+            self.shape[1] = <Py_ssize_t> (self.value_dim)
             self.strides[0] = self.value_dim * <Py_ssize_t> self.itemsize
 
     cdef void set_buffer(self,Py_buffer *buffer):
@@ -119,6 +119,7 @@ cdef class PyReplayBuffer:
                             self.rew.vec,
                             self.next_obs.vec,
                             self.done.vec)
+        print(self.obs.vec.size())
         return {'obs': np.asarray(self.obs),
                 'act': np.asarray(self.act),
                 'rew': np.asarray(self.rew),
