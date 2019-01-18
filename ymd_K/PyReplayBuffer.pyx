@@ -20,6 +20,7 @@ cdef class VectorWrapper:
     cdef void update_buffer(self):
         self.buffer.shape = [<Py_ssize_t> self.vec_size()]
         self.buffer.strides = [<Py_ssize_t> self.itemsize]
+        self.buffer.ndim = 1
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
         # relevant documentation http://cython.readthedocs.io/en/latest/src/userguide/buffer.html#a-matrix-class
@@ -32,7 +33,7 @@ cdef class VectorWrapper:
         buffer.internal = NULL
         buffer.itemsize = self.itemsize
         buffer.len = self.vec_size() * self.itemsize   # product(shape) * itemsize
-        buffer.ndim = 1
+        buffer.ndim = self.buffer.ndim
         buffer.obj = self
         buffer.readonly = 0
         buffer.shape = self.buffer.shape
@@ -80,6 +81,7 @@ cdef class VectorWrapperDouble2d(VectorWrapperDouble):
         self.buffer.shape = [<Py_ssize_t> (self.vec_size()//self.ndim),self.ndim]
         self.buffer.strides = [self.ndim * <Py_ssize_t> self.itemsize,
                                <Py_ssize_t> self.itemsize]
+        self.buffer.ndim = 2
 
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
