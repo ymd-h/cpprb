@@ -36,13 +36,13 @@ class TestPyReplayBuffer(unittest.TestCase):
         self._check_ndarray(self.s['act'],2,(self.act_dim,self.N_sample))
 
     def test_rew(self):
-        self._check_ndarray(self.s['rew'],1,(self.N_sample))
+        self._check_ndarray(self.s['rew'],1,(self.N_sample,))
 
     def test_next_obs(self):
         self._check_ndarray(self.s['next_obs'],2,(self.obs_dim,self.N_sample))
 
     def test_done(self):
-        self._check_ndarray(self.s['done'],1,(self.N_sample))
+        self._check_ndarray(self.s['done'],1,(self.N_sample,))
 
 if __name__ == '__main__':
     unittest.main()
