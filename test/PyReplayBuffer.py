@@ -1,34 +1,36 @@
 import numpy as np
+import unittest
 from ymd_K import ReplayBuffer
 
-print("=== PyReplayBuffer.py ===")
+class TestPyReplayBuffer(unittest.TestCase):
+    """=== PyReplayBuffer.py ==="""
 
-obs_dim = 3
-act_dim = 5
+    obs_dim = 3
+    act_dim = 5
 
-N_step = 100
+    N_step = 100
+    N_buffer_size = 15
+    N_sample = 5
 
-rb = ReplayBuffer.PyReplayBuffer(15,obs_dim,act_dim)
+    @classmethod
+    def setUpClass(cls):
+        cls.rb = ReplayBuffer.PyReplayBuffer(cls.N_buffer_size,
+                                             cls.obs_dim,
+                                             cls.act_dim)
+        for i in range(cls.N_step):
+            cls.rb.add(np.zeros(shape=cls.obs_dim),
+                       np.ones(shape=cls.act_dim),
+                       0.5*i,
+                       np.ones(shape=cls.obs_dim)*i,
+                       0 if i is not cls.N_step - 1 else 1)
+        cls.s = cls.rb.sample(cls.N_sample)
 
+    def _check_ndarray(self,array,ndim,shape):
+        self.assertEqual(ndim,array.ndim)
+        self.assertEqual(shape,array.shape)
 
-for i in range(N_step):
-    rb.add(np.zeros(shape=obs_dim),
-           np.ones(shape=act_dim),
-           0.5*i,
-           np.ones(shape=obs_dim)*i,
-           0 if i is not N_step - 1 else 1)
+    def test_done(self):
+        self._check_ndarray(self.s['done'],1,(self.N_sample))
 
-s = rb.sample(5)
-print("obs: {}".format(s['obs']))
-print("act: {}".format(s['act']))
-print("rew: {}".format(s['rew']))
-print("next_obs: {}".format(s['next_obs']))
-print("done: {}".format(s['done']))
-
-print("obs.shape: {}".format(s['obs'].shape))
-print("done.shape: {}".format(s['done'].shape))
-print("done.ndim: {}".format(s['done'].ndim))
-print("done.dtype: {}".format(s['done'].dtype))
-print("done.strides: {}".format(s['done'].strides))
-print("done.base: {}".format(s['done'].base))
-print("done.data: {}".format(s['done'].data))
+if __name__ == '__main__':
+    unittest.main()
