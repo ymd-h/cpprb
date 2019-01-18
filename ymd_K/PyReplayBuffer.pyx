@@ -83,21 +83,21 @@ cdef class VectorWrapperDouble2d(VectorWrapperDouble):
 
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
-    cdef vector[vector[double]] *obs
-    cdef vector[vector[double]] *act
+    cdef VectorWrapperDouble2d obs
+    cdef VectorWrapperDouble2d act
     cdef VectorWrapperDouble rew
-    cdef vector[vector[double]] *next_obs
+    cdef VectorWrapperDouble2d next_obs
     cdef VectorWrapperInt done
-    def __cinit__(self,size):
+    def __cinit__(self,size,obs_dim,act_dim):
         print("Replay Buffer")
 
         self.thisptr = new ReplayBuffer[vector[double],
                                         vector[double],
                                         double,int](size)
-        self.obs = new vector[vector[double]]()
-        self.act = new vector[vector[double]]()
+        self.obs = VectorWrapperDouble2d(obs_dim)
+        self.act = VectorWrapperDouble2d(act_dim)
         self.rew = VectorWrapperDouble()
-        self.next_obs = new vector[vector[double]]()
+        self.next_obs = VectorWrapperDouble2d(obs_dim)
         self.done = VectorWrapperInt()
 
     def add(self,observation,action,reward,next_observation,done):
@@ -105,13 +105,13 @@ cdef class PyReplayBuffer:
 
     def sample(self,size):
         self.thisptr.sample(size,
-                            dereference(self.obs),
-                            dereference(self.act),
+                            self.obs.vec,
+                            self.act.vec,
                             self.rew.vec,
-                            dereference(self.next_obs),
+                            self.next_obs.vec,
                             self.done.vec)
-        return {'obs': dereference(self.obs),
-                'act': dereference(self.act),
+        return {'obs': np.asarray(self.obs),
+                'act': np.asarray(self.act),
                 'rew': np.asarray(self.rew),
-                'next_obs': dereference(self.next_obs),
+                'next_obs': np.asarray(self.next_obs),
                 'done': np.asarray(self.done)}
