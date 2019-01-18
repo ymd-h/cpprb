@@ -8,6 +8,8 @@ import numpy as np
 from ymd_K cimport ReplayBuffer
 
 cdef class VectorWrapper:
+    cdef Py_ssize_t *shape
+    cdef Py_ssize_t *strides
     cdef Py_ssize_t itemsize
     cdef Py_buffer buffer
 
