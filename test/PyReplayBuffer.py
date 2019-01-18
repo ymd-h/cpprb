@@ -2,21 +2,6 @@ import numpy as np
 import unittest
 from ymd_K import ReplayBuffer
 
-class TestVectorWrapperInt(unittest.TestCase):
-    N_buffer_size = 5
-
-    @classmethod
-    def setUpClass(cls):
-        cls.vwi = ReplayBuffer.VectorWrapperInt()
-        for i in range(cls.N_buffer_size):
-            cls.vwi._push_back(i)
-
-    def test_asarray(self):
-        array = np.asarray(self.vwi)
-
-        self.assertEqual(1,array.ndim)
-        self.assertEqual((N_buffer_size),array.shape)
-
 class TestPyReplayBuffer(unittest.TestCase):
     """=== PyReplayBuffer.py ==="""
 
