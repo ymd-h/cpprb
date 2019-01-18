@@ -12,6 +12,7 @@ cdef class VectorWrapper:
     cdef Py_ssize_t *shape
     cdef Py_ssize_t *strides
     cdef Py_ssize_t itemsize
+    cdef int ndim
 
     def __cinit__(self):
         self.shape   = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * 2)
