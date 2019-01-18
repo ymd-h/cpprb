@@ -53,7 +53,7 @@ cdef class VectorWrapper:
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
-cdef class VectorIntWrapper(VectorWrapper):
+cdef class VectorInt(VectorWrapper):
     cdef vector[int] vec
 
     def __cinit__(self,value_dim=1):
@@ -73,7 +73,7 @@ cdef class VectorIntWrapper(VectorWrapper):
     def _push_back(self,v):
         self.vec.push_back(v)
 
-cdef class VectorDoubleWrapper(VectorWrapper):
+cdef class VectorDouble(VectorWrapper):
     cdef vector[double] vec
 
     def __cinit__(self,value_dim=1):
@@ -92,22 +92,22 @@ cdef class VectorDoubleWrapper(VectorWrapper):
 
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
-    cdef VectorDoubleWrapper obs
-    cdef VectorDoubleWrapper act
-    cdef VectorDoubleWrapper rew
-    cdef VectorDoubleWrapper next_obs
-    cdef VectorIntWrapper done
+    cdef VectorDouble obs
+    cdef VectorDouble act
+    cdef VectorDouble rew
+    cdef VectorDouble next_obs
+    cdef VectorInt done
     def __cinit__(self,size,obs_dim,act_dim):
         print("Replay Buffer")
 
         self.thisptr = new ReplayBuffer[vector[double],
                                         vector[double],
                                         double,int](size)
-        self.obs = VectorDoubleWrapper(obs_dim)
-        self.act = VectorDoubleWrapper(act_dim)
-        self.rew = VectorDoubleWrapper()
-        self.next_obs = VectorDoubleWrapper(obs_dim)
-        self.done = VectorIntWrapper()
+        self.obs = VectorDouble(obs_dim)
+        self.act = VectorDouble(act_dim)
+        self.rew = VectorDouble()
+        self.next_obs = VectorDouble(obs_dim)
+        self.done = VectorInt()
 
     def add(self,observation,action,reward,next_observation,done):
         self.thisptr.add(observation,action,reward,next_observation,done)
