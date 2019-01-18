@@ -30,16 +30,16 @@ class TestPyReplayBuffer(unittest.TestCase):
         self.assertEqual(shape,array.shape)
 
     def test_obs(self):
-        self._check_ndarray(self.s['obs'],2,(self.obs_dim,self.N_sample))
+        self._check_ndarray(self.s['obs'],2,(self.N_sample,self.obs_dim))
 
     def test_act(self):
-        self._check_ndarray(self.s['act'],2,(self.act_dim,self.N_sample))
+        self._check_ndarray(self.s['act'],2,(self.N_sample,self.act_dim))
 
     def test_rew(self):
         self._check_ndarray(self.s['rew'],1,(self.N_sample,))
 
     def test_next_obs(self):
-        self._check_ndarray(self.s['next_obs'],2,(self.obs_dim,self.N_sample))
+        self._check_ndarray(self.s['next_obs'],2,(self.N_sample,self.obs_dim))
 
     def test_done(self):
         self._check_ndarray(self.s['done'],1,(self.N_sample,))
