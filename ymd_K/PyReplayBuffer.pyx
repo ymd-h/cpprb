@@ -77,7 +77,7 @@ cdef class VectorWrapperDouble2d(VectorWrapperDouble):
         self.ndim = ndim
 
     cdef void update_buffer(self):
-        self.buffer.shape = [self.vec_size()/self.ndim,self.ndim]
+        self.buffer.shape = [<Py_ssize_t> (self.vec_size()//self.ndim),self.ndim]
         self.buffer.strides = [self.ndim * <Py_ssize_t> self.itemsize,
                                <Py_ssize_t> self.itemsize]
 
