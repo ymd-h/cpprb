@@ -7,7 +7,7 @@ class TestVectorWrapperInt(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.vwi = VectorWrapperInt()
+        cls.vwi = ReplayBuffer.VectorWrapperInt()
         for i in range(cls.N_buffer_size):
             cls.vwi_push_back(i)
 
