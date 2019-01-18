@@ -14,7 +14,7 @@ for i in range(N_step):
            np.ones(shape=act_dim),
            0.5*i,
            np.ones(shape=obs_dim)*i,
-           0 if i is not Nstep - 1 else 1)
+           0 if i is not N_step - 1 else 1)
 
 s = rb.sample(5)
 print(s['obs'])
