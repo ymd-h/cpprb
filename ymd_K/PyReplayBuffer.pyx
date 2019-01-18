@@ -22,55 +22,69 @@ cdef class VectorWrapper:
         self.buffer.strides = [<Py_ssize_t> self.itemsize]
         self.buffer.ndim = 1
 
+    cdef void set_format(self,Py_buffer *buffer):
+        pass
+
     def __getbuffer__(self, Py_buffer *buffer, int flags):
         # relevant documentation http://cython.readthedocs.io/en/latest/src/userguide/buffer.html#a-matrix-class
 
+        print("__getbuffer__")
+
         self.update_buffer()
+        self.shape = self.buffer.shape
+        self.strides = self.buffer.strides
+
+
         buffer.buf = self.vec_addr()
-        buffer.format = <char*>(self.format_type)
-        buffer.internal = NULL
-        buffer.itemsize = self.itemsize
         buffer.len = self.vec_size() * self.itemsize   # product(shape) * itemsize
-        buffer.ndim = self.buffer.ndim
-        buffer.obj = self
         buffer.readonly = 0
+        self.set_format(buffer)
+        buffer.ndim = self.buffer.ndim
         buffer.shape = self.buffer.shape
         buffer.strides = self.buffer.strides
         buffer.suboffsets = NULL
+        buffer.itemsize = self.itemsize
+        buffer.internal = NULL
+        buffer.obj = self
+        print("__getbuffer__ all OK!")
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
 cdef class VectorWrapperInt(VectorWrapper):
-   cdef vector[int] vec
-   format_type = "i"
+    cdef vector[int] vec
 
-   def __cinit__(self):
-       self.vec = vector[int]()
-       self.itemsize = sizeof(int)
+    def __cinit__(self):
+        self.vec = vector[int]()
+        self.itemsize = sizeof(int)
 
-   def vec_size(self):
-       return self.vec.size()
+    def vec_size(self):
+        return self.vec.size()
 
-   cdef char* vec_addr(self):
-       return <char*>(self.vec.data())
+    cdef char* vec_addr(self):
+        return <char*>(self.vec.data())
 
-   def _push_back(self,v):
-       self.vec.push_back(v)
+    cdef void set_format(self,Py_buffer* buffer):
+        buffer.format = 'i'
+
+    def _push_back(self,v):
+        self.vec.push_back(v)
 
 cdef class VectorWrapperDouble(VectorWrapper):
-   cdef vector[double] vec
-   format_type = "d"
+    cdef vector[double] vec
 
-   def __cinit__(self):
-       self.vec = vector[double]()
-       self.itemsize = sizeof(double)
+    def __cinit__(self):
+        self.vec = vector[double]()
+        self.itemsize = sizeof(double)
 
-   def vec_size(self):
-       return self.vec.size()
+    def vec_size(self):
+        return self.vec.size()
 
-   cdef char* vec_addr(self):
-       return <char*>(self.vec.data())
+    cdef char* vec_addr(self):
+        return <char*>(self.vec.data())
+
+    cdef void set_format(self,Py_buffer* buffer):
+         buffer.format = 'd'
 
 cdef class VectorWrapperDouble2d(VectorWrapperDouble):
     cdef Py_ssize_t ndim
