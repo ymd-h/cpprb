@@ -55,6 +55,9 @@ cdef class VectorWrapperInt(VectorWrapper):
    cdef char* vec_addr(self):
        return <char*>(self.vec.data())
 
+   def _push_back(self,v):
+       self.vec.push_back(v)
+
 cdef class VectorWrapperDouble(VectorWrapper):
    cdef vector[double] vec
    format_type = "d"
