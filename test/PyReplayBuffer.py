@@ -9,7 +9,7 @@ class TestVectorWrapperInt(unittest.TestCase):
     def setUpClass(cls):
         cls.vwi = ReplayBuffer.VectorWrapperInt()
         for i in range(cls.N_buffer_size):
-            cls.vwi_push_back(i)
+            cls.vwi._push_back(i)
 
     def test_asarray(self):
         array = np.asarray(cls.vwi)
