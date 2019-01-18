@@ -8,9 +8,8 @@ import numpy as np
 from ymd_K cimport ReplayBuffer
 
 cdef class VectorWrapper:
-    cdef Py_ssize_t shape[1]
-    cdef Py_ssize_t strides[1]
     cdef Py_ssize_t itemsize
+    cdef Py_buffer buffer
 
     def vec_size(self):
         pass
@@ -18,9 +17,14 @@ cdef class VectorWrapper:
     cdef char* vec_addr(self):
         pass
 
+    cdef void update_buffer(self):
+        self.buffer.shape = [<Py_ssize_t> self.vec_size()]
+        self.buffer.strides = [<Py_ssize_t> self.itemsize]
+
     def __getbuffer__(self, Py_buffer *buffer, int flags):
         # relevant documentation http://cython.readthedocs.io/en/latest/src/userguide/buffer.html#a-matrix-class
 
+        self.update_buffer()
         self.shape[0] = self.vec_size()
         self.strides[0] = self.itemsize
         buffer.buf = self.vec_addr()
@@ -31,8 +35,8 @@ cdef class VectorWrapper:
         buffer.ndim = 1
         buffer.obj = self
         buffer.readonly = 0
-        buffer.shape = self.shape
-        buffer.strides = self.strides
+        buffer.shape = self.buffer.shape
+        buffer.strides = self.buffer.strides
         buffer.suboffsets = NULL
 
     def __releasebuffer__(self, Py_buffer *buffer):
