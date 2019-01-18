@@ -41,6 +41,15 @@ class TestPyReplayBuffer(unittest.TestCase):
     def test_next_obs(self):
         self._check_ndarray(self.s['next_obs'],2,(self.N_sample,self.obs_dim))
 
+        for i in range(self.N_sample):
+            self.assertGreaterEqual(self.s['next_obs'][i,0],
+                                    self.N_step - self.N_buffer_size)
+            self.assertLess(self.s['next_obs'][i,0],self.N_step)
+
+            for j in range(1,self.obs_dim):
+                self.assertAlmostEqual(self.s['next_obs'][i,0],
+                                       self.s['next_obs'][i,j])
+
     def test_done(self):
         self._check_ndarray(self.s['done'],1,(self.N_sample,))
 
