@@ -37,8 +37,6 @@ cdef class VectorWrapper:
     def __getbuffer__(self, Py_buffer *buffer, int flags):
         # relevant documentation http://cython.readthedocs.io/en/latest/src/userguide/buffer.html#a-matrix-class
 
-        print("__getbuffer__")
-
         self.update_size()
 
         self.set_buffer(buffer)
@@ -51,7 +49,6 @@ cdef class VectorWrapper:
         buffer.itemsize = self.itemsize
         buffer.internal = NULL
         buffer.obj = self
-        print("__getbuffer__ all OK!")
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
