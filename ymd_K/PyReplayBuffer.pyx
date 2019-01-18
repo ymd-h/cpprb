@@ -26,8 +26,6 @@ cdef class VectorWrapper:
         # relevant documentation http://cython.readthedocs.io/en/latest/src/userguide/buffer.html#a-matrix-class
 
         self.update_buffer()
-        self.shape[0] = self.vec_size()
-        self.strides[0] = self.itemsize
         buffer.buf = self.vec_addr()
         buffer.format = self.format_type # float or int
         buffer.internal = NULL
