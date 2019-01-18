@@ -73,7 +73,7 @@ cdef class VectorWrapperDouble(VectorWrapper):
 cdef class VectorWrapperDouble2d(VectorWrapperDouble):
     cdef Py_ssize_t ndim
     def __cinit__(self,ndim=2):
-        super().__cinit__()
+        super().__init__()
         self.ndim = ndim
 
     cdef void update_buffer(self):
