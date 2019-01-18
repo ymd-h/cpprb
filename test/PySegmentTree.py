@@ -1,3 +1,5 @@
+import numpy as np
+import unittest
 from ymd_K import SegmentTree
 
 sg = PySegmentTree(16,lambda a,b: a+b)
