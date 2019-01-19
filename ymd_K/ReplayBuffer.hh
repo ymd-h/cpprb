@@ -203,6 +203,29 @@ namespace ymd {
 
       if(size == ++next_idx){ next_idx = 0ul; }
     }
+
+    auto sample(std::size_t batch_size,Priority beta){
+      beta = std::max(beta,Priority{0});
+
+      auto indexes = sample_proportional(batch_size);
+
+      auto b_size = buffer.size();
+      auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
+      auto p_min = min.reduce(0,b_size) * inv_sum;
+      auto inv_max_weight = Priority{1.0} / std::pow(p_min * b_size(),-beta);
+
+      auto weights = std::vector<Priority>{};
+      weights.reserve(batch_size);
+
+      std::transform(indexes.begin(),indexes.end(),std::back_inserter(weights),
+		     [=](auto idx){
+		       auto p_sample = this->sum.get(idx) * inv_sum;
+		       return std::pow(p_sample*b_size,-beta)*inv_max_weight;
+		     });
+
+      auto samples = this->ReplayBuffer::sample(batch_size);
+      return std::tuple_cat(samples,std::make_tuple(weights,indexes));
+    }
   };
 }
 #endif // YMD_REPLAY_BUFFER_HH
