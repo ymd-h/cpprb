@@ -226,6 +226,20 @@ namespace ymd {
       auto samples = this->ReplayBuffer::sample(batch_size);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
     }
+
+    void update_priorities(std::vector<std::size_t>& indexes,
+			   std::vector<Priority>& priorities){
+
+      max_priority = std::accumulate(indexes.begin(),indexes.end(),
+				     [=,p=priorities.begin()]
+				     (auto max_p, auto index) mutable {
+				       auto v = std::pow(*p,this->alpha);
+				       this->sum.set(index,v);
+				       this->min.set(index,v);
+
+				       return std::max(max_p,*(p++));
+				     });
+    }
   };
 }
 #endif // YMD_REPLAY_BUFFER_HH
