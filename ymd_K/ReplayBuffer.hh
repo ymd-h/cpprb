@@ -57,6 +57,8 @@ namespace ymd {
     ReplayBuffer& operator=(ReplayBuffer&&) = default;
     ~ReplayBuffer() = default;
 
+    auto buffer_size() const { return buffer.size(); }
+
     void add(Observation obs,Action act,Reward rew,Observation next_obs,Done done){
       if(capacity == buffer.size()){
 	buffer.pop_front();
