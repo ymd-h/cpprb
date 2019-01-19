@@ -240,14 +240,13 @@ namespace ymd {
       beta = std::max(beta,Priority{0});
 
       auto indexes = sample_proportional(batch_size);
+      auto weights = std::vector<Priority>{};
+      weights.reserve(batch_size);
 
       auto b_size = this->buffer_size();
       auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
       auto p_min = min.reduce(0,b_size) * inv_sum;
       auto inv_max_weight = Priority{1.0} / std::pow(p_min * b_size(),-beta);
-
-      auto weights = std::vector<Priority>{};
-      weights.reserve(batch_size);
 
       std::transform(indexes.begin(),indexes.end(),std::back_inserter(weights),
 		     [=](auto idx){
