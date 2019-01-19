@@ -125,3 +125,43 @@ cdef class PyReplayBuffer:
                 'rew': np.asarray(self.rew),
                 'next_obs': np.asarray(self.next_obs),
                 'done': np.asarray(self.done)}
+
+cdef class PyPrioritizedReplayBuffer:
+    cdef PrioritizedReplayBuffer[vector[double],vector[double],
+                                 double,int,double] *thisptr
+    cdef VectorDouble obs
+    cdef VectorDouble act
+    cdef VectorDouble rew
+    cdef VectorDouble next_obs
+    cdef VectorInt done
+    def __cinit__(self,size,obs_dim,act_dim):
+        print("Replay Buffer")
+
+        self.thisptr = new PrioritizedReplayBuffer[vector[double],
+                                                   vector[double],
+                                                   double,int,double](size)
+        self.obs = VectorDouble(obs_dim)
+        self.act = VectorDouble(act_dim)
+        self.rew = VectorDouble()
+        self.next_obs = VectorDouble(obs_dim)
+        self.done = VectorInt()
+
+    def add(self,observation,action,reward,next_observation,done):
+        self.thisptr.add(observation,action,reward,next_observation,done)
+
+    def sample(self,size,beta):
+        self.thisptr.sample(size,beta
+                            self.obs.vec,
+                            self.act.vec,
+                            self.rew.vec,
+                            self.next_obs.vec,
+                            self.done.vec)
+        print(self.obs.vec.size())
+        return {'obs': np.asarray(self.obs),
+                'act': np.asarray(self.act),
+                'rew': np.asarray(self.rew),
+                'next_obs': np.asarray(self.next_obs),
+                'done': np.asarray(self.done)}
+
+    def update_priorities(indexes,priorities):
+        self.thisptr.update_priorities(indexes,priorities)
