@@ -41,7 +41,7 @@ namespace ymd {
 	buffer[i] = f(2*i+1,2*i+2);
       }
     }
-    SegmentTree(): SegmentTree{2} {}
+    SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
     SegmentTree(const SegmentTree&) = default;
     SegmentTree(SegmentTree&&) = default;
     SegmentTree& operator=(const SegmentTree&) = default;
