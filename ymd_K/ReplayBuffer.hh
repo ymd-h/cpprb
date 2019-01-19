@@ -59,7 +59,7 @@ namespace ymd {
     ~ReplayBuffer() = default;
 
     auto buffer_size() const { return buffer.size(); }
-    auto capacity() const { return capacity; }
+    std::size_t capacity() const { return capacity; }
 
     void add(Observation obs,Action act,Reward rew,Observation next_obs,Done done){
       if(capacity == buffer.size()){
