@@ -202,7 +202,7 @@ namespace ymd {
       sum.set(next_idx,v);
       min.set(next_idx,v);
 
-      if(size == ++next_idx){ next_idx = 0ul; }
+      if(capacity == ++next_idx){ next_idx = 0ul; }
     }
 
     auto sample(std::size_t batch_size,Priority beta){
