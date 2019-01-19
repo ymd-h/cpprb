@@ -214,6 +214,28 @@ namespace ymd {
       return sample(batch_size,Priority{0.0});
     }
 
+    void sample(std::size_t batch_size,Priority beta,
+		std::vector<Observation>& obs,
+		std::vector<Action>& act,
+		std::vector<Reward>& rew,
+		std::vector<Observation>& next_obs,
+		std::vector<Done>& done,
+		std::vector<std::size_t>& indexes,
+		std::vector<Priority>& priorities){
+
+    }
+
+    void sample(std::size_t batch_size,
+		std::vector<Observation>& obs,
+		std::vector<Action>& act,
+		std::vector<Reward>& rew,
+		std::vector<Observation>& next_obs,
+		std::vector<Done>& done,
+		std::vector<std::size_t>& indexes,
+		std::vector<Priority>& priorities) override {
+      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,priorities);
+    }
+
     auto sample(std::size_t batch_size,Priority beta){
       beta = std::max(beta,Priority{0});
 
