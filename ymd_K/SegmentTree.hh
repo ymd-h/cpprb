@@ -59,7 +59,8 @@ namespace ymd {
   public:
     SegmentTree(std::size_t n,F f): size(n), buffer(2*n-1), f(f) {
       for(auto i = n-2, stop = 0ul - 1ul; i != stop ; --i){
-	buffer[i] = f(child_left(i),child_right(i));
+	buffer[i] = f(buffer[child_left(i)],
+		      buffer[child_right(i)]);
       }
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
