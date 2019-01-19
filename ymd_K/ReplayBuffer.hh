@@ -30,7 +30,6 @@ namespace ymd {
   private:
     const std::size_t capacity;
     buffer_t buffer;
-    std::mt19937 g;
 
     template<typename T>
     void flatten_push_back(T&& v,
@@ -47,6 +46,8 @@ namespace ymd {
     void flatten_push_back(std::vector<T>&& v,std::vector<T>& to){
       std::move(v.begin(),v.end(),std::back_inserter(to));
     }
+  protected:
+    std::mt19937 g;
 
   public:
     ReplayBuffer(std::size_t n): capacity(n),g{std::random_device{}()} {}
