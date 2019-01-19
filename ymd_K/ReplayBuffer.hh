@@ -153,6 +153,8 @@ namespace ymd {
     :public ReplayBuffer<Observation,Action,Reward,Done> {
   private:
     Priority alpha
+    SegmentTree<Priority> sum;
+    SegmentTree<Priority> min;
   public:
     PrioritizedReplayBuffer(std::size_t n,Priority alpha)
       : ReplayBuffer{n},alpha{std::max(alpha,Priority{0.0})} {}
