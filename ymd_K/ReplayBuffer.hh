@@ -28,7 +28,7 @@ namespace ymd {
     using buffer_t = std::deque<std::tuple<Observation,Action,Reward,Observation,Done>>;
     using rand_t = std::uniform_int_distribution<std::size_t>;
   private:
-    const std::size_t size;
+    const std::size_t capacity;
     buffer_t buffer;
     std::mt19937 g;
 
@@ -49,7 +49,7 @@ namespace ymd {
     }
 
   public:
-    ReplayBuffer(std::size_t n): size(n),g{std::random_device{}()} {}
+    ReplayBuffer(std::size_t n): capacity(n),g{std::random_device{}()} {}
     ReplayBuffer(): ReplayBuffer{1} {}
     ReplayBuffer(const ReplayBuffer&) = default;
     ReplayBuffer(ReplayBuffer&&) = default;
@@ -58,7 +58,7 @@ namespace ymd {
     ~ReplayBuffer() = default;
 
     void add(Observation obs,Action act,Reward rew,Observation next_obs,Done done){
-      if(size == buffer.size()){
+      if(capacity == buffer.size()){
 	buffer.pop_front();
       }
       buffer.emplace_back(std::move(obs),std::move(act),std::move(rew),std::move(next_obs),std::move(done));
@@ -202,7 +202,7 @@ namespace ymd {
       sum.set(next_idx,v);
       min.set(next_idx,v);
 
-      if(size == ++next_idx){ next_idx = 0ul; }
+      if(capacity == ++next_idx){ next_idx = 0ul; }
     }
 
     auto sample(std::size_t batch_size,Priority beta){
