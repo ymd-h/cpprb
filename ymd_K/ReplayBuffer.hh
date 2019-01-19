@@ -156,7 +156,7 @@ namespace ymd {
     Priority max_priority;
     SegmentTree<Priority> sum;
     SegmentTree<Priority> min;
-    std::size_t next_idx
+    std::size_t next_idx;
     auto sample_proportional(std::size_t batch_size) const {
       auto res = std::vector<std::size_t>{};
       res.reserve(batch_size);
