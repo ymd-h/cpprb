@@ -157,6 +157,22 @@ namespace ymd {
     SegmentTree<Priority> sum;
     SegmentTree<Priority> min;
     std::size_t next_idx
+    auto sample_proportional(std::size_t batch_size) const {
+      auto res = std::vector<std::size_t>{};
+      res.reserve(batch_size);
+
+      auto every_range_len = sum.reduce(0,buffer.size()-1)*1.0 / batch_size;
+
+      std::generate_n(std::back_inserter(res),batch_size,
+		      [=,&sum,i=0ul
+		       d=std::uniform_real_distribution<Priority>{}]()mutable{
+			auto mass = (d(this->g) + (i++))*every_range_len;
+			return sum.largest_region_index([=](auto v){
+							  return v <= mass;
+							});
+		      });
+      return res;
+    }
   public:
     PrioritizedReplayBuffer(std::size_t n,Priority alpha)
       : ReplayBuffer{n},
