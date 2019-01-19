@@ -152,7 +152,7 @@ namespace ymd {
   class PrioritizedReplayBuffer
     :public ReplayBuffer<Observation,Action,Reward,Done> {
   private:
-    Priority alpha
+    Priority alpha;
     SegmentTree<Priority> sum;
     SegmentTree<Priority> min;
   public:
