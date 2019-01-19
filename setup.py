@@ -2,12 +2,7 @@ from setuptools import setup,Extension,find_packages
 from Cython.Build import cythonize
 import numpy as np
 
-ext_modules = cythonize([Extension("ymd_K.SegmentTree",
-                                   sources=["ymd_K/PySegmentTree.pyx"],
-                                   extra_compile_args=["-std=c++17"],
-                                   extra_link_args=["-std=c++17"],
-                                   language="c++"),
-                         Extension("ymd_K.ReplayBuffer",
+ext_modules = cythonize([Extension("ymd_K.ReplayBuffer",
                                    sources=["ymd_K/PyReplayBuffer.pyx"],
                                    extra_compile_args=["-std=c++17"],
                                    extra_link_args=["-std=c++17"],
