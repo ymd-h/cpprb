@@ -161,7 +161,7 @@ namespace ymd {
       auto res = std::vector<std::size_t>{};
       res.reserve(batch_size);
 
-      auto every_range_len = sum.reduce(0,buffer.size()-1)*1.0 / batch_size;
+      auto every_range_len = sum.reduce(0,buffer.size())*1.0 / batch_size;
 
       std::generate_n(std::back_inserter(res),batch_size,
 		      [=,&sum,i=0ul
