@@ -166,7 +166,7 @@ namespace ymd {
       auto res = std::vector<std::size_t>{};
       res.reserve(batch_size);
 
-      auto every_range_len = Priority{1.0} * sum.reduce(0,buffer.size()) / batch_size;
+      auto every_range_len = Priority{1.0} * sum.reduce(0,buffer_size()) / batch_size;
 
       std::generate_n(std::back_inserter(res),batch_size,
 		      [=,i=0ul,
@@ -206,7 +206,7 @@ namespace ymd {
       sum.set(next_idx,v);
       min.set(next_idx,v);
 
-      if(capacity == ++next_idx){ next_idx = 0ul; }
+      if(capacity() == ++next_idx){ next_idx = 0ul; }
     }
 
     auto sample(std::size_t batch_size,Priority beta){
@@ -214,7 +214,7 @@ namespace ymd {
 
       auto indexes = sample_proportional(batch_size);
 
-      auto b_size = buffer.size();
+      auto b_size = buffer_size();
       auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
       auto p_min = min.reduce(0,b_size) * inv_sum;
       auto inv_max_weight = Priority{1.0} / std::pow(p_min * b_size(),-beta);
