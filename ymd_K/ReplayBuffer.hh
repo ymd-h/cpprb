@@ -164,12 +164,12 @@ namespace ymd {
       auto every_range_len = Priority{1.0} * sum.reduce(0,buffer.size()) / batch_size;
 
       std::generate_n(std::back_inserter(res),batch_size,
-		      [=,&sum,i=0ul
+		      [=,i=0ul
 		       d=std::uniform_real_distribution<Priority>{}]()mutable{
 			auto mass = (d(this->g) + (i++))*every_range_len;
-			return sum.largest_region_index([=](auto v){
-							  return v <= mass;
-							});
+			return this->sum.largest_region_index([=](auto v){
+								return v <= mass;
+							      });
 		      });
       return res;
     }
