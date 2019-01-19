@@ -17,7 +17,7 @@ class TestPySegmentTree(unittest.TestCase):
     def test_reduce(self):
         for i in range(self.N_buffer_size):
             for j in range(i,self.N_buffer_size):
-                self.assertAlmostEqual(0.5*(j-i)*(i*j),self.sg.reduce(i,j)))
+                self.assertAlmostEqual(0.5*(j-i)*(i*j),self.sg.reduce(i,j))
 
 if __name__ == '__main__':
     unittest.main()
