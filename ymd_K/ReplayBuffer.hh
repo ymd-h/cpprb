@@ -10,6 +10,8 @@
 #include <functional>
 #include <type_traits>
 
+#include "SegmentTree.hh"
+
 template<typename T> struct UnderlyingType {
   using type = T;
   static constexpr auto size(T&){ return 1ul; }
