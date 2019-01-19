@@ -74,6 +74,22 @@ namespace ymd {
 
       return _reduce(start,end,0,0,size);
     }
+
+    auto largest_region_index(std::vector<bool(T)> condition){
+      // max index of reduce( [0,index) ) -> true
+
+      auto min = 0ul;
+      auto max = buffer.size();
+
+      auto index = (min + max)/2ul;
+
+      while(max - min > 1ul){
+	( condition(reduce(0ul,index)) ? min : max ) = index;
+	index = (min + max)/2ul;
+      }
+
+      return index;
+    }
   };
 }
 #endif // YMD_SEGMENTTREE_HH
