@@ -40,10 +40,27 @@ namespace ymd {
       return f(_reduce(start,end,2*index+1,region_s,region_m),
 	       _reduce(start,end,2*index+2,region_m,region_e));
     }
+
+    auto parent(std::size_t node) const {
+      return (node - 1)/2ul;
+    }
+
+    auto child_left(std::size_t node) const {
+      return 2 * node + 1;
+    }
+
+    auto child_right(std::size_t node) const {
+      return 2 * node + 2;
+    }
+
+    auto access_index(std::size_t i) const {
+      return size + i - 1;
+    }
   public:
     SegmentTree(std::size_t n,F f): size(n), buffer(2*n-1), f(f) {
       for(auto i = n-2, stop = 0ul - 1ul; i != stop ; --i){
-	buffer[i] = f(2*i+1,2*i+2);
+	buffer[i] = f(buffer[child_left(i)],
+		      buffer[child_right(i)]);
       }
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
@@ -54,17 +71,18 @@ namespace ymd {
     ~SegmentTree() = default;
 
     auto get(std::size_t i){
-      return buffer[size+i-1];
+      return buffer[access_index(i)];
     }
 
     void set(std::size_t i,T v){
-      auto n = size+i-1;
+      auto n = access_index(i);
       buffer[n] = std::move(v);
 
       do {
-	n = (n-1)/2;
+	n = parent(n);
 
-	buffer[n] = f(buffer[2*n+1],buffer[2*n+2]);
+	buffer[n] = f(buffer[child_left(n)],
+		      buffer[child_right(n)]);
 
       } while(n != 0ul);
     }
