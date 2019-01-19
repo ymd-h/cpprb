@@ -59,7 +59,7 @@ namespace ymd {
     ~ReplayBuffer() = default;
 
     auto buffer_size() const { return buffer.size(); }
-    std::size_t capacity() const { return capacity; }
+    std::size_t get_capacity() const { return capacity; }
 
     void add(Observation obs,Action act,Reward rew,Observation next_obs,Done done){
       if(capacity == buffer.size()){
@@ -207,7 +207,7 @@ namespace ymd {
       sum.set(next_idx,v);
       min.set(next_idx,v);
 
-      if(capacity() == ++next_idx){ next_idx = 0ul; }
+      if(this->get_capacity() == ++next_idx){ next_idx = 0ul; }
     }
 
     auto sample(std::size_t batch_size,Priority beta){
