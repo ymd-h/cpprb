@@ -210,6 +210,10 @@ namespace ymd {
       if(this->get_capacity() == ++next_idx){ next_idx = 0ul; }
     }
 
+    auto sample(std::size_t batch_size) override {
+      return sample(batch_size,Priority{0.0});
+    }
+
     auto sample(std::size_t batch_size,Priority beta){
       beta = std::max(beta,Priority{0});
 
