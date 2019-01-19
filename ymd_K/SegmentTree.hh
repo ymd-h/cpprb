@@ -7,6 +7,11 @@
 #include <vector>
 
 namespace ymd {
+  inline constexpr auto PowerOf2(std::size_t n) noexcept {
+    auto m = 1ul;
+    while(m < n){ m *= 2; }
+    return m;
+  }
 
   template<typename T>
   class SegmentTree {
