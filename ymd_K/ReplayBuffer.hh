@@ -150,10 +150,11 @@ namespace ymd {
   class PrioritizedReplayBuffer
     :public ReplayBuffer<Observation,Action,Reward,Done> {
   private:
-
+    Priority alpha
   public:
-    PrioritizedReplayBuffer(std::size_t n): ReplayBuffer{n} {}
-    PrioritizedReplayBuffer() : PrioritizedReplayBuffer{1} {}
+    PrioritizedReplayBuffer(std::size_t n,Priority alpha)
+      : ReplayBuffer{n},alpha{std::max(alpha,Priority{0.0})} {}
+    PrioritizedReplayBuffer() : PrioritizedReplayBuffer{1,0.0} {}
     PrioritizedReplayBuffer(const PrioritizedReplayBuffer&) = default;
     PrioritizedReplayBuffer(PrioritizedReplayBuffer&&) = default;
     PrioritizedReplayBuffer& operator=(const PrioritizedReplayBuffer&) = default;
