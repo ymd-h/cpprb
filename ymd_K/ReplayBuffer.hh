@@ -179,6 +179,19 @@ namespace ymd {
 		      });
       return res;
     }
+
+    void set_weights(std::vector<Priority>& weights) const {
+      auto b_size = this->buffer_size();
+      auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
+      auto p_min = min.reduce(0,b_size) * inv_sum;
+      auto inv_max_weight = Priority{1.0} / std::pow(p_min * b_size(),-beta);
+
+      std::transform(indexes.begin(),indexes.end(),std::back_inserter(weights),
+		     [=](auto idx){
+		       auto p_sample = this->sum.get(idx) * inv_sum;
+		       return std::pow(p_sample*b_size,-beta)*inv_max_weight;
+		     });
+    }
   public:
     PrioritizedReplayBuffer(std::size_t n,Priority alpha)
       : BaseClass{n},
@@ -214,24 +227,47 @@ namespace ymd {
       return sample(batch_size,Priority{0.0});
     }
 
+    void sample(std::size_t batch_size,Priority beta,
+		std::vector<Observation>& obs,
+		std::vector<Action>& act,
+		std::vector<Reward>& rew,
+		std::vector<Observation>& next_obs,
+		std::vector<Done>& done,
+		std::vector<std::size_t>& indexes,
+		std::vector<Priority>& weights){
+      beta = std::max(beta,Priority{0});
+
+      indexes.resize();
+      indexes.reserve(batch_size);
+      auto idx = sample_proportional(batch_size);
+      std::move(idx.begin(),idx.end(),indexes.begin());
+
+      weights.resize(0);
+      weights.reserve(batch_size);
+      set_weights(weights);
+
+      this->BaseClass::sample(batch_size,obs,act,rew,next_obs,done);
+    }
+
+    void sample(std::size_t batch_size,
+		std::vector<Observation>& obs,
+		std::vector<Action>& act,
+		std::vector<Reward>& rew,
+		std::vector<Observation>& next_obs,
+		std::vector<Done>& done,
+		std::vector<std::size_t>& indexes,
+		std::vector<Priority>& weights) override {
+      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,priorities);
+    }
+
     auto sample(std::size_t batch_size,Priority beta){
       beta = std::max(beta,Priority{0});
 
       auto indexes = sample_proportional(batch_size);
-
-      auto b_size = this->buffer_size();
-      auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
-      auto p_min = min.reduce(0,b_size) * inv_sum;
-      auto inv_max_weight = Priority{1.0} / std::pow(p_min * b_size(),-beta);
-
       auto weights = std::vector<Priority>{};
       weights.reserve(batch_size);
 
-      std::transform(indexes.begin(),indexes.end(),std::back_inserter(weights),
-		     [=](auto idx){
-		       auto p_sample = this->sum.get(idx) * inv_sum;
-		       return std::pow(p_sample*b_size,-beta)*inv_max_weight;
-		     });
+      set_weights(weights);
 
       auto samples = this->BaseClass::sample(batch_size);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
