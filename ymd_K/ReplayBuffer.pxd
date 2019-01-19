@@ -14,7 +14,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
     cdef cppclass PrioritizedReplayBuffer[T1,T2,T3,T4,T5]:
         PrioritizedReplayBuffer(size_t,T5)
         void add(T1,T2,T3,T1,T4)
-        void sample[T1a,T2a,T3a,T4a](size_t,
+        void sample[T1a,T2a,T3a,T4a](size_t,T5,
                                      vector[T1a]&,
                                      vector[T2a]&,
                                      vector[T3a]&,
