@@ -152,6 +152,7 @@ namespace ymd {
   class PrioritizedReplayBuffer
     :public ReplayBuffer<Observation,Action,Reward,Done> {
   private:
+    using BaseClass = ReplayBuffer<Observation,Action,Reward,Done>;
     Priority alpha;
     Priority max_priority;
     SegmentTree<Priority> sum;
@@ -175,7 +176,7 @@ namespace ymd {
     }
   public:
     PrioritizedReplayBuffer(std::size_t n,Priority alpha)
-      : ReplayBuffer{n},
+      : BaseClass{n},
 	alpha{std::max(alpha,Priority{0.0})},
 	max_priority{1.0},
 	sum{PowerOf2(n),[](auto a,auto b){ return a+b; }},
@@ -194,7 +195,7 @@ namespace ymd {
 
     void add(Observation obs,Action act,Reward rew,
 	     Observation next_obs,Done done) override {
-      this->ReplayBuffer::add(std::move(obs),std::move(act),std::move(rew),
+      this->BaseClass::add(std::move(obs),std::move(act),std::move(rew),
 			      std::move(next_obs),std::move(done));
 
       auto v = std::pow(max_priority,alpha);
@@ -223,7 +224,7 @@ namespace ymd {
 		       return std::pow(p_sample*b_size,-beta)*inv_max_weight;
 		     });
 
-      auto samples = this->ReplayBuffer::sample(batch_size);
+      auto samples = this->BaseClass::sample(batch_size);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
     }
 
