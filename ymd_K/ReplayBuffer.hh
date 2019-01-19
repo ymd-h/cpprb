@@ -145,5 +145,21 @@ namespace ymd {
     }
   };
 
+  template<typename Observation,typename Action,typename Reward,typename Done,
+	   typename Priority>
+  class PrioritizedReplayBuffer
+    :public ReplayBuffer<Observation,Action,Reward,Done> {
+  private:
+
+  public:
+    PrioritizedReplayBuffer(std::size_t n): ReplayBuffer{n} {}
+    PrioritizedReplayBuffer() : PrioritizedReplayBuffer{1} {}
+    PrioritizedReplayBuffer(const PrioritizedReplayBuffer&) = default;
+    PrioritizedReplayBuffer(PrioritizedReplayBuffer&&) = default;
+    PrioritizedReplayBuffer& operator=(const PrioritizedReplayBuffer&) = default;
+    PrioritizedReplayBuffer& operator=(PrioritizedReplayBuffer&&) = default;
+    ~PrioritizedReplayBuffer() = default;
+
+  };
 }
 #endif // YMD_REPLAY_BUFFER_HH
