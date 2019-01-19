@@ -162,6 +162,12 @@ namespace ymd {
       : ReplayBuffer{n},
 	alpha{std::max(alpha,Priority{0.0})},
 	max_priority{1.0},
+	sum{PowerOf2(n),[](auto a,auto b){ return a+b; }},
+	min{PowerOf2(n),[zero = Priority{0}](Priority a,Priority b){
+			  return ((zero == a) ? b:
+				  (zero == b) ? a:
+				  std::min(a,b));
+			}},
 	next_idx{0} {}
     PrioritizedReplayBuffer() : PrioritizedReplayBuffer{1,0.0} {}
     PrioritizedReplayBuffer(const PrioritizedReplayBuffer&) = default;
