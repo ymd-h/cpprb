@@ -93,7 +93,7 @@ namespace ymd {
       return _reduce(start,end,0,0,size);
     }
 
-    auto largest_region_index(std::vector<bool(T)> condition) const {
+    auto largest_region_index(std::function<bool(T)> condition) const {
       // max index of reduce( [0,index) ) -> true
 
       auto min = 0ul;
