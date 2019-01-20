@@ -20,6 +20,6 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
                                      vector[T3a]&,
                                      vector[T1a]&,
                                      vector[T4a]&,
-                                     vector[size_t]&,
-                                     vector[T5]&)
+                                     vector[T5]&,
+                                     vector[size_t]&)
         void update_priorities(vector[size_t]&,vector[T5]&)
