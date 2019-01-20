@@ -46,7 +46,7 @@ int main(){
 		     };
 
   auto show_vector_of_vector = [](auto v,std::string name){
-				 std::cout << name << ": ";
+				 std::cout << name << ": " << std::endl;
 				 for(auto ve: v){
 				   std::cout << " ";
 				   for(auto vee: ve){ std::cout << vee << " "; }
