@@ -49,7 +49,7 @@ int main(){
 				 std::cout << name << ": ";
 				 for(auto ve: v){
 				   std::cout << " ";
-				   for(vee: ve){ std::cout << vee << " "; }
+				   for(auto vee: ve){ std::cout << vee << " "; }
 				   std::cout << std::endl;
 				 }
 				 std::cout << std::endl;
