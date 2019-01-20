@@ -4,3 +4,5 @@ dist
 *.so
 ymd_K/PyReplayBuffer.cpp
 ymd_K/PySegmentTree.cpp
+test/ReplayBuffer
+test/SegmentTree
