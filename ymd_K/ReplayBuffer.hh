@@ -206,7 +206,7 @@ namespace ymd {
     std::size_t next_idx;
 
     void sample_proportional(std::size_t batch_size,
-			     std::vector<std::size_t>& indexes) const {
+			     std::vector<std::size_t>& indexes){
       auto every_range_len
 	= Priority{1.0} * sum.reduce(0,this->buffer_size()) / batch_size;
 
@@ -220,7 +220,7 @@ namespace ymd {
 		      });
     }
 
-    auto sample_proportional(std::size_t batch_size) const {
+    auto sample_proportional(std::size_t batch_size){
       auto indexes = std::vector<std::size_t>{};
       indexes.reserve(batch_size);
 
