@@ -12,16 +12,16 @@
 
 #include "SegmentTree.hh"
 
-template<typename T> struct UnderlyingType {
-  using type = T;
-  static constexpr auto size(T&){ return 1ul; }
-};
-template<typename T> struct UnderlyingType<std::vector<T>>{
-  using type = T;
-  static auto size(std::vector<T>& v){ return v.size(); }
-};
-
 namespace ymd {
+  template<typename T> struct UnderlyingType {
+    using type = T;
+    static constexpr auto size(T&){ return 1ul; }
+  };
+  template<typename T> struct UnderlyingType<std::vector<T>>{
+    using type = T;
+    static auto size(std::vector<T>& v){ return v.size(); }
+  };
+
   template<typename Observation,typename Action,typename Reward,typename Done>
   class ReplayBuffer {
   public:
