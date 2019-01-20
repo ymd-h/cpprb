@@ -282,7 +282,7 @@ namespace ymd {
       if(this->get_capacity() == ++next_idx){ next_idx = 0ul; }
     }
 
-    void sample(std::size_t batch_size,
+    void sample(std::size_t batch_size,Priority beta,
 		std::vector<typename BaseClass::Observation_u::type>& obs,
 		std::vector<typename BaseClass::Action_u::type>& act,
 		std::vector<typename BaseClass::Reward_u::type>& rew,
