@@ -293,7 +293,7 @@ namespace ymd {
 
       weights.resize(0);
       weights.reserve(batch_size);
-      set_weights(weights,beta);
+      set_weights(indexes,beta,weights);
 
       this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
@@ -327,7 +327,7 @@ namespace ymd {
 
       weights.resize(0);
       weights.reserve(batch_size);
-      set_weights(weights,beta);
+      set_weights(indexes,beta,weights);
 
       this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
@@ -348,7 +348,7 @@ namespace ymd {
 
       auto indexes = sample_proportional(batch_size);
 
-      auto weights = set_weights(weights,beta);
+      auto weights = set_weights(indexes,beta);
 
       auto samples = this->BaseClass::encode_sample(indexes);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
