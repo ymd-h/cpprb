@@ -236,11 +236,11 @@ namespace ymd {
 		     });
     }
 
-    auto set_weights(Priority beta) const {
+    auto set_weights(const std::vector<std::size_t>& indexes,Priority beta) const {
       std::vector<Priority> weights{};
       weights.reserve(indexes.size());
 
-      set_weights(indexes,beta);
+      set_weights(indexes,beta,weights);
       return weights;
     }
 
