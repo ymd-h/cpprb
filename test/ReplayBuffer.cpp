@@ -36,8 +36,40 @@ int main(){
     per.add(obs,act,rew,next_obs,done);
   }
 
-  auto rb_sample = rb.sample(N_batch_size);
-  auto per_sample = per.sample(N_batch_size);
+  auto [rb_o,rb_a,rb_r,rb_no,rb_d] = rb.sample(N_batch_size);
+  auto [per_o,per_a,per_r,per_no,per_d,per_w,per_i] = per.sample(N_batch_size);
+
+  auto show_vector = [](auto v,auto name){
+		       std::cout << name << ": ";
+		       for(auto ve: v){ std::cout << ve << " "; }
+		       std::cout << std::endl;
+		     };
+
+  auto show_vector_of_vector = [](auto v,std::string name){
+				 std::cout << name << ": ";
+				 for(auto ve: v){
+				   std::cout << " ";
+				   for(vee: ve){ std::cout << vee << " "; }
+				   std::cout << std::endl;
+				 }
+				 std::cout << std::endl;
+			       };
+
+  std::cout << "ReplayBuffer" << std::endl;
+  show_vector_of_vector(rb_o,"obs");
+  show_vector_of_vector(rb_a,"act");
+  show_vector(rb_r,"rew");
+  show_vector_of_vector(rb_no,"next_obs");
+  show_vector(rb_d,"done");
+
+  std::cout << "PrioritizedReplayBuffer" << std::endl;
+  show_vector_of_vector(per_o,"obs");
+  show_vector_of_vector(per_a,"act");
+  show_vector(per_r,"rew");
+  show_vector_of_vector(per_no,"next_obs");
+  show_vector(per_d,"done");
+  show_vector_of_vector(per_w,"weights");
+  show_vector_of_vector(per_i,"indexes");
 
   return 0;
 }
