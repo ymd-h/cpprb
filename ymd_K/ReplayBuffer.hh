@@ -295,8 +295,7 @@ namespace ymd {
 
       indexes.resize(0);
       indexes.reserve(batch_size);
-      auto idx = sample_proportional(batch_size);
-      std::move(idx.begin(),idx.end(),indexes.begin());
+      sample_proportional(batch_size,indexes);
 
       weights.resize(0);
       weights.reserve(batch_size);
@@ -329,8 +328,7 @@ namespace ymd {
 
       indexes.resize(0);
       indexes.reserve(batch_size);
-      auto idx = sample_proportional(batch_size);
-      std::move(idx.begin(),idx.end(),indexes.begin());
+      sample_proportional(batch_size,indexes);
 
       weights.resize(0);
       weights.reserve(batch_size);
