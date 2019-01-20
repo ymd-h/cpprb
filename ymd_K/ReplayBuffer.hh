@@ -90,6 +90,23 @@ namespace ymd {
       }
     }
 
+    auto encode_sample(const std::vector<std::size_t>& indexes) const {
+      std::vector<Observation> obs{},next_obs{};
+      std::vector<Action> act{};
+      std::vector<Reward> rew{};
+      std::vector<Done> done{};
+
+      auto batch_size = indexes.size();
+
+      obs.reserve(batch_size);
+      act.reserve(batch_size);
+      rew.reserve(batch_size);
+      done.reserve(batch_size);
+
+      encode_sample(obs,act,rew,next_obs,done);
+      return std::make_tuple(obs,act,rew,next_obs,done);
+    }
+
   public:
     ReplayBuffer(std::size_t n): capacity(n),g{std::random_device{}()} {}
     ReplayBuffer(): ReplayBuffer{1} {}
