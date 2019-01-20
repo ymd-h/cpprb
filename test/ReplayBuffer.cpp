@@ -62,6 +62,8 @@ int main(){
   show_vector_of_vector(rb_no,"next_obs");
   show_vector(rb_d,"done");
 
+  std::cout << std::endl;
+
   std::cout << "PrioritizedReplayBuffer" << std::endl;
   show_vector_of_vector(per_o,"obs");
   show_vector_of_vector(per_a,"act");
