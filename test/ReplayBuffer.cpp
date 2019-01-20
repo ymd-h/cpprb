@@ -37,7 +37,7 @@ int main(){
   }
 
   auto [rb_o,rb_a,rb_r,rb_no,rb_d] = rb.sample(N_batch_size);
-  auto [per_o,per_a,per_r,per_no,per_d,per_w,per_i] = per.sample(N_batch_size);
+  auto [per_o,per_a,per_r,per_no,per_d,per_w,per_i] = per.sample(N_batch_size,beta);
 
   auto show_vector = [](auto v,auto name){
 		       std::cout << name << ": ";
