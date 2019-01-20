@@ -73,5 +73,7 @@ int main(){
   show_vector(per_w,"weights");
   show_vector(per_i,"indexes");
 
+  per.update_priorities(per_i,per_w);
+
   return 0;
 }
