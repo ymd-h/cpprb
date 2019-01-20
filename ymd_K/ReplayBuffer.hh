@@ -27,6 +27,10 @@ namespace ymd {
   public:
     using buffer_t = std::deque<std::tuple<Observation,Action,Reward,Observation,Done>>;
     using rand_t = std::uniform_int_distribution<std::size_t>;
+    using Observation_u = UnderlyingType<Observation>;
+    using Action_u = UnderlyingType<Action>;
+    using Reward_u = UnderlyingType<Reward>;
+    using Done_u = UnderlyingType<Done>;
   private:
     const std::size_t capacity;
     buffer_t buffer;
@@ -69,11 +73,11 @@ namespace ymd {
     }
 
     void sample(std::size_t batch_size,
-		std::vector<typename UnderlyingType<Observation>::type>& obs,
-		std::vector<typename UnderlyingType<Action>::type>& act,
-		std::vector<typename UnderlyingType<Reward>::type>& rew,
-		std::vector<typename UnderlyingType<Observation>::type>& next_obs,
-		std::vector<typename UnderlyingType<Done>::type>& done,
+		std::vector<typename Observation_u::type>& obs,
+		std::vector<typename Action_u::type>& act,
+		std::vector<typename Reward_u::type>& rew,
+		std::vector<typename Observation_u::type>& next_obs,
+		std::vector<typename Done_u::type>& done,
 		...){
       obs.resize(0);
       act.resize(0);
@@ -81,16 +85,11 @@ namespace ymd {
       next_obs.resize(0);
       done.resize(0);
 
-      obs.reserve(batch_size *
-		  UnderlyingType<Observation>::size(std::get<0>(buffer[0])));
-      act.reserve(batch_size *
-		  UnderlyingType<Action>::size(std::get<1>(buffer[0])));
-      rew.reserve(batch_size *
-		  UnderlyingType<Reward>::size(std::get<2>(buffer[0])));
-      next_obs.reserve(batch_size *
-		       UnderlyingType<Observation>::size(std::get<3>(buffer[0])));
-      done.reserve(batch_size *
-		   UnderlyingType<Done>::size(std::get<4>(buffer[0])));
+      obs.reserve(batch_size * Observation_u::size(std::get<0>(buffer[0])));
+      act.reserve(batch_size * Action_u::size(std::get<1>(buffer[0])));
+      rew.reserve(batch_size * Reward_u::size(std::get<2>(buffer[0])));
+      next_obs.reserve(batch_size * Observation_u::size(std::get<3>(buffer[0])));
+      done.reserve(batch_size * Done_u::size(std::get<4>(buffer[0])));
 
       auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
 
