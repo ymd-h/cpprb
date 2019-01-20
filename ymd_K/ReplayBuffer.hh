@@ -271,7 +271,7 @@ namespace ymd {
     ~PrioritizedReplayBuffer() = default;
 
     void add(Observation obs,Action act,Reward rew,
-	     Observation next_obs,Done done) override {
+	     Observation next_obs,Done done){
       this->BaseClass::add(std::move(obs),std::move(act),std::move(rew),
 			   std::move(next_obs),std::move(done));
 
@@ -310,7 +310,7 @@ namespace ymd {
 		std::vector<typename BaseClass::Reward_u::type>& rew,
 		std::vector<typename BaseClass::Observation_u::type>& next_obs,
 		std::vector<typename BaseClass::Done_u::type>& done,
-		...) override {
+		...){
       std::vector<std::size_t> indexes{};
       std::vector<Priority> weights{};
       sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,weights);
@@ -342,7 +342,7 @@ namespace ymd {
 		std::vector<Action>& act,
 		std::vector<Reward>& rew,
 		std::vector<Observation>& next_obs,
-		std::vector<Done>& done) override {
+		std::vector<Done>& done){
       std::vector<std::size_t> indexes{};
       std::vector<Priority> weights{};
       sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,weights);
@@ -359,7 +359,7 @@ namespace ymd {
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
     }
 
-    auto sample(std::size_t batch_size) override {
+    auto sample(std::size_t batch_size){
       return sample(batch_size,Priority{0.0});
     }
 
