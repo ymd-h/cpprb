@@ -222,7 +222,8 @@ namespace ymd {
       return res;
     }
 
-    void set_weights(std::vector<Priority>& weights,Priority beta) const {
+    void set_weights(const std::vector<std::size_t>& indexes,Priority beta,
+		     std::vector<Priority>& weights) const {
       auto b_size = this->buffer_size();
       auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
       auto p_min = min.reduce(0,b_size) * inv_sum;
@@ -234,6 +235,15 @@ namespace ymd {
 		       return std::pow(p_sample*b_size,-beta)*inv_max_weight;
 		     });
     }
+
+    auto set_weights(const std::vector<std::size_t>& indexes,Priority beta) const {
+      std::vector<Priority> weights{};
+      weights.reserve(indexes.size());
+
+      set_weights(indexes,beta,weights);
+      return weights;
+    }
+
   public:
     PrioritizedReplayBuffer(std::size_t n,Priority alpha)
       : BaseClass{n},
@@ -283,7 +293,7 @@ namespace ymd {
 
       weights.resize(0);
       weights.reserve(batch_size);
-      set_weights(weights,beta);
+      set_weights(indexes,beta,weights);
 
       this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
@@ -317,7 +327,7 @@ namespace ymd {
 
       weights.resize(0);
       weights.reserve(batch_size);
-      set_weights(weights,beta);
+      set_weights(indexes,beta,weights);
 
       this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
@@ -337,10 +347,8 @@ namespace ymd {
       beta = std::max(beta,Priority{0});
 
       auto indexes = sample_proportional(batch_size);
-      auto weights = std::vector<Priority>{};
-      weights.reserve(batch_size);
 
-      set_weights(weights,beta);
+      auto weights = set_weights(indexes,beta);
 
       auto samples = this->BaseClass::encode_sample(indexes);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
