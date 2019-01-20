@@ -274,7 +274,7 @@ namespace ymd {
 		...){
       beta = std::max(beta,Priority{0});
 
-      indexes.resize();
+      indexes.resize(0);
       indexes.reserve(batch_size);
       auto idx = sample_proportional(batch_size);
       std::move(idx.begin(),idx.end(),indexes.begin());
@@ -308,7 +308,7 @@ namespace ymd {
 		std::vector<Priority>& weights){
       beta = std::max(beta,Priority{0});
 
-      indexes.resize();
+      indexes.resize(0);
       indexes.reserve(batch_size);
       auto idx = sample_proportional(batch_size);
       std::move(idx.begin(),idx.end(),indexes.begin());
