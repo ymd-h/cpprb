@@ -231,6 +231,18 @@ namespace ymd {
 		std::vector<std::size_t>& indexes,
 		std::vector<Priority>& weights,
 		...){
+      beta = std::max(beta,Priority{0});
+
+      indexes.resize();
+      indexes.reserve(batch_size);
+      auto idx = sample_proportional(batch_size);
+      std::move(idx.begin(),idx.end(),indexes.begin());
+
+      weights.resize(0);
+      weights.reserve(batch_size);
+      set_weights(weights,beta);
+
+      this->BaseClass::sample(batch_size,obs,act,rew,next_obs,done);
     }
 
     void sample(std::size_t batch_size,
