@@ -234,6 +234,15 @@ namespace ymd {
 		       return std::pow(p_sample*b_size,-beta)*inv_max_weight;
 		     });
     }
+
+    auto set_weights(Priority beta) const {
+      std::vector<Priority> weights{};
+      weights.reserve(indexes.size());
+
+      set_weights(indexes,beta);
+      return weights;
+    }
+
   public:
     PrioritizedReplayBuffer(std::size_t n,Priority alpha)
       : BaseClass{n},
