@@ -366,7 +366,7 @@ namespace ymd {
     void update_priorities(std::vector<std::size_t>& indexes,
 			   std::vector<Priority>& priorities){
 
-      max_priority = std::accumulate(indexes.begin(),indexes.end(),
+      max_priority = std::accumulate(indexes.begin(),indexes.end(),max_priority,
 				     [=,p=priorities.begin()]
 				     (auto max_p, auto index) mutable {
 				       auto v = std::pow(*p,this->alpha);
