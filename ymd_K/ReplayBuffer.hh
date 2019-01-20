@@ -266,7 +266,7 @@ namespace ymd {
       weights.reserve(batch_size);
       set_weights(weights,beta);
 
-      this->BaseClass::sample(batch_size,obs,act,rew,next_obs,done);
+      this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     void sample(std::size_t batch_size,
@@ -300,7 +300,7 @@ namespace ymd {
       weights.reserve(batch_size);
       set_weights(weights,beta);
 
-      this->BaseClass::sample(batch_size,obs,act,rew,next_obs,done);
+      this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     void sample(std::size_t batch_size,
@@ -323,7 +323,7 @@ namespace ymd {
 
       set_weights(weights,beta);
 
-      auto samples = this->BaseClass::sample(batch_size);
+      auto samples = this->BaseClass::encode_sample(indexes);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
     }
 
