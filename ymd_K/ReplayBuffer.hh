@@ -71,6 +71,25 @@ namespace ymd {
       }
     }
 
+    void encode_sample(const std::vector<std::size_t>& indexes,
+		       std::vector<typename Observation_u::type>& obs,
+		       std::vector<typename Action_u::type>& act,
+		       std::vector<typename Reward_u::type>& rew,
+		       std::vector<typename Observation_u::type>& next_obs,
+		       std::vector<typename Done_u::type>& done,
+		       ...) const {
+      for(auto i : indexes){
+	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
+	auto [o,a,r,no,d] = buffer[i];
+
+	flatten_push_back(std::move(o),obs);
+	flatten_push_back(std::move(a),act);
+	flatten_push_back(std::move(r),rew);
+	flatten_push_back(std::move(no),next_obs);
+	flatten_push_back(std::move(d),done);
+      }
+    }
+
   public:
     ReplayBuffer(std::size_t n): capacity(n),g{std::random_device{}()} {}
     ReplayBuffer(): ReplayBuffer{1} {}
