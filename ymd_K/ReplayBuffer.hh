@@ -204,14 +204,13 @@ namespace ymd {
     SegmentTree<Priority> sum;
     SegmentTree<Priority> min;
     std::size_t next_idx;
-    auto sample_proportional(std::size_t batch_size) const {
-      auto res = std::vector<std::size_t>{};
-      res.reserve(batch_size);
 
+    void sample_proportional(std::size_t batch_size,
+			     std::vector<std::size_t>& indexes) const {
       auto every_range_len
 	= Priority{1.0} * sum.reduce(0,this->buffer_size()) / batch_size;
 
-      std::generate_n(std::back_inserter(res),batch_size,
+      std::generate_n(std::back_inserter(indexes),batch_size,
 		      [=,i=0ul,
 		       d=std::uniform_real_distribution<Priority>{}]()mutable{
 			auto mass = (d(this->g) + (i++))*every_range_len;
@@ -219,7 +218,15 @@ namespace ymd {
 								return v <= mass;
 							      });
 		      });
-      return res;
+    }
+
+    auto sample_proportional(std::size_t batch_size) const {
+      auto indexes = std::vector<std::size_t>{};
+      indexes.reserve(batch_size);
+
+      sample_proportional(batch_size,indexes);
+
+      return indexes;
     }
 
     void set_weights(const std::vector<std::size_t>& indexes,Priority beta,
@@ -288,8 +295,7 @@ namespace ymd {
 
       indexes.resize(0);
       indexes.reserve(batch_size);
-      auto idx = sample_proportional(batch_size);
-      std::move(idx.begin(),idx.end(),indexes.begin());
+      sample_proportional(batch_size,indexes);
 
       weights.resize(0);
       weights.reserve(batch_size);
@@ -322,8 +328,7 @@ namespace ymd {
 
       indexes.resize(0);
       indexes.reserve(batch_size);
-      auto idx = sample_proportional(batch_size);
-      std::move(idx.begin(),idx.end(),indexes.begin());
+      sample_proportional(batch_size,indexes);
 
       weights.resize(0);
       weights.reserve(batch_size);
