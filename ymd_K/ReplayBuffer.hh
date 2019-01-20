@@ -313,7 +313,7 @@ namespace ymd {
 		...) override {
       std::vector<std::size_t> indexes{};
       std::vector<Priority> weights{};
-      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,priorities);
+      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,weights);
     }
 
     void sample(std::size_t batch_size,Priority beta,
@@ -345,7 +345,7 @@ namespace ymd {
 		std::vector<Done>& done) override {
       std::vector<std::size_t> indexes{};
       std::vector<Priority> weights{};
-      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,priorities);
+      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,weights);
     }
 
     auto sample(std::size_t batch_size,Priority beta){
