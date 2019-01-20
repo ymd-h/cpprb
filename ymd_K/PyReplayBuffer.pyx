@@ -90,6 +90,26 @@ cdef class VectorDouble(VectorWrapper):
          buffer.buf = <void*>(self.vec.data())
          buffer.format = 'd'
 
+cdef class VectorULong(VectorWrapper):
+    cdef vector[size_t] vec
+
+    def __cinit__(self,value_dim=1):
+        self.vec = vector[size_t]()
+        self.itemsize = sizeof(size_t)
+
+        self.ndim = 1 if value_dim is 1 else 2
+        self.value_dim = value_dim
+
+    def vec_size(self):
+        return self.vec.size()
+
+    cdef void set_buffer(self,Py_buffer* buffer):
+        buffer.buf = <void*>(self.vec.data())
+        buffer.format = 'L'
+
+    def _push_back(self,v):
+        self.vec.push_back(v)
+
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
     cdef VectorDouble obs
@@ -134,7 +154,7 @@ cdef class PyPrioritizedReplayBuffer:
     cdef VectorDouble rew
     cdef VectorDouble next_obs
     cdef VectorInt done
-    cdef VectorInt indexes
+    cdef VectorULong indexes
     cdef VectorDouble weights
     def __cinit__(self,size,obs_dim,act_dim):
         print("Replay Buffer")
@@ -147,7 +167,7 @@ cdef class PyPrioritizedReplayBuffer:
         self.rew = VectorDouble()
         self.next_obs = VectorDouble(obs_dim)
         self.done = VectorInt()
-        self.indexes = VectorInt()
+        self.indexes = VectorULong()
         self.weights = VectorDouble()
 
     def add(self,observation,action,reward,next_observation,done):
