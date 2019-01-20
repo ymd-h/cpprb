@@ -53,6 +53,21 @@ namespace ymd {
   protected:
     std::mt19937 g;
 
+    auto initialize_space(std::size_t size = 0ul) const {
+      std::vector<Observation> obs{},next_obs{};
+      std::vector<Action> act{};
+      std::vector<Reward> rew{};
+      std::vector<Done> done{};
+
+      obs.reserve(size);
+      act.reserve(size);
+      rew.reserve(size);
+      next_obs.reserve(size);
+      done.reserve(size);
+
+      return std::make_tuple(obs,act,rew,next_obs,done);
+    }
+
     void encode_sample(const std::vector<std::size_t>& indexes,
 		       std::vector<Observation>& obs,
 		       std::vector<Action>& act,
@@ -91,17 +106,7 @@ namespace ymd {
     }
 
     auto encode_sample(const std::vector<std::size_t>& indexes) const {
-      std::vector<Observation> obs{},next_obs{};
-      std::vector<Action> act{};
-      std::vector<Reward> rew{};
-      std::vector<Done> done{};
-
-      auto batch_size = indexes.size();
-
-      obs.reserve(batch_size);
-      act.reserve(batch_size);
-      rew.reserve(batch_size);
-      done.reserve(batch_size);
+      auto [obs,act,rew,next_obs,done] = initialize_space(indexes.size());
 
       encode_sample(obs,act,rew,next_obs,done);
       return std::make_tuple(obs,act,rew,next_obs,done);
@@ -180,10 +185,7 @@ namespace ymd {
     }
 
     auto sample(std::size_t batch_size){
-      std::vector<Observation> obs{},next_obs{};
-      std::vector<Action> act{};
-      std::vector<Reward> rew{};
-      std::vector<Done> done{};
+      auto [obs,act,rew,next_obs,done] = initialize_space(batch_size);
 
       sample(batch_size,obs,act,rew,next_obs,done);
 
