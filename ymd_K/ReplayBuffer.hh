@@ -37,17 +37,17 @@ namespace ymd {
 
     template<typename T>
     void flatten_push_back(T&& v,
-			   std::vector<std::remove_reference_t<T>>& to){
+			   std::vector<std::remove_reference_t<T>>& to) const {
       to.push_back(std::forward<T>(v));
     }
 
     template<typename T>
-    void flatten_push_back(const std::vector<T>& v,std::vector<T>& to){
+    void flatten_push_back(const std::vector<T>& v,std::vector<T>& to) const {
       std::copy(v.begin(),v.end(),std::back_inserter(to));
     }
 
     template<typename T>
-    void flatten_push_back(std::vector<T>&& v,std::vector<T>& to){
+    void flatten_push_back(std::vector<T>&& v,std::vector<T>& to) const {
       std::move(v.begin(),v.end(),std::back_inserter(to));
     }
   protected:
