@@ -222,7 +222,8 @@ namespace ymd {
       return res;
     }
 
-    void set_weights(std::vector<Priority>& weights,Priority beta) const {
+    void set_weights(const std::vector<std::size_t>& indexes,Priority beta,
+		     std::vector<Priority>& weights) const {
       auto b_size = this->buffer_size();
       auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
       auto p_min = min.reduce(0,b_size) * inv_sum;
