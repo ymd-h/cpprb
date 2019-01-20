@@ -222,6 +222,29 @@ namespace ymd {
       if(this->get_capacity() == ++next_idx){ next_idx = 0ul; }
     }
 
+    void sample(std::size_t batch_size,
+		std::vector<typename Observation_u::type>& obs,
+		std::vector<typename Action_u::type>& act,
+		std::vector<typename Reward_u::type>& rew,
+		std::vector<typename Observation_u::type>& next_obs,
+		std::vector<typename Done_u::type>& done,
+		std::vector<std::size_t>& indexes,
+		std::vector<Priority>& weights,
+		...){
+    }
+
+    void sample(std::size_t batch_size,
+		std::vector<typename Observation_u::type>& obs,
+		std::vector<typename Action_u::type>& act,
+		std::vector<typename Reward_u::type>& rew,
+		std::vector<typename Observation_u::type>& next_obs,
+		std::vector<typename Done_u::type>& done,
+		...) override {
+      std::vector<std::size_t> indexes{};
+      std::vector<Priority> weights{};
+      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,priorities);
+    }
+
     void sample(std::size_t batch_size,Priority beta,
 		std::vector<Observation>& obs,
 		std::vector<Action>& act,
