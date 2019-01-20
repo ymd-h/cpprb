@@ -53,6 +53,60 @@ namespace ymd {
   protected:
     std::mt19937 g;
 
+    void encode_sample(const std::vector<std::size_t>& indexes,
+		       std::vector<Observation>& obs,
+		       std::vector<Action>& act,
+		       std::vector<Reward>& rew,
+		       std::vector<Observation>& next_obs,
+		       std::vector<Done>& done) const {
+      for(auto i : indexes){
+	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
+	auto [o,a,r,no,d] = buffer[i];
+
+	obs.push_back(std::move(o));
+	act.push_back(std::move(a));
+	rew.push_back(std::move(r));
+	next_obs.push_back(std::move(no));
+	done.push_back(std::move(d));
+      }
+    }
+
+    void encode_sample(const std::vector<std::size_t>& indexes,
+		       std::vector<typename Observation_u::type>& obs,
+		       std::vector<typename Action_u::type>& act,
+		       std::vector<typename Reward_u::type>& rew,
+		       std::vector<typename Observation_u::type>& next_obs,
+		       std::vector<typename Done_u::type>& done,
+		       ...) const {
+      for(auto i : indexes){
+	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
+	auto [o,a,r,no,d] = buffer[i];
+
+	flatten_push_back(std::move(o),obs);
+	flatten_push_back(std::move(a),act);
+	flatten_push_back(std::move(r),rew);
+	flatten_push_back(std::move(no),next_obs);
+	flatten_push_back(std::move(d),done);
+      }
+    }
+
+    auto encode_sample(const std::vector<std::size_t>& indexes) const {
+      std::vector<Observation> obs{},next_obs{};
+      std::vector<Action> act{};
+      std::vector<Reward> rew{};
+      std::vector<Done> done{};
+
+      auto batch_size = indexes.size();
+
+      obs.reserve(batch_size);
+      act.reserve(batch_size);
+      rew.reserve(batch_size);
+      done.reserve(batch_size);
+
+      encode_sample(obs,act,rew,next_obs,done);
+      return std::make_tuple(obs,act,rew,next_obs,done);
+    }
+
   public:
     ReplayBuffer(std::size_t n): capacity(n),g{std::random_device{}()} {}
     ReplayBuffer(): ReplayBuffer{1} {}
@@ -92,18 +146,11 @@ namespace ymd {
       done.reserve(batch_size * Done_u::size(std::get<4>(buffer[0])));
 
       auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
+      auto indexes = std::vector<std::size_t>{};
+      indexes.reserve(batch_size);
+      std::generate_n(std::back_inserter(indexes),batch_size,random);
 
-      for(auto i = 0ul; i < batch_size; ++i){
-	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
-	auto [o,a,r,no,d] = buffer[random()];
-
-	flatten_push_back(std::move(o),obs);
-	flatten_push_back(std::move(a),act);
-	flatten_push_back(std::move(r),rew);
-	flatten_push_back(std::move(no),next_obs);
-	flatten_push_back(std::move(d),done);
-      }
-
+      encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     void sample(std::size_t batch_size,
@@ -125,17 +172,11 @@ namespace ymd {
       done.reserve(batch_size);
 
       auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
+      auto indexes = std::vector<std::size_t>{};
+      indexes.reserve(batch_size);
+      std::generate_n(std::back_inserter(indexes),batch_size,random);
 
-      for(auto i = 0ul; i < batch_size; ++i){
-	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
-	auto [o,a,r,no,d] = buffer[random()];
-
-	obs.push_back(std::move(o));
-	act.push_back(std::move(a));
-	rew.push_back(std::move(r));
-	next_obs.push_back(std::move(no));
-	done.push_back(std::move(d));
-      }
+      encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     auto sample(std::size_t batch_size){
@@ -242,7 +283,7 @@ namespace ymd {
       weights.reserve(batch_size);
       set_weights(weights,beta);
 
-      this->BaseClass::sample(batch_size,obs,act,rew,next_obs,done);
+      this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     void sample(std::size_t batch_size,
@@ -276,7 +317,7 @@ namespace ymd {
       weights.reserve(batch_size);
       set_weights(weights,beta);
 
-      this->BaseClass::sample(batch_size,obs,act,rew,next_obs,done);
+      this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     void sample(std::size_t batch_size,
@@ -299,7 +340,7 @@ namespace ymd {
 
       set_weights(weights,beta);
 
-      auto samples = this->BaseClass::sample(batch_size);
+      auto samples = this->BaseClass::encode_sample(indexes);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
     }
 
