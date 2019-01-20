@@ -76,7 +76,7 @@ int main(){
   per.update_priorities(per_i,per_w);
 
   rb.sample(N_batch_size,rb_o,rb_a,rb_r,rb_no,rb_d);
-  per.sample(N_batch_size,beta,per_o,per_a,per_r,per_no,per_d,per_i,per_w);
+  per.sample(N_batch_size,beta,per_o,per_a,per_r,per_no,per_d,per_w,per_i);
 
   return 0;
 }

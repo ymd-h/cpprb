@@ -154,8 +154,8 @@ cdef class PyPrioritizedReplayBuffer:
     cdef VectorDouble rew
     cdef VectorDouble next_obs
     cdef VectorInt done
-    cdef VectorULong indexes
     cdef VectorDouble weights
+    cdef VectorULong indexes
     def __cinit__(self,size,alpha,obs_dim,act_dim):
         print("Replay Buffer")
 
@@ -167,8 +167,8 @@ cdef class PyPrioritizedReplayBuffer:
         self.rew = VectorDouble()
         self.next_obs = VectorDouble(obs_dim)
         self.done = VectorInt()
-        self.indexes = VectorULong()
         self.weights = VectorDouble()
+        self.indexes = VectorULong()
 
     def add(self,observation,action,reward,next_observation,done):
         self.thisptr.add(observation,action,reward,next_observation,done)
@@ -180,16 +180,16 @@ cdef class PyPrioritizedReplayBuffer:
                             self.rew.vec,
                             self.next_obs.vec,
                             self.done.vec,
-                            self.indexes.vec,
-                            self.weights.vec)
+                            self.weights.vec,
+                            self.indexes.vec)
         print(self.obs.vec.size())
         return {'obs': np.asarray(self.obs),
                 'act': np.asarray(self.act),
                 'rew': np.asarray(self.rew),
                 'next_obs': np.asarray(self.next_obs),
                 'done': np.asarray(self.done),
-                'indexes': np.asarray(self.indexes),
-                'weights': np.asarray(self.weights)}
+                'weights': np.asarray(self.indexes),
+                'indexes': np.asarray(self.weights)}
 
     def update_priorities(self,indexes,priorities):
         self.thisptr.update_priorities(indexes,priorities)

@@ -288,8 +288,8 @@ namespace ymd {
 		std::vector<typename BaseClass::Reward_u::type>& rew,
 		std::vector<typename BaseClass::Observation_u::type>& next_obs,
 		std::vector<typename BaseClass::Done_u::type>& done,
-		std::vector<std::size_t>& indexes,
 		std::vector<Priority>& weights,
+		std::vector<std::size_t>& indexes,
 		...){
       beta = std::max(beta,Priority{0});
 
@@ -311,9 +311,9 @@ namespace ymd {
 		std::vector<typename BaseClass::Observation_u::type>& next_obs,
 		std::vector<typename BaseClass::Done_u::type>& done,
 		...){
-      std::vector<std::size_t> indexes{};
       std::vector<Priority> weights{};
-      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,weights);
+      std::vector<std::size_t> indexes{};
+      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,weights,indexes);
     }
 
     void sample(std::size_t batch_size,Priority beta,
@@ -322,8 +322,8 @@ namespace ymd {
 		std::vector<Reward>& rew,
 		std::vector<Observation>& next_obs,
 		std::vector<Done>& done,
-		std::vector<std::size_t>& indexes,
-		std::vector<Priority>& weights){
+		std::vector<Priority>& weights,
+		std::vector<std::size_t>& indexes){
       beta = std::max(beta,Priority{0});
 
       indexes.resize(0);
@@ -343,9 +343,9 @@ namespace ymd {
 		std::vector<Reward>& rew,
 		std::vector<Observation>& next_obs,
 		std::vector<Done>& done){
-      std::vector<std::size_t> indexes{};
       std::vector<Priority> weights{};
-      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,weights);
+      std::vector<std::size_t> indexes{};
+      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,weights,indexes);
     }
 
     auto sample(std::size_t batch_size,Priority beta){
