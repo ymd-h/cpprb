@@ -255,7 +255,7 @@ namespace ymd {
 		std::vector<Observation>& next_obs,
 		std::vector<Done>& done,
 		std::vector<std::size_t>& indexes,
-		std::vector<Priority>& weights) override {
+		std::vector<Priority>& weights){
       sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,indexes,priorities);
     }
 
