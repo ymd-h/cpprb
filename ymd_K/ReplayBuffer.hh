@@ -129,18 +129,11 @@ namespace ymd {
       done.reserve(batch_size * Done_u::size(std::get<4>(buffer[0])));
 
       auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
+      auto indexes = std::vector<std::size_t>{};
+      indexes.reserve(batch_size);
+      std::generate_n(std::back_inserter(indexes),batch_size,random);
 
-      for(auto i = 0ul; i < batch_size; ++i){
-	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
-	auto [o,a,r,no,d] = buffer[random()];
-
-	flatten_push_back(std::move(o),obs);
-	flatten_push_back(std::move(a),act);
-	flatten_push_back(std::move(r),rew);
-	flatten_push_back(std::move(no),next_obs);
-	flatten_push_back(std::move(d),done);
-      }
-
+      encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     void sample(std::size_t batch_size,
