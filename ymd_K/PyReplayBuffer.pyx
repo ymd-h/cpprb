@@ -90,6 +90,26 @@ cdef class VectorDouble(VectorWrapper):
          buffer.buf = <void*>(self.vec.data())
          buffer.format = 'd'
 
+cdef class VectorULong(VectorWrapper):
+    cdef vector[size_t] vec
+
+    def __cinit__(self,value_dim=1):
+        self.vec = vector[size_t]()
+        self.itemsize = sizeof(size_t)
+
+        self.ndim = 1 if value_dim is 1 else 2
+        self.value_dim = value_dim
+
+    def vec_size(self):
+        return self.vec.size()
+
+    cdef void set_buffer(self,Py_buffer* buffer):
+        buffer.buf = <void*>(self.vec.data())
+        buffer.format = 'L'
+
+    def _push_back(self,v):
+        self.vec.push_back(v)
+
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
     cdef VectorDouble obs
@@ -134,34 +154,42 @@ cdef class PyPrioritizedReplayBuffer:
     cdef VectorDouble rew
     cdef VectorDouble next_obs
     cdef VectorInt done
-    def __cinit__(self,size,obs_dim,act_dim):
+    cdef VectorULong indexes
+    cdef VectorDouble weights
+    def __cinit__(self,size,alpha,obs_dim,act_dim):
         print("Replay Buffer")
 
         self.thisptr = new PrioritizedReplayBuffer[vector[double],
                                                    vector[double],
-                                                   double,int,double](size)
+                                                   double,int,double](size,alpha)
         self.obs = VectorDouble(obs_dim)
         self.act = VectorDouble(act_dim)
         self.rew = VectorDouble()
         self.next_obs = VectorDouble(obs_dim)
         self.done = VectorInt()
+        self.indexes = VectorULong()
+        self.weights = VectorDouble()
 
     def add(self,observation,action,reward,next_observation,done):
         self.thisptr.add(observation,action,reward,next_observation,done)
 
     def sample(self,size,beta):
-        self.thisptr.sample(size,beta
+        self.thisptr.sample(size,beta,
                             self.obs.vec,
                             self.act.vec,
                             self.rew.vec,
                             self.next_obs.vec,
-                            self.done.vec)
+                            self.done.vec,
+                            self.indexes.vec,
+                            self.weights.vec)
         print(self.obs.vec.size())
         return {'obs': np.asarray(self.obs),
                 'act': np.asarray(self.act),
                 'rew': np.asarray(self.rew),
                 'next_obs': np.asarray(self.next_obs),
-                'done': np.asarray(self.done)}
+                'done': np.asarray(self.done),
+                'indexes': np.asarray(self.indexes),
+                'weights': np.asarray(self.weights)}
 
-    def update_priorities(indexes,priorities):
+    def update_priorities(self,indexes,priorities):
         self.thisptr.update_priorities(indexes,priorities)
