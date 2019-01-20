@@ -37,7 +37,7 @@ int main(){
   }
 
   auto rb_sample = rb.sample(N_batch_size);
-  auto per_sample =per.sample(N_batch_size);
+  auto per_sample = per.sample(N_batch_size);
 
   return 0;
 }
