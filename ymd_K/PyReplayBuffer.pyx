@@ -139,7 +139,6 @@ cdef class PyReplayBuffer:
                             self.rew.vec,
                             self.next_obs.vec,
                             self.done.vec)
-        print(self.obs.vec.size())
         return {'obs': np.asarray(self.obs),
                 'act': np.asarray(self.act),
                 'rew': np.asarray(self.rew),
@@ -182,7 +181,6 @@ cdef class PyPrioritizedReplayBuffer:
                             self.done.vec,
                             self.weights.vec,
                             self.indexes.vec)
-        print(self.obs.vec.size())
         return {'obs': np.asarray(self.obs),
                 'act': np.asarray(self.act),
                 'rew': np.asarray(self.rew),
