@@ -53,6 +53,21 @@ namespace ymd {
   protected:
     std::mt19937 g;
 
+    auto initialize_space(std::size_t size = 0ul) const {
+      std::vector<Observation> obs{},next_obs{};
+      std::vector<Action> act{};
+      std::vector<Reward> rew{};
+      std::vector<Done> done{};
+
+      obs.reserve(size);
+      act.reserve(size);
+      rew.reserve(size);
+      next_obs.reserve(size);
+      done.reserve(size);
+
+      return std::make_tuple(obs,act,rew,next_obs,done);
+    }
+
     void encode_sample(const std::vector<std::size_t>& indexes,
 		       std::vector<Observation>& obs,
 		       std::vector<Action>& act,
