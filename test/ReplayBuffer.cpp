@@ -30,7 +30,7 @@ int main(){
     auto act = Action(act_dim,2.0*i);
     auto rew = 0.1 * i;
     auto next_obs = Observation(obs_dim,0.1*(i+1));
-    auto done = (N_step - 1 == i) ? 0: 1;
+    auto done = (N_step - 1 == i) ? 1: 0;
 
     rb.add(obs,act,rew,next_obs,done);
     per.add(obs,act,rew,next_obs,done);
