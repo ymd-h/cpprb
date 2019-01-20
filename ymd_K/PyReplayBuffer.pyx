@@ -154,7 +154,7 @@ cdef class PyPrioritizedReplayBuffer:
         self.thisptr.add(observation,action,reward,next_observation,done)
 
     def sample(self,size,beta):
-        self.thisptr.sample(size,beta
+        self.thisptr.sample(size,beta,
                             self.obs.vec,
                             self.act.vec,
                             self.rew.vec,
