@@ -185,10 +185,7 @@ namespace ymd {
     }
 
     auto sample(std::size_t batch_size){
-      std::vector<Observation> obs{},next_obs{};
-      std::vector<Action> act{};
-      std::vector<Reward> rew{};
-      std::vector<Done> done{};
+      auto [obs,act,rew,next_obs,done] = initialize_space(batch_size);
 
       sample(batch_size,obs,act,rew,next_obs,done);
 
