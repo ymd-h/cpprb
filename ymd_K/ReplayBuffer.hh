@@ -222,10 +222,6 @@ namespace ymd {
       if(this->get_capacity() == ++next_idx){ next_idx = 0ul; }
     }
 
-    auto sample(std::size_t batch_size) override {
-      return sample(batch_size,Priority{0.0});
-    }
-
     void sample(std::size_t batch_size,Priority beta,
 		std::vector<Observation>& obs,
 		std::vector<Action>& act,
@@ -270,6 +266,10 @@ namespace ymd {
 
       auto samples = this->BaseClass::sample(batch_size);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
+    }
+
+    auto sample(std::size_t batch_size) override {
+      return sample(batch_size,Priority{0.0});
     }
 
     void update_priorities(std::vector<std::size_t>& indexes,
