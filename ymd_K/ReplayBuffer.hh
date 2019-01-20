@@ -291,7 +291,7 @@ namespace ymd {
 		std::vector<std::size_t>& indexes,
 		std::vector<Priority>& weights,
 		...){
-      beta = std::max(beta,Priority{0});
+      auto beta = std::max(beta,Priority{0});
 
       indexes.resize(0);
       indexes.reserve(batch_size);
