@@ -191,5 +191,5 @@ cdef class PyPrioritizedReplayBuffer:
                 'indexes': np.asarray(self.indexes),
                 'weights': np.asarray(self.weights)}
 
-    def update_priorities(indexes,priorities):
+    def update_priorities(self,indexes,priorities):
         self.thisptr.update_priorities(indexes,priorities)
