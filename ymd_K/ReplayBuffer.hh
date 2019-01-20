@@ -108,7 +108,7 @@ namespace ymd {
     auto encode_sample(const std::vector<std::size_t>& indexes) const {
       auto [obs,act,rew,next_obs,done] = initialize_space(indexes.size());
 
-      encode_sample(obs,act,rew,next_obs,done);
+      encode_sample(indexes,obs,act,rew,next_obs,done);
       return std::make_tuple(obs,act,rew,next_obs,done);
     }
 
