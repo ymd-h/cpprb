@@ -22,7 +22,7 @@ namespace ymd {
     F f;
 
     auto _reduce(const std::size_t start,const std::size_t end,std::size_t index,
-		 const std::size_t region_s,const std::size_t region_e){
+		 const std::size_t region_s,const std::size_t region_e) const {
       if((start <= region_s) && (region_e <= end)){
 	return buffer[index];
       }
@@ -73,7 +73,7 @@ namespace ymd {
     SegmentTree& operator=(SegmentTree&&) = default;
     ~SegmentTree() = default;
 
-    auto get(std::size_t i){
+    T get(std::size_t i) const {
       return buffer[access_index(i)];
     }
 
@@ -87,13 +87,13 @@ namespace ymd {
       } while(n != 0ul);
     }
 
-    auto reduce(std::size_t start,std::size_t end){
+    auto reduce(std::size_t start,std::size_t end) const {
       // Operation on [start,end)  # buffer[end] is not included
 
       return _reduce(start,end,0,0,size);
     }
 
-    auto largest_region_index(std::vector<bool(T)> condition){
+    auto largest_region_index(std::vector<bool(T)> condition) const {
       // max index of reduce( [0,index) ) -> true
 
       auto min = 0ul;
