@@ -213,7 +213,7 @@ namespace ymd {
     void add(Observation obs,Action act,Reward rew,
 	     Observation next_obs,Done done) override {
       this->BaseClass::add(std::move(obs),std::move(act),std::move(rew),
-			      std::move(next_obs),std::move(done));
+			   std::move(next_obs),std::move(done));
 
       auto v = std::pow(max_priority,alpha);
       sum.set(next_idx,v);
