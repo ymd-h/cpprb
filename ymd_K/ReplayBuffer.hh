@@ -346,10 +346,8 @@ namespace ymd {
       beta = std::max(beta,Priority{0});
 
       auto indexes = sample_proportional(batch_size);
-      auto weights = std::vector<Priority>{};
-      weights.reserve(batch_size);
 
-      set_weights(weights,beta);
+      auto weights = set_weights(weights,beta);
 
       auto samples = this->BaseClass::encode_sample(indexes);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
