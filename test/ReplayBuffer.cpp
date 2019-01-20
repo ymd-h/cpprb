@@ -70,8 +70,8 @@ int main(){
   show_vector(per_r,"rew");
   show_vector_of_vector(per_no,"next_obs");
   show_vector(per_d,"done");
-  show_vector_of_vector(per_w,"weights");
-  show_vector_of_vector(per_i,"indexes");
+  show_vector(per_w,"weights");
+  show_vector(per_i,"indexes");
 
   return 0;
 }
