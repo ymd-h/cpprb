@@ -283,11 +283,11 @@ namespace ymd {
     }
 
     void sample(std::size_t batch_size,
-		std::vector<typename Observation_u::type>& obs,
-		std::vector<typename Action_u::type>& act,
-		std::vector<typename Reward_u::type>& rew,
-		std::vector<typename Observation_u::type>& next_obs,
-		std::vector<typename Done_u::type>& done,
+		std::vector<typename BaseClass::Observation_u::type>& obs,
+		std::vector<typename BaseClass::Action_u::type>& act,
+		std::vector<typename BaseClass::Reward_u::type>& rew,
+		std::vector<typename BaseClass::Observation_u::type>& next_obs,
+		std::vector<typename BaseClass::Done_u::type>& done,
 		std::vector<std::size_t>& indexes,
 		std::vector<Priority>& weights,
 		...){
@@ -305,11 +305,11 @@ namespace ymd {
     }
 
     void sample(std::size_t batch_size,
-		std::vector<typename Observation_u::type>& obs,
-		std::vector<typename Action_u::type>& act,
-		std::vector<typename Reward_u::type>& rew,
-		std::vector<typename Observation_u::type>& next_obs,
-		std::vector<typename Done_u::type>& done,
+		std::vector<typename BaseClass::Observation_u::type>& obs,
+		std::vector<typename BaseClass::Action_u::type>& act,
+		std::vector<typename BaseClass::Reward_u::type>& rew,
+		std::vector<typename BaseClass::Observation_u::type>& next_obs,
+		std::vector<typename BaseClass::Done_u::type>& done,
 		...) override {
       std::vector<std::size_t> indexes{};
       std::vector<Priority> weights{};
