@@ -180,7 +180,7 @@ namespace ymd {
       return res;
     }
 
-    void set_weights(std::vector<Priority>& weights) const {
+    void set_weights(std::vector<Priority>& weights,Priority beta) const {
       auto b_size = this->buffer_size();
       auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
       auto p_min = min.reduce(0,b_size) * inv_sum;
@@ -244,7 +244,7 @@ namespace ymd {
 
       weights.resize(0);
       weights.reserve(batch_size);
-      set_weights(weights);
+      set_weights(weights,beta);
 
       this->BaseClass::sample(batch_size,obs,act,rew,next_obs,done);
     }
@@ -267,7 +267,7 @@ namespace ymd {
       auto weights = std::vector<Priority>{};
       weights.reserve(batch_size);
 
-      set_weights(weights);
+      set_weights(weights,beta);
 
       auto samples = this->BaseClass::sample(batch_size);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
