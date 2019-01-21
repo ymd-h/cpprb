@@ -12,8 +12,8 @@ int main(){
   }
   std::cout << std::endl;
 
-  std::cout << st.reduce(0,11) << std::endl;
-  std::cout << st.reduce(13,15) << std::endl;
+  std::cout << "[0,11): " << st.reduce(0,11) << std::endl;
+  std::cout << "[13,15): " << st.reduce(13,15) << std::endl;
 
   return 0;
 }
