@@ -70,9 +70,6 @@ cdef class VectorInt(VectorWrapper):
         buffer.buf = <void*>(self.vec.data())
         buffer.format = 'i'
 
-    def _push_back(self,v):
-        self.vec.push_back(v)
-
 cdef class VectorDouble(VectorWrapper):
     cdef vector[double] vec
 
@@ -106,9 +103,6 @@ cdef class VectorULong(VectorWrapper):
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*>(self.vec.data())
         buffer.format = 'L'
-
-    def _push_back(self,v):
-        self.vec.push_back(v)
 
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
