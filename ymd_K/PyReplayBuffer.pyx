@@ -2,7 +2,6 @@
 
 from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference
-from cpython cimport PyObject, Py_INCREF
 cimport numpy as np
 import numpy as np
 
