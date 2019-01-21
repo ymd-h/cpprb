@@ -15,5 +15,9 @@ int main(){
   std::cout << "[0,11): " << st.reduce(0,11) << std::endl;
   std::cout << "[13,15): " << st.reduce(13,15) << std::endl;
 
+  std::cout << "[0,x) <= 7: x = "
+	    << st.largest_region_index([](auto v){ return v <=7; })
+	    << std::endl;
+
   return 0;
 }
