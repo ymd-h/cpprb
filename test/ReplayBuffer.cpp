@@ -14,7 +14,7 @@ int main(){
 
   constexpr const auto N_step = 100ul;
   constexpr const auto N_buffer_size = 15ul;
-  constexpr const auto N_batch_size = 5ul;
+  constexpr const auto N_batch_size = 256ul;
 
   auto alpha = 0.7;
   auto beta = 0.5;
