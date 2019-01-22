@@ -59,12 +59,14 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
     obs_dim = 3
     act_dim = 5
 
-    N_step = 100
-    N_buffer_size = 15
-    N_sample = 5
+    N_step = 1000000
+    N_buffer_size = 1000000
+    N_sample = 256
 
     alpha = 0.7
     beta = 0.5
+
+    N_time = 1000
 
     @classmethod
     def setUpClass(cls):
@@ -79,6 +81,13 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
                        np.ones(shape=cls.obs_dim)*i,
                        0 if i is not cls.N_step - 1 else 1)
         cls.s = cls.rb.sample(cls.N_sample,cls.beta)
+
+        start = time.perf_counter()
+        for _ in range(cls.N_time):
+            cls.rb.sample(cls.N_sample,cls.beta)
+        end = time.perf_counter()
+        print("PER Sample {} time execution".format(cls.N_time))
+        print("{} s".format(end - start))
 
     def _check_ndarray(self,array,ndim,shape):
         self.assertEqual(ndim,array.ndim)
