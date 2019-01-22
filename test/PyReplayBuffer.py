@@ -1,5 +1,5 @@
 import numpy as np
-import unittest
+import unittest, time
 from ymd_K import ReplayBuffer
 
 class TestPyReplayBuffer(unittest.TestCase):
