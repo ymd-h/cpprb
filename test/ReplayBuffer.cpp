@@ -18,7 +18,7 @@ int main(){
   constexpr const auto N_buffer_size = 15ul;
   constexpr const auto N_batch_size = 256ul;
 
-  constexpr const auto N_times = 10000ul;
+  constexpr const auto N_times = 1000ul;
 
   auto timer = [](auto&& f,auto N){
 		 auto start = std::chrono::high_resolution_clock::now();
