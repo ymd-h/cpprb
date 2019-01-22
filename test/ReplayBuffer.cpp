@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <tuple>
 
 #include <ReplayBuffer.hh>
 
@@ -10,12 +11,33 @@ int main(){
   using Done = int;
   using Priority = double;
 
-  constexpr const auto obs_dim = 15ul;
-  constexpr const auto act_dim = 5ul;
+  constexpr const auto obs_dim = 3ul;
+  constexpr const auto act_dim = 1ul;
 
   constexpr const auto N_step = 100ul;
   constexpr const auto N_buffer_size = 15ul;
   constexpr const auto N_batch_size = 256ul;
+
+  constexpr const auto N_times = 10000ul;
+
+  auto timer = [](auto&& f,auto N){
+		 auto start = std::chrono::high_resolution_clock::now();
+
+		 for(auto i = 0ul; i < N; ++i){ f(); }
+
+		 auto end = std::chrono::high_resolution_clock::now();
+		 auto elapsed = end - start;
+
+		 auto s = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
+		 auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
+		 auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
+		 auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed);
+		 std::cout << s.count() << "s "
+			   << ms.count() - s.count() * 1000 << "ms "
+			   << us.count() - ms.count() * 1000 << "us "
+			   << ns.count() - us.count() * 1000 << "ns"
+			   << std::endl;
+	       };
 
   auto alpha = 0.7;
   auto beta = 0.5;
@@ -77,7 +99,12 @@ int main(){
   per.update_priorities(per_i,per_w);
 
   rb.sample(N_batch_size,rb_o,rb_a,rb_r,rb_no,rb_d);
+
   per.sample(N_batch_size,beta,per_o,per_a,per_r,per_no,per_d,per_w,per_i);
+
+  std::cout << std::endl;
+  std::cout << "PER Sample: " << N_times << " times execution" << std::endl;
+  timer([&](){ per.sample(N_batch_size,beta,per_o,per_a,per_r,per_no,per_d,per_w,per_i); },N_times);
 
   return 0;
 }
