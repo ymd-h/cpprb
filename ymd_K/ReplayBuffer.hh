@@ -211,7 +211,7 @@ namespace ymd {
 			auto mass = (d(this->g) + (i++))*every_range_len;
 			return this->sum.largest_region_index([=](auto v){
 								return v <= mass;
-							      });
+							      },this->buffer_size());
 		      });
     }
 
