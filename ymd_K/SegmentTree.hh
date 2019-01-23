@@ -98,7 +98,7 @@ namespace ymd {
       // max index of reduce( [0,index) ) -> true
 
       auto min = 0ul;
-      auto max = (0ul != n) ? n: buffer.size();
+      auto max = (0ul != n) ? n: size;
 
       auto index = (min + max)/2ul;
 
