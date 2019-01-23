@@ -296,23 +296,11 @@ namespace ymd {
       this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
+    template<typename Obs_t,typename Act_t>
     void sample(std::size_t batch_size,
-		std::vector<typename BaseClass::Observation_u::type>& obs,
-		std::vector<typename BaseClass::Action_u::type>& act,
-		std::vector<typename BaseClass::Reward_u::type>& rew,
-		std::vector<typename BaseClass::Observation_u::type>& next_obs,
-		std::vector<typename BaseClass::Done_u::type>& done,
-		...){
-      std::vector<Priority> weights{};
-      std::vector<std::size_t> indexes{};
-      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,weights,indexes);
-    }
-
-    void sample(std::size_t batch_size,
-		std::vector<Observation>& obs,
-		std::vector<Action>& act,
+		Obs_t& obs, Act_t& act,
 		std::vector<Reward>& rew,
-		std::vector<Observation>& next_obs,
+		Obs_t& next_obs,
 		std::vector<Done>& done){
       std::vector<Priority> weights{};
       std::vector<std::size_t> indexes{};
