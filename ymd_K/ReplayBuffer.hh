@@ -199,7 +199,6 @@ namespace ymd {
     Priority max_priority;
     SegmentTree<Priority> sum;
     SegmentTree<Priority> min;
-    std::size_t next_idx;
 
     void sample_proportional(std::size_t batch_size,
 			     std::vector<std::size_t>& indexes){
