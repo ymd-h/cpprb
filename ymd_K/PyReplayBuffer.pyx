@@ -131,7 +131,7 @@ cdef class PyReplayBuffer:
             np.ndarray[double, ndim=1, mode="c"] rew not None,
             np.ndarray[double, ndim=2, mode="c"] next_obs not None,
             np.ndarray[int, ndim=1, mode="c"] done not None,
-            N=1):
+            size_t N=1):
         self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     def sample(self,size):
@@ -180,7 +180,7 @@ cdef class PyPrioritizedReplayBuffer:
             np.ndarray[double, ndim=1, mode="c"] rew not None,
             np.ndarray[double, ndim=2, mode="c"] next_obs not None,
             np.ndarray[int, ndim=1, mode="c"] done not None,
-            N=1):
+            size_t N=1):
         self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     def sample(self,size,beta):
