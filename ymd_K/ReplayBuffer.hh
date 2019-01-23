@@ -118,21 +118,21 @@ namespace ymd {
     }
 
     void encode_sample(const std::vector<std::size_t>& indexes,
-		       std::vector<typename Observation_u::type>& obs,
-		       std::vector<typename Action_u::type>& act,
-		       std::vector<typename Reward_u::type>& rew,
-		       std::vector<typename Observation_u::type>& next_obs,
-		       std::vector<typename Done_u::type>& done,
-		       ...) const {
+		       std::vector<std::vector<Observation>>& obs,
+		       std::vector<std::vector<Action>>& act,
+		       std::vector<Reward>& rew,
+		       std::vector<std::vector<Observation>>& next_obs,
+		       std::vector<Done>& done) const {
       for(auto i : indexes){
-	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
-	auto [o,a,r,no,d] = buffer[i];
+	obs.push_back(std::vector(obs_buffer.data() +  i   *obs_dim,
+				  obs_buffer.data() + (i+1)*obs_dim));
+	act.push_back(std::vector(act_buffer.data() +  i   *act_dim,
+				  act_buffer.data() + (i+1)*act_dim));
+	next_obs.push_back(std::vector(next_obs_buffer.data() +  i   *obs_dim,
+				       next_obs_buffer.data() + (i+1)*obs_dim));
 
-	flatten_push_back(std::move(o),obs);
-	flatten_push_back(std::move(a),act);
-	flatten_push_back(std::move(r),rew);
-	flatten_push_back(std::move(no),next_obs);
-	flatten_push_back(std::move(d),done);
+	rew.push_back(rew_buffer.data() + i);
+	done.push_back(done_buffer.data() + i);
       }
     }
 
