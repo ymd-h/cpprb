@@ -113,36 +113,16 @@ namespace ymd {
       return std::make_tuple(obs,act,rew,next_obs,done);
     }
 
+    template<typename Obs_t,typename Act_t>
     void encode_sample(const std::vector<std::size_t>& indexes,
-		       std::vector<Observation>& obs,
-		       std::vector<Action>& act,
+		       Obs_t& obs, Act_t& act,
 		       std::vector<Reward>& rew,
-		       std::vector<Observation>& next_obs,
+		       Obs_t& next_obs,
 		       std::vector<Done>& done) const {
       for(auto i : indexes){
-	std::copy_n(obs_buffer.data()     +i*obs_dim,obs_dim,std::back_inserter(obs));
-	std::copy_n(act_buffer.data()     +i*act_dim,act_dim,std::back_inserter(act));
-	std::copy_n(next_obs_buffer.data()+i*obs_dim,obs_dim,
-		    std::back_inserter(next_obs));
-
-	rew.push_back(rew_buffer.data() + i);
-	done.push_back(done_buffer.data() + i);
-      }
-    }
-
-    void encode_sample(const std::vector<std::size_t>& indexes,
-		       std::vector<std::vector<Observation>>& obs,
-		       std::vector<std::vector<Action>>& act,
-		       std::vector<Reward>& rew,
-		       std::vector<std::vector<Observation>>& next_obs,
-		       std::vector<Done>& done) const {
-      for(auto i : indexes){
-	obs.push_back(std::vector(obs_buffer.data() +  i   *obs_dim,
-				  obs_buffer.data() + (i+1)*obs_dim));
-	act.push_back(std::vector(act_buffer.data() +  i   *act_dim,
-				  act_buffer.data() + (i+1)*act_dim));
-	next_obs.push_back(std::vector(next_obs_buffer.data() +  i   *obs_dim,
-				       next_obs_buffer.data() + (i+1)*obs_dim));
+	copy(obs_buffer     ,obs     ,i,obs_dim);
+	copy(act_buffer     ,act     ,i,act_dim);
+	copy(next_obs_buffer,next_obs,i,obs_dim);
 
 	rew.push_back(rew_buffer.data() + i);
 	done.push_back(done_buffer.data() + i);
