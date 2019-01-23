@@ -19,5 +19,11 @@ int main(){
 	    << st.largest_region_index([](auto v){ return v <=7; })
 	    << std::endl;
 
+  st.set(12,5,0);
+  for(auto i = 0ul; i < 16ul; ++i){
+    std::cout << st.get(i);
+  }
+  std::cout << std::endl;
+
   return 0;
 }
