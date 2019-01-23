@@ -102,7 +102,7 @@ namespace ymd {
 
       if(N != fill_N){
 	fill_N = N - fill_N;
-	std::fill_n(buffer.data(),fill_N,v);
+	std::fill_n(buffer.data() + access_index(0),fill_N,v);
 
 	for(auto n = 0ul; n < fill_N; ++n){
 	  update.insert(parent(access_index(n)));
