@@ -184,23 +184,22 @@ namespace ymd {
     }
 
     void sample(std::size_t batch_size,
-		std::vector<typename Observation_u::type>& obs,
-		std::vector<typename Action_u::type>& act,
-		std::vector<typename Reward_u::type>& rew,
-		std::vector<typename Observation_u::type>& next_obs,
-		std::vector<typename Done_u::type>& done,
-		...){
+		std::vector<Observation>& obs,
+		std::vector<Action>& act,
+		std::vector<Reward>& rew,
+		std::vector<Observation>& next_obs,
+		std::vector<Done>& done){
       obs.resize(0);
       act.resize(0);
       rew.resize(0);
       next_obs.resize(0);
       done.resize(0);
 
-      obs.reserve(batch_size * Observation_u::size(std::get<0>(buffer[0])));
-      act.reserve(batch_size * Action_u::size(std::get<1>(buffer[0])));
-      rew.reserve(batch_size * Reward_u::size(std::get<2>(buffer[0])));
-      next_obs.reserve(batch_size * Observation_u::size(std::get<3>(buffer[0])));
-      done.reserve(batch_size * Done_u::size(std::get<4>(buffer[0])));
+      obs.reserve(batch_size * obs_dim);
+      act.reserve(batch_size * act_dim);
+      rew.reserve(batch_size);
+      next_obs.reserve(batch_size * obs_dim);
+      done.reserve(batch_size);
 
       auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
       auto indexes = std::vector<std::size_t>{};
