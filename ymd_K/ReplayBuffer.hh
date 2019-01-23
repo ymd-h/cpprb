@@ -182,49 +182,17 @@ namespace ymd {
       }
     }
 
+    template<typename Obs_t,typename Act_t>
     void sample(std::size_t batch_size,
-		std::vector<Observation>& obs,
-		std::vector<Action>& act,
+		Obs_t& obs, Act_t& act,
 		std::vector<Reward>& rew,
-		std::vector<Observation>& next_obs,
+		Obs_t& next_obs,
 		std::vector<Done>& done){
       obs.resize(0);
       act.resize(0);
       rew.resize(0);
       next_obs.resize(0);
       done.resize(0);
-
-      obs.reserve(batch_size * obs_dim);
-      act.reserve(batch_size * act_dim);
-      rew.reserve(batch_size);
-      next_obs.reserve(batch_size * obs_dim);
-      done.reserve(batch_size);
-
-      auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
-      auto indexes = std::vector<std::size_t>{};
-      indexes.reserve(batch_size);
-      std::generate_n(std::back_inserter(indexes),batch_size,random);
-
-      encode_sample(indexes,obs,act,rew,next_obs,done);
-    }
-
-    void sample(std::size_t batch_size,
-		std::vector<std::vector<Observation>>& obs,
-		std::vector<std::vector<Action>>& act,
-		std::vector<Reward>& rew,
-		std::vector<std::vector<Observation>>& next_obs,
-		std::vector<Done>& done){
-      obs.resize(0);
-      act.resize(0);
-      rew.resize(0);
-      next_obs.resize(0);
-      done.resize(0);
-
-      obs.reserve(batch_size);
-      act.reserve(batch_size);
-      rew.reserve(batch_size);
-      next_obs.reserve(batch_size);
-      done.reserve(batch_size);
 
       auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
       auto indexes = std::vector<std::size_t>{};
