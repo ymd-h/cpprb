@@ -18,11 +18,12 @@ class TestPyReplayBuffer(unittest.TestCase):
                                              cls.obs_dim,
                                              cls.act_dim)
         for i in range(cls.N_step):
-            cls.rb.add(np.zeros(shape=cls.obs_dim),
-                       np.ones(shape=cls.act_dim),
-                       0.5*i,
-                       np.ones(shape=cls.obs_dim)*i,
-                       0 if i is not cls.N_step - 1 else 1)
+            cls.rb.add(np.zeros(shape=(1,cls.obs_dim)),
+                       np.ones(shape=(1,cls.act_dim)),
+                       np.ones((1)) * 0.5*i,
+                       np.ones(shape=(1,cls.obs_dim))*i,
+                       np.zeros((1),dtype=np.int32) if i is not cls.N_step - 1 else np.ones((1),dtype=np.int32),
+                       1)
         cls.s = cls.rb.sample(cls.N_sample)
 
     def _check_ndarray(self,array,ndim,shape):
@@ -41,6 +42,7 @@ class TestPyReplayBuffer(unittest.TestCase):
     def test_next_obs(self):
         self._check_ndarray(self.s['next_obs'],2,(self.N_sample,self.obs_dim))
 
+        print(self.s["next_obs"])
         for i in range(self.N_sample):
             self.assertGreaterEqual(self.s['next_obs'][i,0],
                                     self.N_step - self.N_buffer_size)
@@ -75,11 +77,12 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
                                                         cls.obs_dim,
                                                         cls.act_dim)
         for i in range(cls.N_step):
-            cls.rb.add(np.zeros(shape=cls.obs_dim),
-                       np.ones(shape=cls.act_dim),
-                       0.5*i,
-                       np.ones(shape=cls.obs_dim)*i,
-                       0 if i is not cls.N_step - 1 else 1)
+            cls.rb.add(np.zeros(shape=(1,cls.obs_dim)),
+                       np.ones(shape=(1,cls.act_dim)),
+                       0.5*i * np.ones((1)),
+                       np.ones(shape=(1,cls.obs_dim))*i,
+                       np.zeros((1),dtype=np.int32) if i is not cls.N_step - 1 else np.ones((1),dtype=np.int32),
+                       1)
         cls.s = cls.rb.sample(cls.N_sample,cls.beta)
 
         start = time.perf_counter()
@@ -125,10 +128,3 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
-
-
-
-
