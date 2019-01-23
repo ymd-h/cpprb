@@ -53,13 +53,13 @@ namespace ymd {
     }
 
     template<typename T>
-    void copy(std::vector<T>& buffer,std::vector<T>& v,
+    void copy(const std::vector<T>& buffer,std::vector<T>& v,
 	      std::size_t i,std::size_t dim) const {
       std::copy_n(buffer.data() + i*dim,dim,std::back_inserter(v));
     }
 
     template<typename T>
-    void copy(std::vector<T>& buffer,std::vector<std::vector<T>>& v,
+    void copy(const std::vector<T>& buffer,std::vector<std::vector<T>>& v,
 	      std::size_t i,std::size_t dim) const {
       v.push_back(std::vector(buffer.data() +  i   *dim,
 			      buffer.data() + (i+1)*dim));
