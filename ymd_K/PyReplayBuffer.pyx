@@ -4,6 +4,7 @@ from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference
 cimport numpy as np
 import numpy as np
+import cython
 
 from ymd_K cimport ReplayBuffer
 
