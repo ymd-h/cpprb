@@ -33,6 +33,7 @@ namespace ymd {
     using Done_u = UnderlyingType<Done>;
   private:
     const std::size_t capacity;
+    std::size_t size;
     std::size_t obs_dim;
     std::size_t act_dim;
     std::size_t next_index;
@@ -78,6 +79,7 @@ namespace ymd {
       std::copy_n(done    ,N        ,done_buffer.data()     + N        );
 
       next_index += N;
+      size = std::min(size+N,capacity);
     }
 
   protected:
@@ -145,6 +147,7 @@ namespace ymd {
   public:
     ReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim)
       : capacity(n),
+	size{0},
 	obs_dim{obs_dim},
 	act_dim{act_dim},
 	next_index{0ul},
