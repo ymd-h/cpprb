@@ -141,11 +141,20 @@ namespace ymd {
     auto buffer_size() const { return buffer.size(); }
     std::size_t get_capacity() const { return capacity; }
 
-    void add(Observation obs,Action act,Reward rew,Observation next_obs,Done done){
-      if(capacity == buffer.size()){
-	buffer.pop_front();
+    void add(Observation* obs,
+	     Action* act,
+	     Reward* rew,
+	     Observation* next_obs,
+	     Done* done,
+	     std::size_t N = 1ul){
+
+      auto copy_N = std::min(N,capacity - next_index);
+      store_buffer(obs,act,rew,next_obs,done,0ul,copy_N);
+
+      if(capacity == next_index){
+	next_index = 0ul;
+	store_buffer(obs,act,rew,next_obs,done,copy_N,N - copy_N);
       }
-      buffer.emplace_back(std::move(obs),std::move(act),std::move(rew),std::move(next_obs),std::move(done));
     }
 
     void sample(std::size_t batch_size,
