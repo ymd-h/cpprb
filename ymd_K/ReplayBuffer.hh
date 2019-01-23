@@ -13,24 +13,8 @@
 #include "SegmentTree.hh"
 
 namespace ymd {
-  template<typename T> struct UnderlyingType {
-    using type = T;
-    static constexpr auto size(T&){ return 1ul; }
-  };
-  template<typename T> struct UnderlyingType<std::vector<T>>{
-    using type = T;
-    static auto size(std::vector<T>& v){ return v.size(); }
-  };
-
   template<typename Observation,typename Action,typename Reward,typename Done>
   class ReplayBuffer {
-  public:
-    using buffer_t = std::deque<std::tuple<Observation,Action,Reward,Observation,Done>>;
-    using rand_t = std::uniform_int_distribution<std::size_t>;
-    using Observation_u = UnderlyingType<Observation>;
-    using Action_u = UnderlyingType<Action>;
-    using Reward_u = UnderlyingType<Reward>;
-    using Done_u = UnderlyingType<Done>;
   private:
     const std::size_t capacity;
     std::size_t size;
