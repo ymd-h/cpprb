@@ -107,14 +107,13 @@ namespace ymd {
 		       std::vector<Observation>& next_obs,
 		       std::vector<Done>& done) const {
       for(auto i : indexes){
-	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
-	auto [o,a,r,no,d] = buffer[i];
+	std::copy_n(obs_buffer.data()     +i*obs_dim,obs_dim,std::back_inserter(obs));
+	std::copy_n(act_buffer.data()     +i*act_dim,act_dim,std::back_inserter(act));
+	std::copy_n(next_obs_buffer.data()+i*obs_dim,obs_dim,
+		    std::back_inserter(next_obs));
 
-	obs.push_back(std::move(o));
-	act.push_back(std::move(a));
-	rew.push_back(std::move(r));
-	next_obs.push_back(std::move(no));
-	done.push_back(std::move(d));
+	rew.push_back(rew_buffer.data() + i);
+	done.push_back(done_buffer.data() + i);
       }
     }
 
