@@ -42,11 +42,11 @@ namespace ymd {
       next_obs += shift * obs_dim;
       done += shift;
 
-      std::copy_n(obs     ,N*obs_dim,obs_buffer.data()      + N*obs_dim);
-      std::copy_n(act     ,N*act_dim,act_buffer.data()      + N*act_dim);
-      std::copy_n(rew     ,N        ,rew_buffer.data()      + N        );
-      std::copy_n(next_obs,N*obs_dim,next_obs_buffer.data() + N*obs_dim);
-      std::copy_n(done    ,N        ,done_buffer.data()     + N        );
+      std::copy_n(obs     ,N*obs_dim,obs_buffer.data()      + next_index*obs_dim);
+      std::copy_n(act     ,N*act_dim,act_buffer.data()      + next_index*act_dim);
+      std::copy_n(rew     ,N        ,rew_buffer.data()      + next_index        );
+      std::copy_n(next_obs,N*obs_dim,next_obs_buffer.data() + next_index*obs_dim);
+      std::copy_n(done    ,N        ,done_buffer.data()     + next_index        );
 
       next_index += N;
       size = std::min(size+N,capacity);
