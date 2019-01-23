@@ -57,6 +57,29 @@ namespace ymd {
     void flatten_push_back(std::vector<T>&& v,std::vector<T>& to) const {
       std::move(v.begin(),v.end(),std::back_inserter(to));
     }
+
+    void store_buffer(Observation* obs,
+		      Action* act,
+		      Reward* rew,
+		      Observation* next_obs,
+		      Done* done,
+		      std::size_t shift,
+		      std::size_t N){
+      obs += shift * obs_dim;
+      act += shift * act_dim;
+      rew += shift;
+      next_obs += shift * obs_dim;
+      done += shift;
+
+      std::copy_n(obs     ,N*obs_dim,obs_buffer.data()      + N*obs_dim);
+      std::copy_n(act     ,N*act_dim,act_buffer.data()      + N*act_dim);
+      std::copy_n(rew     ,N        ,rew_buffer.data()      + N        );
+      std::copy_n(next_obs,N*obs_dim,next_obs_buffer.data() + N*obs_dim);
+      std::copy_n(done    ,N        ,done_buffer.data()     + N        );
+
+      next_index += N;
+    }
+
   protected:
     std::mt19937 g;
 
