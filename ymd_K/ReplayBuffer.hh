@@ -276,14 +276,13 @@ namespace ymd {
     }
 
     void sample(std::size_t batch_size,Priority beta,
-		std::vector<typename BaseClass::Observation_u::type>& obs,
-		std::vector<typename BaseClass::Action_u::type>& act,
-		std::vector<typename BaseClass::Reward_u::type>& rew,
-		std::vector<typename BaseClass::Observation_u::type>& next_obs,
-		std::vector<typename BaseClass::Done_u::type>& done,
+		std::vector<Observation>& obs,
+		std::vector<Action>& act,
+		std::vector<Reward>& rew,
+		std::vector<Observation>& next_obs,
+		std::vector<Done>& done,
 		std::vector<Priority>& weights,
-		std::vector<std::size_t>& indexes,
-		...){
+		std::vector<std::size_t>& indexes){
       beta = std::max(beta,Priority{0});
 
       indexes.resize(0);
