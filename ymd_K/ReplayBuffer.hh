@@ -209,10 +209,10 @@ namespace ymd {
     }
 
     void sample(std::size_t batch_size,
-		std::vector<Observation>& obs,
-		std::vector<Action>& act,
+		std::vector<std::vector<Observation>>& obs,
+		std::vector<std::vector<Action>>& act,
 		std::vector<Reward>& rew,
-		std::vector<Observation>& next_obs,
+		std::vector<std::vector<Observation>>& next_obs,
 		std::vector<Done>& done){
       obs.resize(0);
       act.resize(0);
