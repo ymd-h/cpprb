@@ -33,7 +33,14 @@ namespace ymd {
     using Done_u = UnderlyingType<Done>;
   private:
     const std::size_t capacity;
-    buffer_t buffer;
+    std::size_t obs_dim;
+    std::size_t act_dim;
+    std::size_t next_index;
+    std::vector<Observation> obs_buffer;
+    std::vector<Action> act_buffer;
+    std::vector<Reward> rew_buffer;
+    std::vector<Observation> next_buffer;
+    std::vector<Done> done_buffer;
 
     template<typename T>
     void flatten_push_back(T&& v,
@@ -113,8 +120,18 @@ namespace ymd {
     }
 
   public:
-    ReplayBuffer(std::size_t n): capacity(n),g{std::random_device{}()} {}
-    ReplayBuffer(): ReplayBuffer{1} {}
+    ReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim)
+      : capacity(n),
+	obs_dim{obs_dim},
+	act_dim{act_dim},
+	next_index{0ul},
+	obs_buffer(capacity * obs_dim,Observation{0}),
+	act_buffer(capacity * act_dim,Action{0}),
+	rew_buffer(capacity,Reward{0}),
+	next_obs_buffer(capacity * obs_dim,Observation{0}),
+	done_buffer(capacity,Done{0}),
+	g{std::random_device{}()} {}
+    ReplayBuffer(): ReplayBuffer{1,1,1} {}
     ReplayBuffer(const ReplayBuffer&) = default;
     ReplayBuffer(ReplayBuffer&&) = default;
     ReplayBuffer& operator=(const ReplayBuffer&) = default;
