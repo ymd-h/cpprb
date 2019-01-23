@@ -94,8 +94,8 @@ namespace ymd {
 	copy(act_buffer     ,act     ,i,act_dim);
 	copy(next_obs_buffer,next_obs,i,obs_dim);
 
-	rew.push_back(rew_buffer.data() + i);
-	done.push_back(done_buffer.data() + i);
+	rew.push_back(rew_buffer[i]);
+	done.push_back(done_buffer[i]);
       }
     }
 
