@@ -257,8 +257,7 @@ namespace ymd {
 			  return ((zero == a) ? b:
 				  (zero == b) ? a:
 				  std::min(a,b));
-			}},
-	next_idx{0} {}
+			}} {}
     PrioritizedReplayBuffer() : PrioritizedReplayBuffer{1,0.0} {}
     PrioritizedReplayBuffer(const PrioritizedReplayBuffer&) = default;
     PrioritizedReplayBuffer(PrioritizedReplayBuffer&&) = default;
