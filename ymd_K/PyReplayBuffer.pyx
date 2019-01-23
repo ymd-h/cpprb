@@ -144,8 +144,7 @@ cdef class PyReplayBuffer:
                 'done': np.asarray(self.done)}
 
 cdef class PyPrioritizedReplayBuffer:
-    cdef PrioritizedReplayBuffer[vector[double],vector[double],
-                                 double,int,double] *thisptr
+    cdef PrioritizedReplayBuffer[double,double,double,int,double] *thisptr
     cdef VectorDouble obs
     cdef VectorDouble act
     cdef VectorDouble rew
@@ -156,9 +155,11 @@ cdef class PyPrioritizedReplayBuffer:
     def __cinit__(self,size,alpha,obs_dim,act_dim):
         print("Prioritized Replay Buffer")
 
-        self.thisptr = new PrioritizedReplayBuffer[vector[double],
-                                                   vector[double],
-                                                   double,int,double](size,alpha)
+        self.thisptr = new PrioritizedReplayBuffer[double,double,
+                                                   double,int,double](size,
+                                                                      obs_dim,
+                                                                      act_dim,
+                                                                      alpha)
         self.obs = VectorDouble(obs_dim)
         self.act = VectorDouble(act_dim)
         self.rew = VectorDouble()
@@ -167,8 +168,13 @@ cdef class PyPrioritizedReplayBuffer:
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
-    def add(self,observation,action,reward,next_observation,done):
-        self.thisptr.add(observation,action,reward,next_observation,done)
+    def add(self,observation,action,reward,next_observation,done,N=1):
+        self.thisptr.add(&observation[0,0],
+                         &action[0,0],
+                         &reward[0],
+                         &next_observation[0,0],
+                         &done[0],
+                         N)
 
     def sample(self,size,beta):
         self.thisptr.sample(size,beta,
