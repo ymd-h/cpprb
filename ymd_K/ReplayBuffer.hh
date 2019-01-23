@@ -141,6 +141,7 @@ namespace ymd {
     ~ReplayBuffer() = default;
 
     std::size_t buffer_size() const { return size; }
+    std::size_t get_next_index() const { return next_index;}
     std::size_t get_capacity() const { return capacity; }
 
     void add(Observation* obs,
