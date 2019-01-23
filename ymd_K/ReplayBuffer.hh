@@ -15,6 +15,8 @@
 namespace ymd {
   template<typename Observation,typename Action,typename Reward,typename Done>
   class ReplayBuffer {
+  public:
+    using rand_t = std::uniform_int_distribution<std::size_t>;
   private:
     const std::size_t capacity;
     std::size_t size;
