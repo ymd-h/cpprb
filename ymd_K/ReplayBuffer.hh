@@ -24,7 +24,7 @@ namespace ymd {
     std::vector<Observation> obs_buffer;
     std::vector<Action> act_buffer;
     std::vector<Reward> rew_buffer;
-    std::vector<Observation> next_buffer;
+    std::vector<Observation> next_obs_buffer;
     std::vector<Done> done_buffer;
 
     void store_buffer(Observation* obs,
