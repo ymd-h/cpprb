@@ -19,11 +19,18 @@ int main(){
 	    << st.largest_region_index([](auto v){ return v <=7; })
 	    << std::endl;
 
-  st.set(12,5,0);
+  st.set(12,5,10);
   for(auto i = 0ul; i < 16ul; ++i){
-    std::cout << st.get(i);
+    std::cout << st.get(i) << " ";
   }
   std::cout << std::endl;
+
+  std::cout << "[0,11): " << st.reduce(0,11) << std::endl;
+  std::cout << "[13,15): " << st.reduce(13,15) << std::endl;
+
+  std::cout << "[0,x) <= 7: x = "
+	    << st.largest_region_index([](auto v){ return v <=7; })
+	    << std::endl;
 
   return 0;
 }
