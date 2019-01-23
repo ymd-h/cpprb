@@ -86,8 +86,8 @@ namespace ymd {
     std::mt19937 g;
 
     auto initialize_space(std::size_t size = 0ul) const {
-      std::vector<Observation> obs{},next_obs{};
-      std::vector<Action> act{};
+      std::vector<std::vector<Observation>> obs{},next_obs{};
+      std::vector<std::vector<Action>> act{};
       std::vector<Reward> rew{};
       std::vector<Done> done{};
 
