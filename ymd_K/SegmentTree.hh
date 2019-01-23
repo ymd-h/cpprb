@@ -5,6 +5,7 @@
 #include <functional>
 #include <utility>
 #include <vector>
+#include <set>
 
 namespace ymd {
   inline constexpr auto PowerOf2(std::size_t n) noexcept {
@@ -85,6 +86,35 @@ namespace ymd {
 	n = parent(n);
 	update_buffer(n);
       } while(n != 0ul);
+    }
+
+    void set(std::size_t i,T v,std::size_t N,std::size_t max = 0ul){
+      if(0ul == max){ max = size; }
+
+      std::set<std::size_t> update{};
+
+      auto fill_N = std::min(N,max-i);
+      std::fill_n(buffer.data() + access_index(i),fill_N,v);
+
+      for(auto n = 0ul; n < fill_N; ++n){
+	update.insert(parent(access_index(i+n)));
+      }
+
+      if(N != fill_N){
+	fill_N = N - fill_N;
+	std::fill_n(buffer.data(),fill_N,v);
+
+	for(auto n = 0ul; n < fill_N; ++n){
+	  update.insert(parent(access_index(n)));
+	}
+      }
+
+      while(!update.empty()){
+	i = *(update.rbegin());
+	update_buffer(i);
+	update.erase(i);
+	if(i){ update.insert(parent(i)); }
+      }
     }
 
     auto reduce(std::size_t start,std::size_t end) const {

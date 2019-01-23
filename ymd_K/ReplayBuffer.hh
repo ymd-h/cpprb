@@ -255,8 +255,8 @@ namespace ymd {
       this->BaseClass::add(obs,act,rew,next_obs,done,N);
 
       auto v = std::pow(max_priority,alpha);
-      sum.set(next_idx,v,N);
-      min.set(next_idx,v,N);
+      sum.set(next_idx,v,N,this->buffer_size());
+      min.set(next_idx,v,N,this->buffer_size());
     }
 
     template<typename Obs_t,typename Act_t>
