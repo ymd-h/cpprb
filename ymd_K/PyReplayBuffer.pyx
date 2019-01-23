@@ -122,13 +122,16 @@ cdef class PyReplayBuffer:
         self.next_obs = VectorDouble(obs_dim)
         self.done = VectorInt()
 
-    def add(self,observation,action,reward,next_observation,done,N=1):
-        self.thisptr.add(&observation[0,0],
-                         &action[0,0],
-                         &reward[0],
-                         &next_observation[0,0],
-                         &done[0],
-                         N)
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def add(self,
+            np.ndarray[double, ndim=2, mode="c"] obs not None,
+            np.ndarray[double, ndim=2, mode="c"] act not None,
+            np.ndarray[double, ndim=1, mode="c"] rew not None,
+            np.ndarray[double, ndim=2, mode="c"] next_obs not None,
+            np.ndarray[double, ndim=1, mode="c"] done not None,
+            N=1):
+        self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     def sample(self,size):
         self.thisptr.sample(size,
@@ -168,13 +171,16 @@ cdef class PyPrioritizedReplayBuffer:
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
-    def add(self,observation,action,reward,next_observation,done,N=1):
-        self.thisptr.add(&observation[0,0],
-                         &action[0,0],
-                         &reward[0],
-                         &next_observation[0,0],
-                         &done[0],
-                         N)
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def add(self,
+            np.ndarray[double, ndim=2, mode="c"] obs not None,
+            np.ndarray[double, ndim=2, mode="c"] act not None,
+            np.ndarray[double, ndim=1, mode="c"] rew not None,
+            np.ndarray[double, ndim=2, mode="c"] next_obs not None,
+            np.ndarray[double, ndim=1, mode="c"] done not None,
+            N=1):
+        self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     def sample(self,size,beta):
         self.thisptr.sample(size,beta,
