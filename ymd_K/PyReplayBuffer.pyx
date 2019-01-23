@@ -104,7 +104,7 @@ cdef class VectorULong(VectorWrapper):
         buffer.format = 'L'
 
 cdef class PyReplayBuffer:
-    cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
+    cdef ReplayBuffer[double,double,double,int] *thisptr
     cdef VectorDouble obs
     cdef VectorDouble act
     cdef VectorDouble rew
@@ -113,17 +113,22 @@ cdef class PyReplayBuffer:
     def __cinit__(self,size,obs_dim,act_dim):
         print("Replay Buffer")
 
-        self.thisptr = new ReplayBuffer[vector[double],
-                                        vector[double],
-                                        double,int](size)
+        self.thisptr = new ReplayBuffer[double,double,double,int](size,
+                                                                  obs_dim,
+                                                                  act_dim)
         self.obs = VectorDouble(obs_dim)
         self.act = VectorDouble(act_dim)
         self.rew = VectorDouble()
         self.next_obs = VectorDouble(obs_dim)
         self.done = VectorInt()
 
-    def add(self,observation,action,reward,next_observation,done):
-        self.thisptr.add(observation,action,reward,next_observation,done)
+    def add(self,observation,action,reward,next_observation,done,N=1):
+        self.thisptr.add(&observation[0,0],
+                         &action[0,0],
+                         &reward[0],
+                         &next_observation[0,0],
+                         &done[0],
+                         N)
 
     def sample(self,size):
         self.thisptr.sample(size,
