@@ -247,8 +247,9 @@ namespace ymd {
     }
 
   public:
-    PrioritizedReplayBuffer(std::size_t n,Priority alpha)
-      : BaseClass{n},
+    PrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
+			    Priority alpha)
+      : BaseClass{n,obs_dim,act_dim},
 	alpha{std::max(alpha,Priority{0.0})},
 	max_priority{1.0},
 	sum{PowerOf2(n),[](auto a,auto b){ return a+b; }},
