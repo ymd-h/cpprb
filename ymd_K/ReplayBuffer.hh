@@ -200,7 +200,7 @@ namespace ymd {
       next_obs.reserve(batch_size * obs_dim);
       done.reserve(batch_size);
 
-      auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
+      auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
       auto indexes = std::vector<std::size_t>{};
       indexes.reserve(batch_size);
       std::generate_n(std::back_inserter(indexes),batch_size,random);
@@ -226,7 +226,7 @@ namespace ymd {
       next_obs.reserve(batch_size);
       done.reserve(batch_size);
 
-      auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
+      auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
       auto indexes = std::vector<std::size_t>{};
       indexes.reserve(batch_size);
       std::generate_n(std::back_inserter(indexes),batch_size,random);
