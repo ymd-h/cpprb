@@ -265,16 +265,14 @@ namespace ymd {
     PrioritizedReplayBuffer& operator=(PrioritizedReplayBuffer&&) = default;
     ~PrioritizedReplayBuffer() = default;
 
-    void add(Observation obs,Action act,Reward rew,
-	     Observation next_obs,Done done){
-      this->BaseClass::add(std::move(obs),std::move(act),std::move(rew),
-			   std::move(next_obs),std::move(done));
+    void add(Observation* obs,Action* act,Reward* rew,
+	     Observation* next_obs,Done* done,std::size_t N = 1ul){
+      auto next_idx = this->get_next_index();
+      this->BaseClass::add(obs,act,rew,next_obs,done,N);
 
       auto v = std::pow(max_priority,alpha);
-      sum.set(next_idx,v);
-      min.set(next_idx,v);
-
-      if(this->get_capacity() == ++next_idx){ next_idx = 0ul; }
+      sum.set(next_idx,v,N);
+      min.set(next_idx,v,N);
     }
 
     void sample(std::size_t batch_size,Priority beta,
