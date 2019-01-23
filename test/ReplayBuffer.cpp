@@ -14,9 +14,9 @@ int main(){
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
 
-  constexpr const auto N_step = 1000000ul;
-  constexpr const auto N_buffer_size = 1000000ul;
-  constexpr const auto N_batch_size = 256ul;
+  constexpr const auto N_step = 100ul;
+  constexpr const auto N_buffer_size = 32ul;
+  constexpr const auto N_batch_size = 16ul;
 
   constexpr const auto N_times = 1000ul;
 
