@@ -84,8 +84,8 @@ cdef class VectorDouble(VectorWrapper):
         return self.vec.size()
 
     cdef void set_buffer(self,Py_buffer* buffer):
-         buffer.buf = <void*>(self.vec.data())
-         buffer.format = 'd'
+        buffer.buf = <void*>(self.vec.data())
+        buffer.format = 'd'
 
 cdef class VectorULong(VectorWrapper):
     cdef vector[size_t] vec
