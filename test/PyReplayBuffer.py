@@ -11,6 +11,7 @@ class TestPyReplayBuffer(unittest.TestCase):
     N_step = 100
     N_buffer_size = 32
     N_sample = 16
+    N_add = 10
 
     @classmethod
     def setUpClass(cls):
@@ -18,12 +19,12 @@ class TestPyReplayBuffer(unittest.TestCase):
                                              cls.obs_dim,
                                              cls.act_dim)
         for i in range(cls.N_step):
-            cls.rb.add(np.ones(shape=(1,cls.obs_dim))*i,
-                       np.zeros(shape=(1,cls.act_dim)),
-                       np.ones((1)) * 0.5*i,
-                       np.ones(shape=(1,cls.obs_dim))*(i+1),
-                       np.zeros((1),dtype=np.int32) if i is not cls.N_step - 1 else np.ones((1),dtype=np.int32),
-                       1)
+            cls.rb.add(np.ones(shape=(cls.N_add,cls.obs_dim))*i,
+                       np.zeros(shape=(cls.N_add,cls.act_dim)),
+                       np.ones((cls.N_add)) * 0.5*i,
+                       np.ones(shape=(cls.N_add,cls.obs_dim))*(i+1),
+                       np.zeros((cls.N_add),dtype=np.int32) if i is not cls.N_step - 1 else np.ones((1),dtype=np.int32),
+                       cls.N_add)
         cls.s = cls.rb.sample(cls.N_sample)
 
     def _check_ndarray(self,array,ndim,shape,name):
@@ -73,6 +74,7 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
     N_step = 100
     N_buffer_size = 32
     N_sample = 16
+    N_add = 10
 
     alpha = 0.7
     beta = 0.5
@@ -86,12 +88,12 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
                                                         cls.obs_dim,
                                                         cls.act_dim)
         for i in range(cls.N_step):
-            cls.rb.add(np.ones(shape=(1,cls.obs_dim))*i,
-                       np.zeros(shape=(1,cls.act_dim)),
-                       0.5*i * np.ones((1)),
-                       np.ones(shape=(1,cls.obs_dim))*(i+1),
-                       np.zeros((1),dtype=np.int32) if i is not cls.N_step - 1 else np.ones((1),dtype=np.int32),
-                       1)
+            cls.rb.add(np.ones(shape=(cls.N_add,cls.obs_dim))*i,
+                       np.zeros(shape=(cls.N_add,cls.act_dim)),
+                       0.5*i * np.ones((cls.N_add)),
+                       np.ones(shape=(cls.N_add,cls.obs_dim))*(i+1),
+                       np.zeros((cls.N_add),dtype=np.int32) if i is not cls.N_step - 1 else np.ones((1),dtype=np.int32),
+                       cls.N_add)
         cls.s = cls.rb.sample(cls.N_sample,cls.beta)
 
         start = time.perf_counter()
