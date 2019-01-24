@@ -13,49 +13,64 @@
 #include "SegmentTree.hh"
 
 namespace ymd {
-  template<typename T> struct UnderlyingType {
-    using type = T;
-    static constexpr auto size(T&){ return 1ul; }
-  };
-  template<typename T> struct UnderlyingType<std::vector<T>>{
-    using type = T;
-    static auto size(std::vector<T>& v){ return v.size(); }
-  };
-
   template<typename Observation,typename Action,typename Reward,typename Done>
   class ReplayBuffer {
   public:
-    using buffer_t = std::deque<std::tuple<Observation,Action,Reward,Observation,Done>>;
     using rand_t = std::uniform_int_distribution<std::size_t>;
-    using Observation_u = UnderlyingType<Observation>;
-    using Action_u = UnderlyingType<Action>;
-    using Reward_u = UnderlyingType<Reward>;
-    using Done_u = UnderlyingType<Done>;
   private:
     const std::size_t capacity;
-    buffer_t buffer;
+    std::size_t size;
+    std::size_t obs_dim;
+    std::size_t act_dim;
+    std::size_t next_index;
+    std::vector<Observation> obs_buffer;
+    std::vector<Action> act_buffer;
+    std::vector<Reward> rew_buffer;
+    std::vector<Observation> next_obs_buffer;
+    std::vector<Done> done_buffer;
 
-    template<typename T>
-    void flatten_push_back(T&& v,
-			   std::vector<std::remove_reference_t<T>>& to) const {
-      to.push_back(std::forward<T>(v));
+    void store_buffer(Observation* obs,
+		      Action* act,
+		      Reward* rew,
+		      Observation* next_obs,
+		      Done* done,
+		      std::size_t shift,
+		      std::size_t N){
+      obs += shift * obs_dim;
+      act += shift * act_dim;
+      rew += shift;
+      next_obs += shift * obs_dim;
+      done += shift;
+
+      std::copy_n(obs     ,N*obs_dim,obs_buffer.data()      + next_index*obs_dim);
+      std::copy_n(act     ,N*act_dim,act_buffer.data()      + next_index*act_dim);
+      std::copy_n(rew     ,N        ,rew_buffer.data()      + next_index        );
+      std::copy_n(next_obs,N*obs_dim,next_obs_buffer.data() + next_index*obs_dim);
+      std::copy_n(done    ,N        ,done_buffer.data()     + next_index        );
+
+      next_index += N;
+      size = std::min(size+N,capacity);
     }
 
     template<typename T>
-    void flatten_push_back(const std::vector<T>& v,std::vector<T>& to) const {
-      std::copy(v.begin(),v.end(),std::back_inserter(to));
+    void copy(const std::vector<T>& buffer,std::vector<T>& v,
+	      std::size_t i,std::size_t dim) const {
+      std::copy_n(buffer.data() + i*dim,dim,std::back_inserter(v));
     }
 
     template<typename T>
-    void flatten_push_back(std::vector<T>&& v,std::vector<T>& to) const {
-      std::move(v.begin(),v.end(),std::back_inserter(to));
+    void copy(const std::vector<T>& buffer,std::vector<std::vector<T>>& v,
+	      std::size_t i,std::size_t dim) const {
+      v.emplace_back(buffer.data() +  i   *dim,
+		     buffer.data() + (i+1)*dim);
     }
+
   protected:
     std::mt19937 g;
 
     auto initialize_space(std::size_t size = 0ul) const {
-      std::vector<Observation> obs{},next_obs{};
-      std::vector<Action> act{};
+      std::vector<std::vector<Observation>> obs{},next_obs{};
+      std::vector<std::vector<Action>> act{};
       std::vector<Reward> rew{};
       std::vector<Done> done{};
 
@@ -68,40 +83,25 @@ namespace ymd {
       return std::make_tuple(obs,act,rew,next_obs,done);
     }
 
+    template<typename Obs_t,typename Act_t>
     void encode_sample(const std::vector<std::size_t>& indexes,
-		       std::vector<Observation>& obs,
-		       std::vector<Action>& act,
+		       Obs_t& obs, Act_t& act,
 		       std::vector<Reward>& rew,
-		       std::vector<Observation>& next_obs,
+		       Obs_t& next_obs,
 		       std::vector<Done>& done) const {
+      obs.resize(0);
+      act.resize(0);
+      rew.resize(0);
+      next_obs.resize(0);
+      done.resize(0);
+
       for(auto i : indexes){
-	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
-	auto [o,a,r,no,d] = buffer[i];
+	copy(obs_buffer     ,obs     ,i,obs_dim);
+	copy(act_buffer     ,act     ,i,act_dim);
+	copy(next_obs_buffer,next_obs,i,obs_dim);
 
-	obs.push_back(std::move(o));
-	act.push_back(std::move(a));
-	rew.push_back(std::move(r));
-	next_obs.push_back(std::move(no));
-	done.push_back(std::move(d));
-      }
-    }
-
-    void encode_sample(const std::vector<std::size_t>& indexes,
-		       std::vector<typename Observation_u::type>& obs,
-		       std::vector<typename Action_u::type>& act,
-		       std::vector<typename Reward_u::type>& rew,
-		       std::vector<typename Observation_u::type>& next_obs,
-		       std::vector<typename Done_u::type>& done,
-		       ...) const {
-      for(auto i : indexes){
-	// Done can be bool, so that "std::tie(...,d[i]) = buffer[random()]" may fail.
-	auto [o,a,r,no,d] = buffer[i];
-
-	flatten_push_back(std::move(o),obs);
-	flatten_push_back(std::move(a),act);
-	flatten_push_back(std::move(r),rew);
-	flatten_push_back(std::move(no),next_obs);
-	flatten_push_back(std::move(d),done);
+	rew.push_back(rew_buffer[i]);
+	done.push_back(done_buffer[i]);
       }
     }
 
@@ -113,70 +113,52 @@ namespace ymd {
     }
 
   public:
-    ReplayBuffer(std::size_t n): capacity(n),g{std::random_device{}()} {}
-    ReplayBuffer(): ReplayBuffer{1} {}
+    ReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim)
+      : capacity(n),
+	size{0},
+	obs_dim{obs_dim},
+	act_dim{act_dim},
+	next_index{0ul},
+	obs_buffer(capacity * obs_dim,Observation{0}),
+	act_buffer(capacity * act_dim,Action{0}),
+	rew_buffer(capacity,Reward{0}),
+	next_obs_buffer(capacity * obs_dim,Observation{0}),
+	done_buffer(capacity,Done{0}),
+	g{std::random_device{}()} {}
+    ReplayBuffer(): ReplayBuffer{1,1,1} {}
     ReplayBuffer(const ReplayBuffer&) = default;
     ReplayBuffer(ReplayBuffer&&) = default;
     ReplayBuffer& operator=(const ReplayBuffer&) = default;
     ReplayBuffer& operator=(ReplayBuffer&&) = default;
     ~ReplayBuffer() = default;
 
-    auto buffer_size() const { return buffer.size(); }
+    std::size_t buffer_size() const { return size; }
+    std::size_t get_next_index() const { return next_index;}
     std::size_t get_capacity() const { return capacity; }
 
-    void add(Observation obs,Action act,Reward rew,Observation next_obs,Done done){
-      if(capacity == buffer.size()){
-	buffer.pop_front();
+    void add(Observation* obs,
+	     Action* act,
+	     Reward* rew,
+	     Observation* next_obs,
+	     Done* done,
+	     std::size_t N = 1ul){
+
+      auto copy_N = std::min(N,capacity - next_index);
+      store_buffer(obs,act,rew,next_obs,done,0ul,copy_N);
+
+      if(capacity == next_index){
+	next_index = 0ul;
+	store_buffer(obs,act,rew,next_obs,done,copy_N,N - copy_N);
       }
-      buffer.emplace_back(std::move(obs),std::move(act),std::move(rew),std::move(next_obs),std::move(done));
     }
 
+    template<typename Obs_t,typename Act_t>
     void sample(std::size_t batch_size,
-		std::vector<typename Observation_u::type>& obs,
-		std::vector<typename Action_u::type>& act,
-		std::vector<typename Reward_u::type>& rew,
-		std::vector<typename Observation_u::type>& next_obs,
-		std::vector<typename Done_u::type>& done,
-		...){
-      obs.resize(0);
-      act.resize(0);
-      rew.resize(0);
-      next_obs.resize(0);
-      done.resize(0);
-
-      obs.reserve(batch_size * Observation_u::size(std::get<0>(buffer[0])));
-      act.reserve(batch_size * Action_u::size(std::get<1>(buffer[0])));
-      rew.reserve(batch_size * Reward_u::size(std::get<2>(buffer[0])));
-      next_obs.reserve(batch_size * Observation_u::size(std::get<3>(buffer[0])));
-      done.reserve(batch_size * Done_u::size(std::get<4>(buffer[0])));
-
-      auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
-      auto indexes = std::vector<std::size_t>{};
-      indexes.reserve(batch_size);
-      std::generate_n(std::back_inserter(indexes),batch_size,random);
-
-      encode_sample(indexes,obs,act,rew,next_obs,done);
-    }
-
-    void sample(std::size_t batch_size,
-		std::vector<Observation>& obs,
-		std::vector<Action>& act,
+		Obs_t& obs, Act_t& act,
 		std::vector<Reward>& rew,
-		std::vector<Observation>& next_obs,
+		Obs_t& next_obs,
 		std::vector<Done>& done){
-      obs.resize(0);
-      act.resize(0);
-      rew.resize(0);
-      next_obs.resize(0);
-      done.resize(0);
-
-      obs.reserve(batch_size);
-      act.reserve(batch_size);
-      rew.reserve(batch_size);
-      next_obs.reserve(batch_size);
-      done.reserve(batch_size);
-
-      auto random = [this,d=rand_t{0,buffer.size()-1}]()mutable{ return d(this->g); };
+      auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
       auto indexes = std::vector<std::size_t>{};
       indexes.reserve(batch_size);
       std::generate_n(std::back_inserter(indexes),batch_size,random);
@@ -203,7 +185,6 @@ namespace ymd {
     Priority max_priority;
     SegmentTree<Priority> sum;
     SegmentTree<Priority> min;
-    std::size_t next_idx;
 
     void sample_proportional(std::size_t batch_size,
 			     std::vector<std::size_t>& indexes){
@@ -216,7 +197,7 @@ namespace ymd {
 			auto mass = (d(this->g) + (i++))*every_range_len;
 			return this->sum.largest_region_index([=](auto v){
 								return v <= mass;
-							      });
+							      },this->buffer_size());
 		      });
     }
 
@@ -252,8 +233,9 @@ namespace ymd {
     }
 
   public:
-    PrioritizedReplayBuffer(std::size_t n,Priority alpha)
-      : BaseClass{n},
+    PrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
+			    Priority alpha)
+      : BaseClass{n,obs_dim,act_dim},
 	alpha{std::max(alpha,Priority{0.0})},
 	max_priority{1.0},
 	sum{PowerOf2(n),[](auto a,auto b){ return a+b; }},
@@ -261,66 +243,29 @@ namespace ymd {
 			  return ((zero == a) ? b:
 				  (zero == b) ? a:
 				  std::min(a,b));
-			}},
-	next_idx{0} {}
-    PrioritizedReplayBuffer() : PrioritizedReplayBuffer{1,0.0} {}
+			}} {}
+    PrioritizedReplayBuffer() : PrioritizedReplayBuffer{1,1,1,0.0} {}
     PrioritizedReplayBuffer(const PrioritizedReplayBuffer&) = default;
     PrioritizedReplayBuffer(PrioritizedReplayBuffer&&) = default;
     PrioritizedReplayBuffer& operator=(const PrioritizedReplayBuffer&) = default;
     PrioritizedReplayBuffer& operator=(PrioritizedReplayBuffer&&) = default;
     ~PrioritizedReplayBuffer() = default;
 
-    void add(Observation obs,Action act,Reward rew,
-	     Observation next_obs,Done done){
-      this->BaseClass::add(std::move(obs),std::move(act),std::move(rew),
-			   std::move(next_obs),std::move(done));
+    void add(Observation* obs,Action* act,Reward* rew,
+	     Observation* next_obs,Done* done,std::size_t N = 1ul){
+      auto next_idx = this->get_next_index();
+      this->BaseClass::add(obs,act,rew,next_obs,done,N);
 
       auto v = std::pow(max_priority,alpha);
-      sum.set(next_idx,v);
-      min.set(next_idx,v);
-
-      if(this->get_capacity() == ++next_idx){ next_idx = 0ul; }
+      sum.set(next_idx,v,N,this->buffer_size());
+      min.set(next_idx,v,N,this->buffer_size());
     }
 
+    template<typename Obs_t,typename Act_t>
     void sample(std::size_t batch_size,Priority beta,
-		std::vector<typename BaseClass::Observation_u::type>& obs,
-		std::vector<typename BaseClass::Action_u::type>& act,
-		std::vector<typename BaseClass::Reward_u::type>& rew,
-		std::vector<typename BaseClass::Observation_u::type>& next_obs,
-		std::vector<typename BaseClass::Done_u::type>& done,
-		std::vector<Priority>& weights,
-		std::vector<std::size_t>& indexes,
-		...){
-      beta = std::max(beta,Priority{0});
-
-      indexes.resize(0);
-      indexes.reserve(batch_size);
-      sample_proportional(batch_size,indexes);
-
-      weights.resize(0);
-      weights.reserve(batch_size);
-      set_weights(indexes,beta,weights);
-
-      this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
-    }
-
-    void sample(std::size_t batch_size,
-		std::vector<typename BaseClass::Observation_u::type>& obs,
-		std::vector<typename BaseClass::Action_u::type>& act,
-		std::vector<typename BaseClass::Reward_u::type>& rew,
-		std::vector<typename BaseClass::Observation_u::type>& next_obs,
-		std::vector<typename BaseClass::Done_u::type>& done,
-		...){
-      std::vector<Priority> weights{};
-      std::vector<std::size_t> indexes{};
-      sample(batch_size,Priority{0.0},obs,act,rew,next_obs,done,weights,indexes);
-    }
-
-    void sample(std::size_t batch_size,Priority beta,
-		std::vector<Observation>& obs,
-		std::vector<Action>& act,
+		Obs_t& obs, Act_t& act,
 		std::vector<Reward>& rew,
-		std::vector<Observation>& next_obs,
+		Obs_t& next_obs,
 		std::vector<Done>& done,
 		std::vector<Priority>& weights,
 		std::vector<std::size_t>& indexes){
@@ -337,11 +282,11 @@ namespace ymd {
       this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
+    template<typename Obs_t,typename Act_t>
     void sample(std::size_t batch_size,
-		std::vector<Observation>& obs,
-		std::vector<Action>& act,
+		Obs_t& obs, Act_t& act,
 		std::vector<Reward>& rew,
-		std::vector<Observation>& next_obs,
+		Obs_t& next_obs,
 		std::vector<Done>& done){
       std::vector<Priority> weights{};
       std::vector<std::size_t> indexes{};

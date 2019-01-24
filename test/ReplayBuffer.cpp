@@ -5,8 +5,8 @@
 #include <ReplayBuffer.hh>
 
 int main(){
-  using Observation = std::vector<double>;
-  using Action = std::vector<double>;
+  using Observation = double;
+  using Action = double;
   using Reward = double;
   using Done = int;
   using Priority = double;
@@ -14,9 +14,9 @@ int main(){
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
 
-  constexpr const auto N_step = 1000000ul;
-  constexpr const auto N_buffer_size = 1000000ul;
-  constexpr const auto N_batch_size = 256ul;
+  constexpr const auto N_step = 100ul;
+  constexpr const auto N_buffer_size = 32ul;
+  constexpr const auto N_batch_size = 16ul;
 
   constexpr const auto N_times = 1000ul;
 
@@ -42,21 +42,26 @@ int main(){
   auto alpha = 0.7;
   auto beta = 0.5;
 
-  auto rb = ymd::ReplayBuffer<Observation,Action,Reward,Done>{N_buffer_size};
+  auto rb = ymd::ReplayBuffer<Observation,Action,Reward,Done>{N_buffer_size,
+							      obs_dim,
+							      act_dim};
 
   auto per = ymd::PrioritizedReplayBuffer<Observation,Action,
-					  Reward,Done,Priority>{N_buffer_size,alpha};
+					  Reward,Done,Priority>{N_buffer_size,
+								obs_dim,
+								act_dim,
+								alpha};
 
 
   for(auto i = 0ul; i < N_step; ++i){
-    auto obs = Observation(obs_dim,0.1*i);
-    auto act = Action(act_dim,2.0*i);
+    auto obs = std::vector<Observation>(obs_dim,0.1*i);
+    auto act = std::vector<Action>(act_dim,2.0*i);
     auto rew = 0.1 * i;
-    auto next_obs = Observation(obs_dim,0.1*(i+1));
+    auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
     auto done = (N_step - 1 == i) ? 1: 0;
 
-    rb.add(obs,act,rew,next_obs,done);
-    per.add(obs,act,rew,next_obs,done);
+    rb.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
+    per.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
   }
 
   auto [rb_o,rb_a,rb_r,rb_no,rb_d] = rb.sample(N_batch_size);

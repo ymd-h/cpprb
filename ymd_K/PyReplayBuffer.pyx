@@ -4,6 +4,7 @@ from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference
 cimport numpy as np
 import numpy as np
+import cython
 
 from ymd_K cimport ReplayBuffer
 
@@ -83,8 +84,8 @@ cdef class VectorDouble(VectorWrapper):
         return self.vec.size()
 
     cdef void set_buffer(self,Py_buffer* buffer):
-         buffer.buf = <void*>(self.vec.data())
-         buffer.format = 'd'
+        buffer.buf = <void*>(self.vec.data())
+        buffer.format = 'd'
 
 cdef class VectorULong(VectorWrapper):
     cdef vector[size_t] vec
@@ -104,7 +105,7 @@ cdef class VectorULong(VectorWrapper):
         buffer.format = 'L'
 
 cdef class PyReplayBuffer:
-    cdef ReplayBuffer[vector[double],vector[double],double,int] *thisptr
+    cdef ReplayBuffer[double,double,double,int] *thisptr
     cdef VectorDouble obs
     cdef VectorDouble act
     cdef VectorDouble rew
@@ -113,17 +114,25 @@ cdef class PyReplayBuffer:
     def __cinit__(self,size,obs_dim,act_dim):
         print("Replay Buffer")
 
-        self.thisptr = new ReplayBuffer[vector[double],
-                                        vector[double],
-                                        double,int](size)
+        self.thisptr = new ReplayBuffer[double,double,double,int](size,
+                                                                  obs_dim,
+                                                                  act_dim)
         self.obs = VectorDouble(obs_dim)
         self.act = VectorDouble(act_dim)
         self.rew = VectorDouble()
         self.next_obs = VectorDouble(obs_dim)
         self.done = VectorInt()
 
-    def add(self,observation,action,reward,next_observation,done):
-        self.thisptr.add(observation,action,reward,next_observation,done)
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def add(self,
+            np.ndarray[double, ndim=2, mode="c"] obs not None,
+            np.ndarray[double, ndim=2, mode="c"] act not None,
+            np.ndarray[double, ndim=1, mode="c"] rew not None,
+            np.ndarray[double, ndim=2, mode="c"] next_obs not None,
+            np.ndarray[int, ndim=1, mode="c"] done not None,
+            size_t N=1):
+        self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     def sample(self,size):
         self.thisptr.sample(size,
@@ -139,8 +148,7 @@ cdef class PyReplayBuffer:
                 'done': np.asarray(self.done)}
 
 cdef class PyPrioritizedReplayBuffer:
-    cdef PrioritizedReplayBuffer[vector[double],vector[double],
-                                 double,int,double] *thisptr
+    cdef PrioritizedReplayBuffer[double,double,double,int,double] *thisptr
     cdef VectorDouble obs
     cdef VectorDouble act
     cdef VectorDouble rew
@@ -151,9 +159,11 @@ cdef class PyPrioritizedReplayBuffer:
     def __cinit__(self,size,alpha,obs_dim,act_dim):
         print("Prioritized Replay Buffer")
 
-        self.thisptr = new PrioritizedReplayBuffer[vector[double],
-                                                   vector[double],
-                                                   double,int,double](size,alpha)
+        self.thisptr = new PrioritizedReplayBuffer[double,double,
+                                                   double,int,double](size,
+                                                                      obs_dim,
+                                                                      act_dim,
+                                                                      alpha)
         self.obs = VectorDouble(obs_dim)
         self.act = VectorDouble(act_dim)
         self.rew = VectorDouble()
@@ -162,8 +172,16 @@ cdef class PyPrioritizedReplayBuffer:
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
-    def add(self,observation,action,reward,next_observation,done):
-        self.thisptr.add(observation,action,reward,next_observation,done)
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def add(self,
+            np.ndarray[double, ndim=2, mode="c"] obs not None,
+            np.ndarray[double, ndim=2, mode="c"] act not None,
+            np.ndarray[double, ndim=1, mode="c"] rew not None,
+            np.ndarray[double, ndim=2, mode="c"] next_obs not None,
+            np.ndarray[int, ndim=1, mode="c"] done not None,
+            size_t N=1):
+        self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     def sample(self,size,beta):
         self.thisptr.sample(size,beta,
@@ -179,8 +197,8 @@ cdef class PyPrioritizedReplayBuffer:
                 'rew': np.asarray(self.rew),
                 'next_obs': np.asarray(self.next_obs),
                 'done': np.asarray(self.done),
-                'weights': np.asarray(self.indexes),
-                'indexes': np.asarray(self.weights)}
+                'weights': np.asarray(self.weights),
+                'indexes': np.asarray(self.indexes)}
 
     def update_priorities(self,indexes,priorities):
         self.thisptr.update_priorities(indexes,priorities)
