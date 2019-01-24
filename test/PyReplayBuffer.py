@@ -108,18 +108,24 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
 
     def test_obs(self):
         self._check_ndarray(self.s['obs'],min(2,self.obs_dim),
-                            (self.N_sample,self.obs_dim) if self.obs_dim > 1 else (self.N_sample,),"obs")
+                            (self.N_sample,
+                             self.obs_dim) if self.obs_dim > 1 else (self.N_sample,),
+                            "obs")
 
     def test_act(self):
         self._check_ndarray(self.s['act'],min(2,self.act_dim),
-                            (self.N_sample,self.act_dim) if self.act_dim > 1 else (self.N_sample,),"act")
+                            (self.N_sample,
+                             self.act_dim) if self.act_dim > 1 else (self.N_sample,),
+                            "act")
 
     def test_rew(self):
         self._check_ndarray(self.s['rew'],1,(self.N_sample,),"rew")
 
     def test_next_obs(self):
         self._check_ndarray(self.s['next_obs'],min(2,self.obs_dim),
-                            (self.N_sample,self.obs_dim) if self.obs_dim > 1 else (self.N_sample,),"next_obs")
+                            (self.N_sample,
+                             self.obs_dim) if self.obs_dim > 1 else (self.N_sample,),
+                            "next_obs")
 
         for i in range(self.N_sample):
             self.assertGreaterEqual(self.s['next_obs'][i,0],
