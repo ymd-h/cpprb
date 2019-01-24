@@ -89,6 +89,12 @@ namespace ymd {
 		       std::vector<Reward>& rew,
 		       Obs_t& next_obs,
 		       std::vector<Done>& done) const {
+      obs.resize(0);
+      act.resize(0);
+      rew.resize(0);
+      next_obs.resize(0);
+      done.resize(0);
+
       for(auto i : indexes){
 	copy(obs_buffer     ,obs     ,i,obs_dim);
 	copy(act_buffer     ,act     ,i,act_dim);
@@ -152,12 +158,6 @@ namespace ymd {
 		std::vector<Reward>& rew,
 		Obs_t& next_obs,
 		std::vector<Done>& done){
-      obs.resize(0);
-      act.resize(0);
-      rew.resize(0);
-      next_obs.resize(0);
-      done.resize(0);
-
       auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
       auto indexes = std::vector<std::size_t>{};
       indexes.reserve(batch_size);
