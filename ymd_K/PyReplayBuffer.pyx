@@ -128,11 +128,11 @@ cdef class PointerDoubl(VectorWrapper):
 
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[double,double,double,double] *thisptr
-    cdef VectorDouble obs
-    cdef VectorDouble act
-    cdef VectorDouble rew
-    cdef VectorDouble next_obs
-    cdef VectorDouble done
+    cdef PointerDouble obs
+    cdef PointerDouble act
+    cdef PointerDouble rew
+    cdef PointerDouble next_obs
+    cdef PointerDouble done
     cdef VectorULong indexes
     cdef int buffer_size
     cdef int obs_dim
