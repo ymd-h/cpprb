@@ -273,8 +273,7 @@ cdef class PyPrioritizedReplayBuffer:
                 np.ndarray[double, ndim=1, mode="c"] act not None,
                 double rew,
                 np.ndarray[double, ndim=1, mode="c"] next_obs not None,
-                double done,
-                double p):
+                double done, double p):
         self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done,p)
 
     def add(self,obs,act,rew,next_obs,done,priorities = None):
@@ -282,12 +281,12 @@ cdef class PyPrioritizedReplayBuffer:
             if priorities is None:
                 self._add_1(obs,act,rew,next_obs,done)
             else:
-                self._add_1p(obs,act,rew,next_obs,done)
+                self._add_1p(obs,act,rew,next_obs,done,priorities)
         else:
             if priorities is None:
                 self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
             else:
-                self._add_Np(obs,act,rew,next_obs,done,p,obs.shape[0]);
+                self._add_Np(obs,act,rew,next_obs,done,priorities,obs.shape[0]);
 
     def sample(self,size,beta):
         self.thisptr.sample(size,beta,
