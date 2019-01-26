@@ -302,6 +302,18 @@ namespace ymd {
     }
 
     void add(Observation* obs,Action* act,Reward* rew,
+	     Observation* next_obs,Done* done,Priority* priority,std::size_t N){
+      auto next_idx = this->get_next_index();
+      this->BaseClass::add(obs,act,rew,next_obs,done,N);
+
+      auto p = std::vector<Priority>(p,p+N);
+      std::for_each(p.begin(),p.end(),[=](auto& v){ v = std::pow(v,alpha); })
+
+      sum.set(next_idx,p,this->buffer_size());
+      min.set(next_idx,p,this->buffer_size());
+    }
+
+    void add(Observation* obs,Action* act,Reward* rew,
 	     Observation* next_obs,Done* done,Priority p){
       auto next_idx = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,1ul);
