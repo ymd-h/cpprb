@@ -111,10 +111,12 @@ cdef class PyReplayBuffer:
     cdef VectorDouble rew
     cdef VectorDouble next_obs
     cdef VectorDouble done
+    cdef int buffer_size
     cdef int obs_dim
     cdef int act_dim
     def __cinit__(self,size,obs_dim,act_dim):
         print("Replay Buffer")
+        self.buffer_size = size
         self.obs_dim = obs_dim
         self.act_dim = act_dim
 
@@ -176,12 +178,16 @@ cdef class PyPrioritizedReplayBuffer:
     cdef VectorDouble done
     cdef VectorDouble weights
     cdef VectorULong indexes
+    cdef int buffer_size
     cdef int obs_dim
     cdef int act_dim
+    cdef double alpha
     def __cinit__(self,size,obs_dim,act_dim,alpha=0.6):
         print("Prioritized Replay Buffer")
+        self.buffer_size = size
         self.obs_dim = obs_dim
         self.act_dim = act_dim
+        self.alpha = alpha
 
         self.thisptr = new PrioritizedReplayBuffer[double,double,
                                                    double,double,double](size,
