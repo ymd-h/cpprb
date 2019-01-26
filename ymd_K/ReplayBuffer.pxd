@@ -29,4 +29,4 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void update_priorities(vector[size_t]&,vector[Prio]&)
         void clear()
         size_t buffer_size()
-        Prio get_max_prioroty()
+        Prio get_max_priority()
