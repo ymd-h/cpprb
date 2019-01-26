@@ -290,12 +290,10 @@ namespace ymd {
       min.set(next_idx,v);
     }
 
-    template<typename Obs_t,typename Act_t>
+    template<typename Obs_t,typename Act_t,template Rew_t,template Done_t>
     void sample(std::size_t batch_size,Priority beta,
 		Obs_t& obs, Act_t& act,
-		std::vector<Reward>& rew,
-		Obs_t& next_obs,
-		std::vector<Done>& done,
+		Rew_t& rew, Obs_t& next_obs, Done_t& done,
 		std::vector<Priority>& weights,
 		std::vector<std::size_t>& indexes){
       beta = std::max(beta,Priority{0});
@@ -308,7 +306,7 @@ namespace ymd {
       weights.reserve(batch_size);
       set_weights(indexes,beta,weights);
 
-      this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
+      this->BaseClass::set_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     template<typename Obs_t,typename Act_t>
@@ -335,31 +333,6 @@ namespace ymd {
 
     auto sample(std::size_t batch_size){
       return sample(batch_size,Priority{0.0});
-    }
-
-    void sample(std::size_t batch_size,Priority beta,
-		Observation* obs,
-		Action* act,
-		Reward* rew,
-		Observation* next_obs,
-		Done* done,
-		std::vector<Priority>& weights,
-		std::vector<std::size_t>& indexes){
-      beta = std::max(beta,Priority{0});
-
-      indexes.resize(0);
-      indexes.reserve(batch_size);
-      sample_proportional(batch_size,indexes);
-
-      weights.resize(0);
-      weights.reserve(batch_size);
-      set_weights(indexes,beta,weights);
-
-      obs = this->obs_buffer.data();
-      act = this->act_buffer.data();
-      rew = this->rew_buffer.data();
-      next_obs = this->next_obs_buffer.data();
-      done = this->done_buffer.data();
     }
 
     void update_priorities(std::vector<std::size_t>& indexes,
