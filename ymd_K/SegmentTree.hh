@@ -88,7 +88,9 @@ namespace ymd {
       } while(n != 0ul);
     }
 
-    template<typename F>
+    template<typename F,
+	     typename std::enable_if<!(std::is_convertible_v<F,T>),
+				     std::nullptr_t>::type = nullptr>
     void set(std::size_t i,F&& f,std::size_t N,std::size_t max = 0ul){
       if(0ul == max){ max = size; }
 
@@ -116,6 +118,10 @@ namespace ymd {
 	update.erase(i);
 	if(i){ update.insert(parent(i)); }
       }
+    }
+
+    void set(std::size_t i,T v,std::size_t N,std::size_t max = 0ul){
+      set(i,[=](){ return v; },N,max);
     }
 
     auto reduce(std::size_t start,std::size_t end) const {
