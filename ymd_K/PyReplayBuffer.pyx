@@ -215,7 +215,7 @@ cdef class PyPrioritizedReplayBuffer:
                double rew,
                np.ndarray[double, ndim=1, mode="c"] next_obs not None,
                double done):
-        self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
+        self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done)
 
     def add(self,obs,act,rew,next_obs,done):
         if obs.ndim == 1:
