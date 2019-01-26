@@ -115,7 +115,7 @@ cdef class PointerDoubl(VectorWrapper):
         self.value_dim = value_dim
         self.size = 0
 
-    cdef void set(self,int size):
+    cdef void set_size(self,int size):
         self.size = size
 
     def vec_size(self):
