@@ -28,6 +28,7 @@ namespace ymd {
     std::vector<Reward> rew_buffer;
     std::vector<Observation> next_obs_buffer;
     std::vector<Done> done_buffer;
+    std::vector<std::size_t> index_buffer;
 
     void store_buffer(Observation* obs,
 		      Action* act,
@@ -124,6 +125,7 @@ namespace ymd {
 	rew_buffer(capacity,Reward{0}),
 	next_obs_buffer(capacity * obs_dim,Observation{0}),
 	done_buffer(capacity,Done{0}),
+	index_buffer{},
 	g{std::random_device{}()} {}
     ReplayBuffer(): ReplayBuffer{1,1,1} {}
     ReplayBuffer(const ReplayBuffer&) = default;
@@ -159,11 +161,11 @@ namespace ymd {
 		Obs_t& next_obs,
 		std::vector<Done>& done){
       auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
-      auto indexes = std::vector<std::size_t>{};
-      indexes.reserve(batch_size);
-      std::generate_n(std::back_inserter(indexes),batch_size,random);
+      index_buffer.resize(0);
+      index_buffer.reserve(batch_size);
+      std::generate_n(std::back_inserter(index_buffer),batch_size,random);
 
-      encode_sample(indexes,obs,act,rew,next_obs,done);
+      encode_sample(index_buffer,obs,act,rew,next_obs,done);
     }
 
     auto sample(std::size_t batch_size){
