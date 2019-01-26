@@ -254,11 +254,40 @@ cdef class PyPrioritizedReplayBuffer:
                double done):
         self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done)
 
-    def add(self,obs,act,rew,next_obs,done):
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_Np(self,
+                np.ndarray[double, ndim=2, mode="c"] obs not None,
+                np.ndarray[double, ndim=2, mode="c"] act not None,
+                np.ndarray[double, ndim=1, mode="c"] rew not None,
+                np.ndarray[double, ndim=2, mode="c"] next_obs not None,
+                np.ndarray[double, ndim=1, mode="c"] done not None,
+                np.ndarray[double, ndim=1, mode="c"] p not None,
+                size_t N=1):
+        self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],&p[0],N)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_1p(self,
+                np.ndarray[double, ndim=1, mode="c"] obs not None,
+                np.ndarray[double, ndim=1, mode="c"] act not None,
+                double rew,
+                np.ndarray[double, ndim=1, mode="c"] next_obs not None,
+                double done,
+                double p):
+        self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done,p)
+
+    def add(self,obs,act,rew,next_obs,done,priorities = None):
         if obs.ndim == 1:
-            self._add_1(obs,act,rew,next_obs,done)
+            if priorities is None:
+                self._add_1(obs,act,rew,next_obs,done)
+            else:
+                self._add_1p(obs,act,rew,next_obs,done)
         else:
-            self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
+            if priorities is None:
+                self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
+            else:
+                self._add_Np(obs,act,rew,next_obs,done,p,obs.shape[0]);
 
     def sample(self,size,beta):
         self.thisptr.sample(size,beta,
