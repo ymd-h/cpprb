@@ -133,6 +133,7 @@ cdef class PyReplayBuffer:
     cdef VectorDouble rew
     cdef VectorDouble next_obs
     cdef VectorDouble done
+    cdef VectorULong indexes
     cdef int buffer_size
     cdef int obs_dim
     cdef int act_dim
