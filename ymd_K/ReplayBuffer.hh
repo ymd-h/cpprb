@@ -173,18 +173,16 @@ namespace ymd {
       }
     }
 
-    template<typename Obs_t,typename Act_t>
+    template<typename Obs_t,typename Act_t,template Rew_t,template Done_t>
     void sample(std::size_t batch_size,
 		Obs_t& obs, Act_t& act,
-		std::vector<Reward>& rew,
-		Obs_t& next_obs,
-		std::vector<Done>& done){
+		Rew_t& rew, Obs_t& next_obs, Done_t& done){
       auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
       index_buffer.resize(0);
       index_buffer.reserve(batch_size);
       std::generate_n(std::back_inserter(index_buffer),batch_size,random);
 
-      encode_sample(index_buffer,obs,act,rew,next_obs,done);
+      set_sample(index_buffer,obs,act,rew,next_obs,done);
     }
 
     auto sample(std::size_t batch_size){
@@ -193,25 +191,6 @@ namespace ymd {
       sample(batch_size,obs,act,rew,next_obs,done);
 
       return std::make_tuple(obs,act,rew,next_obs,done);
-    }
-
-    auto sample(std::size_t batch_size,
-		Observation* obs,
-		Action* act,
-		Reward* rew,
-		Observation* next_obs,
-		Done* done,
-		std::vector<std::size_t>& indexes){
-      auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
-      indexes.resize(0);
-      indexes.reserve(batch_size);
-      std::generate_n(std::back_inserter(index_buffer),batch_size,random);
-
-      obs = obs_buffer.data();
-      act = act_buffer.data();
-      rew = rew_buffer.data();
-      next_obs = next_obs.data();
-      done = done_buffer.data();
     }
   };
 
