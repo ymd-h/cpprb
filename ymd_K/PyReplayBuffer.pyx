@@ -227,11 +227,11 @@ cdef class PyPrioritizedReplayBuffer:
                                                                          obs_dim,
                                                                          act_dim,
                                                                          alpha)
-        self.obs = VectorDouble(obs_dim)
-        self.act = VectorDouble(act_dim)
-        self.rew = VectorDouble()
-        self.next_obs = VectorDouble(obs_dim)
-        self.done = VectorDouble()
+        self.obs = PointerDouble(obs_dim)
+        self.act = PointerDouble(act_dim)
+        self.rew = PointerDouble()
+        self.next_obs = PointerDouble(obs_dim)
+        self.done = PointerDouble()
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
