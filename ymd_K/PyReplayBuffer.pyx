@@ -194,6 +194,12 @@ cdef class PyReplayBuffer:
     def get_buffer_size(self):
         return self.buffer_size
 
+    def clear(self):
+        return self.thisptr.clear()
+
+    def get_stored_size(self):
+        return self.thisptr.buffer_size()
+
 cdef class PyPrioritizedReplayBuffer:
     cdef PrioritizedReplayBuffer[double,double,double,double,double] *thisptr
     cdef PointerDouble obs
@@ -277,3 +283,9 @@ cdef class PyPrioritizedReplayBuffer:
 
     def get_buffer_size(self):
         return self.buffer_size
+
+    def clear(self):
+        return self.thisptr.clear()
+
+    def get_stored_size(self):
+        return self.thisptr.buffer_size()

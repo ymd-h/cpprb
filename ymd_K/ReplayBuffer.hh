@@ -200,6 +200,17 @@ namespace ymd {
 
       return std::make_tuple(obs,act,rew,next_obs,done);
     }
+
+    void clear(){
+      obs_buffer.resize(0);
+      act_buffer.resize(0);
+      rew_buffer.resize(0);
+      next_obs_buffer.resize(0);
+      done_buffer.resize(0);
+
+      size = 0ul;
+      next_index = 0ul;
+    }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done,
