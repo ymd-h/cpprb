@@ -63,6 +63,8 @@ class TestPyReplayBuffer(unittest.TestCase):
 
     def test_done(self):
         self._check_ndarray(self.s['done'],1,(self.N_sample,),"done")
+        for d in self.s['done']:
+            self.assertIn(d,[0,1])
 
 class TestPyPrioritizedReplayBuffer(unittest.TestCase):
     """=== PyPrioritizedReplayBuffer.py ==="""
@@ -138,6 +140,8 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
 
     def test_done(self):
         self._check_ndarray(self.s['done'],1,(self.N_sample,),"done")
+        for d in self.s['done']:
+            self.assertIn(d,[0,1])
 
     def test_weights(self):
         self._check_ndarray(self.s['weights'],1,(self.N_sample,),"weights")
