@@ -271,6 +271,16 @@ namespace ymd {
       return weights;
     }
 
+    template<typename F>
+    void multi_add(Observation* obs,Action* act,Reward* rew,
+		   Observation* next_obs,Done* done,F&& f,std::size_t N){
+      auto next_idx = this->get_next_index();
+      this->BaseClass::add(obs,act,rew,next_obs,done,N);
+
+      sum.set(next_idx,std::forward<F>(f),N,this->buffer_size());
+      min.set(next_idx,std::forward<F>(f),N,this->buffer_size());
+    }
+
   public:
     PrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
 			    Priority alpha)
@@ -293,24 +303,14 @@ namespace ymd {
 
     void add(Observation* obs,Action* act,Reward* rew,
 	     Observation* next_obs,Done* done,std::size_t N){
-      auto next_idx = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,N);
-
-      auto v = std::pow(max_priority,alpha);
-      sum.set(next_idx,v,N,this->buffer_size());
-      min.set(next_idx,v,N,this->buffer_size());
+      multi_add(obs,ac,rew,next_obs,done,
+		[v=std::pow(max_priority,alpha)](){ return v; },N);
     }
 
     void add(Observation* obs,Action* act,Reward* rew,
 	     Observation* next_obs,Done* done,Priority* priority,std::size_t N){
-      auto next_idx = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,N);
-
-      auto p = std::vector<Priority>(p,p+N);
-      std::for_each(p.begin(),p.end(),[=](auto& v){ v = std::pow(v,alpha); })
-
-      sum.set(next_idx,p,this->buffer_size());
-      min.set(next_idx,p,this->buffer_size());
+      multi_add(obs,act,rew,next_obs,done,
+		[=,this]()mutable{ return std::pow(*(priority++),this->alpha); },N);
     }
 
     void add(Observation* obs,Action* act,Reward* rew,
