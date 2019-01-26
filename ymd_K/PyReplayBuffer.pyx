@@ -106,17 +106,17 @@ cdef class VectorULong(VectorWrapper):
 
 cdef class PointerDouble(VectorWrapper):
     cdef double* ptr
-    cdef int size
+    cdef int _vec_size
 
     def __cinit__(self,ndim,value_dim,size):
         self.itemsize = sizeof(double)
 
         self.ndim = ndim
         self.value_dim = value_dim
-        self.size = size
+        self._vec_size = value_dim * size
 
     def vec_size(self):
-        return self.size
+        return self._vec_size
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*> self.ptr
