@@ -104,7 +104,7 @@ cdef class VectorULong(VectorWrapper):
         buffer.buf = <void*>(self.vec.data())
         buffer.format = 'L'
 
-cdef class PointerDoubl(VectorWrapper):
+cdef class PointerDouble(VectorWrapper):
     cdef double* ptr
     cdef int size
 
