@@ -109,7 +109,7 @@ cdef class PointerDouble(VectorWrapper):
     cdef int size
 
     def __cinit__(self,value_dim,size):
-        self.ietmsize = sizeof(double)
+        self.itemsize = sizeof(double)
 
         self.ndim = 1 if value_dim is 1 else 2
         self.value_dim = value_dim
