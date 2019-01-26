@@ -12,6 +12,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
                     Obs*&,
                     Done*&,
                     vector[size_t]&)
+        void clear()
     cdef cppclass PrioritizedReplayBuffer[Obs,Act,Rew,Done,Prio]:
         PrioritizedReplayBuffer(size_t,size_t,size_t,Prio)
         void add(Obs*,Act*,Rew*,Obs*,Done*,size_t)
@@ -25,3 +26,4 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
                     vector[Prio]&,
                     vector[size_t]&)
         void update_priorities(vector[size_t]&,vector[Prio]&)
+        void clear()
