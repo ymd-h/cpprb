@@ -176,13 +176,21 @@ namespace ymd {
     template<typename Obs_t,typename Act_t,typename  Rew_t,typename Done_t>
     void sample(std::size_t batch_size,
 		Obs_t& obs, Act_t& act,
-		Rew_t& rew, Obs_t& next_obs, Done_t& done){
+		Rew_t& rew, Obs_t& next_obs, Done_t& done,
+		std::vector<size_t>& indexes){
       auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
-      index_buffer.resize(0);
-      index_buffer.reserve(batch_size);
-      std::generate_n(std::back_inserter(index_buffer),batch_size,random);
+      indexes.resize(0);
+      indexes.reserve(batch_size);
+      std::generate_n(std::back_inserter(indexes),batch_size,random);
 
-      set_data(index_buffer,obs,act,rew,next_obs,done);
+      set_data(indexes,obs,act,rew,next_obs,done);
+    }
+
+    template<typename Obs_t,typename Act_t,typename  Rew_t,typename Done_t>
+    void sample(std::size_t batch_size,
+		Obs_t& obs, Act_t& act,
+		Rew_t& rew, Obs_t& next_obs, Done_t& done){
+      sample(batch_size,obs,act,rew,next_obs,done,index_buffer);
     }
 
     auto sample(std::size_t batch_size){
