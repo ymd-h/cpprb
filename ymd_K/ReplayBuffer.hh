@@ -124,7 +124,7 @@ namespace ymd {
 
     void set_data(const std::vector<std::size_t>&,
 		  Observation*& obs,Action*& act,
-		  Reward*& rew,Observation*& next_obs,Done*& done) const {
+		  Reward*& rew,Observation*& next_obs,Done*& done){
       obs = obs_buffer.data();
       act = act_buffer.data();
       rew = rew_buffer.data();
