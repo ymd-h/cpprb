@@ -105,12 +105,12 @@ cdef class VectorULong(VectorWrapper):
         buffer.format = 'L'
 
 cdef class PyReplayBuffer:
-    cdef ReplayBuffer[double,double,double,int] *thisptr
+    cdef ReplayBuffer[double,double,double,double] *thisptr
     cdef VectorDouble obs
     cdef VectorDouble act
     cdef VectorDouble rew
     cdef VectorDouble next_obs
-    cdef VectorInt done
+    cdef VectorDouble done
     cdef int obs_dim
     cdef int act_dim
     def __cinit__(self,size,obs_dim,act_dim):
@@ -118,9 +118,9 @@ cdef class PyReplayBuffer:
         self.obs_dim = obs_dim
         self.act_dim = act_dim
 
-        self.thisptr = new ReplayBuffer[double,double,double,int](size,
-                                                                  obs_dim,
-                                                                  act_dim)
+        self.thisptr = new ReplayBuffer[double,double,double,double](size,
+                                                                     obs_dim,
+                                                                     act_dim)
         self.obs = VectorDouble(obs_dim)
         self.act = VectorDouble(act_dim)
         self.rew = VectorDouble()
@@ -134,7 +134,7 @@ cdef class PyReplayBuffer:
             np.ndarray[double, ndim=2, mode="c"] act not None,
             np.ndarray[double, ndim=1, mode="c"] rew not None,
             np.ndarray[double, ndim=2, mode="c"] next_obs not None,
-            np.ndarray[int, ndim=1, mode="c"] done not None,
+            np.ndarray[double, ndim=1, mode="c"] done not None,
             size_t N=1):
         self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
@@ -145,7 +145,7 @@ cdef class PyReplayBuffer:
             next_obs.reshape(-1,self.obs_dim)
 
             rew = np.array(rew,order='C').reshape(-1,1)
-            done = np.array(done,order='C',dtype=np.intc).reshape(-1,1)
+            done = np.array(done,order='C').reshape(-1,1)
 
         self._add(obs,act,rew,next_obs,done,obs.shape[0])
 
@@ -163,12 +163,12 @@ cdef class PyReplayBuffer:
                 'done': np.asarray(self.done)}
 
 cdef class PyPrioritizedReplayBuffer:
-    cdef PrioritizedReplayBuffer[double,double,double,int,double] *thisptr
+    cdef PrioritizedReplayBuffer[double,double,double,double,double] *thisptr
     cdef VectorDouble obs
     cdef VectorDouble act
     cdef VectorDouble rew
     cdef VectorDouble next_obs
-    cdef VectorInt done
+    cdef VectorDouble done
     cdef VectorDouble weights
     cdef VectorULong indexes
     cdef int obs_dim
@@ -179,15 +179,15 @@ cdef class PyPrioritizedReplayBuffer:
         self.act_dim = act_dim
 
         self.thisptr = new PrioritizedReplayBuffer[double,double,
-                                                   double,int,double](size,
-                                                                      obs_dim,
-                                                                      act_dim,
-                                                                      alpha)
+                                                   double,double,double](size,
+                                                                         obs_dim,
+                                                                         act_dim,
+                                                                         alpha)
         self.obs = VectorDouble(obs_dim)
         self.act = VectorDouble(act_dim)
         self.rew = VectorDouble()
         self.next_obs = VectorDouble(obs_dim)
-        self.done = VectorInt()
+        self.done = VectorDouble()
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
@@ -198,7 +198,7 @@ cdef class PyPrioritizedReplayBuffer:
             np.ndarray[double, ndim=2, mode="c"] act not None,
             np.ndarray[double, ndim=1, mode="c"] rew not None,
             np.ndarray[double, ndim=2, mode="c"] next_obs not None,
-            np.ndarray[int, ndim=1, mode="c"] done not None,
+            np.ndarray[double, ndim=1, mode="c"] done not None,
             size_t N=1):
         self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
@@ -209,7 +209,7 @@ cdef class PyPrioritizedReplayBuffer:
             next_obs.reshape(-1,self.obs_dim)
 
             rew = np.array(rew,order='C').reshape(-1,1)
-            done = np.array(done,order='C',dtype=np.intc).reshape(-1,1)
+            done = np.array(done,order='C').reshape(-1,1)
 
         self._add(obs,act,rew,next_obs,done,obs.shape[0])
 
