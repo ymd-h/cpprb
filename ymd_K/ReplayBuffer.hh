@@ -375,7 +375,7 @@ namespace ymd {
       max_priority = default_max_priority;
     }
 
-    Priority get_max_prioroty() const {
+    Priority get_max_priority() const {
       return max_priority;
     }
   };
