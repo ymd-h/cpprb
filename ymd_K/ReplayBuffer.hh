@@ -302,13 +302,18 @@ namespace ymd {
     }
 
     void add(Observation* obs,Action* act,Reward* rew,
-	     Observation* next_obs,Done* done){
+	     Observation* next_obs,Done* done,Priority p){
       auto next_idx = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,1ul);
 
-      auto v = std::pow(max_priority,alpha);
+      auto v = std::pow(p,alpha);
       sum.set(next_idx,v);
       min.set(next_idx,v);
+    }
+
+    void add(Observation* obs,Action* act,Reward* rew,
+	     Observation* next_obs,Done* done){
+      add(obs,act,rew,next_obs,done,max_priority);
     }
 
     template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
