@@ -145,7 +145,7 @@ cdef class PyReplayBuffer:
             next_obs.reshape(-1,self.obs_dim)
 
             rew = np.array(rew,order='C').reshape(-1,1)
-            done = np.array(done,order='C',dtype=int).reshape(-1,1)
+            done = np.array(done,order='C',dtype=np.intc).reshape(-1,1)
 
         self._add(obs,act,rew,next_obs,done,obs.shape[0])
 
@@ -209,7 +209,7 @@ cdef class PyPrioritizedReplayBuffer:
             next_obs.reshape(-1,self.obs_dim)
 
             rew = np.array(rew,order='C').reshape(-1,1)
-            done = np.array(done,order='C',dtype=int).reshape(-1,1)
+            done = np.array(done,order='C',dtype=np.intc).reshape(-1,1)
 
         self._add(obs,act,rew,next_obs,done,obs.shape[0])
 
