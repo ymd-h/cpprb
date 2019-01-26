@@ -173,7 +173,7 @@ namespace ymd {
       }
     }
 
-    template<typename Obs_t,typename Act_t,template Rew_t,template Done_t>
+    template<typename Obs_t,typename Act_t,typename  Rew_t,typename Done_t>
     void sample(std::size_t batch_size,
 		Obs_t& obs, Act_t& act,
 		Rew_t& rew, Obs_t& next_obs, Done_t& done){
@@ -290,7 +290,7 @@ namespace ymd {
       min.set(next_idx,v);
     }
 
-    template<typename Obs_t,typename Act_t,template Rew_t,template Done_t>
+    template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
     void sample(std::size_t batch_size,Priority beta,
 		Obs_t& obs, Act_t& act,
 		Rew_t& rew, Obs_t& next_obs, Done_t& done,
