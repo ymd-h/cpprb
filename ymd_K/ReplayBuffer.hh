@@ -221,6 +221,7 @@ namespace ymd {
     using BaseClass = ReplayBuffer<Observation,Action,Reward,Done>;
     Priority alpha;
     Priority max_priority;
+    Priority default_max_priority;
     SegmentTree<Priority> sum;
     SegmentTree<Priority> min;
 
@@ -276,6 +277,7 @@ namespace ymd {
       : BaseClass{n,obs_dim,act_dim},
 	alpha{std::max(alpha,Priority{0.0})},
 	max_priority{1.0},
+	default_max_priority{1.0},
 	sum{PowerOf2(n),[](auto a,auto b){ return a+b; }},
 	min{PowerOf2(n),[zero = Priority{0}](Priority a,Priority b){
 			  return ((zero == a) ? b:
@@ -366,6 +368,11 @@ namespace ymd {
 
 				       return std::max(max_p,*(p++));
 				     });
+    }
+
+    void clear(){
+      this->BaseClass::clear();
+      max_priority = default_max_priority;
     }
   };
 }
