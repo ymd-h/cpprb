@@ -256,20 +256,21 @@ cdef class PyPrioritizedReplayBuffer:
 
     def sample(self,size,beta):
         self.thisptr.sample(size,beta,
-                            self.obs.vec,
-                            self.act.vec,
-                            self.rew.vec,
-                            self.next_obs.vec,
-                            self.done.vec,
+                            self.obs.ptr,
+                            self.act.ptr,
+                            self.rew.ptr,
+                            self.next_obs.ptr,
+                            self.done.ptr,
                             self.weights.vec,
                             self.indexes.vec)
-        return {'obs': np.asarray(self.obs),
-                'act': np.asarray(self.act),
-                'rew': np.asarray(self.rew),
-                'next_obs': np.asarray(self.next_obs),
-                'done': np.asarray(self.done),
+        idx = np.asarray(self.indexes)
+        return {'obs': np.asarray(self.obs)[idx,:],
+                'act': np.asarray(self.act)[idx,:],
+                'rew': np.asarray(self.rew)[idx],
+                'next_obs': np.asarray(self.next_obs)[idx,:],
+                'done': np.asarray(self.done)[idx],
                 'weights': np.asarray(self.weights),
-                'indexes': np.asarray(self.indexes)}
+                'indexes': idx}
 
     def update_priorities(self,indexes,priorities):
         self.thisptr.update_priorities(indexes,priorities)
