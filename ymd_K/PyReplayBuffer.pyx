@@ -108,14 +108,11 @@ cdef class PointerDoubl(VectorWrapper):
     cdef double* ptr
     cdef int size
 
-    def __cinit__(self,value_dim=1)
+    def __cinit__(self,value_dim,size)
         self.ietmsize = sizeof(double)
 
         self.ndim = 1 if value_dim is 1 else 2
         self.value_dim = value_dim
-        self.size = 0
-
-    cdef void set_size(self,int size):
         self.size = size
 
     def vec_size(self):
