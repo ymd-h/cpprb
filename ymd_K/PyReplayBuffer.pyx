@@ -139,13 +139,13 @@ cdef class PyReplayBuffer:
         self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     def add(self,obs,act,rew,next_obs,done):
-        if obs.ndim is 1:
-            obs.reshape(-1,self.obs_dim)
-            act.reshape(-1,self.act_dim)
-            next_obs.reshape(-1,self.obs_dim)
+        if obs.ndim == 1:
+            obs = obs.reshape(-1,self.obs_dim)
+            act = act.reshape(-1,self.act_dim)
+            next_obs = next_obs.reshape(-1,self.obs_dim)
 
-            rew = np.array(rew,order='C').reshape(-1,1)
-            done = np.array(done,order='C').reshape(-1,1)
+            rew = np.array(rew,order='C',dtype=np.float64).reshape(-1)
+            done = np.array(done,order='C',dtype=np.float64).reshape(-1)
 
         self._add(obs,act,rew,next_obs,done,obs.shape[0])
 
@@ -203,13 +203,13 @@ cdef class PyPrioritizedReplayBuffer:
         self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     def add(self,obs,act,rew,next_obs,done):
-        if obs.ndim is 1:
-            obs.reshape(-1,self.obs_dim)
-            act.reshape(-1,self.act_dim)
-            next_obs.reshape(-1,self.obs_dim)
+        if obs.ndim == 1:
+            obs = obs.reshape(-1,self.obs_dim)
+            act = act.reshape(-1,self.act_dim)
+            next_obs = next_obs.reshape(-1,self.obs_dim)
 
-            rew = np.array(rew,order='C').reshape(-1,1)
-            done = np.array(done,order='C').reshape(-1,1)
+            rew = np.array(rew,order='C',dtype=np.float64).reshape(-1)
+            done = np.array(done,order='C',dtype=np.float64).reshape(-1)
 
         self._add(obs,act,rew,next_obs,done,obs.shape[0])
 
