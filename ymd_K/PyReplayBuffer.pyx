@@ -129,25 +129,30 @@ cdef class PyReplayBuffer:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add(self,
-            np.ndarray[double, ndim=2, mode="c"] obs not None,
-            np.ndarray[double, ndim=2, mode="c"] act not None,
-            np.ndarray[double, ndim=1, mode="c"] rew not None,
-            np.ndarray[double, ndim=2, mode="c"] next_obs not None,
-            np.ndarray[double, ndim=1, mode="c"] done not None,
-            size_t N=1):
+    def _add_N(self,
+               np.ndarray[double, ndim=2, mode="c"] obs not None,
+               np.ndarray[double, ndim=2, mode="c"] act not None,
+               np.ndarray[double, ndim=1, mode="c"] rew not None,
+               np.ndarray[double, ndim=2, mode="c"] next_obs not None,
+               np.ndarray[double, ndim=1, mode="c"] done not None,
+               size_t N=1):
         self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_1(self,
+               np.ndarray[double, ndim=1, mode="c"] obs not None,
+               np.ndarray[double, ndim=1, mode="c"] act not None,
+               double rew,
+               np.ndarray[double, ndim=1, mode="c"] next_obs not None,
+               double done):
+        self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def add(self,obs,act,rew,next_obs,done):
         if obs.ndim == 1:
-            obs = obs.reshape(-1,self.obs_dim)
-            act = act.reshape(-1,self.act_dim)
-            next_obs = next_obs.reshape(-1,self.obs_dim)
-
-            rew = np.array(rew,order='C',dtype=np.float64).reshape(-1)
-            done = np.array(done,order='C',dtype=np.float64).reshape(-1)
-
-        self._add(obs,act,rew,next_obs,done,obs.shape[0])
+            self._add_1(obs,act,rew,next_obs,done)
+        else:
+            self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
 
     def sample(self,size):
         self.thisptr.sample(size,
@@ -193,25 +198,30 @@ cdef class PyPrioritizedReplayBuffer:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add(self,
-            np.ndarray[double, ndim=2, mode="c"] obs not None,
-            np.ndarray[double, ndim=2, mode="c"] act not None,
-            np.ndarray[double, ndim=1, mode="c"] rew not None,
-            np.ndarray[double, ndim=2, mode="c"] next_obs not None,
-            np.ndarray[double, ndim=1, mode="c"] done not None,
-            size_t N=1):
+    def _add_N(self,
+               np.ndarray[double, ndim=2, mode="c"] obs not None,
+               np.ndarray[double, ndim=2, mode="c"] act not None,
+               np.ndarray[double, ndim=1, mode="c"] rew not None,
+               np.ndarray[double, ndim=2, mode="c"] next_obs not None,
+               np.ndarray[double, ndim=1, mode="c"] done not None,
+               size_t N=1):
         self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_1(self,
+               np.ndarray[double, ndim=1, mode="c"] obs not None,
+               np.ndarray[double, ndim=1, mode="c"] act not None,
+               double rew,
+               np.ndarray[double, ndim=1, mode="c"] next_obs not None,
+               double done):
+        self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def add(self,obs,act,rew,next_obs,done):
         if obs.ndim == 1:
-            obs = obs.reshape(-1,self.obs_dim)
-            act = act.reshape(-1,self.act_dim)
-            next_obs = next_obs.reshape(-1,self.obs_dim)
-
-            rew = np.array(rew,order='C',dtype=np.float64).reshape(-1)
-            done = np.array(done,order='C',dtype=np.float64).reshape(-1)
-
-        self._add(obs,act,rew,next_obs,done,obs.shape[0])
+            self._add_1(obs,act,rew,next_obs,done)
+        else:
+            self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
 
     def sample(self,size,beta):
         self.thisptr.sample(size,beta,
