@@ -181,16 +181,18 @@ cdef class PyReplayBuffer:
 
     def sample(self,size):
         self.thisptr.sample(size,
-                            self.obs.vec,
-                            self.act.vec,
-                            self.rew.vec,
-                            self.next_obs.vec,
-                            self.done.vec)
-        return {'obs': np.asarray(self.obs),
-                'act': np.asarray(self.act),
-                'rew': np.asarray(self.rew),
-                'next_obs': np.asarray(self.next_obs),
-                'done': np.asarray(self.done)}
+                            self.obs.ptr,
+                            self.act.ptr,
+                            self.rew.ptr,
+                            self.next_obs.ptr,
+                            self.done.ptr,
+                            self.indexes.vec)
+        idx = np.asarray(self.indexes)
+        return {'obs': np.asarray(self.obs)[idx,:],
+                'act': np.asarray(self.act)[idx,:],
+                'rew': np.asarray(self.rew)[idex],
+                'next_obs': np.asarray(self.next_obs)[idx,:],
+                'done': np.asarray(self.done)[idx]}
 
     def get_buffer_size(self):
         return self.buffer_size
