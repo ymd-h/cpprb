@@ -204,11 +204,11 @@ cdef class PyReplayBuffer:
 
 cdef class PyPrioritizedReplayBuffer:
     cdef PrioritizedReplayBuffer[double,double,double,double,double] *thisptr
-    cdef VectorDouble obs
-    cdef VectorDouble act
-    cdef VectorDouble rew
-    cdef VectorDouble next_obs
-    cdef VectorDouble done
+    cdef PointerDouble obs
+    cdef PointerDouble act
+    cdef PointerDouble rew
+    cdef PointerDouble next_obs
+    cdef PoinerDouble done
     cdef VectorDouble weights
     cdef VectorULong indexes
     cdef int buffer_size
