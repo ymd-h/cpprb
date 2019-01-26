@@ -11,7 +11,7 @@ ext_modules = cythonize([Extension("ymd_K.ReplayBuffer",
                          include_path=["."])
 
 setup(name = "ymd_K",
-      version="2.1.1",
+      version="2.1.2",
       ext_modules = ext_modules,
       include_dirs=["ymd_K",np.get_include()],
       packages=["ymd_K"])
