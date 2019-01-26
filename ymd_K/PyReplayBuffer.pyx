@@ -108,10 +108,10 @@ cdef class PointerDouble(VectorWrapper):
     cdef double* ptr
     cdef int size
 
-    def __cinit__(self,value_dim,size):
+    def __cinit__(self,ndim,value_dim,size):
         self.itemsize = sizeof(double)
 
-        self.ndim = 1 if value_dim is 1 else 2
+        self.ndim = ndim
         self.value_dim = value_dim
         self.size = size
 
@@ -142,11 +142,11 @@ cdef class PyReplayBuffer:
         self.thisptr = new ReplayBuffer[double,double,double,double](size,
                                                                      obs_dim,
                                                                      act_dim)
-        self.obs = PointerDouble(obs_dim,size)
-        self.act = PointerDouble(act_dim,size)
-        self.rew = PointerDouble(1,size)
-        self.next_obs = PointerDouble(obs_dim,size)
-        self.done = PointerDouble(1,size)
+        self.obs = PointerDouble(2,obs_dim,size)
+        self.act = PointerDouble(2,act_dim,size)
+        self.rew = PointerDouble(1,1,size)
+        self.next_obs = PointerDouble(2,obs_dim,size)
+        self.done = PointerDouble(1,1,size)
         self.indexes = VectorULong()
 
     @cython.boundscheck(False)
@@ -219,11 +219,11 @@ cdef class PyPrioritizedReplayBuffer:
                                                                          obs_dim,
                                                                          act_dim,
                                                                          alpha)
-        self.obs = PointerDouble(obs_dim,size)
-        self.act = PointerDouble(act_dim,size)
-        self.rew = PointerDouble(1,size)
-        self.next_obs = PointerDouble(obs_dim,size)
-        self.done = PointerDouble(1,size)
+        self.obs = PointerDouble(2,obs_dim,size)
+        self.act = PointerDouble(2,act_dim,size)
+        self.rew = PointerDouble(1,1,size)
+        self.next_obs = PointerDouble(2,obs_dim,size)
+        self.done = PointerDouble(1,1,size)
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
