@@ -151,7 +151,7 @@ namespace ymd {
     ReplayBuffer(ReplayBuffer&&) = default;
     ReplayBuffer& operator=(const ReplayBuffer&) = default;
     ReplayBuffer& operator=(ReplayBuffer&&) = default;
-    ~ReplayBuffer() = default;
+    virtual ~ReplayBuffer() = default;
 
     std::size_t buffer_size() const { return size; }
     std::size_t get_next_index() const { return next_index;}
@@ -299,7 +299,7 @@ namespace ymd {
     PrioritizedReplayBuffer(PrioritizedReplayBuffer&&) = default;
     PrioritizedReplayBuffer& operator=(const PrioritizedReplayBuffer&) = default;
     PrioritizedReplayBuffer& operator=(PrioritizedReplayBuffer&&) = default;
-    ~PrioritizedReplayBuffer() = default;
+    virtual ~PrioritizedReplayBuffer() override = default;
 
     void add(Observation* obs,Action* act,Reward* rew,
 	     Observation* next_obs,Done* done,std::size_t N){
