@@ -303,7 +303,7 @@ namespace ymd {
 
     void add(Observation* obs,Action* act,Reward* rew,
 	     Observation* next_obs,Done* done,std::size_t N){
-      multi_add(obs,ac,rew,next_obs,done,
+      multi_add(obs,act,rew,next_obs,done,
 		[v=std::pow(max_priority,alpha)](){ return v; },N);
     }
 
