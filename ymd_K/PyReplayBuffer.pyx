@@ -104,6 +104,28 @@ cdef class VectorULong(VectorWrapper):
         buffer.buf = <void*>(self.vec.data())
         buffer.format = 'L'
 
+cdef class PointerDoubl(VectorWrapper):
+    cdef double* ptr
+    cdef int size
+
+    def __cinit__(self,value_dim=1)
+        self.ietmsize = sizeof(double)
+
+        self.ndim = 1 if value_dim is 1 else 2
+        self.value_dim = value_dim
+        self.size = 0
+
+    cdef void set(self,double* ptr,int size):
+        self.ptr = ptr
+        self.size = size
+
+    def vec_size(self):
+        return self.size
+
+    cdef void set_buffer(self,Py_buffer* buffer):
+        buffer.buf = <void*> self.ptr
+        buffer.format = 'd'
+
 cdef class PyReplayBuffer:
     cdef ReplayBuffer[double,double,double,double] *thisptr
     cdef VectorDouble obs
