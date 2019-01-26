@@ -113,6 +113,25 @@ namespace ymd {
       return std::make_tuple(obs,act,rew,next_obs,done);
     }
 
+    template<typename Obs_t,typename Act_t>
+    void set_data(const std::vector<std::size_t>& indexes,
+		  Obs_t& obs, Act_t& act,
+		  std::vector<Reward>& rew,
+		  Obs_t& next_obs,
+		  std::vector<Done>& done) const {
+      encode_sample(indexes,obs,act,rew,next_obs,done);
+    }
+
+    void set_data(const std::vector<std::size_t>&,
+		  Observation*& obs,Action*& act,
+		  Reward*& rew,Observation*& next_obs,Done*& done) const {
+      obs = obs_buffer.data();
+      act = act_buffer.data();
+      rew = rew_buffer.data();
+      next_obs = next_obs_buffer.data();
+      done = done_buffer.data();
+    }
+
   public:
     ReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim)
       : capacity(n),
