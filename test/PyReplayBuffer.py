@@ -18,6 +18,13 @@ class TestPyReplayBuffer(unittest.TestCase):
         cls.rb = ReplayBuffer.PyReplayBuffer(cls.N_buffer_size,
                                              cls.obs_dim,
                                              cls.act_dim)
+
+        cls.rb.add(np.ones(shape=(cls.obs_dim)),
+                   np.zeros(shape=(cls.act_dim)),
+                   0.5,
+                   np.ones(shape=(cls.obs_dim)),
+                   0)
+
         for i in range(cls.N_step):
             cls.rb.add(np.ones(shape=(cls.N_add,cls.obs_dim))*i,
                        np.zeros(shape=(cls.N_add,cls.act_dim)),
@@ -88,6 +95,12 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
                                                         cls.obs_dim,
                                                         cls.act_dim,
                                                         cls.alpha)
+        cls.rb.add(np.ones(shape=(cls.obs_dim)),
+                   np.zeros(shape=(cls.act_dim)),
+                   0.5,
+                   np.ones(shape=(cls.obs_dim)),
+                   0)
+
         for i in range(cls.N_step):
             cls.rb.add(np.ones(shape=(cls.N_add,cls.obs_dim))*i,
                        np.zeros(shape=(cls.N_add,cls.act_dim)),
