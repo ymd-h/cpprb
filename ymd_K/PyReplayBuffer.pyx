@@ -111,6 +111,8 @@ cdef class PyReplayBuffer:
     cdef VectorDouble rew
     cdef VectorDouble next_obs
     cdef VectorInt done
+    cdef int obs_dim
+    cdef int act_dim
     def __cinit__(self,size,obs_dim,act_dim):
         print("Replay Buffer")
         self.obs_dim = obs_dim
@@ -169,6 +171,8 @@ cdef class PyPrioritizedReplayBuffer:
     cdef VectorInt done
     cdef VectorDouble weights
     cdef VectorULong indexes
+    cdef int obs_dim
+    cdef int act_dim
     def __cinit__(self,size,alpha,obs_dim,act_dim):
         print("Prioritized Replay Buffer")
         self.obs_dim = obs_dim
