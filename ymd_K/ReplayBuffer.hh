@@ -376,7 +376,7 @@ namespace ymd {
     }
 
     Priority get_max_prioroty() const {
-      return max_priority
+      return max_priority;
     }
   };
 }
