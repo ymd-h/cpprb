@@ -187,6 +187,11 @@ cdef class PyReplayBuffer:
                             self.next_obs.ptr,
                             self.done.ptr,
                             self.indexes.vec)
+        self.obs.set_size(self.buffer_size)
+        self.act.set_size(self.buffer_size)
+        self.rew.set_size(self.buffer_size)
+        self.next_obs.set_size(self.buffer_size)
+        self.done.set_size(self.buffer_size)
         idx = np.asarray(self.indexes)
         return {'obs': np.asarray(self.obs)[idx,:],
                 'act': np.asarray(self.act)[idx,:],
