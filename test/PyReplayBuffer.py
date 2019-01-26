@@ -85,9 +85,9 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.rb = ReplayBuffer.PyPrioritizedReplayBuffer(cls.N_buffer_size,
-                                                        cls.alpha,
                                                         cls.obs_dim,
-                                                        cls.act_dim)
+                                                        cls.act_dim,
+                                                        cls.alpha)
         for i in range(cls.N_step):
             cls.rb.add(np.ones(shape=(cls.N_add,cls.obs_dim))*i,
                        np.zeros(shape=(cls.N_add,cls.act_dim)),
