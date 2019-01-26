@@ -125,7 +125,7 @@ cdef class PyReplayBuffer:
         self.act = VectorDouble(act_dim)
         self.rew = VectorDouble()
         self.next_obs = VectorDouble(obs_dim)
-        self.done = VectorInt()
+        self.done = VectorDouble()
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
