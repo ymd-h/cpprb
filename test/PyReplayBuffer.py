@@ -23,7 +23,7 @@ class TestPyReplayBuffer(unittest.TestCase):
                        np.zeros(shape=(cls.N_add,cls.act_dim)),
                        np.ones((cls.N_add)) * 0.5*i,
                        np.ones(shape=(cls.N_add,cls.obs_dim))*(i+1),
-                       np.zeros((cls.N_add),dtype=np.intc) if i is not cls.N_step - 1 else np.ones((1),dtype=np.intc))
+                       np.zeros((cls.N_add),dtype=np.intc) if i is not cls.N_step - 1 else np.ones((cls.N_add),dtype=np.intc))
         cls.s = cls.rb.sample(cls.N_sample)
 
     def _check_ndarray(self,array,ndim,shape,name):
@@ -93,7 +93,7 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
                        np.zeros(shape=(cls.N_add,cls.act_dim)),
                        0.5*i * np.ones((cls.N_add)),
                        np.ones(shape=(cls.N_add,cls.obs_dim))*(i+1),
-                       np.zeros((cls.N_add),dtype=np.intc) if i is not cls.N_step - 1 else np.ones((1),dtype=np.intc))
+                       np.zeros((cls.N_add),dtype=np.intc) if i is not cls.N_step - 1 else np.ones((cls.N_add),dtype=np.intc))
         cls.s = cls.rb.sample(cls.N_sample,cls.beta)
 
         start = time.perf_counter()
