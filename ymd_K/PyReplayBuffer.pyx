@@ -169,6 +169,9 @@ cdef class PyReplayBuffer:
                 'next_obs': np.asarray(self.next_obs),
                 'done': np.asarray(self.done)}
 
+    def get_buffer_size(self):
+        return self.buffer_size
+
 cdef class PyPrioritizedReplayBuffer:
     cdef PrioritizedReplayBuffer[double,double,double,double,double] *thisptr
     cdef VectorDouble obs
@@ -248,3 +251,6 @@ cdef class PyPrioritizedReplayBuffer:
 
     def update_priorities(self,indexes,priorities):
         self.thisptr.update_priorities(indexes,priorities)
+
+    def get_buffer_size(self):
+        return self.buffer_size
