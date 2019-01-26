@@ -142,11 +142,11 @@ cdef class PyReplayBuffer:
         self.thisptr = new ReplayBuffer[double,double,double,double](size,
                                                                      obs_dim,
                                                                      act_dim)
-        self.obs = PointerDouble(obs_dim)
-        self.act = PointerDouble(act_dim)
-        self.rew = PointerDouble()
-        self.next_obs = PointerDouble(obs_dim)
-        self.done = PointerDouble()
+        self.obs = PointerDouble(obs_dim,size)
+        self.act = PointerDouble(act_dim,size)
+        self.rew = PointerDouble(1,size)
+        self.next_obs = PointerDouble(obs_dim,size)
+        self.done = PointerDouble(1,size)
         self.indexes = VectorDouble()
 
     @cython.boundscheck(False)
@@ -224,11 +224,11 @@ cdef class PyPrioritizedReplayBuffer:
                                                                          obs_dim,
                                                                          act_dim,
                                                                          alpha)
-        self.obs = PointerDouble(obs_dim)
-        self.act = PointerDouble(act_dim)
-        self.rew = PointerDouble()
-        self.next_obs = PointerDouble(obs_dim)
-        self.done = PointerDouble()
+        self.obs = PointerDouble(obs_dim,size)
+        self.act = PointerDouble(act_dim,size)
+        self.rew = PointerDouble(1,size)
+        self.next_obs = PointerDouble(obs_dim,size)
+        self.done = PointerDouble(1,size)
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
