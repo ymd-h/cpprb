@@ -200,7 +200,7 @@ cdef class PyPrioritizedReplayBuffer:
     cdef PointerDouble act
     cdef PointerDouble rew
     cdef PointerDouble next_obs
-    cdef PoinerDouble done
+    cdef PointerDouble done
     cdef VectorDouble weights
     cdef VectorULong indexes
     cdef int buffer_size
