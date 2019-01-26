@@ -171,6 +171,8 @@ cdef class PyPrioritizedReplayBuffer:
     cdef VectorULong indexes
     def __cinit__(self,size,alpha,obs_dim,act_dim):
         print("Prioritized Replay Buffer")
+        self.obs_dim = obs_dim
+        self.act_dim = act_dim
 
         self.thisptr = new PrioritizedReplayBuffer[double,double,
                                                    double,int,double](size,
@@ -187,7 +189,7 @@ cdef class PyPrioritizedReplayBuffer:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def add(self,
+    def _add(self,
             np.ndarray[double, ndim=2, mode="c"] obs not None,
             np.ndarray[double, ndim=2, mode="c"] act not None,
             np.ndarray[double, ndim=1, mode="c"] rew not None,
@@ -195,6 +197,17 @@ cdef class PyPrioritizedReplayBuffer:
             np.ndarray[int, ndim=1, mode="c"] done not None,
             size_t N=1):
         self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+
+    def add(self,obs,act,rew,next_obs,done):
+        if obs.ndim is 1:
+            obs.reshape(-1,self.obs_dim)
+            act.reshape(-1,self.act_dim)
+            next_obs.reshape(-1,self.obs_dim)
+
+            rew = np.array(rew,order='C').reshape(-1,1)
+            done = np.array(done,order='C',dtype=int).reshape(-1,1)
+
+        self._add(obs,act,rew,next_obs,done,obs.shape[0])
 
     def sample(self,size,beta):
         self.thisptr.sample(size,beta,
