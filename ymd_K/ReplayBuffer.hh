@@ -182,7 +182,7 @@ namespace ymd {
       index_buffer.reserve(batch_size);
       std::generate_n(std::back_inserter(index_buffer),batch_size,random);
 
-      set_sample(index_buffer,obs,act,rew,next_obs,done);
+      set_data(index_buffer,obs,act,rew,next_obs,done);
     }
 
     auto sample(std::size_t batch_size){
@@ -306,7 +306,7 @@ namespace ymd {
       weights.reserve(batch_size);
       set_weights(indexes,beta,weights);
 
-      this->BaseClass::set_sample(indexes,obs,act,rew,next_obs,done);
+      this->BaseClass::set_data(indexes,obs,act,rew,next_obs,done);
     }
 
     template<typename Obs_t,typename Act_t>
