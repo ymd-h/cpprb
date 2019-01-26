@@ -254,13 +254,23 @@ namespace ymd {
     ~PrioritizedReplayBuffer() = default;
 
     void add(Observation* obs,Action* act,Reward* rew,
-	     Observation* next_obs,Done* done,std::size_t N = 1ul){
+	     Observation* next_obs,Done* done,std::size_t N){
       auto next_idx = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,N);
 
       auto v = std::pow(max_priority,alpha);
       sum.set(next_idx,v,N,this->buffer_size());
       min.set(next_idx,v,N,this->buffer_size());
+    }
+
+    void add(Observation* obs,Action* act,Reward* rew,
+	     Observation* next_obs,Done* done){
+      auto next_idx = this->get_next_index();
+      this->BaseClass::add(obs,act,rew,next_obs,done,1ul);
+
+      auto v = std::pow(max_priority,alpha);
+      sum.set(next_idx,v);
+      min.set(next_idx,v);
     }
 
     template<typename Obs_t,typename Act_t>
