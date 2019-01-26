@@ -374,6 +374,10 @@ namespace ymd {
       this->BaseClass::clear();
       max_priority = default_max_priority;
     }
+
+    Priority get_max_prioroty() const {
+      return max_priority
+    }
   };
 }
 #endif // YMD_REPLAY_BUFFER_HH
