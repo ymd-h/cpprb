@@ -173,7 +173,7 @@ cdef class PyPrioritizedReplayBuffer:
     cdef VectorULong indexes
     cdef int obs_dim
     cdef int act_dim
-    def __cinit__(self,size,alpha,obs_dim,act_dim):
+    def __cinit__(self,size,obs_dim,act_dim,alpha=0.6):
         print("Prioritized Replay Buffer")
         self.obs_dim = obs_dim
         self.act_dim = act_dim
