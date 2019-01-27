@@ -259,13 +259,9 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
     def get_buffer_size(self):
         return self.buffer_size
 
-    def clear(self, np.ndarray[double, ndim=1] p = None):
+    def clear(self):
         super().clear()
-
-        if p is None:
-            self.per.clear()
-        else:
-            self.per.clear(&p[0])
+        self.per.clear()
 
     def get_max_priority(self):
         return self.per.get_max_priority()
