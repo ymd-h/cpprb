@@ -60,7 +60,7 @@ namespace ymd {
     template<typename T>
     void set_data(const std::vector<T>& buffer, std::size_t ith,
 		  std::size_t dim,T*& v) const {
-      v = buffer.data() + ith * dim;
+      v = (double*)(buffer.data()) + ith * dim;
     }
 
   public:
