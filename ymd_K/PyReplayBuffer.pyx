@@ -6,6 +6,9 @@ cimport numpy as np
 import numpy as np
 import cython
 
+cdef extern from "<utility>" namespace "std" nogil:
+    T move[T](T)
+
 from ymd_K cimport ReplayBuffer
 
 cdef class VectorWrapper:
