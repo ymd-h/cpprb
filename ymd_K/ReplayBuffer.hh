@@ -222,7 +222,7 @@ namespace ymd {
       indexes.reserve(batch_size);
       std::generate_n(std::back_inserter(indexes),batch_size,random);
 
-      set_data(indexes,obs,act,rew,next_obs,done);
+      encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     template<typename Obs_t,typename Act_t,typename  Rew_t,typename Done_t>
@@ -394,7 +394,7 @@ namespace ymd {
 
       prioritized_indexes(batch_size,beta,weights,indexes);
 
-      this->BaseClass::set_data(indexes,obs,act,rew,next_obs,done);
+      this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
 
     template<typename Obs_t,typename Act_t>
