@@ -13,6 +13,36 @@
 #include "SegmentTree.hh"
 
 namespace ymd {
+  template<typename T>
+  class DimensionalRingBuffer {
+  private:
+    std::vector<T> buffer;
+    std::size_t dim;
+  public:
+    DimensionalRingBuffer(std::size_t size,sid::size_t dim)
+      : buffer(size,T{0}),
+	dim{dim} {}
+    DimensionalRingBuffer(): DimensionalRingBuffer{1ul,1ul}  {}
+    DimensionalRingBuffer(const RingBuffer&) = default;
+    DimensionalRingBuffer(RingBuffer&&) = default;
+    DimensionalRingBuffer& operator=(const RingBuffer&) = default;
+    DimensionalRingBuffer& operator=(RingBuffer&&) = default;
+    ~DimensionalRingBuffer() = default;
+    void store_data(T* v,std::size_t shift,std::size_t N){
+      std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
+    }
+    void set_data(std::size_t ith,,std::vector<T>& v) const {
+      std::copy_n(buffer.data() + ith * dim, dim,std::back_inserter(v));
+    }
+    void set_data(std::size_t ith,std::vector<std::vector<T>>& v) const {
+      v.emplace_back(buffer.data() +  ith    * dim,
+		     buffer.data() + (ith+1) * dim);
+    }
+    void set_data(std::size_t ith,T*& v) const {
+      v = (T*)(buffer.data()) + ith * dim;
+    }
+  };
+
   template<typename Observation,typename Action,typename Reward,typename Done>
   class InternalBuffer {
   private:
