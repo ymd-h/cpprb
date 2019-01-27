@@ -183,13 +183,7 @@ cdef class PyReplayBuffer:
             self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
 
     def sample(self,size):
-        self.thisptr.sample(size,
-                            self.obs.ptr,
-                            self.act.ptr,
-                            self.rew.ptr,
-                            self.next_obs.ptr,
-                            self.done.ptr,
-                            self.indexes.vec)
+        self.thisptr.get_indexes(self.indexes.vec)
         idx = np.asarray(self.indexes)
         return {'obs': np.asarray(self.obs)[idx,:],
                 'act': np.asarray(self.act)[idx,:],
