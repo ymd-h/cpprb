@@ -303,4 +303,8 @@ cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
         return self.thisptr.get_stored_size()
 
     def get_max_priority(self):
-        return self.thisptr.get_max_priority()
+        return (<PrioritizedReplayBuffer[double,
+                                         double,
+                                         double,
+                                         double,
+                                         double]*>self.thisptr).get_max_priority()
