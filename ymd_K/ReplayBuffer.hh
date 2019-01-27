@@ -315,8 +315,9 @@ namespace ymd {
 	alpha{std::max(alpha,Priority{0.0})},
 	max_priority{1.0},
 	default_max_priority{1.0},
-	sum{PowerOf2(n),[](auto a,auto b){ return a+b; }},
-	min{PowerOf2(n),[zero = Priority{0}](Priority a,Priority b){
+	sum{PowerOf2(buffer->get_buffer_size()),[](auto a,auto b){ return a+b; }},
+	min{PowerOf2(buffer->get_buffer_size()),[zero = Priority{0}](Priority a,
+								     Priority b){
 			  return ((zero == a) ? b:
 				  (zero == b) ? a:
 				  std::min(a,b));
