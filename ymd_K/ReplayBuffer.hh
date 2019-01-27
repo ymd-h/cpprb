@@ -26,20 +26,19 @@ namespace ymd {
     std::vector<Reward> rew_buffer;
     std::vector<Observation> next_obs_buffer;
     std::vector<Done> done_buffer;
+    template<typename T>
+    void store_data(T* v,std::size_t shift,std::size_t dim,std::size_t N,
+		    std::vector<T>& buffer){
+      std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
+    }
     void store(Observation* obs, Action* act, Reward* rew,
 	       Observation* next_obs, Done* done,
 	       std::size_t shift, std::size_t N){
-      obs += shift * obs_dim;
-      act += shift * act_dim;
-      rew += shift;
-      next_obs += shift * obs_dim;
-      done += shift;
-
-      std::copy_n(obs     ,N*obs_dim,obs_buffer.data()      + next_index*obs_dim);
-      std::copy_n(act     ,N*act_dim,act_buffer.data()      + next_index*act_dim);
-      std::copy_n(rew     ,N        ,rew_buffer.data()      + next_index        );
-      std::copy_n(next_obs,N*obs_dim,next_obs_buffer.data() + next_index*obs_dim);
-      std::copy_n(done    ,N        ,done_buffer.data()     + next_index        );
+      store_data(     obs,shift,obs_dim,N,     obs_buffer);
+      store_data(     act,shift,act_dim,N,     act_buffer);
+      store_data(     rew,shift,    1ul,N,     rew_buffer);
+      store_data(next_obs,shift,obs_dim,N,next_obs_buffer);
+      store_data(    done,shift,    1ul,N,    done_buffer);
 
       next_index += N;
       stored_size = std::min(stored_size+N,buffer_size);
