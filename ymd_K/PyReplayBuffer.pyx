@@ -215,40 +215,33 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    def _add_Np(self,
-                np.ndarray[double, ndim=2, mode="c"] obs not None,
-                np.ndarray[double, ndim=2, mode="c"] act not None,
-                np.ndarray[double, ndim=1, mode="c"] rew not None,
-                np.ndarray[double, ndim=2, mode="c"] next_obs not None,
-                np.ndarray[double, ndim=1, mode="c"] done not None,
-                np.ndarray[double, ndim=1, mode="c"] p not None,
-                size_t N=1):
-        next_index = self.buffer.get_next_index()
-        self._add_N(obs,act,rew,next_obs,done,N)
-        self.per.update_prioriries(next_index,&p[0],N)
+    def _update_1(self,next_index):
+        self.per.update_priorities(next_index)
 
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    def _add_1p(self,
-                np.ndarray[double, ndim=1, mode="c"] obs not None,
-                np.ndarray[double, ndim=1, mode="c"] act not None,
-                double rew,
-                np.ndarray[double, ndim=1, mode="c"] next_obs not None,
-                double done, double p):
-        next_index = self.buffer.get_next_index()
-        self._add_1(obs,act,rew,next_obs,don)
-        self.per.update_priorities(next_index,&p)
+    def _update_1p(self,next_index,double p):
+        self.per.update_priorities(next_index,p)
+
+    def _update_N(self,next_index,size_t N=1):
+        self.per.update_priorities(next_index,N)
+
+    def _update_Np(self,next_index,np.ndarray[double,ndim=1] p,size_t N=1):
+        self.per.update_priorities(next_index,&p[0],N)
 
     def add(self,obs,act,rew,next_obs,done,priorities = None):
-        if priorities is None:
-            super().add(obs,act,rew,next_obs,done)
-        else:
-            if obs.ndim == 1:
-                self._add_1p(obs,act,rew,next_obs,done,priorities)
+        next_index = self.get_next_index()
+        if obs.ndim == 1:
+            self._add_1(obs,act,rew,next_obs,done)
+            if priorities:
+                self.per.update_1p(get_next_index,priorities)
             else:
-                self._add_Np(obs,act,rew,next_obs,done,priorities,obs.shape[0]);
+                self.per.update_1(get_next_index)
+        else:
+            N = obs.shape[0]
+            self._add_N(obs,act,rew,next_obs,done,N)
+            if priorities:
+                self.per.update_Np(get_next_index,priorities,N)
+            else:
+                self.per.update_N(get_next_index,N)
 
     def sample(self,size,beta):
         self.per.sample(batch_size,beta,
