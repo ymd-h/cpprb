@@ -149,6 +149,12 @@ cdef class PyReplayBuffer:
         self.done = PointerDouble(1,1,size)
         self.indexes = VectorULong()
 
+        self.thisptr.get_buffer_pointers(self.obs.ptr,
+                                         self.act.ptr,
+                                         self.rew.ptr,
+                                         self.next_obs.ptr,
+                                         self.done.ptr);
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _add_N(self,
