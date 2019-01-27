@@ -157,12 +157,12 @@ namespace ymd {
     std::size_t get_next_index() const { return next_index;}
     std::size_t get_capacity() const { return capacity; }
 
-    void add(Observation* obs,
-	     Action* act,
-	     Reward* rew,
-	     Observation* next_obs,
-	     Done* done,
-	     std::size_t N = 1ul){
+    virtual void add(Observation* obs,
+		     Action* act,
+		     Reward* rew,
+		     Observation* next_obs,
+		     Done* done,
+		     std::size_t N = 1ul){
 
       auto copy_N = std::min(N,capacity - next_index);
       store_buffer(obs,act,rew,next_obs,done,0ul,copy_N);
@@ -301,20 +301,21 @@ namespace ymd {
     PrioritizedReplayBuffer& operator=(PrioritizedReplayBuffer&&) = default;
     virtual ~PrioritizedReplayBuffer() override = default;
 
-    void add(Observation* obs,Action* act,Reward* rew,
-	     Observation* next_obs,Done* done,std::size_t N){
+    virtual void add(Observation* obs,Action* act,Reward* rew,
+		     Observation* next_obs,Done* done,std::size_t N) override {
       multi_add(obs,act,rew,next_obs,done,
 		[v=std::pow(max_priority,alpha)](){ return v; },N);
     }
 
-    void add(Observation* obs,Action* act,Reward* rew,
-	     Observation* next_obs,Done* done,Priority* priority,std::size_t N){
+    virtual void add(Observation* obs,Action* act,Reward* rew,
+		     Observation* next_obs,Done* done,
+		     Priority* priority,std::size_t N){
       multi_add(obs,act,rew,next_obs,done,
 		[=]()mutable{ return std::pow(*(priority++),this->alpha); },N);
     }
 
-    void add(Observation* obs,Action* act,Reward* rew,
-	     Observation* next_obs,Done* done,Priority p){
+    virtual void add(Observation* obs,Action* act,Reward* rew,
+		     Observation* next_obs,Done* done,Priority p){
       auto next_idx = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,1ul);
 
@@ -323,8 +324,8 @@ namespace ymd {
       min.set(next_idx,v);
     }
 
-    void add(Observation* obs,Action* act,Reward* rew,
-	     Observation* next_obs,Done* done){
+    virtual void add(Observation* obs,Action* act,Reward* rew,
+		     Observation* next_obs,Done* done){
       add(obs,act,rew,next_obs,done,max_priority);
     }
 
