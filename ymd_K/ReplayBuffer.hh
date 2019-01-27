@@ -204,7 +204,10 @@ namespace ymd {
 		Obs_t& obs, Act_t& act,
 		Rew_t& rew, Obs_t& next_obs, Done_t& done,
 		std::vector<size_t>& indexes){
-      auto random = [this,d=rand_t{0,size-1}]()mutable{ return d(this->g); };
+      auto random = [this,
+		     d=rand_t{0,this->Buffer_t::get_stored_size()-1}]()mutable{
+		      return d(this->g);
+		    };
       indexes.resize(0);
       indexes.reserve(batch_size);
       std::generate_n(std::back_inserter(indexes),batch_size,random);
