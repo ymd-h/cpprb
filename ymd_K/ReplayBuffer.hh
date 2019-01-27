@@ -99,7 +99,7 @@ namespace ymd {
 
     template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
     void get(std::size_t index,Obs_t& obs,Act_t& act,Rew_t& rew,
-	     Observation& next_obs,Done_t& done){
+	     Obs_t& next_obs,Done_t& done){
       set_data(     obs_buffer,index,obs_dim,     obs);
       set_data(     act_buffer,index,act_dim,     act);
       set_data(     rew_buffer,index,    1ul,     rew);
