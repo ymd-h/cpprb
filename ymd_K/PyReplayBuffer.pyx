@@ -129,7 +129,6 @@ cdef class PyReplayBuffer:
     cdef PointerDouble rew
     cdef PointerDouble next_obs
     cdef PointerDouble done
-    cdef VectorULong indexes
     cdef int buffer_size
     cdef int obs_dim
     cdef int act_dim
@@ -147,7 +146,6 @@ cdef class PyReplayBuffer:
         self.rew = PointerDouble(1,1,size)
         self.next_obs = PointerDouble(2,obs_dim,size)
         self.done = PointerDouble(1,1,size)
-        self.indexes = VectorULong()
 
         self.thisptr.get_buffer_pointers(self.obs.ptr,
                                          self.act.ptr,
