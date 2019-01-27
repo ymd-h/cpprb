@@ -107,6 +107,16 @@ namespace ymd {
       set_data(    done_buffer,index,    1ul,    done);
     }
 
+    template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
+    void get(std::size_t index,Obs_t& obs,Act_t& act,Rew_t& rew,
+	     Obs_t& next_obs,Done_t& done) const {
+      set_data(     obs_buffer,index,obs_dim,     obs);
+      set_data(     act_buffer,index,act_dim,     act);
+      set_data(     rew_buffer,index,    1ul,     rew);
+      set_data(next_obs_buffer,index,obs_dim,next_obs);
+      set_data(    done_buffer,index,    1ul,    done);
+    }
+
     void get_buffer_pointers(Observation*& obs, Action*& act, Reward*& rew,
 			     Observation*& next_obs, Done*& done){
       get(0ul,obs,act,rew,next_obs,done);
