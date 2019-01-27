@@ -45,6 +45,25 @@ namespace ymd {
       stored_size = std::min(stored_size+N,buffer_size);
     }
 
+    template<typename T>
+    void set_data(const std::vector<T>& buffer, std::size_t ith,
+		  std::size_t dim,std::vector<T>& v) const {
+      std::copy_n(buffer.data() + ith * dim, dim,std::back_inserter(v));
+    }
+
+    template<typename T>
+    void set_data(const std::vector<T>& buffer, std::size_t ith,
+		  std::size_t dim,std::vector<std::vector<T>>& v) const {
+      v.emplace_back(buffer.data() +  ith    * dim,
+		     buffer.data() + (ith+1) * dim);
+    }
+
+    template<typename T>
+    void set_data(const std::vector<T>& buffer, std::size_t ith,
+		  std::size_t dim,T*& v) const {
+      v = buffer.data() + ith * dim
+    }
+
   public:
     InternalBuffer(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
       : buffer_size{size},
@@ -78,55 +97,29 @@ namespace ymd {
     std::size_t get_buffer_size() const { return buffer_size; }
     std::size_t get_stored_size() const { return stored_size; }
     std::size_t get_next_index() const { return next_index; }
+
+    template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
+    get(std::size_t index,Obs_t& obs,Act_t& act,Rew_t& rew,Done_t& done){
+      set_data(     obs_buffer,index,obs_dim,     obs);
+      set_data(     act_buffer,index,act_dim,     act);
+      set_data(     rew_buffer,index,    1ul,     rew);
+      set_data(next_obs_buffer,index,obs_dim,next_obs);
+      set_data(    done_buffer,index,    1ul,    done);
+    }
+
     void get_buffer_pointers(Observation*& obs, Action*& act, Reward*& rew,
 			     Observation*& next_obs, Done*& done){
-      obs = obs_buffer.data();
-      act = act_buffer.data();
-      rew = rew_buffer.data();
-      next_obs = next_obs.data();
-      done = done_buffer.data();
+      get(0ul,obs,act,rew,next_obs,done);
     }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
-  class ReplayBuffer {
+  class ReplayBuffer : InternalBuffer<Observation,Action,Reward,Done>{
   public:
+    using Buffer_t = InternalBuffer<Observation,Action,Reward,Done>;
     using rand_t = std::uniform_int_distribution<std::size_t>;
   private:
-    const std::size_t capacity;
-    std::size_t size;
-    std::size_t obs_dim;
-    std::size_t act_dim;
-    std::size_t next_index;
-    std::vector<Observation> obs_buffer;
-    std::vector<Action> act_buffer;
-    std::vector<Reward> rew_buffer;
-    std::vector<Observation> next_obs_buffer;
-    std::vector<Done> done_buffer;
     std::vector<std::size_t> index_buffer;
-
-    void store_buffer(Observation* obs,
-		      Action* act,
-		      Reward* rew,
-		      Observation* next_obs,
-		      Done* done,
-		      std::size_t shift,
-		      std::size_t N){
-      obs += shift * obs_dim;
-      act += shift * act_dim;
-      rew += shift;
-      next_obs += shift * obs_dim;
-      done += shift;
-
-      std::copy_n(obs     ,N*obs_dim,obs_buffer.data()      + next_index*obs_dim);
-      std::copy_n(act     ,N*act_dim,act_buffer.data()      + next_index*act_dim);
-      std::copy_n(rew     ,N        ,rew_buffer.data()      + next_index        );
-      std::copy_n(next_obs,N*obs_dim,next_obs_buffer.data() + next_index*obs_dim);
-      std::copy_n(done    ,N        ,done_buffer.data()     + next_index        );
-
-      next_index += N;
-      size = std::min(size+N,capacity);
-    }
 
     template<typename T>
     void copy(const std::vector<T>& buffer,std::vector<T>& v,
