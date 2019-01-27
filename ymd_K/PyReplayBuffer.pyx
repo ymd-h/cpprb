@@ -201,23 +201,23 @@ cdef class PyReplayBuffer:
         return self.thisptr.clear()
 
     def get_stored_size(self):
-        return self.thisptr.buffer_size()
+        return self.thisptr.get_stored_size()
 
 cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
-    cdef PrioritizedReplayBuffer[double,double,double,double,double] *thisptr
     cdef VectorDouble weights
+    cdef VectorULong indexes
     cdef double alpha
     def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
         print("Prioritized Replay Buffer")
         self.alpha = alpha
 
-        del self.thisptr
-        self.thisptr = new PrioritizedReplayBuffer[double,double,
-                                                   double,double,double](size,
-                                                                         obs_dim,
-                                                                         act_dim,
-                                                                         alpha)
+        self.thisptr = new PrioritizedReplayBuffer[double,
+                                                   double,
+                                                   double,
+                                                   double,
+                                                   double](move[ReplayBuffer[double,double,double,double]](dereference(self.thisptr)),alpha)
         self.weights = VectorDouble()
+        self.indexes = VectorULong()
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -251,22 +251,16 @@ cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
                 self._add_Np(obs,act,rew,next_obs,done,priorities,obs.shape[0]);
 
     def sample(self,size,beta):
-        self.thisptr.sample(size,beta,
-                            self.obs.ptr,
-                            self.act.ptr,
-                            self.rew.ptr,
-                            self.next_obs.ptr,
-                            self.done.ptr,
-                            self.weights.vec,
-                            self.indexes.vec)
+        (<PrioritizedReplayBuffer[double,
+                                  double,
+                                  double,
+                                  double,
+                                  double]*>self.thisptr).prioritized_indexes(self.weights.vec,self.indexes.vec)
         idx = np.asarray(self.indexes)
-        return {'obs': np.asarray(self.obs)[idx,:],
-                'act': np.asarray(self.act)[idx,:],
-                'rew': np.asarray(self.rew)[idx],
-                'next_obs': np.asarray(self.next_obs)[idx,:],
-                'done': np.asarray(self.done)[idx],
-                'weights': np.asarray(self.weights),
-                'indexes': idx}
+        samples = self._encode_sample(idx)
+        samples['weights'] = np.asrray(self.weights)
+        samples['indexes'] = idx
+        return samples
 
     def update_priorities(self,indexes,priorities):
         self.thisptr.update_priorities(indexes,priorities)
