@@ -192,7 +192,7 @@ cdef class PyReplayBuffer:
 
     def sample(self,size):
         idx = np.random.randint(0,self.get_stored_size(),size)
-        return _encode_sample(idx)
+        return self._encode_sample(idx)
 
     def get_buffer_size(self):
         return self.buffer_size
