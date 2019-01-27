@@ -51,46 +51,22 @@ namespace ymd {
     std::size_t obs_dim;
     std::size_t act_dim;
     std::size_t next_index;
-    std::vector<Observation> obs_buffer;
-    std::vector<Action> act_buffer;
-    std::vector<Reward> rew_buffer;
-    std::vector<Observation> next_obs_buffer;
-    std::vector<Done> done_buffer;
-    template<typename T>
-    void store_data(T* v,std::size_t shift,std::size_t dim,std::size_t N,
-		    std::vector<T>& buffer){
-      std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
-    }
+    DimensionalRingBuffer<Observation> obs_buffer;
+    DimensionalRingBuffer<Action> act_buffer;
+    DimensionalRingBuffer<Reward> rew_buffer;
+    DimensionalRingBuffer<Observation> next_obs_buffer;
+    DimensionalRingBuffer<Done> done_buffer;
     void store(Observation* obs, Action* act, Reward* rew,
 	       Observation* next_obs, Done* done,
 	       std::size_t shift, std::size_t N){
-      store_data(     obs,shift,obs_dim,N,     obs_buffer);
-      store_data(     act,shift,act_dim,N,     act_buffer);
-      store_data(     rew,shift,    1ul,N,     rew_buffer);
-      store_data(next_obs,shift,obs_dim,N,next_obs_buffer);
-      store_data(    done,shift,    1ul,N,    done_buffer);
+      obs_buffer     .store_data(     obs,shift,next_index,N);
+      act_buffer     .store_data(     act,shift,next_index,N);
+      rew_buffer     .store_data(     rew,shift,next_index,N);
+      next_obs_buffer.store_data(next_obs,shift,next_index,N);
+      done_buffer    .store_data(    done,shift,next_index,N);
 
       next_index += N;
       stored_size = std::min(stored_size+N,buffer_size);
-    }
-
-    template<typename T>
-    void set_data(const std::vector<T>& buffer, std::size_t ith,
-		  std::size_t dim,std::vector<T>& v) const {
-      std::copy_n(buffer.data() + ith * dim, dim,std::back_inserter(v));
-    }
-
-    template<typename T>
-    void set_data(const std::vector<T>& buffer, std::size_t ith,
-		  std::size_t dim,std::vector<std::vector<T>>& v) const {
-      v.emplace_back(buffer.data() +  ith    * dim,
-		     buffer.data() + (ith+1) * dim);
-    }
-
-    template<typename T>
-    void set_data(const std::vector<T>& buffer, std::size_t ith,
-		  std::size_t dim,T*& v) const {
-      v = (double*)(buffer.data()) + ith * dim;
     }
 
   public:
@@ -100,11 +76,11 @@ namespace ymd {
 	obs_dim{obs_dim},
 	act_dim{act_dim},
 	next_index{0ul},
-	obs_buffer(size * obs_dim,Observation{0}),
-	act_buffer(size * act_dim,Action{0}),
-	rew_buffer(size,Reward{0}),
-	next_obs_buffer(size * obs_dim,Observation{0}),
-	done_buffer(size,Done{0}) {}
+	obs_buffer{size,obs_dim},
+	act_buffer{size,act_dim},
+	rew_buffer{size,1ul},
+	next_obs_buffer{size,obs_dim},
+	done_buffer{size,1ul} {}
     InternalBuffer(): InternalBuffer{1ul,1ul,1ul} {}
     InternalBuffer(const InternalBuffer&) = default;
     InternalBuffer(InternalBuffer&&) = default;
