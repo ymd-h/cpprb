@@ -23,10 +23,10 @@ namespace ymd {
       : buffer(size,T{0}),
 	dim{dim} {}
     DimensionalRingBuffer(): DimensionalRingBuffer{1ul,1ul}  {}
-    DimensionalRingBuffer(const RingBuffer&) = default;
-    DimensionalRingBuffer(RingBuffer&&) = default;
-    DimensionalRingBuffer& operator=(const RingBuffer&) = default;
-    DimensionalRingBuffer& operator=(RingBuffer&&) = default;
+    DimensionalRingBuffer(const DimensionalRingBuffer&) = default;
+    DimensionalRingBuffer(DimensionalRingBuffer&&) = default;
+    DimensionalRingBuffer& operator=(const DimensionalRingBuffer&) = default;
+    DimensionalRingBuffer& operator=(DimensionalRingBuffer&&) = default;
     ~DimensionalRingBuffer() = default;
     void store_data(T* v,std::size_t shift,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
