@@ -10,6 +10,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
     cdef cppclass PrioritizedReplayBuffer[Obs,Act,Rew,Done,Prio]:
         PrioritizedReplayBuffer(size_t,size_t,size_t,Prio)
+        PrioritizedReplayBuffer(ReplayBuffer[Obs,Act,Rew,Done]&&,Prio)
         void add(Obs*,Act*,Rew*,Obs*,Done*,size_t)
         void add(Obs*,Act*,Rew*,Obs*,Done*,Prio*,size_t)
         void add(Obs*,Act*,Rew*,Obs*,Done*)
