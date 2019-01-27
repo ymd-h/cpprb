@@ -276,7 +276,9 @@ cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
                                   double,
                                   double,
                                   double,
-                                  double]*>self.thisptr).prioritized_indexes(self.weights.vec,self.indexes.vec)
+                                  double]*>self.thisptr).prioritized_indexes(size,
+                                                                             beta,
+                                                                             self.weights.vec,self.indexes.vec)
         idx = np.asarray(self.indexes)
         samples = self._encode_sample(idx)
         samples['weights'] = np.asrray(self.weights)
