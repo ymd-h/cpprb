@@ -26,7 +26,6 @@ namespace ymd {
     std::vector<Reward> rew_buffer;
     std::vector<Observation> next_obs_buffer;
     std::vector<Done> done_buffer;
-    std::vector<std::size_t> index_buffer;
     void store(Observation* obs, Action* act, Reward* rew,
 	       Observation* next_obs, Done* done,
 	       std::size_t shift, std::size_t N){
@@ -57,8 +56,7 @@ namespace ymd {
 	act_buffer(size * act_dim,Action{0}),
 	rew_buffer(size,Reward{0}),
 	next_obs_buffer(size * obs_dim,Observation{0}),
-	done_buffer(size,Done{0}),
-	index_buffer{} {}
+	done_buffer(size,Done{0}) {}
     InternalBuffer(): InternalBuffer{1ul,1ul,1ul} {}
     InternalBuffer(const InternalBuffer&) = default;
     InternalBuffer(InternalBuffer&&) = default;
