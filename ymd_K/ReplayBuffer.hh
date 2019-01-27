@@ -211,6 +211,15 @@ namespace ymd {
       size = 0ul;
       next_index = 0ul;
     }
+
+    void get_buffer_pointers(Observation*& obs,Action*& act,Reward*& rew,
+			     Observation*& next_obs,Done*& done){
+      obs = obs_buffer.data();
+      act = act_buffer.data();
+      rew = rew_buffer.data();
+      next_obs = next_obs_buffer.data();
+      done = done_buffer.data();
+    }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done,
