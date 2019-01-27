@@ -211,11 +211,14 @@ cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
         print("Prioritized Replay Buffer")
         self.alpha = alpha
 
-        self.thisptr = new PrioritizedReplayBuffer[double,
-                                                   double,
-                                                   double,
-                                                   double,
-                                                   double](move[ReplayBuffer[double,double,double,double]](dereference(self.thisptr)),alpha)
+        self.thisptr = <ReplayBuffer[double,
+                                     double,
+                                     double,
+                                     double]*> new PrioritizedReplayBuffer[double,
+                                                                           double,
+                                                                           double,
+                                                                           double,
+                                                                           double](move[ReplayBuffer[double,double,double,double]](dereference(self.thisptr)),alpha)
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
