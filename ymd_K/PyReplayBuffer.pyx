@@ -243,7 +243,7 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
             else:
                 self._update_N(next_index,N)
 
-    def sample(self,size,beta):
+    def sample(self,batch_size,beta):
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
                         self.stored_size())
