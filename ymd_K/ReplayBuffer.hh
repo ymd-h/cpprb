@@ -446,5 +446,126 @@ namespace ymd {
       return max_priority;
     }
   };
+
+  template<typename Priority>
+  class PrioritizedSampler {
+  private:
+    Priority alpha;
+    Priority max_priority;
+    const Priority default_max_priority;
+    SegmentTree<Priority> sum;
+    SegmentTree<Priority> min;
+    std::mt19937 g;
+
+    void sample_proportional(std::size_t batch_size,
+			     std::vector<std::size_t>& indexes,
+			     std::size_t stored_size){
+      indexes.resize(0);
+      indexes.reserve(batch_size);
+
+      auto every_range_len
+	= Priority{1.0} * sum.reduce(0,stored_size) / batch_size;
+
+      std::generate_n(std::back_inserter(indexes),batch_size,
+		      [=,i=0ul,
+		       d=std::uniform_real_distribution<Priority>{}]()mutable{
+			auto mass = (d(this->g) + (i++))*every_range_len;
+			return this->sum.largest_region_index([=](auto v){
+								return v <= mass;
+							      },stored_size);
+		      });
+    }
+
+    void set_weights(const std::vector<std::size_t>& indexes,Priority beta,
+		     std::vector<Priority>& weights,std::size_t stored_size) const {
+      auto b_size = stored_size;
+      auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
+      auto p_min = min.reduce(0,b_size) * inv_sum;
+      auto inv_max_weight = Priority{1.0} / std::pow(p_min * b_size,-beta);
+
+      std::transform(indexes.begin(),indexes.end(),std::back_inserter(weights),
+		     [=](auto idx){
+		       auto p_sample = this->sum.get(idx) * inv_sum;
+		       return std::pow(p_sample*b_size,-beta)*inv_max_weight;
+		     });
+    }
+
+    template<typename F>
+    void set_priorities(std::size_t next_index,F&& f,
+			std::size_t N,std::size_t stored_size){
+      sum.set(next_index,std::forward<F>(f),N,stored_size);
+      min.set(next_index,std::forward<F>(f),N,stored_size);
+    }
+
+  public:
+    PrioritizedSampler(std::size_t buffer_size,Priority alpha)
+      : alpha{alpha},
+	max_priority{1.0},
+	default_max_priority{1.0},
+	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; }},
+	min{PowerOf2(buffer_size),[zero = Priority{0}](Priority a,
+						       Priority b){
+				    return ((zero == a) ? b:
+					    (zero == b) ? a:
+					    std::min(a,b));
+				  }},
+	g{std::random_device{}()} {}
+    PrioritizedSampler() = default;
+    PrioritizedSampler(const PrioritizedSampler&) = default;
+    PrioritizedSampler(PrioritizedSampler&&) = default;
+    PrioritizedSampler& operator=(const PrioritizedSampler&) = default;
+    PrioritizedSampler& operator=(PrioritizedSampler&&) = default;
+    ~PrioritizedSampler() = default;
+
+    void sample(std::size_t batch_size,Priority beta,
+		std::vector<Priority>& weights,std::vector<std::size_t>& indexes,
+		std::size_t stored_size){
+      sample_proportional(batch_size,indexes,stored_size);
+      set_weights(indexes,beta,weights,stored_size);
+    }
+    virtual void clear(){
+      max_priority = default_max_priority;
+    }
+
+    Priority get_max_priority() const {
+      return max_priority;
+    }
+
+    void set_priorities(std::size_t next_index,Priority p){
+      auto v = std::pow(p,alpha);
+      sum.set(next_index,v);
+      min.set(next_index,v);
+    }
+
+    void set_priorities(std::size_t next_index){
+      set_priorities(next_index,max_priority);
+    }
+
+    void set_priorities(std::size_t next_index,Priority* p,
+			std::size_t N,std::size_t stored_size){
+      set_priorities(next_index,[=]() mutable { return std::pow(*(p++),alpha); },
+		     N,stored_size);
+    }
+
+    void set_priorities(std::size_t next_index,
+			std::size_t N,std::size_t stored_size){
+      set_priorities(next_index,[=](){ return std::pow(max_priority,alpha); },
+		     N,stored_size);
+    }
+
+    void update_priorities(std::vector<std::size_t>& indexes,
+			   std::vector<Priority>& priorities){
+
+      max_priority = std::accumulate(indexes.begin(),indexes.end(),max_priority,
+				     [=,p=priorities.begin()]
+				     (auto max_p, auto index) mutable {
+				       auto v = std::pow(*p,this->alpha);
+				       this->sum.set(index,v);
+				       this->min.set(index,v);
+
+				       return std::max(max_p,*(p++));
+				     });
+    }
+  };
 }
 #endif // YMD_REPLAY_BUFFER_HH
