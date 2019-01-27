@@ -206,12 +206,12 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
     cdef VectorDouble weights
     cdef VectorULong indexes
     cdef double alpha
-    cdef PrioritizedSampler* per
+    cdef PrioritizedSampler[double]* per
     def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
         print("Prioritized Replay Buffer")
         self.alpha = alpha
 
-        self.per = new PrioritizedSampler(alpha)
+        self.per = new PrioritizedSampler[double](alpha)
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
