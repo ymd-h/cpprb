@@ -6,7 +6,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         ReplayBuffer(size_t,size_t,size_t)
         void add(Obs*,Act*,Rew*,Obs*,Done*,size_t)
         void clear()
-        size_t buffer_size()
+        size_t get_stored_size()
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
     cdef cppclass PrioritizedReplayBuffer[Obs,Act,Rew,Done,Prio]:
         PrioritizedReplayBuffer(size_t,size_t,size_t,Prio)
@@ -17,6 +17,6 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void prioritized_indexes(size_t,Prio,vector[Prio]&,vector[size_t]&)
         void update_priorities(vector[size_t]&,vector[Prio]&)
         void clear()
-        size_t buffer_size()
+        size_t get_stored_size()
         Prio get_max_priority()
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
