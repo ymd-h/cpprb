@@ -232,16 +232,16 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
         if obs.ndim == 1:
             self._add_1(obs,act,rew,next_obs,done)
             if priorities:
-                self.per.update_1p(get_next_index,priorities)
+                self._update_1p(get_next_index,priorities)
             else:
-                self.per.update_1(get_next_index)
+                self._update_1(get_next_index)
         else:
             N = obs.shape[0]
             self._add_N(obs,act,rew,next_obs,done,N)
             if priorities:
-                self.per.update_Np(get_next_index,priorities,N)
+                self._update_Np(get_next_index,priorities,N)
             else:
-                self.per.update_N(get_next_index,N)
+                self._update_N(get_next_index,N)
 
     def sample(self,size,beta):
         self.per.sample(batch_size,beta,
