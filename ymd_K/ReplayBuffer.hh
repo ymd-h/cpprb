@@ -16,7 +16,7 @@ namespace ymd {
   template<typename Observation,typename Action,typename Reward,typename Done>
   class InternalBuffer {
   private:
-    const std::size_t baffer_size;
+    const std::size_t buffer_size;
     std::size_t stored_size;
     std::size_t obs_dim;
     std::size_t act_dim;
