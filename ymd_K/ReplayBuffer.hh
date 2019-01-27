@@ -271,7 +271,7 @@ namespace ymd {
 
     void set_weights(const std::vector<std::size_t>& indexes,Priority beta,
 		     std::vector<Priority>& weights) const {
-      auto b_size = this->buffer_size();
+      auto b_size = this->get_stored_size();
       auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
       auto p_min = min.reduce(0,b_size) * inv_sum;
       auto inv_max_weight = Priority{1.0} / std::pow(p_min * b_size,-beta);
@@ -297,8 +297,8 @@ namespace ymd {
       auto next_idx = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,N);
 
-      sum.set(next_idx,std::forward<F>(f),N,this->buffer_size());
-      min.set(next_idx,std::forward<F>(f),N,this->buffer_size());
+      sum.set(next_idx,std::forward<F>(f),N,this->get_stored_size());
+      min.set(next_idx,std::forward<F>(f),N,this->get_stored_size());
     }
 
   public:
