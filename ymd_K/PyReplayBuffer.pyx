@@ -6,9 +6,6 @@ cimport numpy as np
 import numpy as np
 import cython
 
-cdef extern from "<utility>" namespace "std" nogil:
-    T move[T](T)
-
 from ymd_K cimport ReplayBuffer
 
 cdef class VectorWrapper:
@@ -218,7 +215,7 @@ cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
                                                                            double,
                                                                            double,
                                                                            double,
-                                                                           double](move[ReplayBuffer[double,double,double,double]](dereference(self.thisptr)),alpha)
+                                                                           double](self.thisptr,alpha)
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 

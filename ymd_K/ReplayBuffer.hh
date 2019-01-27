@@ -324,8 +324,8 @@ namespace ymd {
 				  (zero == b) ? a:
 				  std::min(a,b));
 			}} {}
-    PrioritizedReplayBuffer(BaseClass&& buffer,Priority alpha)
-      : BaseClass{buffer},
+    PrioritizedReplayBuffer(BaseClass* buffer,Priority alpha)
+      : BaseClass{std::move(*buffer)},
 	alpha{std::max(alpha,Priority{0.0})},
 	max_priority{1.0},
 	default_max_priority{1.0},
