@@ -110,6 +110,17 @@ namespace ymd {
 			     Observation*& next_obs, Done*& done){
       get(0ul,obs,act,rew,next_obs,done);
     }
+
+    virtual void clear(){
+      obs_buffer.resize(0);
+      act_buffer.resize(0);
+      rew_buffer.resize(0);
+      next_obs_buffer.resize(0);
+      done_buffer.resize(0);
+
+      stored_size = 0ul;
+      next_index = 0ul;
+    }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
