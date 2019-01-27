@@ -249,7 +249,7 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
     def sample(self,batch_size,beta):
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
-                        self.stored_size())
+                        self.get_stored_size())
         idx = np.asarray(self.indexes)
         samples = self._encode_sample(idx)
         samples['weights'] = np.asarray(self.weights)
