@@ -364,7 +364,7 @@ namespace ymd {
 
     void prioritized_indexes(std::size_t batch_size,Priority beta,
 			     std::vector<Priority>& weights,
-			     std::vector<std::vector>& indexes){
+			     std::vector<std::size_t>& indexes){
       beta = std::max(beta,Priority{0});
 
       indexes.resize(0);
