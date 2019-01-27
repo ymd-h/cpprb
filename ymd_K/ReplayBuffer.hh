@@ -19,7 +19,7 @@ namespace ymd {
     std::vector<T> buffer;
     std::size_t dim;
   public:
-    DimensionalRingBuffer(std::size_t size,sid::size_t dim)
+    DimensionalRingBuffer(std::size_t size,std::size_t dim)
       : buffer(size,T{0}),
 	dim{dim} {}
     DimensionalRingBuffer(): DimensionalRingBuffer{1ul,1ul}  {}
@@ -28,10 +28,10 @@ namespace ymd {
     DimensionalRingBuffer& operator=(const DimensionalRingBuffer&) = default;
     DimensionalRingBuffer& operator=(DimensionalRingBuffer&&) = default;
     ~DimensionalRingBuffer() = default;
-    void store_data(T* v,std::size_t shift,std::size_t N){
+    void store_data(T* v,std::size_t shift,std::size_t next_index,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
     }
-    void set_data(std::size_t ith,,std::vector<T>& v) const {
+    void set_data(std::size_t ith,std::vector<T>& v) const {
       std::copy_n(buffer.data() + ith * dim, dim,std::back_inserter(v));
     }
     void set_data(std::size_t ith,std::vector<std::vector<T>>& v) const {
