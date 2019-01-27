@@ -232,7 +232,17 @@ cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
                 np.ndarray[double, ndim=1, mode="c"] done not None,
                 np.ndarray[double, ndim=1, mode="c"] p not None,
                 size_t N=1):
-        self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],&p[0],N)
+        (<PrioritizedReplayBuffer[double,
+                                  double,
+                                  double,
+                                  double,
+                                  double]*>self.thisptr).add(&obs[0,0],
+                                                             &act[0,0],
+                                                             &rew[0],
+                                                             &next_obs[0,0],
+                                                             &done[0],
+                                                             &p[0],
+                                                             N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -242,7 +252,15 @@ cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
                 double rew,
                 np.ndarray[double, ndim=1, mode="c"] next_obs not None,
                 double done, double p):
-        self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done,p)
+        (<PrioritizedReplayBuffer[double,
+                                  double,
+                                  double,
+                                  double,
+                                  double]*>self.thisptr).add(&obs[0],
+                                                             &act[0],
+                                                             &rew,
+                                                             &next_obs[0],
+                                                             &done,p)
 
     def add(self,obs,act,rew,next_obs,done,priorities = None):
         if priorities is None:
