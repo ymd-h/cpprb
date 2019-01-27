@@ -133,7 +133,7 @@ cdef class PyReplayBuffer:
     cdef int buffer_size
     cdef int obs_dim
     cdef int act_dim
-    def __cinit__(self,size,obs_dim,act_dim):
+    def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         print("Replay Buffer")
         self.buffer_size = size
         self.obs_dim = obs_dim
