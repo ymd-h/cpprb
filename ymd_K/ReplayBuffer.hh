@@ -88,7 +88,7 @@ namespace ymd {
       auto copy_N = std::min(N,capacity - next_index);
       store(obs,act,rew,next_obs,done,0ul,copy_N);
 
-      if(capacity == next_index){
+      if(buffer_size == next_index){
 	next_index = 0ul;
 	store(obs,act,rew,next_obs,done,copy_N,N - copy_N);
       }
