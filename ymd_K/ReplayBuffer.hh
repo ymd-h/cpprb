@@ -351,12 +351,9 @@ namespace ymd {
       add(obs,act,rew,next_obs,done,max_priority);
     }
 
-    template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
-    void sample(std::size_t batch_size,Priority beta,
-		Obs_t& obs, Act_t& act,
-		Rew_t& rew, Obs_t& next_obs, Done_t& done,
-		std::vector<Priority>& weights,
-		std::vector<std::size_t>& indexes){
+    void prioritized_indexes(std::size_t batch_size,Priority beta,
+			     std::vector<Priority>& weights,
+			     std::vector<std::vector>& indexes){
       beta = std::max(beta,Priority{0});
 
       indexes.resize(0);
@@ -366,6 +363,16 @@ namespace ymd {
       weights.resize(0);
       weights.reserve(batch_size);
       set_weights(indexes,beta,weights);
+    }
+
+    template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
+    void sample(std::size_t batch_size,Priority beta,
+		Obs_t& obs, Act_t& act,
+		Rew_t& rew, Obs_t& next_obs, Done_t& done,
+		std::vector<Priority>& weights,
+		std::vector<std::size_t>& indexes){
+
+      prioritized_indexes(batch_size,beta,weights,indexes);
 
       this->BaseClass::set_data(indexes,obs,act,rew,next_obs,done);
     }
