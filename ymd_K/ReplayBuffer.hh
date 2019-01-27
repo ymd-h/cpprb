@@ -84,7 +84,7 @@ namespace ymd {
     void store(Observation* obs, Action* act, Reward* rew,
 	       Observation* next_obs, Done* done,
 	       std::size_t N = 1ul){
-      auto copy_N = std::min(N,capacity - next_index);
+      auto copy_N = std::min(N,buffer_size - next_index);
       store(obs,act,rew,next_obs,done,0ul,copy_N);
 
       if(buffer_size == next_index){
