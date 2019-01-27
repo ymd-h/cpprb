@@ -129,11 +129,10 @@ cdef class PyReplayBuffer:
     cdef PointerDouble rew
     cdef PointerDouble next_obs
     cdef PointerDouble done
-    cdef VectorULong indexes
     cdef int buffer_size
     cdef int obs_dim
     cdef int act_dim
-    def __cinit__(self,size,obs_dim,act_dim):
+    def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         print("Replay Buffer")
         self.buffer_size = size
         self.obs_dim = obs_dim
@@ -147,7 +146,12 @@ cdef class PyReplayBuffer:
         self.rew = PointerDouble(1,1,size)
         self.next_obs = PointerDouble(2,obs_dim,size)
         self.done = PointerDouble(1,1,size)
-        self.indexes = VectorULong()
+
+        self.thisptr.get_buffer_pointers(self.obs.ptr,
+                                         self.act.ptr,
+                                         self.rew.ptr,
+                                         self.next_obs.ptr,
+                                         self.done.ptr);
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -176,20 +180,16 @@ cdef class PyReplayBuffer:
         else:
             self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
 
-    def sample(self,size):
-        self.thisptr.sample(size,
-                            self.obs.ptr,
-                            self.act.ptr,
-                            self.rew.ptr,
-                            self.next_obs.ptr,
-                            self.done.ptr,
-                            self.indexes.vec)
-        idx = np.asarray(self.indexes)
+    def _encode_sample(self,idx):
         return {'obs': np.asarray(self.obs)[idx,:],
                 'act': np.asarray(self.act)[idx,:],
                 'rew': np.asarray(self.rew)[idx],
                 'next_obs': np.asarray(self.next_obs)[idx,:],
                 'done': np.asarray(self.done)[idx]}
+
+    def sample(self,size):
+        idx = np.random.randint(0,self.get_stored_size(),size)
+        return self._encode_sample(idx)
 
     def get_buffer_size(self):
         return self.buffer_size
@@ -198,61 +198,26 @@ cdef class PyReplayBuffer:
         return self.thisptr.clear()
 
     def get_stored_size(self):
-        return self.thisptr.buffer_size()
+        return self.thisptr.get_stored_size()
 
-cdef class PyPrioritizedReplayBuffer:
-    cdef PrioritizedReplayBuffer[double,double,double,double,double] *thisptr
-    cdef PointerDouble obs
-    cdef PointerDouble act
-    cdef PointerDouble rew
-    cdef PointerDouble next_obs
-    cdef PointerDouble done
+cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
     cdef VectorDouble weights
     cdef VectorULong indexes
-    cdef int buffer_size
-    cdef int obs_dim
-    cdef int act_dim
     cdef double alpha
-    def __cinit__(self,size,obs_dim,act_dim,alpha=0.6):
+    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
         print("Prioritized Replay Buffer")
-        self.buffer_size = size
-        self.obs_dim = obs_dim
-        self.act_dim = act_dim
         self.alpha = alpha
 
-        self.thisptr = new PrioritizedReplayBuffer[double,double,
-                                                   double,double,double](size,
-                                                                         obs_dim,
-                                                                         act_dim,
-                                                                         alpha)
-        self.obs = PointerDouble(2,obs_dim,size)
-        self.act = PointerDouble(2,act_dim,size)
-        self.rew = PointerDouble(1,1,size)
-        self.next_obs = PointerDouble(2,obs_dim,size)
-        self.done = PointerDouble(1,1,size)
+        self.thisptr = <ReplayBuffer[double,
+                                     double,
+                                     double,
+                                     double]*> new PrioritizedReplayBuffer[double,
+                                                                           double,
+                                                                           double,
+                                                                           double,
+                                                                           double](self.thisptr,alpha)
         self.weights = VectorDouble()
         self.indexes = VectorULong()
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    def _add_N(self,
-               np.ndarray[double, ndim=2, mode="c"] obs not None,
-               np.ndarray[double, ndim=2, mode="c"] act not None,
-               np.ndarray[double, ndim=1, mode="c"] rew not None,
-               np.ndarray[double, ndim=2, mode="c"] next_obs not None,
-               np.ndarray[double, ndim=1, mode="c"] done not None,
-               size_t N=1):
-        self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    def _add_1(self,
-               np.ndarray[double, ndim=1, mode="c"] obs not None,
-               np.ndarray[double, ndim=1, mode="c"] act not None,
-               double rew,
-               np.ndarray[double, ndim=1, mode="c"] next_obs not None,
-               double done):
-        self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -264,7 +229,17 @@ cdef class PyPrioritizedReplayBuffer:
                 np.ndarray[double, ndim=1, mode="c"] done not None,
                 np.ndarray[double, ndim=1, mode="c"] p not None,
                 size_t N=1):
-        self.thisptr.add(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],&p[0],N)
+        (<PrioritizedReplayBuffer[double,
+                                  double,
+                                  double,
+                                  double,
+                                  double]*>self.thisptr).add(&obs[0,0],
+                                                             &act[0,0],
+                                                             &rew[0],
+                                                             &next_obs[0,0],
+                                                             &done[0],
+                                                             &p[0],
+                                                             N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -274,40 +249,46 @@ cdef class PyPrioritizedReplayBuffer:
                 double rew,
                 np.ndarray[double, ndim=1, mode="c"] next_obs not None,
                 double done, double p):
-        self.thisptr.add(&obs[0],&act[0],&rew,&next_obs[0],&done,p)
+        (<PrioritizedReplayBuffer[double,
+                                  double,
+                                  double,
+                                  double,
+                                  double]*>self.thisptr).add(&obs[0],
+                                                             &act[0],
+                                                             &rew,
+                                                             &next_obs[0],
+                                                             &done,p)
 
     def add(self,obs,act,rew,next_obs,done,priorities = None):
-        if obs.ndim == 1:
-            if priorities is None:
-                self._add_1(obs,act,rew,next_obs,done)
-            else:
-                self._add_1p(obs,act,rew,next_obs,done,priorities)
+        if priorities is None:
+            super().add(obs,act,rew,next_obs,done)
         else:
-            if priorities is None:
-                self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
+            if obs.ndim == 1:
+                self._add_1p(obs,act,rew,next_obs,done,priorities)
             else:
                 self._add_Np(obs,act,rew,next_obs,done,priorities,obs.shape[0]);
 
     def sample(self,size,beta):
-        self.thisptr.sample(size,beta,
-                            self.obs.ptr,
-                            self.act.ptr,
-                            self.rew.ptr,
-                            self.next_obs.ptr,
-                            self.done.ptr,
-                            self.weights.vec,
-                            self.indexes.vec)
+        (<PrioritizedReplayBuffer[double,
+                                  double,
+                                  double,
+                                  double,
+                                  double]*>self.thisptr).prioritized_indexes(size,
+                                                                             beta,
+                                                                             self.weights.vec,self.indexes.vec)
         idx = np.asarray(self.indexes)
-        return {'obs': np.asarray(self.obs)[idx,:],
-                'act': np.asarray(self.act)[idx,:],
-                'rew': np.asarray(self.rew)[idx],
-                'next_obs': np.asarray(self.next_obs)[idx,:],
-                'done': np.asarray(self.done)[idx],
-                'weights': np.asarray(self.weights),
-                'indexes': idx}
+        samples = self._encode_sample(idx)
+        samples['weights'] = np.asarray(self.weights)
+        samples['indexes'] = idx
+        return samples
 
     def update_priorities(self,indexes,priorities):
-        self.thisptr.update_priorities(indexes,priorities)
+        (<PrioritizedReplayBuffer[double,
+                                  double,
+                                  double,
+                                  double,
+                                  double]*>self.thisptr).update_priorities(indexes,
+                                                                           priorities)
 
     def get_buffer_size(self):
         return self.buffer_size
@@ -316,7 +297,11 @@ cdef class PyPrioritizedReplayBuffer:
         return self.thisptr.clear()
 
     def get_stored_size(self):
-        return self.thisptr.buffer_size()
+        return self.thisptr.get_stored_size()
 
     def get_max_priority(self):
-        return self.thisptr.get_max_priority()
+        return (<PrioritizedReplayBuffer[double,
+                                         double,
+                                         double,
+                                         double,
+                                         double]*>self.thisptr).get_max_priority()
