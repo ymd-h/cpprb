@@ -286,7 +286,12 @@ cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
         return samples
 
     def update_priorities(self,indexes,priorities):
-        self.thisptr.update_priorities(indexes,priorities)
+        (<PrioritizedReplayBuffer[double,
+                                  double,
+                                  double,
+                                  double,
+                                  double]*>self.thisptr).update_priorities(indexes,
+                                                                           priorities)
 
     def get_buffer_size(self):
         return self.buffer_size
