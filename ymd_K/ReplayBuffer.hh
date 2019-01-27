@@ -201,7 +201,7 @@ namespace ymd {
       return std::make_tuple(obs,act,rew,next_obs,done);
     }
 
-    void clear(){
+    virtual void clear(){
       obs_buffer.resize(0);
       act_buffer.resize(0);
       rew_buffer.resize(0);
@@ -388,7 +388,7 @@ namespace ymd {
 				     });
     }
 
-    void clear(){
+    virtual void clear() override {
       this->BaseClass::clear();
       max_priority = default_max_priority;
     }
