@@ -249,7 +249,7 @@ namespace ymd {
       indexes.reserve(batch_size);
 
       auto every_range_len
-	= Priority{1.0} * sum.reduce(0,this->buffer_size()) / batch_size;
+	= Priority{1.0} * sum.reduce(0,this->get_stored_size()) / batch_size;
 
       std::generate_n(std::back_inserter(indexes),batch_size,
 		      [=,i=0ul,
@@ -257,7 +257,8 @@ namespace ymd {
 			auto mass = (d(this->g) + (i++))*every_range_len;
 			return this->sum.largest_region_index([=](auto v){
 								return v <= mass;
-							      },this->buffer_size());
+							      },
+			  this->get_stored_size());
 		      });
     }
 
