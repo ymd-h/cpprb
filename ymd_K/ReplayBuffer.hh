@@ -125,7 +125,7 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
-  class ReplayBuffer : InternalBuffer<Observation,Action,Reward,Done>{
+  class ReplayBuffer : public InternalBuffer<Observation,Action,Reward,Done>{
   public:
     using Buffer_t = InternalBuffer<Observation,Action,Reward,Done>;
     using rand_t = std::uniform_int_distribution<std::size_t>;
