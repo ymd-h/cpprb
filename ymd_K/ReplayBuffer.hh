@@ -196,14 +196,7 @@ namespace ymd {
 		     Observation* next_obs,
 		     Done* done,
 		     std::size_t N = 1ul){
-
-      auto copy_N = std::min(N,capacity - next_index);
-      store_buffer(obs,act,rew,next_obs,done,0ul,copy_N);
-
-      if(capacity == next_index){
-	next_index = 0ul;
-	store_buffer(obs,act,rew,next_obs,done,copy_N,N - copy_N);
-      }
+      this->Buffer_t::store(obs,act,rew,next_obs,done,N);
     }
 
     template<typename Obs_t,typename Act_t,typename  Rew_t,typename Done_t>
