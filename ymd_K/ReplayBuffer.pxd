@@ -8,6 +8,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void clear()
         size_t get_stored_size()
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
+        size_t get_next_index()
     cdef cppclass PrioritizedSampler[Prio]:
         PrioritizedSampler(size_t,Prio)
         void sample(size_t,Prio,vector[Prio]&,vector[size_t]&,size_t)

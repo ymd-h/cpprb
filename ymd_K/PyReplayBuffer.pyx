@@ -194,6 +194,9 @@ cdef class PyInternalBuffer:
     def get_stored_size(self):
         return self.buffer.get_stored_size()
 
+    def get_next_index(self):
+        return self.buffer.get_next_index()
+
 cdef class PyReplayBuffer(PyInternalBuffer):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         print("Replay Buffer")
