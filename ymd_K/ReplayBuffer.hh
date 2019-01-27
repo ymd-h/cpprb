@@ -241,25 +241,24 @@ namespace ymd {
     }
   };
 
-  template<typename Observation,typename Action,typename Reward,typename Done,
-	   typename Priority>
-  class PrioritizedReplayBuffer
-    :public ReplayBuffer<Observation,Action,Reward,Done> {
+  template<typename Priority>
+  class PrioritizedSampler {
   private:
-    using BaseClass = ReplayBuffer<Observation,Action,Reward,Done>;
     Priority alpha;
     Priority max_priority;
-    Priority default_max_priority;
+    const Priority default_max_priority;
     SegmentTree<Priority> sum;
     SegmentTree<Priority> min;
+    std::mt19937 g;
 
     void sample_proportional(std::size_t batch_size,
-			     std::vector<std::size_t>& indexes){
+			     std::vector<std::size_t>& indexes,
+			     std::size_t stored_size){
       indexes.resize(0);
       indexes.reserve(batch_size);
 
       auto every_range_len
-	= Priority{1.0} * sum.reduce(0,this->get_stored_size()) / batch_size;
+	= Priority{1.0} * sum.reduce(0,stored_size) / batch_size;
 
       std::generate_n(std::back_inserter(indexes),batch_size,
 		      [=,i=0ul,
@@ -267,21 +266,13 @@ namespace ymd {
 			auto mass = (d(this->g) + (i++))*every_range_len;
 			return this->sum.largest_region_index([=](auto v){
 								return v <= mass;
-							      },
-			  this->get_stored_size());
+							      },stored_size);
 		      });
     }
 
-    auto sample_proportional(std::size_t batch_size){
-      auto indexes = std::vector<std::size_t>{};
-      sample_proportional(batch_size,indexes);
-
-      return indexes;
-    }
-
     void set_weights(const std::vector<std::size_t>& indexes,Priority beta,
-		     std::vector<Priority>& weights) const {
-      auto b_size = this->get_stored_size();
+		     std::vector<Priority>& weights,std::size_t stored_size) const {
+      auto b_size = stored_size;
       auto inv_sum = Priority{1.0} / sum.reduce(0,b_size);
       auto p_min = min.reduce(0,b_size) * inv_sum;
       auto inv_max_weight = Priority{1.0} / std::pow(p_min * b_size,-beta);
@@ -293,49 +284,97 @@ namespace ymd {
 		     });
     }
 
-    auto set_weights(const std::vector<std::size_t>& indexes,Priority beta) const {
-      std::vector<Priority> weights{};
-      weights.reserve(indexes.size());
-
-      set_weights(indexes,beta,weights);
-      return weights;
-    }
-
     template<typename F>
-    void multi_add(Observation* obs,Action* act,Reward* rew,
-		   Observation* next_obs,Done* done,F&& f,std::size_t N){
-      auto next_idx = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,N);
-
-      sum.set(next_idx,std::forward<F>(f),N,this->get_stored_size());
-      min.set(next_idx,std::forward<F>(f),N,this->get_stored_size());
+    void set_priorities(std::size_t next_index,F&& f,
+			std::size_t N,std::size_t stored_size){
+      sum.set(next_index,std::forward<F>(f),N,stored_size);
+      min.set(next_index,std::forward<F>(f),N,stored_size);
     }
 
+  public:
+    PrioritizedSampler(std::size_t buffer_size,Priority alpha)
+      : alpha{alpha},
+	max_priority{1.0},
+	default_max_priority{1.0},
+	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; }},
+	min{PowerOf2(buffer_size),[zero = Priority{0}](Priority a,
+						       Priority b){
+				    return ((zero == a) ? b:
+					    (zero == b) ? a:
+					    std::min(a,b));
+				  }},
+	g{std::random_device{}()} {}
+    PrioritizedSampler() = default;
+    PrioritizedSampler(const PrioritizedSampler&) = default;
+    PrioritizedSampler(PrioritizedSampler&&) = default;
+    PrioritizedSampler& operator=(const PrioritizedSampler&) = default;
+    PrioritizedSampler& operator=(PrioritizedSampler&&) = default;
+    ~PrioritizedSampler() = default;
+
+    void sample(std::size_t batch_size,Priority beta,
+		std::vector<Priority>& weights,std::vector<std::size_t>& indexes,
+		std::size_t stored_size){
+      sample_proportional(batch_size,indexes,stored_size);
+      set_weights(indexes,beta,weights,stored_size);
+    }
+    virtual void clear(){
+      max_priority = default_max_priority;
+    }
+
+    Priority get_max_priority() const {
+      return max_priority;
+    }
+
+    void set_priorities(std::size_t next_index,Priority p){
+      auto v = std::pow(p,alpha);
+      sum.set(next_index,v);
+      min.set(next_index,v);
+    }
+
+    void set_priorities(std::size_t next_index){
+      set_priorities(next_index,max_priority);
+    }
+
+    void set_priorities(std::size_t next_index,Priority* p,
+			std::size_t N,std::size_t stored_size){
+      set_priorities(next_index,[=]() mutable { return std::pow(*(p++),alpha); },
+		     N,stored_size);
+    }
+
+    void set_priorities(std::size_t next_index,
+			std::size_t N,std::size_t stored_size){
+      set_priorities(next_index,[=](){ return std::pow(max_priority,alpha); },
+		     N,stored_size);
+    }
+
+    void update_priorities(std::vector<std::size_t>& indexes,
+			   std::vector<Priority>& priorities){
+
+      max_priority = std::accumulate(indexes.begin(),indexes.end(),max_priority,
+				     [=,p=priorities.begin()]
+				     (auto max_p, auto index) mutable {
+				       auto v = std::pow(*p,this->alpha);
+				       this->sum.set(index,v);
+				       this->min.set(index,v);
+
+				       return std::max(max_p,*(p++));
+				     });
+    }
+  };
+
+  template<typename Observation,typename Action,typename Reward,typename Done,
+	   typename Priority>
+  class PrioritizedReplayBuffer:
+    public ReplayBuffer<Observation,Action,Reward,Done>,
+    public PrioritizedSampler<Priority> {
+  private:
+    using BaseClass = ReplayBuffer<Observation,Action,Reward,Done>;
+    using Sampler = PrioritizedSampler<Priority>;
   public:
     PrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
 			    Priority alpha)
       : BaseClass{n,obs_dim,act_dim},
-	alpha{std::max(alpha,Priority{0.0})},
-	max_priority{1.0},
-	default_max_priority{1.0},
-	sum{PowerOf2(n),[](auto a,auto b){ return a+b; }},
-	min{PowerOf2(n),[zero = Priority{0}](Priority a,Priority b){
-			  return ((zero == a) ? b:
-				  (zero == b) ? a:
-				  std::min(a,b));
-			}} {}
-    PrioritizedReplayBuffer(BaseClass* buffer,Priority alpha)
-      : BaseClass{std::move(*buffer)},
-	alpha{std::max(alpha,Priority{0.0})},
-	max_priority{1.0},
-	default_max_priority{1.0},
-	sum{PowerOf2(buffer->get_buffer_size()),[](auto a,auto b){ return a+b; }},
-	min{PowerOf2(buffer->get_buffer_size()),[zero = Priority{0}](Priority a,
-								     Priority b){
-			  return ((zero == a) ? b:
-				  (zero == b) ? a:
-				  std::min(a,b));
-			}} {}
+	Sampler{n,alpha} {}
     PrioritizedReplayBuffer() : PrioritizedReplayBuffer{1,1,1,0.0} {}
     PrioritizedReplayBuffer(const PrioritizedReplayBuffer&) = default;
     PrioritizedReplayBuffer(PrioritizedReplayBuffer&&) = default;
@@ -345,44 +384,31 @@ namespace ymd {
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done,std::size_t N) override {
-      multi_add(obs,act,rew,next_obs,done,
-		[v=std::pow(max_priority,alpha)](){ return v; },N);
+      auto next_index = this->get_next_index();
+      this->BaseClass::add(obs,act,rew,next_obs,done,N);
+      this->set_priorities(next_index,N,this->get_stored_size());
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done,
 		     Priority* priority,std::size_t N){
-      multi_add(obs,act,rew,next_obs,done,
-		[=]()mutable{ return std::pow(*(priority++),this->alpha); },N);
+      auto next_index = this->get_next_index();
+      this->BaseClass::add(obs,act,rew,next_obs,done,N);
+      this->set_priorities(next_index,priority,N,this->get_stored_size());
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done,Priority p){
-      auto next_idx = this->get_next_index();
+      auto next_index = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,1ul);
-
-      auto v = std::pow(p,alpha);
-      sum.set(next_idx,v);
-      min.set(next_idx,v);
+      this->set_priorities(next_index,p);
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done){
-      add(obs,act,rew,next_obs,done,max_priority);
-    }
-
-    void prioritized_indexes(std::size_t batch_size,Priority beta,
-			     std::vector<Priority>& weights,
-			     std::vector<std::size_t>& indexes){
-      beta = std::max(beta,Priority{0});
-
-      indexes.resize(0);
-      indexes.reserve(batch_size);
-      sample_proportional(batch_size,indexes);
-
-      weights.resize(0);
-      weights.reserve(batch_size);
-      set_weights(indexes,beta,weights);
+      auto next_index = this->get_next_index();
+      this->BaseClass::add(obs,act,rew,next_obs,done,1ul);
+      this->set_priorities(next_index);
     }
 
     template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
@@ -392,7 +418,7 @@ namespace ymd {
 		std::vector<Priority>& weights,
 		std::vector<std::size_t>& indexes){
 
-      prioritized_indexes(batch_size,beta,weights,indexes);
+      this->Sampler::sample(batch_size,beta,weights,indexes,this->get_stored_size());
 
       this->BaseClass::encode_sample(indexes,obs,act,rew,next_obs,done);
     }
@@ -411,9 +437,13 @@ namespace ymd {
     auto sample(std::size_t batch_size,Priority beta){
       beta = std::max(beta,Priority{0});
 
-      auto indexes = sample_proportional(batch_size);
+      std::vector<std::size_t> indexes{};
+      indexes.reserve(batch_size);
 
-      auto weights = set_weights(indexes,beta);
+      std::vector<Priority> weights{};
+      weights.reserve(batch_size);
+
+      this->Sampler::sample(batch_size,beta,weights,indexes,this->get_stored_size());
 
       auto samples = this->BaseClass::encode_sample(indexes);
       return std::tuple_cat(samples,std::make_tuple(weights,indexes));
@@ -423,27 +453,9 @@ namespace ymd {
       return sample(batch_size,Priority{0.0});
     }
 
-    void update_priorities(std::vector<std::size_t>& indexes,
-			   std::vector<Priority>& priorities){
-
-      max_priority = std::accumulate(indexes.begin(),indexes.end(),max_priority,
-				     [=,p=priorities.begin()]
-				     (auto max_p, auto index) mutable {
-				       auto v = std::pow(*p,this->alpha);
-				       this->sum.set(index,v);
-				       this->min.set(index,v);
-
-				       return std::max(max_p,*(p++));
-				     });
-    }
-
     virtual void clear() override {
       this->BaseClass::clear();
-      max_priority = default_max_priority;
-    }
-
-    Priority get_max_priority() const {
-      return max_priority;
+      this->Sampler::clear();
     }
   };
 }
