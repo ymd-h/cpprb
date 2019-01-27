@@ -211,7 +211,7 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
         print("Prioritized Replay Buffer")
         self.alpha = alpha
 
-        self.per = new PrioritizedSampler[double](alpha)
+        self.per = new PrioritizedSampler[double](size,alpha)
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
