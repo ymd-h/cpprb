@@ -200,38 +200,21 @@ cdef class PyReplayBuffer:
     def get_stored_size(self):
         return self.thisptr.buffer_size()
 
-cdef class PyPrioritizedReplayBuffer:
+cdef class PyPrioritizedReplayBuffer(PyReplayBuffer):
     cdef PrioritizedReplayBuffer[double,double,double,double,double] *thisptr
-    cdef PointerDouble obs
-    cdef PointerDouble act
-    cdef PointerDouble rew
-    cdef PointerDouble next_obs
-    cdef PointerDouble done
     cdef VectorDouble weights
-    cdef VectorULong indexes
-    cdef int buffer_size
-    cdef int obs_dim
-    cdef int act_dim
     cdef double alpha
-    def __cinit__(self,size,obs_dim,act_dim,alpha=0.6):
+    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
         print("Prioritized Replay Buffer")
-        self.buffer_size = size
-        self.obs_dim = obs_dim
-        self.act_dim = act_dim
         self.alpha = alpha
 
+        del self.thisptr
         self.thisptr = new PrioritizedReplayBuffer[double,double,
                                                    double,double,double](size,
                                                                          obs_dim,
                                                                          act_dim,
                                                                          alpha)
-        self.obs = PointerDouble(2,obs_dim,size)
-        self.act = PointerDouble(2,act_dim,size)
-        self.rew = PointerDouble(1,1,size)
-        self.next_obs = PointerDouble(2,obs_dim,size)
-        self.done = PointerDouble(1,1,size)
         self.weights = VectorDouble()
-        self.indexes = VectorULong()
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
