@@ -131,19 +131,6 @@ namespace ymd {
   private:
     std::vector<std::size_t> index_buffer;
 
-    template<typename T>
-    void copy(const std::vector<T>& buffer,std::vector<T>& v,
-	      std::size_t i,std::size_t dim) const {
-      std::copy_n(buffer.data() + i*dim,dim,std::back_inserter(v));
-    }
-
-    template<typename T>
-    void copy(const std::vector<T>& buffer,std::vector<std::vector<T>>& v,
-	      std::size_t i,std::size_t dim) const {
-      v.emplace_back(buffer.data() +  i   *dim,
-		     buffer.data() + (i+1)*dim);
-    }
-
   protected:
     std::mt19937 g;
 
@@ -175,12 +162,7 @@ namespace ymd {
       done.resize(0);
 
       for(auto i : indexes){
-	copy(obs_buffer     ,obs     ,i,obs_dim);
-	copy(act_buffer     ,act     ,i,act_dim);
-	copy(next_obs_buffer,next_obs,i,obs_dim);
-
-	rew.push_back(rew_buffer[i]);
-	done.push_back(done_buffer[i]);
+	this->get(i,obs,act,rew,next_obs,done);
       }
     }
 
@@ -191,37 +173,13 @@ namespace ymd {
       return std::make_tuple(obs,act,rew,next_obs,done);
     }
 
-    template<typename Obs_t,typename Act_t>
-    void set_data(const std::vector<std::size_t>& indexes,
-		  Obs_t& obs, Act_t& act,
-		  std::vector<Reward>& rew,
-		  Obs_t& next_obs,
-		  std::vector<Done>& done) const {
-      encode_sample(indexes,obs,act,rew,next_obs,done);
-    }
-
-    void set_data(const std::vector<std::size_t>&,
-		  Observation*& obs,Action*& act,
-		  Reward*& rew,Observation*& next_obs,Done*& done){
-      obs = obs_buffer.data();
-      act = act_buffer.data();
-      rew = rew_buffer.data();
-      next_obs = next_obs_buffer.data();
-      done = done_buffer.data();
-    }
-
   public:
     ReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim)
-      : capacity(n),
-	size{0},
-	obs_dim{obs_dim},
-	act_dim{act_dim},
-	next_index{0ul},
-	obs_buffer(capacity * obs_dim,Observation{0}),
-	act_buffer(capacity * act_dim,Action{0}),
-	rew_buffer(capacity,Reward{0}),
-	next_obs_buffer(capacity * obs_dim,Observation{0}),
-	done_buffer(capacity,Done{0}),
+      : Buffer_t{n,obs_dim,act_dim},
+	index_buffer{},
+	g{std::random_device{}()} {}
+    ReplayBuffer(Buffer_t&& buffer)
+      : Buffer_t{buffer},
 	index_buffer{},
 	g{std::random_device{}()} {}
     ReplayBuffer(): ReplayBuffer{1,1,1} {}
@@ -230,10 +188,6 @@ namespace ymd {
     ReplayBuffer& operator=(const ReplayBuffer&) = default;
     ReplayBuffer& operator=(ReplayBuffer&&) = default;
     virtual ~ReplayBuffer() = default;
-
-    std::size_t buffer_size() const { return size; }
-    std::size_t get_next_index() const { return next_index;}
-    std::size_t get_capacity() const { return capacity; }
 
     virtual void add(Observation* obs,
 		     Action* act,
@@ -277,26 +231,6 @@ namespace ymd {
       sample(batch_size,obs,act,rew,next_obs,done);
 
       return std::make_tuple(obs,act,rew,next_obs,done);
-    }
-
-    virtual void clear(){
-      obs_buffer.resize(0);
-      act_buffer.resize(0);
-      rew_buffer.resize(0);
-      next_obs_buffer.resize(0);
-      done_buffer.resize(0);
-
-      size = 0ul;
-      next_index = 0ul;
-    }
-
-    void get_buffer_pointers(Observation*& obs,Action*& act,Reward*& rew,
-			     Observation*& next_obs,Done*& done){
-      obs = obs_buffer.data();
-      act = act_buffer.data();
-      rew = rew_buffer.data();
-      next_obs = next_obs_buffer.data();
-      done = done_buffer.data();
     }
   };
 
