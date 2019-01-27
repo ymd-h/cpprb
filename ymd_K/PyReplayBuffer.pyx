@@ -199,7 +199,7 @@ cdef class PyReplayBuffer(PyInternalBuffer):
         print("Replay Buffer")
 
     def sample(self,batch_size):
-        idx = np.random.randint(0,self->get_stored_size(),batch_size)
+        idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
 cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
