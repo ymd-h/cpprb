@@ -79,7 +79,7 @@ namespace ymd {
     std::size_t get_stored_size() const { return stored_size; }
     std::size_t get_next_index() const { return next_index; }
     void get_buffer_pointers(Observation*& obs, Action*& act, Reward*& rew,
-			     Observation*& next_obs, Done*&, done){
+			     Observation*& next_obs, Done*& done){
       obs = obs_buffer.data();
       act = act_buffer.data();
       rew = rew_buffer.data();
