@@ -20,14 +20,14 @@ namespace ymd {
     std::size_t dim;
   public:
     DimensionalBuffer(std::size_t size,std::size_t dim)
-      : buffer(size,T{0}),
+      : buffer(size * dim,T{0}),
 	dim{dim} {}
     DimensionalBuffer(): DimensionalBuffer{1ul,1ul}  {}
     DimensionalBuffer(const DimensionalBuffer&) = default;
     DimensionalBuffer(DimensionalBuffer&&) = default;
     DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
     DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
-    ~DimensionalBuffer() = default;
+    virtual ~DimensionalBuffer() = default;
     void store_data(T* v,std::size_t shift,std::size_t next_index,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
     }
