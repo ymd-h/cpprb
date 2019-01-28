@@ -448,5 +448,57 @@ namespace ymd {
       this->Sampler::clear();
     }
   };
+
+  template<typename Reward>
+  class NstepRewardBuffer {
+  private:
+    std::size_t nstep;
+    Reward gamma;
+    DimensionalBuffer<Reward> gamma_buffer;
+    std::vector<Reward> Nrews_buffer;
+  public:
+    NstepRewardBuffer(std::size_t size,std::size_t nstep,Reward gamma)
+      : nstep{nstep},
+	gamma{gamma},
+	gamma_buffer{size,1ul},
+	Nrews_buffer(size,Reward{-1}) {}
+    NstepRewardBuffer() = default;
+    NstepRewardBuffer(const NstepRewardBuffer&) = default;
+    NstepRewardBuffer(NstepRewardBuffer&&) = default;
+    NstepRewardBuffer& operator=(const NstepRewardBuffer&) = default;
+    NstepRewardBuffer& operator=(NstepRewardBuffer&&) = default;
+    virtual ~NstepRewardBuffer() = default;
+    void store(std::size_t next_index,std::size_t N){
+      auto copy_N = std::min(N,gamma_buffer.size() - next_index);
+      for(auto i = 0ul; i < copy_N; ++i){
+	gamma_buffer.store_data(&gamma,0ul,next_index + i,1ul);
+      }
+
+      if(N != copy_N){
+	auto remain_N = N - copy_N;
+	for(auto i = 0ul; i < remain_N; ++i){
+	  gamma_buffer.store_data(&gamma,copy_N,i,1ul);
+	}
+      }
+    }
+
+    template<typename Done>
+    void sample(const std::vector<std::size_t>& indexes,Reward* rew,Done* done){
+      for(auto index: indexes){
+	if(Nrews_buffer[index] < Reward{0}){
+	  auto gamma_i = Reward{1};
+	  for(auto i=index+1,n=std::min(gamma_buffer.size(),index+nstep+1); i<n; ++i){
+	    Nrews_buffer[index] += rew[i] * gamma_i;
+	    if(done[i]){ break; }
+	    gamma_i *= gamma;
+	  }
+	}
+      }
+    }
+    void get_buffer_pointers(Reward* discounts,Reward* ret){
+      discounts = gamma_buffer.data();
+      ret = Nrews_buffer.data();
+    }
+  };
 }
 #endif // YMD_REPLAY_BUFFER_HH
