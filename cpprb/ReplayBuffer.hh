@@ -87,7 +87,7 @@ namespace ymd {
     InternalBuffer& operator=(const InternalBuffer&) = default;
     InternalBuffer& operator=(InternalBuffer&&) = default;
     virtual ~InternalBuffer() = default;
-    void store(Observation* obs, Action* act, Reward* rew,
+    virtual void store(Observation* obs, Action* act, Reward* rew,
 	       Observation* next_obs, Done* done,
 	       std::size_t N = 1ul){
       auto copy_N = std::min(N,buffer_size - next_index);
