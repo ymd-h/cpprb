@@ -14,20 +14,20 @@
 
 namespace ymd {
   template<typename T>
-  class DimensionalRingBuffer {
+  class DimensionalBuffer {
   private:
     std::vector<T> buffer;
     std::size_t dim;
   public:
-    DimensionalRingBuffer(std::size_t size,std::size_t dim)
+    DimensionalBuffer(std::size_t size,std::size_t dim)
       : buffer(size,T{0}),
 	dim{dim} {}
-    DimensionalRingBuffer(): DimensionalRingBuffer{1ul,1ul}  {}
-    DimensionalRingBuffer(const DimensionalRingBuffer&) = default;
-    DimensionalRingBuffer(DimensionalRingBuffer&&) = default;
-    DimensionalRingBuffer& operator=(const DimensionalRingBuffer&) = default;
-    DimensionalRingBuffer& operator=(DimensionalRingBuffer&&) = default;
-    ~DimensionalRingBuffer() = default;
+    DimensionalBuffer(): DimensionalBuffer{1ul,1ul}  {}
+    DimensionalBuffer(const DimensionalBuffer&) = default;
+    DimensionalBuffer(DimensionalBuffer&&) = default;
+    DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
+    DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
+    ~DimensionalBuffer() = default;
     void store_data(T* v,std::size_t shift,std::size_t next_index,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
     }
@@ -52,11 +52,11 @@ namespace ymd {
     std::size_t obs_dim;
     std::size_t act_dim;
     std::size_t next_index;
-    DimensionalRingBuffer<Observation> obs_buffer;
-    DimensionalRingBuffer<Action> act_buffer;
-    DimensionalRingBuffer<Reward> rew_buffer;
-    DimensionalRingBuffer<Observation> next_obs_buffer;
-    DimensionalRingBuffer<Done> done_buffer;
+    DimensionalBuffer<Observation> obs_buffer;
+    DimensionalBuffer<Action> act_buffer;
+    DimensionalBuffer<Reward> rew_buffer;
+    DimensionalBuffer<Observation> next_obs_buffer;
+    DimensionalBuffer<Done> done_buffer;
     void store(Observation* obs, Action* act, Reward* rew,
 	       Observation* next_obs, Done* done,
 	       std::size_t shift, std::size_t N){
