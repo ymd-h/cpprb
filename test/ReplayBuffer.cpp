@@ -42,6 +42,43 @@ int main(){
   auto alpha = 0.7;
   auto beta = 0.5;
 
+  auto show_vector = [](auto v,auto name){
+		       std::cout << name << ": ";
+		       for(auto ve: v){ std::cout << ve << " "; }
+		       std::cout << std::endl;
+		     };
+
+  auto show_vector_of_vector = [](auto v,std::string name){
+				 std::cout << name << ": " << std::endl;
+				 for(auto ve: v){
+				   std::cout << " ";
+				   for(auto vee: ve){ std::cout << vee << " "; }
+				   std::cout << std::endl;
+				 }
+				 std::cout << std::endl;
+			       };
+
+  auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
+  auto v = std::vector<Observation>{};
+  std::generate_n(std::back_inserter(v),obs_dim,[i=0ul]()mutable{ return Observation(i++); });
+
+  std::cout << "DimensionalBuffer: " << std::endl;
+  Observation* obs_ptr = nullptr;
+  dm.set_data(0ul,obs_ptr);
+  std::cout << " DimensionalBuffer.data(): " << obs_ptr<< std::endl;
+  std::cout << "*DimensionalBuffer.data(): " << *obs_ptr << std::endl;
+
+  dm.store_data(v.data(),0ul,0ul,1ul);
+  std::cout << " DimensionalBuffer[0]: " << obs_ptr[0] << std::endl;
+  std::cout << "*DimensionalBuffer[1]: " << obs_ptr[1]  << std::endl;
+  std::cout << " DimensionalBuffer[2]: " << obs_ptr[2] << std::endl;
+
+
+  for(auto n = 0ul; n < N_times; ++n){
+    auto next_index = std::min(n*obs_dim % N_buffer_size,N_buffer_size-1);
+    dm.store_data(v.data(),0ul,next_index,1ul);
+  }
+
   auto rb = ymd::ReplayBuffer<Observation,Action,Reward,Done>{N_buffer_size,
 							      obs_dim,
 							      act_dim};
@@ -66,22 +103,6 @@ int main(){
 
   auto [rb_o,rb_a,rb_r,rb_no,rb_d] = rb.sample(N_batch_size);
   auto [per_o,per_a,per_r,per_no,per_d,per_w,per_i] = per.sample(N_batch_size,beta);
-
-  auto show_vector = [](auto v,auto name){
-		       std::cout << name << ": ";
-		       for(auto ve: v){ std::cout << ve << " "; }
-		       std::cout << std::endl;
-		     };
-
-  auto show_vector_of_vector = [](auto v,std::string name){
-				 std::cout << name << ": " << std::endl;
-				 for(auto ve: v){
-				   std::cout << " ";
-				   for(auto vee: ve){ std::cout << vee << " "; }
-				   std::cout << std::endl;
-				 }
-				 std::cout << std::endl;
-			       };
 
   std::cout << "ReplayBuffer" << std::endl;
   show_vector_of_vector(rb_o,"obs");
