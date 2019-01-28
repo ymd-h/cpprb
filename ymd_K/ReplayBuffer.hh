@@ -41,6 +41,7 @@ namespace ymd {
     void set_data(std::size_t ith,T*& v) const {
       v = (T*)(buffer.data()) + ith * dim;
     }
+    void clear(){ buffer.clear(); }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
