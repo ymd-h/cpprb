@@ -27,7 +27,7 @@ namespace ymd {
     DimensionalBuffer(DimensionalBuffer&&) = default;
     DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
     DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
-    virtual ~DimensionalBuffer() = default;
+    ~DimensionalBuffer() = default;
     void store_data(T* v,std::size_t shift,std::size_t next_index,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
     }
