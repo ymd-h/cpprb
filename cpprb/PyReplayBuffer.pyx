@@ -275,7 +275,7 @@ cdef class PyNstepReplayBuffer(PyReplayBuffer):
         self.gamma = PointerDouble(1,1,size)
         self.nrews = PointerDouble(1,1,size)
 
-        nstep_rew.get_buffer_pointers(self.gamma.vec,self.nrews.vec)
+        nstep_rew.get_buffer_pointers(self.gamma.ptr,self.nrews.ptr)
 
     def add(self,obs,act,rew,next_obs,done):
         cdef size_t next_index = super().get_next_index()
@@ -283,7 +283,7 @@ cdef class PyNstepReplayBuffer(PyReplayBuffer):
         nstep_rew.store(next_index,1 if obs.ndim = 1 else obs.shape[0])
 
     def _encode_sample(self,indexes):
-        nstep_rew.sample(indexes)
+        nstep_rew.sample(indexes,self.rew.ptr,self.done.ptr)
         samples = super()._encode_sample(indexes)
         samples['discounts'] = np.asarray(self.gamma)[indexes]
         samples['rewards'] = np.asarray(self.nrews)[indexes]
