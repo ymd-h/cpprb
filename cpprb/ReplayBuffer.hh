@@ -31,14 +31,14 @@ namespace ymd {
     void store_data(T* v,std::size_t shift,std::size_t next_index,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
     }
-    void set_data(std::size_t ith,std::vector<T>& v) const {
+    void get_data(std::size_t ith,std::vector<T>& v) const {
       std::copy_n(buffer.data() + ith * dim, dim,std::back_inserter(v));
     }
-    void set_data(std::size_t ith,std::vector<std::vector<T>>& v) const {
+    void get_data(std::size_t ith,std::vector<std::vector<T>>& v) const {
       v.emplace_back(buffer.data() +  ith    * dim,
 		     buffer.data() + (ith+1) * dim);
     }
-    void set_data(std::size_t ith,T*& v) const {
+    void get_data(std::size_t ith,T*& v) const {
       v = (T*)(buffer.data()) + ith * dim;
     }
   };
@@ -106,11 +106,11 @@ namespace ymd {
     template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
     void get(std::size_t index,Obs_t& obs,Act_t& act,Rew_t& rew,
 	     Obs_t& next_obs,Done_t& done) const {
-      obs_buffer     .set_data(index,     obs);
-      act_buffer     .set_data(index,     act);
-      rew_buffer     .set_data(index,     rew);
-      next_obs_buffer.set_data(index,next_obs);
-      done_buffer    .set_data(index,    done);
+      obs_buffer     .get_data(index,     obs);
+      act_buffer     .get_data(index,     act);
+      rew_buffer     .get_data(index,     rew);
+      next_obs_buffer.get_data(index,next_obs);
+      done_buffer    .get_data(index,    done);
     }
 
     void get_buffer_pointers(Observation*& obs, Action*& act, Reward*& rew,
