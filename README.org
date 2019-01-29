@@ -12,3 +12,21 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.14)
 
+* Overview
+Python module Replay Buffer written by C++
+
+
+* Features
+- Memory Sharing between C++ and Python
+
+
+* Requirements
+- C++17 (at least GCC 7.2)
+- Python 3
+- Cython
+
+
+* Test Environment
+- GCC 8.2.0
+- Python 3.7.2
+- Cython 0.29.3
