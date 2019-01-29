@@ -101,6 +101,21 @@ int main(){
     per.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
   }
 
+  rb.clear();
+  per.clear();
+
+  for(auto i = 0ul; i < N_step; ++i){
+    auto obs = std::vector<Observation>(obs_dim,0.1*i);
+    auto act = std::vector<Action>(act_dim,2.0*i);
+    auto rew = 0.1 * i;
+    auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
+    auto done = (N_step - 1 == i) ? 1: 0;
+
+    rb.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
+    per.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
+  }
+
+
   auto [rb_o,rb_a,rb_r,rb_no,rb_d] = rb.sample(N_batch_size);
   auto [per_o,per_a,per_r,per_no,per_d,per_w,per_i] = per.sample(N_batch_size,beta);
 
