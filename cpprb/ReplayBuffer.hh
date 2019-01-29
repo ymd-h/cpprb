@@ -461,7 +461,7 @@ namespace ymd {
       : nstep{nstep},
 	gamma{gamma},
 	gamma_buffer{size,1ul},
-	Nrews_buffer(size,Reward{-1}) {}
+	Nrews_buffer(size,Reward{0}) {}
     NstepRewardBuffer() = default;
     NstepRewardBuffer(const NstepRewardBuffer&) = default;
     NstepRewardBuffer(NstepRewardBuffer&&) = default;
@@ -485,7 +485,7 @@ namespace ymd {
     template<typename Done>
     void sample(const std::vector<std::size_t>& indexes,Reward* rew,Done* done){
       for(auto index: indexes){
-	if(Nrews_buffer[index] < Reward{0}){
+	if(Nrews_buffer[index] == Reward{0}){
 	  auto gamma_i = Reward{1};
 	  for(auto i=index+1,n=std::min(gamma_buffer.size(),index+nstep+1); i<n; ++i){
 	    Nrews_buffer[index] += rew[i] * gamma_i;
