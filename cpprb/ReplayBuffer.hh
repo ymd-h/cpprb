@@ -488,7 +488,6 @@ namespace ymd {
     template<typename Done>
     void sample(const std::vector<std::size_t>& indexes,
 		Reward* rew,Observation* next_obs,Done* done){
-      Observation* obs;
       for(auto index: indexes){
 	auto gamma_i = Reward{1};
 	nstep_rew_buffer[index] = rew[index];
@@ -501,8 +500,7 @@ namespace ymd {
 	  update_nstep(index,i,buffer_size-(index+nstep),rew,done,gamma_i);
 	}
 
-	next_obs.get_data(i,obs);
-	nstep_next_obs_buffer.store_data(obs,0ul,index,1ul);
+	nstep_next_obs_buffer.store_data(next_obs,i,index,1ul);
 	gamma_buffer[index] = gamma_i;
       }
     }
