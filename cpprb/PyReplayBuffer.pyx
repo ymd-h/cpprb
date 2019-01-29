@@ -271,7 +271,7 @@ cdef class PyNstepReplayBuffer(PyReplayBuffer):
     cdef PointerDouble gamma
     cdef PointerDouble nrews
     def __cinit__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
-        self.nstep_rew = NstepRewardBuffer[double](size,n_step,discount)
+        self.nstep_rew = new NstepRewardBuffer[double](size,n_step,discount)
         self.gamma = PointerDouble(1,1,size)
         self.nrews = PointerDouble(1,1,size)
 
