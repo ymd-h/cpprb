@@ -280,7 +280,7 @@ cdef class PyNstepReplayBuffer(PyReplayBuffer):
     def add(self,obs,act,rew,next_obs,done):
         cdef size_t next_index = super().get_next_index()
         super().add(obs,act,rew,next_obs,done)
-        nstep_rew.store(next_index,1 if obs.ndim = 1 else obs.shape[0])
+        nstep_rew.store(next_index,1 if obs.ndim == 1 else obs.shape[0])
 
     def _encode_sample(self,indexes):
         nstep_rew.sample(indexes,self.rew.ptr,self.done.ptr)
