@@ -267,25 +267,22 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
         return self.per.get_max_priority()
 
 cdef class PyNstepReplayBuffer(PyReplayBuffer):
-    cdef NstepRewardBuffer[double]* nstep_rew
+    cdef NstepRewardBuffer[double]* nrb
     cdef PointerDouble gamma
     cdef PointerDouble nrews
-    cdef PointerDouble nstep_next_obs
     def __cinit__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
-        self.nstep_rew = new NstepRewardBuffer[double](size,n_step,discount)
+        self.nrb = new NstepRewardBuffer[double](size,n_step,discount)
         self.gamma = PointerDouble(1,1,size)
         self.nrews = PointerDouble(1,1,size)
-        self.nstep_next_obs = PointerDouble(2,obs_dim,size)
 
-        self.nstep_rew.get_buffer_pointers(self.gamma.ptr,
-                                           self.nrews.ptr,
-                                           self.nstep_next_obs.ptr)
+        self.nrb.get_buffer_pointers(self.gamma.ptr,
+                                     self.nrews.ptr,
+                                     self.nstep_next_obs.ptr)
 
     def _encode_sample(self,indexes):
-        self.nstep_rew.sample(indexes,
-                              self.obs.ptr,self.rew.ptr,
-                              self.next_obs.ptr,self.done.ptr)
+        self.nrb.sample(indexes,
+                        self.obs.ptr,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         samples = super()._encode_sample(indexes)
         samples['discounts'] = np.asarray(self.gamma)[indexes]
-        samples['rewards'] = np.asarray(self.nrews)[indexes]
+        samples['rew'] = np.asarray(self.nrews)[indexes]
         return samples
