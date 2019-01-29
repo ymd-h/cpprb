@@ -64,7 +64,7 @@ int main(){
 
   std::cout << "DimensionalBuffer: " << std::endl;
   Observation* obs_ptr = nullptr;
-  dm.set_data(0ul,obs_ptr);
+  dm.get_data(0ul,obs_ptr);
   std::cout << " DimensionalBuffer.data(): " << obs_ptr<< std::endl;
   std::cout << "*DimensionalBuffer.data(): " << *obs_ptr << std::endl;
 
