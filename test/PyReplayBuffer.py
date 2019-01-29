@@ -25,6 +25,8 @@ class TestPyReplayBuffer(unittest.TestCase):
                    np.ones(shape=(cls.obs_dim)),
                    0)
 
+        cls.rb.clear()
+
         for i in range(cls.N_step):
             cls.rb.add(np.ones(shape=(cls.N_add,cls.obs_dim))*i,
                        np.zeros(shape=(cls.N_add,cls.act_dim)),
@@ -97,6 +99,8 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
                    0.5,
                    np.ones(shape=(cls.obs_dim)),
                    0)
+
+        cls.rb.clear()
 
         for i in range(cls.N_step):
             cls.rb.add(np.ones(shape=(cls.N_add,cls.obs_dim))*i,
