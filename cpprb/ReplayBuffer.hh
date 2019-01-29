@@ -470,13 +470,14 @@ namespace ymd {
       --i;
     }
   public:
-    NstepRewardBuffer(std::size_t size,std::size_t nstep,Reward gamma)
+    NstepRewardBuffer(std::size_t size,std::size_t obs_dim,
+		      std::size_t nstep,Reward gamma)
       : buffer_size{size},
 	nstep{nstep},
 	gamma{gamma},
 	gamma_buffer(size,Reward{0}),
 	nstep_rew_buffer(size,Reward{0}),
-	nste_next_obs_buffer(size,obs_dim) {}
+	nstep_next_obs_buffer(size,obs_dim) {}
     NstepRewardBuffer() = default;
     NstepRewardBuffer(const NstepRewardBuffer&) = default;
     NstepRewardBuffer(NstepRewardBuffer&&) = default;
@@ -501,7 +502,7 @@ namespace ymd {
 	}
 
 	next_obs.get_data(i,obs);
-	next_obs_buffer.store_data(obs,0ul,index,1ul);
+	nstep_next_obs_buffer.store_data(obs,0ul,index,1ul);
 	gamma_buffer[index] = gamma_i;
       }
     }
