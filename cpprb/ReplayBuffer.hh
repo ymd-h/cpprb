@@ -506,9 +506,10 @@ namespace ymd {
 	gamma_buffer[index] = gamma_i;
       }
     }
-    void get_buffer_pointers(Reward* discounts,Reward* ret){
+    void get_buffer_pointers(Reward*& discounts,Reward*& ret,Observation*& obs){
       discounts = gamma_buffer.data();
       ret = nstep_rew_buffer.data();
+      nstep_next_obs_buffer.get_data(0ul,obs);
     }
   };
 }
