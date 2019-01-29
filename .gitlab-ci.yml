@@ -1,4 +1,4 @@
-image: yamada4docker/gcc8_python372
+image: registry.gitlab.com/ymd_h/cpprb/build:latest
 
 variables:
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb"
@@ -27,7 +27,6 @@ SegmentTree.cpp:
 py_build:
   stage: py_build
   script:
-    - pip3 install cython numpy
     - CC=g++ python3 setup.py build_ext
   artifacts:
     paths:
@@ -36,7 +35,6 @@ py_build:
 ReplayBuffer:
   stage: py_test
   script:
-    - pip3 install cython numpy
     - python3 setup.py install
     - cd test
     - python3 PyReplayBuffer.py
