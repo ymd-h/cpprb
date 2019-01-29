@@ -41,7 +41,6 @@ namespace ymd {
     void set_data(std::size_t ith,T*& v) const {
       v = (T*)(buffer.data()) + ith * dim;
     }
-    void clear(){ buffer.resize(0); }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
@@ -120,12 +119,6 @@ namespace ymd {
     }
 
     virtual void clear(){
-      obs_buffer.clear();
-      act_buffer.clear();
-      rew_buffer.clear();
-      next_obs_buffer.clear();
-      done_buffer.clear();
-
       stored_size = 0ul;
       next_index = 0ul;
     }
