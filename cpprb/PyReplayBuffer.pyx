@@ -266,17 +266,12 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
     def get_max_priority(self):
         return self.per.get_max_priority()
 
-cdef class PyNstepReward:
-    cdef NstepRewardBuffer[double]* rew
-    def __cinit__(self,size,*,n_step = 4, discount = 0.99,**kwargs):
-        self.rew = new NstepRewardBuffer(size)
-
 cdef class PyNstepReplayBuffer(PyReplayBuffer):
     cdef PyNstepReward nstep_rew
     cdef PointerDouble gamma
     cdef PointerDouble nrews
     def __cinit__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
-        self.nstep_rew = PyNstepReward(size,n_step=n_step,discount=discount)
+        self.nstep_rew = NstepRewardBuffer[double](size,n_step,discount)
         self.gamma = PointerDouble(1,1,size)
         self.nrews = PointerDouble(1,1,size)
 
