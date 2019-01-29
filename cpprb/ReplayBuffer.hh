@@ -487,7 +487,7 @@ namespace ymd {
       for(auto index: indexes){
 	if(Nrews_buffer[index] == Reward{0}){
 	  auto gamma_i = Reward{1};
-	  for(auto i=index+1,n=std::min(Nrews_buffer.size(),index+nstep+1); i<n; ++i){
+	  for(auto i=index,n=std::min(Nrews_buffer.size(),index+nstep); i<n; ++i){
 	    Nrews_buffer[index] += rew[i] * gamma_i;
 	    if(done[i]){ break; }
 	    gamma_i *= gamma;
