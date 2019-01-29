@@ -259,9 +259,6 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
     def update_priorities(self,indexes,priorities):
         self.per.update_priorities(indexes,priorities)
 
-    def get_buffer_size(self):
-        return self.buffer_size
-
     def clear(self):
         super().clear()
         self.per.clear()
