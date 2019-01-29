@@ -496,7 +496,7 @@ namespace ymd {
       }
     }
     void get_buffer_pointers(Reward* discounts,Reward* ret){
-      discounts = gamma_buffer.data();
+      gamma_buffer.get_data(0ul,discounts);
       ret = Nrews_buffer.data();
     }
   };
