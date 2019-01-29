@@ -218,16 +218,16 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
-    def _update_1(self,next_index):
+    cdef _update_1(self,next_index):
         self.per.set_priorities(next_index)
 
-    def _update_1p(self,next_index,double p):
+    cdef _update_1p(self,next_index,double p):
         self.per.set_priorities(next_index,p)
 
-    def _update_N(self,next_index,size_t N=1):
+    cdef _update_N(self,next_index,size_t N=1):
         self.per.set_priorities(next_index,N,self.get_stored_size())
 
-    def _update_Np(self,next_index,np.ndarray[double,ndim=1] p,size_t N=1):
+    cdef _update_Np(self,next_index,np.ndarray[double,ndim=1] p,size_t N=1):
         self.per.set_priorities(next_index,&p[0],N,self.get_stored_size())
 
     def add(self,obs,act,rew,next_obs,done,priorities = None):
