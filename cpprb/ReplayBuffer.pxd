@@ -22,5 +22,5 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
     cdef cppclass NstepRewardBuffer[Reward]:
         NstepRewardBuffer(size_t,size_t,Reward)
         void store(size_t,size_t)
-        void sample(const vector[size_t]&,Reward*,Done*)
+        void sample[Done](const vector[size_t]&,Reward*,Done*)
         void get_buffer_pointers(Reward*,Reward*)
