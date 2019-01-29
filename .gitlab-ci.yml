@@ -1,7 +1,7 @@
 image: yamada4docker/gcc8_python372
 
 variables:
-  CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Iymd_K"
+  CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb"
 
 before_script:
   - g++ --version
