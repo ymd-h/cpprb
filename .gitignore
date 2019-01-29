@@ -2,7 +2,7 @@ build
 dist
 *egg-info
 *.so
-ymd_K/PyReplayBuffer.cpp
-ymd_K/PySegmentTree.cpp
+cpprb/PyReplayBuffer.cpp
+cpprb/PySegmentTree.cpp
 test/ReplayBuffer
 test/SegmentTree
