@@ -1,6 +1,6 @@
 import numpy as np
 import unittest, time
-from ymd_K import ReplayBuffer
+from cpprb import ReplayBuffer
 
 class TestPyReplayBuffer(unittest.TestCase):
     """=== PyReplayBuffer.py ==="""
