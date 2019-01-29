@@ -19,3 +19,8 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void update_priorities(vector[size_t]&,vector[Prio]&)
         void clear()
         Prio get_max_priority()
+    cdef cppclass NstepRewardBuffer[Reward]:
+        NstepRewardBuffer(size_t,size_t,Reward)
+        void store(size_t,size_t)
+        void sample(const vector[size_t]&,Reward*,Done*)
+        void get_buffer_pointers(Reward*,Reward*)
