@@ -15,9 +15,12 @@
 * Overview
 Python module Replay Buffer written by C++
 
+Complicated culculation (e.g. Segment Tree) are offloaded onto C++
+which must be much faster than Python.
 
-* Features
-- Memory Sharing between C++ and Python
+Internal C++ classes and corresponding Python wrapper classes share
+memory by [[https://cython.readthedocs.io/en/latest/src/userguide/buffer.html][implementing buffer protocol on cython]] to avoid overhead of
+copying large data.
 
 
 * Requirements
