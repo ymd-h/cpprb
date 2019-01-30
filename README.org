@@ -37,7 +37,7 @@ python setup.py build
 python setup.py install
 #+END_SRC
 
-Depending on your environment, you might need to set CC and/or CXX
+Depending on your environment, you might need to set =CC= and/or =CXX=
 variables like ~CXX=g++ python setup.py build~.
 
 You might need =sudo= for installation.
