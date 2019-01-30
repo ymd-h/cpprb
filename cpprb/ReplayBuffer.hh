@@ -462,11 +462,11 @@ namespace ymd {
     std::vector<Reward> nstep_rew_buffer;
     DimensionalBuffer<Observation> nstep_next_obs_buffer;
     template<typename Done>
-    void update_nstep(std::size_t index,std::size_t& i,std::size_t end,
+    void update_nstep(std::size_t& i,std::size_t end,
 		      Reward* rew,Done* done,Reward& gamma_i){
       for(; i < end; ++i){
 	gamma_i *= gamma;
-	nstep_rew_buffer[index] += rew[i] * gamma_i;
+	nstep_rew_buffer.back() += rew[i] * gamma_i;
 	if(done[i]){ return; }
       }
 
@@ -478,8 +478,8 @@ namespace ymd {
       : buffer_size{size},
 	nstep{nstep},
 	gamma{gamma},
-	gamma_buffer(size,Reward{0}),
-	nstep_rew_buffer(size,Reward{0}),
+	gamma_buffer{},
+	nstep_rew_buffer{},
 	nstep_next_obs_buffer(size,obs_dim) {}
     NstepRewardBuffer() = default;
     NstepRewardBuffer(const NstepRewardBuffer&) = default;
@@ -491,23 +491,30 @@ namespace ymd {
     template<typename Done>
     void sample(const std::vector<std::size_t>& indexes,
 		Reward* rew,Observation* next_obs,Done* done){
+      const auto index_size = indexes.size();
+      gamma_buffer.resie(0);
+      gamma_buffer.reserve(index_size);
+
+      nstep_rew_buffer.resize(0);
+      nstep_rew_buffer.reserve(index_size);
+
       for(auto index: indexes){
 	auto gamma_i = Reward{1};
-	nstep_rew_buffer[index] = rew[index];
+	nstep_rew_buffer.push_back(rew[index]);
 
 	auto i = index;
 	if(!done[i]){
 	  ++i;
-	  update_nstep(index,i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
+	  update_nstep(i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
 
 	  if((!done[i]) && (buffer_size -1 == i)){
 	    i = 0ul;
-	    update_nstep(index,i,buffer_size-(index+nstep),rew,done,gamma_i);
+	    update_nstep(i,buffer_size-(index+nstep),rew,done,gamma_i);
 	  }
 	}
 
 	nstep_next_obs_buffer.store_data(next_obs,i,index,1ul);
-	gamma_buffer[index] = gamma_i;
+	gamma_buffer.push_back(gamma_i);
       }
     }
     void get_buffer_pointers(Reward*& discounts,Reward*& ret,Observation*& obs){
