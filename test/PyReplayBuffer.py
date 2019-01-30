@@ -177,7 +177,7 @@ class TestPyNstepReplayBuffer(unittest.TestCase):
                                                   cls.obs_dim,
                                                   cls.act_dim,
                                                   n_step = 4,
-                                                  discount = 0.99)
+                                                  discount = 0.9)
 
         cls.rb.add(np.ones(shape=(cls.obs_dim)),
                    np.zeros(shape=(cls.act_dim)),
