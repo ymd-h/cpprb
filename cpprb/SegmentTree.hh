@@ -98,13 +98,13 @@ namespace ymd {
     void set(std::size_t i,F&& f,std::size_t N,std::size_t max = 0ul){
       if(0ul == max){ max = size; }
 
-      std::set<std::size_t> update{};
+      std::set<std::size_t> will_update{};
 
       auto fill_N = std::min(N,max-i);
       std::generate_n(buffer.data() + access_index(i),fill_N,f);
 
       for(auto n = 0ul; n < fill_N; ++n){
-	update.insert(parent(access_index(i+n)));
+	will_update.insert(parent(access_index(i+n)));
       }
 
       if(N != fill_N){
@@ -112,15 +112,15 @@ namespace ymd {
 	std::generate_n(buffer.data() + access_index(0),fill_N,f);
 
 	for(auto n = 0ul; n < fill_N; ++n){
-	  update.insert(parent(access_index(n)));
+	  will_update.insert(parent(access_index(n)));
 	}
       }
 
-      while(!update.empty()){
-	i = *(update.rbegin());
+      while(!will_update.empty()){
+	i = *(will_update.rbegin());
 	update_buffer(i);
-	update.erase(i);
-	if(i){ update.insert(parent(i)); }
+	will_update.erase(i);
+	if(i){ will_update.insert(parent(i)); }
       }
     }
 
