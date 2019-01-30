@@ -3,7 +3,7 @@
 #+OPTIONS: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
 #+OPTIONS: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
 #+OPTIONS: timestamp:t title:t toc:t todo:t |:t
-#+TITLE: C++ Replay Buffer
+#+TITLE: C++ Replay Buffer (Python module written by C++)
 #+DATE: <2019-01-29 Tue>
 #+AUTHOR: Hiroyuki Yamada
 #+EMAIL: yamada@ymdMBP
@@ -13,8 +13,6 @@
 #+CREATOR: Emacs 26.1 (Org mode 9.1.14)
 
 * Overview
-Python module Replay Buffer written by C++
-
 Complicated culculation (e.g. Segment Tree) are offloaded onto C++
 which must be much faster than Python.
 
