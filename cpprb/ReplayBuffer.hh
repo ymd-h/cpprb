@@ -27,7 +27,7 @@ namespace ymd {
     DimensionalBuffer(DimensionalBuffer&&) = default;
     DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
     DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
-    virtual ~DimensionalBuffer() = default;
+    ~DimensionalBuffer() = default;
     void store_data(T* v,std::size_t shift,std::size_t next_index,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
     }
@@ -87,7 +87,7 @@ namespace ymd {
     InternalBuffer& operator=(const InternalBuffer&) = default;
     InternalBuffer& operator=(InternalBuffer&&) = default;
     virtual ~InternalBuffer() = default;
-    void store(Observation* obs, Action* act, Reward* rew,
+    virtual void store(Observation* obs, Action* act, Reward* rew,
 	       Observation* next_obs, Done* done,
 	       std::size_t N = 1ul){
       auto copy_N = std::min(N,buffer_size - next_index);
@@ -446,6 +446,71 @@ namespace ymd {
     virtual void clear() override {
       this->BaseClass::clear();
       this->Sampler::clear();
+    }
+  };
+
+  template<typename Observation,typename Reward>
+  class NstepRewardBuffer {
+  private:
+    const std::size_t buffer_size;
+    std::size_t nstep;
+    Reward gamma;
+    std::vector<Reward> gamma_buffer;
+    std::vector<Reward> nstep_rew_buffer;
+    DimensionalBuffer<Observation> nstep_next_obs_buffer;
+    template<typename Done>
+    void update_nstep(std::size_t index,std::size_t& i,std::size_t end,
+		      Reward* rew,Done* done,Reward& gamma_i){
+      for(; i < end; ++i){
+	gamma_i *= gamma;
+	nstep_rew_buffer[index] += rew[i] * gamma_i;
+	if(done[i]){ return; }
+      }
+
+      --i;
+    }
+  public:
+    NstepRewardBuffer(std::size_t size,std::size_t obs_dim,
+		      std::size_t nstep,Reward gamma)
+      : buffer_size{size},
+	nstep{nstep},
+	gamma{gamma},
+	gamma_buffer(size,Reward{0}),
+	nstep_rew_buffer(size,Reward{0}),
+	nstep_next_obs_buffer(size,obs_dim) {}
+    NstepRewardBuffer() = default;
+    NstepRewardBuffer(const NstepRewardBuffer&) = default;
+    NstepRewardBuffer(NstepRewardBuffer&&) = default;
+    NstepRewardBuffer& operator=(const NstepRewardBuffer&) = default;
+    NstepRewardBuffer& operator=(NstepRewardBuffer&&) = default;
+    virtual ~NstepRewardBuffer() = default;
+
+    template<typename Done>
+    void sample(const std::vector<std::size_t>& indexes,
+		Reward* rew,Observation* next_obs,Done* done){
+      for(auto index: indexes){
+	auto gamma_i = Reward{1};
+	nstep_rew_buffer[index] = rew[index];
+
+	auto i = index;
+	if(!done[i]){
+	  ++i;
+	  update_nstep(index,i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
+
+	  if((!done[i]) && (buffer_size -1 == i)){
+	    i = 0ul;
+	    update_nstep(index,i,buffer_size-(index+nstep),rew,done,gamma_i);
+	  }
+	}
+
+	nstep_next_obs_buffer.store_data(next_obs,i,index,1ul);
+	gamma_buffer[index] = gamma_i;
+      }
+    }
+    void get_buffer_pointers(Reward*& discounts,Reward*& ret,Observation*& obs){
+      discounts = gamma_buffer.data();
+      ret = nstep_rew_buffer.data();
+      nstep_next_obs_buffer.get_data(0ul,obs);
     }
   };
 }

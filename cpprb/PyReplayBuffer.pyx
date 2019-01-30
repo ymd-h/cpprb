@@ -122,6 +122,9 @@ cdef class PointerDouble(VectorWrapper):
         buffer.buf = <void*> self.ptr
         buffer.format = 'd'
 
+    cdef void update_vec_size(self,size):
+        self._vec_size = self.value_dim * size
+
 cdef class PyInternalBuffer:
     cdef InternalBuffer[double,double,double,double] *buffer
     cdef PointerDouble obs
@@ -265,3 +268,26 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
 
     def get_max_priority(self):
         return self.per.get_max_priority()
+
+cdef class PyNstepReplayBuffer(PyReplayBuffer):
+    cdef NstepRewardBuffer[double,double]* nrb
+    cdef PointerDouble gamma
+    cdef PointerDouble nstep_rew
+    cdef PointerDouble nstep_next_obs
+    def __cinit__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
+        self.nrb = new NstepRewardBuffer[double,double](size,obs_dim,n_step,discount)
+        self.gamma = PointerDouble(1,1,size)
+        self.nstep_rew = PointerDouble(1,1,size)
+        self.nstep_next_obs = PointerDouble(2,obs_dim,size)
+
+        self.nrb.get_buffer_pointers(self.gamma.ptr,
+                                     self.nstep_rew.ptr,
+                                     self.nstep_next_obs.ptr)
+
+    def _encode_sample(self,indexes):
+        self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
+        samples = super()._encode_sample(indexes)
+        samples['discounts'] = np.asarray(self.gamma)[indexes]
+        samples['rew'] = np.asarray(self.nstep_rew)[indexes]
+        samples['next_obs'] = np.asarray(self.nstep_next_obs)[indexes]
+        return samples

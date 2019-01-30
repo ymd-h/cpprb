@@ -160,5 +160,83 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
     def test_indexes(self):
         self._check_ndarray(self.s['indexes'],1,(self.N_sample,),"indexes")
 
+class TestPyNstepReplayBuffer(unittest.TestCase):
+    """=== PyNstepReplayBuffer.py ==="""
+
+    obs_dim = 3
+    act_dim = 1
+
+    N_step = 100
+    N_buffer_size = 32
+    N_sample = 16
+    N_add = 10
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rb = ReplayBuffer.PyNstepReplayBuffer(cls.N_buffer_size,
+                                                  cls.obs_dim,
+                                                  cls.act_dim,
+                                                  n_step = 4,
+                                                  discount = 0.9)
+
+        cls.rb.add(np.ones(shape=(cls.obs_dim)),
+                   np.zeros(shape=(cls.act_dim)),
+                   0.5,
+                   np.ones(shape=(cls.obs_dim)),
+                   0)
+
+        cls.rb.clear()
+
+        for i in range(cls.N_step):
+            cls.rb.add(np.ones(shape=(cls.N_add,cls.obs_dim))*i,
+                       np.zeros(shape=(cls.N_add,cls.act_dim)),
+                       np.ones((cls.N_add)) * 0.5*i,
+                       np.ones(shape=(cls.N_add,cls.obs_dim))*(i+1),
+                       np.zeros((cls.N_add)) if i is not cls.N_step - 1 else np.ones((cls.N_add)))
+        cls.s = cls.rb.sample(cls.N_sample)
+
+    def _check_ndarray(self,array,ndim,shape,name):
+        self.assertEqual(ndim,array.ndim)
+        self.assertEqual(shape,array.shape)
+        print("ER " + name + " {}".format(array))
+
+    def test_obs(self):
+        self._check_ndarray(self.s['obs'],2,
+                            (self.N_sample, self.obs_dim),
+                            "obs")
+
+    def test_act(self):
+        self._check_ndarray(self.s['act'],2,
+                            (self.N_sample, self.act_dim),
+                            "act")
+
+    def test_rew(self):
+        self._check_ndarray(self.s['rew'],1,(self.N_sample,),"rew")
+
+    def test_next_obs(self):
+        self._check_ndarray(self.s['next_obs'],2,
+                            (self.N_sample, self.obs_dim),
+                            "next_obs")
+
+        for i in range(self.N_sample):
+            self.assertGreaterEqual(self.s['next_obs'][i,0],
+                                    self.N_step - self.N_buffer_size)
+            self.assertLess(self.s['next_obs'][i,0],self.N_step+1)
+
+            for j in range(1,self.obs_dim):
+                self.assertAlmostEqual(self.s['next_obs'][i,0],
+                                       self.s['next_obs'][i,j])
+
+    def test_done(self):
+        self._check_ndarray(self.s['done'],1,(self.N_sample,),"done")
+        for d in self.s['done']:
+            self.assertIn(d,[0,1])
+
+    def test_discounts(self):
+        self._check_ndarray(self.s['discounts'],1,(self.N_sample,),"discounts")
+        for g,d in zip(self.s['discounts'],self.s['done']):
+            if(d > 0.0):
+                self.assertAlmostEqual(g,1.0)
+        
 if __name__ == '__main__':
     unittest.main()
