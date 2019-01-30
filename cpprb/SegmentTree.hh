@@ -69,9 +69,7 @@ namespace ymd {
     }
   public:
     SegmentTree(std::size_t n,F f): size(n), buffer(2*n-1), f(f) {
-      for(auto i = n-2, stop = 0ul - 1ul; i != stop ; --i){
-	update_buffer(i);
-      }
+      update_all();
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
     SegmentTree(const SegmentTree&) = default;
