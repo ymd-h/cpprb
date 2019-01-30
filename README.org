@@ -94,9 +94,9 @@ constructor as =n_step= (default =4=) and =discount= (default 0.99),
 respectively.
 
 ** PyNstepPrioritizedReplayBuffer
-=PyNstepPrioritizedReplayBuffer= is a N-step reward version of replay
-buffer.  The usage is a mixture of =PyPrioritizedReplayBuffer= and
-=PyNstepReplayBuffer=.
+=PyNstepPrioritizedReplayBuffer= is a N-step reward version of
+prioritized replay buffer.  The usage is a mixture of
+=PyPrioritizedReplayBuffer= and =PyNstepReplayBuffer=.
 
 * Test Environment
 - GCC 8.2.0
