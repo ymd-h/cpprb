@@ -64,6 +64,12 @@ sample = rb.sample(batch_size)
 # sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', 'done'
 #+END_SRC
 
+* Classes
+=PyReplayBuffer=, =PyPrioritizedReplayBuffer=, =PyNstepReplayBuffer=,
+and =PyNstepPrioritizedReplayBuffer= are supported.
+
+The other classes (including C++ classes) are considered as internal
+classes, whose interfaces can change frequently.
 
 * Test Environment
 - GCC 8.2.0
