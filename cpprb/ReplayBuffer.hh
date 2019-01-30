@@ -9,6 +9,7 @@
 #include <tuple>
 #include <functional>
 #include <type_traits>
+#include <limits>
 
 #include "SegmentTree.hh"
 
@@ -287,12 +288,9 @@ namespace ymd {
 	max_priority{1.0},
 	default_max_priority{1.0},
 	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; }},
-	min{PowerOf2(buffer_size),[zero = Priority{0}](Priority a,
-						       Priority b){
-				    return ((zero == a) ? b:
-					    (zero == b) ? a:
-					    std::min(a,b));
-				  }},
+	min{PowerOf2(buffer_size),
+	    [](Priority a,Priority b){ return  std::min(a,b); },
+	    std::numeric_limits<Priority>::max()},
 	g{std::random_device{}()} {}
     PrioritizedSampler() = default;
     PrioritizedSampler(const PrioritizedSampler&) = default;
@@ -310,7 +308,7 @@ namespace ymd {
     virtual void clear(){
       max_priority = default_max_priority;
       sum.clear();
-      min.clear();
+      min.clear(std::numeric_limits<Priority>::max());
     }
 
     Priority get_max_priority() const {
