@@ -312,7 +312,7 @@ cdef class PyNstepPrioritizedReplayBuffer(PyPrioritizedReplayBuffer):
                                      self.nstep_rew.ptr,
                                      self.nstep_next_obs.ptr)
 
-        batch_size = indexes.shap[0]
+        batch_size = indexes.shape[0]
         samples['discounts'] = np.asarray(self.gamma)[:batch_size]
         samples['rew'] = np.asarray(self.nstep_rew)[:batch_size]
         samples['next_obs'] = np.asarray(self.nstep_next_obs)[indexes]
