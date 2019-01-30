@@ -64,7 +64,7 @@ for i in range(500):
 
 batch_size = 32
 sample = rb.sample(batch_size)
-# sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', 'done'
+# sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', and 'done'
 #+END_SRC
 
 * Classes
