@@ -26,6 +26,19 @@ Python module Replay Buffer written by C++
 - Cython
 
 
+* Installation
+#+BEGIN_SRC shell
+git clone https://gitlab.com/ymd_h/cpprb.git cpprb
+cd cpprb
+python setup.py buil
+python setup.py install
+#+END_SRC
+
+Depending your environment, you might need to set CC and/or CXX
+variables like ~CXX=g++ python setup.py build~.
+
+You might need =sudo= for installation.
+
 * Test Environment
 - GCC 8.2.0
 - Python 3.7.2
