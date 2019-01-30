@@ -309,6 +309,8 @@ namespace ymd {
     }
     virtual void clear(){
       max_priority = default_max_priority;
+      sum.clear();
+      min.clear();
     }
 
     Priority get_max_priority() const {
