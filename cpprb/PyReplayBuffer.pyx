@@ -122,6 +122,9 @@ cdef class PointerDouble(VectorWrapper):
         buffer.buf = <void*> self.ptr
         buffer.format = 'd'
 
+    cdef void update_vec_size(self,size):
+        self._vec_size = self.value_dim * size
+
 cdef class PyInternalBuffer:
     cdef InternalBuffer[double,double,double,double] *buffer
     cdef PointerDouble obs
