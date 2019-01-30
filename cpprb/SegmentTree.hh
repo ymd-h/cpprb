@@ -61,6 +61,12 @@ namespace ymd {
     void update_buffer(std::size_t i){
       buffer[i] = f(buffer[child_left(i)],buffer[child_right(i)]);
     }
+
+    void update_all(){
+      for(auto i = access_index(0) -1, end = 0ul - 1ul; i != end; --i){
+	update_buffer(i);
+      }
+    }
   public:
     SegmentTree(std::size_t n,F f): size(n), buffer(2*n-1), f(f) {
       for(auto i = n-2, stop = 0ul - 1ul; i != stop ; --i){
@@ -145,6 +151,11 @@ namespace ymd {
       }
 
       return index;
+    }
+
+    void clear(T v = T{0}){
+      std::fill_n(buffer.begin() + access_index(0), buffer.end(), v);
+      update_all();
     }
   };
 }
