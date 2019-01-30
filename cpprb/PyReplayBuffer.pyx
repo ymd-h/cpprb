@@ -311,7 +311,9 @@ cdef class PyNstepPrioritizedReplayBuffer(PyPrioritizedReplayBuffer):
     def _encode_sample(self,indexes):
         self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         samples = super()._encode_sample(indexes)
-        samples['discounts'] = np.asarray(self.gamma)[indexes]
-        samples['rew'] = np.asarray(self.nstep_rew)[indexes]
+
+        batch_size = indexes.shap[0]
+        samples['discounts'] = np.asarray(self.gamma)[:batch_size]
+        samples['rew'] = np.asarray(self.nstep_rew)[:batch_size]
         samples['next_obs'] = np.asarray(self.nstep_next_obs)[indexes]
         return samples
