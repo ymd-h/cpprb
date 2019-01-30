@@ -492,7 +492,7 @@ namespace ymd {
     void sample(const std::vector<std::size_t>& indexes,
 		Reward* rew,Observation* next_obs,Done* done){
       const auto index_size = indexes.size();
-      gamma_buffer.resie(0);
+      gamma_buffer.resize(0);
       gamma_buffer.reserve(index_size);
 
       nstep_rew_buffer.resize(0);
