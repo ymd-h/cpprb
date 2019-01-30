@@ -89,7 +89,7 @@ For sampling, you need to pass =beata= argument as well as =batch_size=.
 ** PyNstepReplayBuffer
 =PyNstepReplayBuffer= is a N-step reward version of replay buffer. Its
 usage is same as =PyReplayBuffer=, except whose return value has
-='discounts'= key. The step size and discount rate are passed to its
+=discounts= key. The step size and discount rate are passed to its
 constructor as =n_step= (default =4=) and =discount= (default 0.99),
 respectively.
 
