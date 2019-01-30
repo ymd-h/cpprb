@@ -154,7 +154,7 @@ namespace ymd {
     }
 
     void clear(T v = T{0}){
-      std::fill_n(buffer.begin() + access_index(0), buffer.end(), v);
+      std::fill(buffer.begin() + access_index(0), buffer.end(), v);
       update_all();
     }
   };
