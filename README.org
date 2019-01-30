@@ -33,7 +33,7 @@ copying large data.
 #+BEGIN_SRC shell
 git clone https://gitlab.com/ymd_h/cpprb.git cpprb
 cd cpprb
-python setup.py buil
+python setup.py build
 python setup.py install
 #+END_SRC
 
