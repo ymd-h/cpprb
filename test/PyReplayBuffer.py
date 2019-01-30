@@ -231,6 +231,12 @@ class TestPyNstepReplayBuffer(unittest.TestCase):
         self._check_ndarray(self.s['done'],1,(self.N_sample,),"done")
         for d in self.s['done']:
             self.assertIn(d,[0,1])
+
+    def test_discounts(self):
+        self._check_ndarray(self.s['discounts'],1,(self.N_sample,),"discounts")
+        for g,d in zip(self.s['discounts'],self.s['done']):
+            if(d > 0.0):
+                self.assertAlmostEqual(g,0.0)
         
 if __name__ == '__main__':
     unittest.main()
