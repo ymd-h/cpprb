@@ -491,13 +491,16 @@ namespace ymd {
       for(auto index: indexes){
 	auto gamma_i = Reward{1};
 	nstep_rew_buffer[index] = rew[index];
-	auto i = index+1;
 
-	update_nstep(index,i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
+	auto i = index;
+	if(!done[i]){
+	  ++i;
+	  update_nstep(index,i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
 
-	if((!done[i]) && (buffer_size -1 == i)){
-	  i = 0ul;
-	  update_nstep(index,i,buffer_size-(index+nstep),rew,done,gamma_i);
+	  if((!done[i]) && (buffer_size -1 == i)){
+	    i = 0ul;
+	    update_nstep(index,i,buffer_size-(index+nstep),rew,done,gamma_i);
+	  }
 	}
 
 	nstep_next_obs_buffer.store_data(next_obs,i,index,1ul);
