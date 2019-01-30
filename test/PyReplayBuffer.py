@@ -9,7 +9,7 @@ class TestPyReplayBuffer(unittest.TestCase):
     act_dim = 1
 
     N_step = 100
-    N_buffer_size = 32
+    N_buffer_size = 1024
     N_sample = 16
     N_add = 10
 
@@ -79,7 +79,7 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
     act_dim = 1
 
     N_step = 100
-    N_buffer_size = 32
+    N_buffer_size = 1024
     N_sample = 16
     N_add = 10
 
@@ -167,7 +167,7 @@ class TestPyNstepReplayBuffer(unittest.TestCase):
     act_dim = 1
 
     N_step = 100
-    N_buffer_size = 32
+    N_buffer_size = 1024
     N_sample = 16
     N_add = 10
 
@@ -245,7 +245,7 @@ class TestPyNstepPrioritizedReplayBuffer(unittest.TestCase):
     act_dim = 1
 
     N_step = 100
-    N_buffer_size = 32
+    N_buffer_size = 1024
     N_sample = 16
     N_add = 10
 
