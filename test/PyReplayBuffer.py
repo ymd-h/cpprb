@@ -14,6 +14,11 @@ class ReplayBufferParams:
     nstep = 4
     discount = 0.99
 
+    alpha = 0.7
+    beta = 0.5
+
+    N_time = 1000
+
     @classmethod
     def fill_ReplayBuffer(cls):
         cls.rb.add(np.ones(shape=(cls.obs_dim)),
@@ -90,11 +95,6 @@ class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
 class TestPyPrioritizedReplayBuffer(TestPyReplayBuffer):
     """=== PyPrioritizedReplayBuffer.py ==="""
 
-    alpha = 0.7
-    beta = 0.5
-
-    N_time = 1000
-
     @classmethod
     def setUpClass(cls):
         cls.rb = ReplayBuffer.PyPrioritizedReplayBuffer(cls.buffer_size,
@@ -155,10 +155,6 @@ class TestPyNstepReplayBuffer(TestPyReplayBuffer):
 
 class TestPyNstepPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
     """=== PyNstepPrioritizedReplayBuffer.py ==="""
-    alpha = 0.7
-    beta = 0.5
-
-    N_time = 1000
 
     @classmethod
     def setUpClass(cls):
