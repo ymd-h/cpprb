@@ -11,6 +11,9 @@ class ReplayBufferParams:
     N_add = round(3.27 * buffer_size)
     batch_size = 16
 
+    nstep = 4
+    discount = 0.99
+
     @classmethod
     def fill_ReplayBuffer(cls):
         cls.rb.add(np.ones(shape=(cls.obs_dim)),
@@ -174,8 +177,8 @@ class TestPyNstepReplayBuffer(unittest.TestCase,ReplayBuffer):
         cls.rb = ReplayBuffer.PyNstepReplayBuffer(cls.buffer_size,
                                                   cls.obs_dim,
                                                   cls.act_dim,
-                                                  N_add = 4,
-                                                  discount = 0.9)
+                                                  nstep = cls.nstep,
+                                                  discount = cls.discount)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
 
