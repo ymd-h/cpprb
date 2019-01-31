@@ -146,7 +146,7 @@ class TestPyNstepReplayBuffer(TestPyReplayBuffer):
             if(d > 0.0):
                 self.assertAlmostEqual(g,1.0)
 
-class TestPyNstepPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
+class TestPyNstepPrioritizedReplayBuffer(TestPyReplayBuffer):
     """=== PyNstepPrioritizedReplayBuffer.py ==="""
     class_name = "N-PER"
 
