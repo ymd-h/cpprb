@@ -13,7 +13,7 @@
 #+CREATOR: Emacs 26.1 (Org mode 9.1.14)
 
 * Overview
-Complicated culculation (e.g. Segment Tree) are offloaded onto C++
+Complicated calculation (e.g. Segment Tree) are offloaded onto C++
 which must be much faster than Python.
 
 Internal C++ classes and corresponding Python wrapper classes share
