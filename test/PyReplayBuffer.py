@@ -45,6 +45,7 @@ class ReplayBufferParams:
 
 class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
     """=== PyReplayBuffer.py ==="""
+    class_name = "ER"
 
     @classmethod
     def setUpClass(cls):
@@ -58,7 +59,7 @@ class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
     def _check_ndarray(self,array,ndim,shape,name):
         self.assertEqual(ndim,array.ndim)
         self.assertEqual(shape,array.shape)
-        print("ER " + name + " {}".format(array))
+        print(cls.class_name + ": " + name + " {}".format(array))
 
     def test_obs(self):
         self._check_ndarray(self.s['obs'],2,
@@ -94,6 +95,7 @@ class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
 
 class TestPyPrioritizedReplayBuffer(TestPyReplayBuffer):
     """=== PyPrioritizedReplayBuffer.py ==="""
+    class_name = "PER"
 
     @classmethod
     def setUpClass(cls):
@@ -111,11 +113,6 @@ class TestPyPrioritizedReplayBuffer(TestPyReplayBuffer):
         print("PER Sample {} time execution".format(cls.N_time))
         print("{} s".format(end - start))
 
-    def _check_ndarray(self,array,ndim,shape,name):
-        self.assertEqual(ndim,array.ndim)
-        self.assertEqual(shape,array.shape)
-        print("PER " + name + " {}".format(array))
-
     def test_weights(self):
         self._check_ndarray(self.s['weights'],1,(self.batch_size,),"weights")
         for w in self.s['weights']:
@@ -126,6 +123,7 @@ class TestPyPrioritizedReplayBuffer(TestPyReplayBuffer):
 
 class TestPyNstepReplayBuffer(TestPyReplayBuffer):
     """=== PyNstepReplayBuffer.py ==="""
+    class_name = "N-ER"
 
     @classmethod
     def setUpClass(cls):
@@ -136,11 +134,6 @@ class TestPyNstepReplayBuffer(TestPyReplayBuffer):
                                                   discount = cls.discount)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
-
-    def _check_ndarray(self,array,ndim,shape,name):
-        self.assertEqual(ndim,array.ndim)
-        self.assertEqual(shape,array.shape)
-        print("N-ER " + name + " {}".format(array))
 
     def test_done(self):
         TestPyReplayBuffer.test_done(self)
@@ -155,6 +148,7 @@ class TestPyNstepReplayBuffer(TestPyReplayBuffer):
 
 class TestPyNstepPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
     """=== PyNstepPrioritizedReplayBuffer.py ==="""
+    class_name = "N-PER"
 
     @classmethod
     def setUpClass(cls):
@@ -185,11 +179,6 @@ class TestPyNstepPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
         end = time.perf_counter()
         print("N-PER Sample {} time execution".format(cls.N_time))
         print("{} s".format(end - start))
-
-    def _check_ndarray(self,array,ndim,shape,name):
-        self.assertEqual(ndim,array.ndim)
-        self.assertEqual(shape,array.shape)
-        print("N-PER " + name + " {}".format(array))
 
     def test_obs(self):
         self._check_ndarray(self.s['obs'],2,
