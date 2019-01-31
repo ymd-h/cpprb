@@ -156,6 +156,8 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
 
     def test_weights(self):
         self._check_ndarray(self.s['weights'],1,(self.N_sample,),"weights")
+        for w in self.s['weights']:
+            self.assertAlmostEqual(w,1.0)
 
     def test_indexes(self):
         self._check_ndarray(self.s['indexes'],1,(self.N_sample,),"indexes")
@@ -322,6 +324,8 @@ class TestPyNstepPrioritizedReplayBuffer(unittest.TestCase):
 
     def test_weights(self):
         self._check_ndarray(self.s['weights'],1,(self.N_sample,),"weights")
+        for w in self.s['weights']:
+            self.assertAlmostEqual(w,1.0)
 
     def test_indexes(self):
         self._check_ndarray(self.s['indexes'],1,(self.N_sample,),"indexes")

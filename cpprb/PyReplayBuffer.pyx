@@ -15,7 +15,7 @@ cdef class VectorWrapper:
     cdef int ndim
     cdef int value_dim
 
-    def __cinit__(self):
+    def __cinit__(self,**kwarg):
         self.shape   = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * 2)
         self.strides = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * 2)
 
@@ -56,7 +56,7 @@ cdef class VectorWrapper:
 cdef class VectorInt(VectorWrapper):
     cdef vector[int] vec
 
-    def __cinit__(self,value_dim=1):
+    def __cinit__(self,*,value_dim=1,**kwargs):
         self.vec = vector[int]()
         self.itemsize = sizeof(int)
 
@@ -73,7 +73,7 @@ cdef class VectorInt(VectorWrapper):
 cdef class VectorDouble(VectorWrapper):
     cdef vector[double] vec
 
-    def __cinit__(self,value_dim=1):
+    def __cinit__(self,*,value_dim=1,**kwargs):
         self.vec = vector[double]()
         self.itemsize = sizeof(double)
 
@@ -90,7 +90,7 @@ cdef class VectorDouble(VectorWrapper):
 cdef class VectorULong(VectorWrapper):
     cdef vector[size_t] vec
 
-    def __cinit__(self,value_dim=1):
+    def __cinit__(self,*,value_dim=1,**kwargs):
         self.vec = vector[size_t]()
         self.itemsize = sizeof(size_t)
 
@@ -108,7 +108,7 @@ cdef class PointerDouble(VectorWrapper):
     cdef double* ptr
     cdef int _vec_size
 
-    def __cinit__(self,ndim,value_dim,size):
+    def __cinit__(self,*,ndim=1,value_dim=1,size=1,**kwargs):
         self.itemsize = sizeof(double)
 
         self.ndim = ndim
@@ -139,11 +139,11 @@ cdef class PyInternalBuffer:
         self.buffer_size = size
         self.obs_dim = obs_dim
         self.act_dim = act_dim
-        self.obs = PointerDouble(2,obs_dim,size)
-        self.act = PointerDouble(2,act_dim,size)
-        self.rew = PointerDouble(1,1,size)
-        self.next_obs = PointerDouble(2,obs_dim,size)
-        self.done = PointerDouble(1,1,size)
+        self.obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
+        self.act = PointerDouble(ndim=2,value_dim=act_dim,size=size)
+        self.rew = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
+        self.done = PointerDouble(ndim=1,value_dim=1,size=size)
 
         self.buffer = new InternalBuffer[double,double,double,double](size,
                                                                       obs_dim,
@@ -276,9 +276,9 @@ cdef class PyNstepReplayBuffer(PyReplayBuffer):
     cdef PointerDouble nstep_next_obs
     def __cinit__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
         self.nrb = new NstepRewardBuffer[double,double](size,obs_dim,n_step,discount)
-        self.gamma = PointerDouble(1,1,size)
-        self.nstep_rew = PointerDouble(1,1,size)
-        self.nstep_next_obs = PointerDouble(2,obs_dim,size)
+        self.gamma = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
         self.nrb.get_buffer_pointers(self.gamma.ptr,
                                      self.nstep_rew.ptr,
@@ -300,9 +300,9 @@ cdef class PyNstepPrioritizedReplayBuffer(PyPrioritizedReplayBuffer):
     def __cinit__(self,size,obs_dim,act_dim,*,
                   alpha = 0.6,n_step = 4, discount = 0.99,**kwargs):
         self.nrb = new NstepRewardBuffer[double,double](size,obs_dim,n_step,discount)
-        self.gamma = PointerDouble(1,1,size)
-        self.nstep_rew = PointerDouble(1,1,size)
-        self.nstep_next_obs = PointerDouble(2,obs_dim,size)
+        self.gamma = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
         self.nrb.get_buffer_pointers(self.gamma.ptr,
                                      self.nstep_rew.ptr,
