@@ -460,7 +460,7 @@ namespace ymd {
     Reward gamma;
     std::vector<Reward> gamma_buffer;
     std::vector<Reward> nstep_rew_buffer;
-    DimensionalBuffer<Observation> nstep_next_obs_buffer;
+    std::vector<Observation> nstep_next_obs_buffer;
     template<typename Done>
     void update_nstep(std::size_t& i,std::size_t end,
 		      Reward* rew,Done* done,Reward& gamma_i){
@@ -480,7 +480,7 @@ namespace ymd {
 	gamma{gamma},
 	gamma_buffer{},
 	nstep_rew_buffer{},
-	nstep_next_obs_buffer(size,obs_dim) {}
+	nstep_next_obs_buffer{} {}
     NstepRewardBuffer() = default;
     NstepRewardBuffer(const NstepRewardBuffer&) = default;
     NstepRewardBuffer(NstepRewardBuffer&&) = default;
@@ -498,6 +498,9 @@ namespace ymd {
       nstep_rew_buffer.resize(0);
       nstep_rew_buffer.reserve(index_size);
 
+      nstep_next_obs_buffer.resize(0);
+      nstep_next_obs_buffer.reserve(index_size*obs_dim)
+
       for(auto index: indexes){
 	auto gamma_i = Reward{1};
 	nstep_rew_buffer.push_back(rew[index]);
@@ -513,7 +516,8 @@ namespace ymd {
 	  }
 	}
 
-	nstep_next_obs_buffer.store_data(next_obs,i,index,1ul);
+	std::copy_n(next_obs+i*obs_dim,obs_dim,
+		    std::back_inserter(nstep_next_obs_buffer));
 	gamma_buffer.push_back(gamma_i);
       }
     }
