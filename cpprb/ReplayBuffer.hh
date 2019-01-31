@@ -499,7 +499,7 @@ namespace ymd {
       nstep_rew_buffer.reserve(index_size);
 
       nstep_next_obs_buffer.resize(0);
-      nstep_next_obs_buffer.reserve(index_size*obs_dim)
+      nstep_next_obs_buffer.reserve(index_size*obs_dim);
 
       for(auto index: indexes){
 	auto gamma_i = Reward{1};
