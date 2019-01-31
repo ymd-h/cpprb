@@ -11,16 +11,8 @@ class ReplayBufferParams:
     N_add = round(3.27 * buffer_size)
     batch_size = 16
 
-class TestPyReplayBuffer(unittest.TestCase):
+class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
     """=== PyReplayBuffer.py ==="""
-
-    obs_dim = 3
-    act_dim = 1
-
-    N_add = 100
-    buffer_size = 1024
-    batch_size = 16
-    add_dim = 10
 
     @classmethod
     def setUpClass(cls):
@@ -81,16 +73,8 @@ class TestPyReplayBuffer(unittest.TestCase):
         for d in self.s['done']:
             self.assertIn(d,[0,1])
 
-class TestPyPrioritizedReplayBuffer(unittest.TestCase):
+class TestPyPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
     """=== PyPrioritizedReplayBuffer.py ==="""
-
-    obs_dim = 3
-    act_dim = 1
-
-    N_add = 100
-    buffer_size = 1024
-    batch_size = 16
-    add_dim = 10
 
     alpha = 0.7
     beta = 0.5
@@ -171,16 +155,8 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase):
     def test_indexes(self):
         self._check_ndarray(self.s['indexes'],1,(self.batch_size,),"indexes")
 
-class TestPyNstepReplayBuffer(unittest.TestCase):
+class TestPyNstepReplayBuffer(unittest.TestCase,ReplayBufferParams):
     """=== PyNstepReplayBuffer.py ==="""
-
-    obs_dim = 3
-    act_dim = 1
-
-    N_add = 100
-    buffer_size = 1024
-    batch_size = 16
-    add_dim = 10
 
     @classmethod
     def setUpClass(cls):
@@ -249,17 +225,8 @@ class TestPyNstepReplayBuffer(unittest.TestCase):
             if(d > 0.0):
                 self.assertAlmostEqual(g,1.0)
 
-class TestPyNstepPrioritizedReplayBuffer(unittest.TestCase):
+class TestPyNstepPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
     """=== PyNstepPrioritizedReplayBuffer.py ==="""
-
-    obs_dim = 3
-    act_dim = 1
-
-    N_add = 100
-    buffer_size = 1024
-    batch_size = 16
-    add_dim = 10
-
     alpha = 0.7
     beta = 0.5
 
