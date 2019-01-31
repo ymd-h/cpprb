@@ -280,16 +280,19 @@ cdef class PyNstepReplayBuffer(PyReplayBuffer):
         self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
-        self.nrb.get_buffer_pointers(self.gamma.ptr,
-                                     self.nstep_rew.ptr,
-                                     self.nstep_next_obs.ptr)
-
     def _encode_sample(self,indexes):
         self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         samples = super()._encode_sample(indexes)
-        samples['discounts'] = np.asarray(self.gamma)[indexes]
-        samples['rew'] = np.asarray(self.nstep_rew)[indexes]
-        samples['next_obs'] = np.asarray(self.nstep_next_obs)[indexes]
+        self.nrb.get_buffer_pointers(self.gamma.ptr,
+                                     self.nstep_rew.ptr,
+                                     self.nstep_next_obs.ptr)
+        batch_size = indexes.shape[0]
+        self.gamma.update_vec_size(batch_size)
+        self.nstep_rew.update_vec_size(batch_size)
+        self.nstep_next_obs.update_vec_size(batch_size)
+        samples['discounts'] = np.asarray(self.gamma)
+        samples['rew'] = np.asarray(self.nstep_rew)
+        samples['next_obs'] = np.asarray(self.nstep_next_obs)
         return samples
 
 cdef class PyNstepPrioritizedReplayBuffer(PyPrioritizedReplayBuffer):
@@ -304,14 +307,19 @@ cdef class PyNstepPrioritizedReplayBuffer(PyPrioritizedReplayBuffer):
         self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
+    def _encode_sample(self,indexes):
+        self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
+        samples = super()._encode_sample(indexes)
+
         self.nrb.get_buffer_pointers(self.gamma.ptr,
                                      self.nstep_rew.ptr,
                                      self.nstep_next_obs.ptr)
 
-    def _encode_sample(self,indexes):
-        self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
-        samples = super()._encode_sample(indexes)
-        samples['discounts'] = np.asarray(self.gamma)[indexes]
-        samples['rew'] = np.asarray(self.nstep_rew)[indexes]
-        samples['next_obs'] = np.asarray(self.nstep_next_obs)[indexes]
+        batch_size = indexes.shape[0]
+        self.gamma.update_vec_size(batch_size)
+        self.nstep_rew.update_vec_size(batch_size)
+        self.nstep_next_obs.update_vec_size(batch_size)
+        samples['discounts'] = np.asarray(self.gamma)
+        samples['rew'] = np.asarray(self.nstep_rew)
+        samples['next_obs'] = np.asarray(self.nstep_next_obs)
         return samples

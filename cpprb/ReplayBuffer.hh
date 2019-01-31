@@ -456,17 +456,18 @@ namespace ymd {
   class NstepRewardBuffer {
   private:
     const std::size_t buffer_size;
+    const std::size_t obs_dim;
     std::size_t nstep;
     Reward gamma;
     std::vector<Reward> gamma_buffer;
     std::vector<Reward> nstep_rew_buffer;
-    DimensionalBuffer<Observation> nstep_next_obs_buffer;
+    std::vector<Observation> nstep_next_obs_buffer;
     template<typename Done>
-    void update_nstep(std::size_t index,std::size_t& i,std::size_t end,
+    void update_nstep(std::size_t& i,std::size_t end,
 		      Reward* rew,Done* done,Reward& gamma_i){
       for(; i < end; ++i){
 	gamma_i *= gamma;
-	nstep_rew_buffer[index] += rew[i] * gamma_i;
+	nstep_rew_buffer.back() += rew[i] * gamma_i;
 	if(done[i]){ return; }
       }
 
@@ -476,11 +477,12 @@ namespace ymd {
     NstepRewardBuffer(std::size_t size,std::size_t obs_dim,
 		      std::size_t nstep,Reward gamma)
       : buffer_size{size},
+	obs_dim{obs_dim},
 	nstep{nstep},
 	gamma{gamma},
-	gamma_buffer(size,Reward{0}),
-	nstep_rew_buffer(size,Reward{0}),
-	nstep_next_obs_buffer(size,obs_dim) {}
+	gamma_buffer{},
+	nstep_rew_buffer{},
+	nstep_next_obs_buffer{} {}
     NstepRewardBuffer() = default;
     NstepRewardBuffer(const NstepRewardBuffer&) = default;
     NstepRewardBuffer(NstepRewardBuffer&&) = default;
@@ -491,29 +493,40 @@ namespace ymd {
     template<typename Done>
     void sample(const std::vector<std::size_t>& indexes,
 		Reward* rew,Observation* next_obs,Done* done){
+      const auto index_size = indexes.size();
+      gamma_buffer.resize(0);
+      gamma_buffer.reserve(index_size);
+
+      nstep_rew_buffer.resize(0);
+      nstep_rew_buffer.reserve(index_size);
+
+      nstep_next_obs_buffer.resize(0);
+      nstep_next_obs_buffer.reserve(index_size*obs_dim);
+
       for(auto index: indexes){
 	auto gamma_i = Reward{1};
-	nstep_rew_buffer[index] = rew[index];
+	nstep_rew_buffer.push_back(rew[index]);
 
 	auto i = index;
 	if(!done[i]){
 	  ++i;
-	  update_nstep(index,i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
+	  update_nstep(i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
 
 	  if((!done[i]) && (buffer_size -1 == i)){
 	    i = 0ul;
-	    update_nstep(index,i,buffer_size-(index+nstep),rew,done,gamma_i);
+	    update_nstep(i,buffer_size-(index+nstep),rew,done,gamma_i);
 	  }
 	}
 
-	nstep_next_obs_buffer.store_data(next_obs,i,index,1ul);
-	gamma_buffer[index] = gamma_i;
+	std::copy_n(next_obs+i*obs_dim,obs_dim,
+		    std::back_inserter(nstep_next_obs_buffer));
+	gamma_buffer.push_back(gamma_i);
       }
     }
     void get_buffer_pointers(Reward*& discounts,Reward*& ret,Observation*& obs){
       discounts = gamma_buffer.data();
       ret = nstep_rew_buffer.data();
-      nstep_next_obs_buffer.get_data(0ul,obs);
+      obs = nstep_next_obs_buffer.data();
     }
   };
 }
