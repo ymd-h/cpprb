@@ -59,7 +59,7 @@ class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
     def _check_ndarray(self,array,ndim,shape,name):
         self.assertEqual(ndim,array.ndim)
         self.assertEqual(shape,array.shape)
-        print(cls.class_name + ": " + name + " {}".format(array))
+        print(self.class_name + ": " + name + " {}".format(array))
 
     def test_obs(self):
         self._check_ndarray(self.s['obs'],2,
