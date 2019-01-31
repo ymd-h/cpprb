@@ -2,7 +2,10 @@ import numpy as np
 import unittest, time
 from cpprb import ReplayBuffer
 
-class ReplayBufferParams:
+class TestPyReplayBuffer(unittest.TestCase):
+    """=== PyReplayBuffer.py ==="""
+    class_name = "ER"
+
     obs_dim = 3
     act_dim = 1
 
@@ -41,11 +44,6 @@ class ReplayBufferParams:
                        0.5,
                        np.ones(shape=(cls.obs_dim)),
                        1)
-
-
-class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
-    """=== PyReplayBuffer.py ==="""
-    class_name = "ER"
 
     @classmethod
     def setUpClass(cls):
