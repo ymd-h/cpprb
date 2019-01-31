@@ -456,6 +456,7 @@ namespace ymd {
   class NstepRewardBuffer {
   private:
     const std::size_t buffer_size;
+    const std::size_t obs_dim;
     std::size_t nstep;
     Reward gamma;
     std::vector<Reward> gamma_buffer;
@@ -476,6 +477,7 @@ namespace ymd {
     NstepRewardBuffer(std::size_t size,std::size_t obs_dim,
 		      std::size_t nstep,Reward gamma)
       : buffer_size{size},
+	obs_dim{obs_dim},
 	nstep{nstep},
 	gamma{gamma},
 	gamma_buffer{},
