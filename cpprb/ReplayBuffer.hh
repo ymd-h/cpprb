@@ -526,7 +526,7 @@ namespace ymd {
     void get_buffer_pointers(Reward*& discounts,Reward*& ret,Observation*& obs){
       discounts = gamma_buffer.data();
       ret = nstep_rew_buffer.data();
-      nstep_next_obs_buffer.get_data(0ul,obs);
+      obs = nstep_next_obs_buffer.data();
     }
   };
 }
