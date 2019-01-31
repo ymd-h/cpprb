@@ -169,7 +169,7 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
     def test_indexes(self):
         self._check_ndarray(self.s['indexes'],1,(self.batch_size,),"indexes")
 
-class TestPyNstepReplayBuffer(unittest.TestCase,TestPyReplayBuffer):
+class TestPyNstepReplayBuffer(TestPyReplayBuffer):
     """=== PyNstepReplayBuffer.py ==="""
 
     @classmethod
