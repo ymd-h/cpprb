@@ -169,7 +169,7 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
     def test_indexes(self):
         self._check_ndarray(self.s['indexes'],1,(self.batch_size,),"indexes")
 
-class TestPyNstepReplayBuffer(unittest.TestCase,ReplayBuffer):
+class TestPyNstepReplayBuffer(unittest.TestCase,TestPyReplayBuffer):
     """=== PyNstepReplayBuffer.py ==="""
 
     @classmethod
@@ -188,7 +188,7 @@ class TestPyNstepReplayBuffer(unittest.TestCase,ReplayBuffer):
         print("N-ER " + name + " {}".format(array))
 
     def test_done(self):
-        ReplayBuffer.test_don(self)
+        TestPyReplayBuffer.test_don(self)
         for d in self.s['done']:
             self.assertIn(d,[0,1])
 
