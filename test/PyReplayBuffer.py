@@ -188,7 +188,7 @@ class TestPyNstepReplayBuffer(TestPyReplayBuffer):
         print("N-ER " + name + " {}".format(array))
 
     def test_done(self):
-        TestPyReplayBuffer.test_don(self)
+        TestPyReplayBuffer.test_done(self)
         for d in self.s['done']:
             self.assertIn(d,[0,1])
 
