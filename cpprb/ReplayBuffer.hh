@@ -512,7 +512,7 @@ namespace ymd {
 
 	auto i = index;
 	if(!done[i]){
-	  ++i;
+	  i = (i < buffer_size - 1) ? i+1: 0ul;
 	  update_nstep(i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
 
 	  if((!done[i]) && (buffer_size -1 == i)){
