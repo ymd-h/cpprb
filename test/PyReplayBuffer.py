@@ -11,15 +11,8 @@ class ReplayBufferParams:
     N_add = round(3.27 * buffer_size)
     batch_size = 16
 
-class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
-    """=== PyReplayBuffer.py ==="""
-
     @classmethod
-    def setUpClass(cls):
-        cls.rb = ReplayBuffer.PyReplayBuffer(cls.buffer_size,
-                                             cls.obs_dim,
-                                             cls.act_dim)
-
+    def fill_ReplayBuffer(cls):
         cls.rb.add(np.ones(shape=(cls.obs_dim)),
                    np.zeros(shape=(cls.act_dim)),
                    0.5,
@@ -33,7 +26,25 @@ class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
                        np.zeros(shape=(cls.add_dim,cls.act_dim)),
                        np.ones((cls.add_dim)) * 0.5*i,
                        np.ones(shape=(cls.add_dim,cls.obs_dim))*(i+1),
-                       np.zeros((cls.add_dim)) if i is not cls.N_add - 1 else np.ones((cls.add_dim)))
+                       np.zeros((cls.add_dim)))
+        else:
+            cls.rb.add(np.ones(shape=(cls.obs_dim)),
+                       np.zeros(shape=(cls.act_dim)),
+                       0.5,
+                       np.ones(shape=(cls.obs_dim)),
+                       1)
+
+
+class TestPyReplayBuffer(unittest.TestCase,ReplayBufferParams):
+    """=== PyReplayBuffer.py ==="""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rb = ReplayBuffer.PyReplayBuffer(cls.buffer_size,
+                                             cls.obs_dim,
+                                             cls.act_dim)
+
+        cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
 
     def _check_ndarray(self,array,ndim,shape,name):
@@ -155,7 +166,7 @@ class TestPyPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
     def test_indexes(self):
         self._check_ndarray(self.s['indexes'],1,(self.batch_size,),"indexes")
 
-class TestPyNstepReplayBuffer(unittest.TestCase,ReplayBufferParams):
+class TestPyNstepReplayBuffer(unittest.TestCase,ReplayBuffer):
     """=== PyNstepReplayBuffer.py ==="""
 
     @classmethod
@@ -165,21 +176,7 @@ class TestPyNstepReplayBuffer(unittest.TestCase,ReplayBufferParams):
                                                   cls.act_dim,
                                                   N_add = 4,
                                                   discount = 0.9)
-
-        cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                   np.zeros(shape=(cls.act_dim)),
-                   0.5,
-                   np.ones(shape=(cls.obs_dim)),
-                   0)
-
-        cls.rb.clear()
-
-        for i in range(cls.N_add):
-            cls.rb.add(np.ones(shape=(cls.add_dim,cls.obs_dim))*i,
-                       np.zeros(shape=(cls.add_dim,cls.act_dim)),
-                       np.ones((cls.add_dim)) * 0.5*i,
-                       np.ones(shape=(cls.add_dim,cls.obs_dim))*(i+1),
-                       np.zeros((cls.add_dim)) if i is not cls.N_add - 1 else np.ones((cls.add_dim)))
+        cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
 
     def _check_ndarray(self,array,ndim,shape,name):
@@ -187,35 +184,8 @@ class TestPyNstepReplayBuffer(unittest.TestCase,ReplayBufferParams):
         self.assertEqual(shape,array.shape)
         print("N-ER " + name + " {}".format(array))
 
-    def test_obs(self):
-        self._check_ndarray(self.s['obs'],2,
-                            (self.batch_size, self.obs_dim),
-                            "obs")
-
-    def test_act(self):
-        self._check_ndarray(self.s['act'],2,
-                            (self.batch_size, self.act_dim),
-                            "act")
-
-    def test_rew(self):
-        self._check_ndarray(self.s['rew'],1,(self.batch_size,),"rew")
-
-    def test_next_obs(self):
-        self._check_ndarray(self.s['next_obs'],2,
-                            (self.batch_size, self.obs_dim),
-                            "next_obs")
-
-        for i in range(self.batch_size):
-            self.assertGreaterEqual(self.s['next_obs'][i,0],
-                                    self.N_add - self.buffer_size)
-            self.assertLess(self.s['next_obs'][i,0],self.N_add+1)
-
-            for j in range(1,self.obs_dim):
-                self.assertAlmostEqual(self.s['next_obs'][i,0],
-                                       self.s['next_obs'][i,j])
-
     def test_done(self):
-        self._check_ndarray(self.s['done'],1,(self.batch_size,),"done")
+        ReplayBuffer.test_don(self)
         for d in self.s['done']:
             self.assertIn(d,[0,1])
 
@@ -238,6 +208,7 @@ class TestPyNstepPrioritizedReplayBuffer(unittest.TestCase,ReplayBufferParams):
                                                         cls.obs_dim,
                                                         cls.act_dim,
                                                         alpha=cls.alpha)
+
         cls.rb.add(np.ones(shape=(cls.obs_dim)),
                    np.zeros(shape=(cls.act_dim)),
                    0.5,
