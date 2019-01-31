@@ -281,12 +281,13 @@ cdef class PyNstepReplayBuffer(PyReplayBuffer):
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
     def _encode_sample(self,indexes):
-        self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         samples = super()._encode_sample(indexes)
+        batch_size = indexes.shape[0]
+
+        self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         self.nrb.get_buffer_pointers(self.gamma.ptr,
                                      self.nstep_rew.ptr,
                                      self.nstep_next_obs.ptr)
-        batch_size = indexes.shape[0]
         self.gamma.update_vec_size(batch_size)
         self.nstep_rew.update_vec_size(batch_size)
         self.nstep_next_obs.update_vec_size(batch_size)
@@ -308,14 +309,13 @@ cdef class PyNstepPrioritizedReplayBuffer(PyPrioritizedReplayBuffer):
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
     def _encode_sample(self,indexes):
-        self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         samples = super()._encode_sample(indexes)
+        batch_size = indexes.shape[0]
 
+        self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         self.nrb.get_buffer_pointers(self.gamma.ptr,
                                      self.nstep_rew.ptr,
                                      self.nstep_next_obs.ptr)
-
-        batch_size = indexes.shape[0]
         self.gamma.update_vec_size(batch_size)
         self.nstep_rew.update_vec_size(batch_size)
         self.nstep_next_obs.update_vec_size(batch_size)
