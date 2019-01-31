@@ -289,7 +289,6 @@ cdef class PyNstepReplayBuffer(PyReplayBuffer):
         batch_size = indexes.shape[0]
         self.gamma.update_vec_size(batch_size)
         self.nstep_rew.update_vec_size(batch_size)
-        self.nstep_next_obs.update_vec_size(batch_size)
         samples['discounts'] = np.asarray(self.gamma)
         samples['rew'] = np.asarray(self.nstep_rew)
         samples['next_obs'] = np.asarray(self.nstep_next_obs)[indexes]
