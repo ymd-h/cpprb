@@ -473,6 +473,16 @@ namespace ymd {
 
       --i;
     }
+    void reset_buffers(std::size_t size){
+      gamma_buffer.resize(0);
+      gamma_buffer.reserve(size);
+
+      nstep_rew_buffer.resize(0);
+      nstep_rew_buffer.reserve(size);
+
+      nstep_next_obs_buffer.resize(0);
+      nstep_next_obs_buffer.reserve(size*obs_dim);
+    }
   public:
     NstepRewardBuffer(std::size_t size,std::size_t obs_dim,
 		      std::size_t nstep,Reward gamma)
@@ -494,14 +504,7 @@ namespace ymd {
     void sample(const std::vector<std::size_t>& indexes,
 		Reward* rew,Observation* next_obs,Done* done){
       const auto index_size = indexes.size();
-      gamma_buffer.resize(0);
-      gamma_buffer.reserve(index_size);
-
-      nstep_rew_buffer.resize(0);
-      nstep_rew_buffer.reserve(index_size);
-
-      nstep_next_obs_buffer.resize(0);
-      nstep_next_obs_buffer.reserve(index_size*obs_dim);
+      reset_buffers(index_size);
 
       for(auto index: indexes){
 	auto gamma_i = Reward{1};
