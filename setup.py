@@ -11,7 +11,7 @@ ext_modules = cythonize([Extension("cpprb.ReplayBuffer",
                          include_path=["."])
 
 setup(name = "cpprb",
-      version="5.2.2",
+      version="5.2.3",
       ext_modules = ext_modules,
       include_dirs=["cpprb",np.get_include()],
       packages=["cpprb"])
