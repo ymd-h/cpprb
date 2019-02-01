@@ -165,11 +165,11 @@ int main(){
   show_vector(ps_w,"weights [0.5,...,0.5]");
   show_vector(ps_i,"indexes [0.5,...,0.5]");
 
-  ps_w[0] = 1000;
+  ps_w[0] = 1e+10;
   ps.update_priorities(ps_i,ps_w);
   ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
-  show_vector(ps_w,"weights [0.5,.,1000,..,0.5]");
-  show_vector(ps_i,"indexes [0.5,.,1000,..,0.5]");
+  show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
+  show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
 
   return 0;
 }
