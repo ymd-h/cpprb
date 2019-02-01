@@ -101,6 +101,13 @@ class TestPrioritizedBase:
 
     def test_priority_add(self):
         for i in range(self.N_add):
+            self.rb2.add(np.ones(shape=(self.obs_dim))*i,
+                         np.zeros(shape=(self.act_dim)),
+                         0.5*i,
+                         np.ones(shape=(self.obs_dim))*(i+1),
+                         0.0,
+                         0.0 + 1e-6)
+        for i in range(self.N_add):
             self.rb2.add(np.ones(shape=(self.add_dim,self.obs_dim))*i,
                          np.zeros(shape=(self.add_dim,self.act_dim)),
                          np.ones((self.add_dim)) * 0.5*i,
@@ -116,8 +123,17 @@ class TestPrioritizedBase:
                          0.1)
 
         self.s2 = self.rb2.sample(self.batch_size)
+        self._check_ndarray(self.s2['indexes'],1,(self.batch_size,),
+                            "indexes [0,...,0.1]")
+        self._check_ndarray(self.s2['weights'],1,(self.batch_size,),
+                            "weights [0,...,0.1]")
+
         self.rb2.update_priorities(np.ones(shape=(1)),np.ones(shape=(1))*0.5)
-        self.s2 = self.rb2.sample(self.batch_size)
+        self.s3 = self.rb2.sample(self.batch_size)
+        self._check_ndarray(self.s3['indexes'],1,(self.batch_size,),
+                            "indexes [0.5,...,0.1]")
+        self._check_ndarray(self.s3['weights'],1,(self.batch_size,),
+                            "weights [0.5,...,0.1]")
 
 class TestPyPrioritizedReplayBuffer(TestPyReplayBuffer,TestPrioritizedBase):
     """=== PyPrioritizedReplayBuffer.py ==="""
