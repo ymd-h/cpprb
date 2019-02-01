@@ -279,9 +279,9 @@ namespace ymd {
 
     template<typename F>
     void set_priorities(std::size_t next_index,F&& f,
-			std::size_t N,std::size_t stored_size){
-      sum.set(next_index,std::forward<F>(f),N,stored_size);
-      min.set(next_index,std::forward<F>(f),N,stored_size);
+			std::size_t N,std::size_t buffer_size){
+      sum.set(next_index,std::forward<F>(f),N,buffer_size);
+      min.set(next_index,std::forward<F>(f),N,buffer_size);
     }
 
   public:
@@ -328,15 +328,15 @@ namespace ymd {
     }
 
     void set_priorities(std::size_t next_index,Priority* p,
-			std::size_t N,std::size_t stored_size){
+			std::size_t N,std::size_t buffer_size){
       set_priorities(next_index,[=]() mutable { return std::pow(*(p++),alpha); },
-		     N,stored_size);
+		     N,buffer_size);
     }
 
     void set_priorities(std::size_t next_index,
-			std::size_t N,std::size_t stored_size){
+			std::size_t N,std::size_t buffer_size){
       set_priorities(next_index,[=](){ return std::pow(max_priority,alpha); },
-		     N,stored_size);
+		     N,buffer_size);
     }
 
     void update_priorities(std::vector<std::size_t>& indexes,
@@ -378,7 +378,7 @@ namespace ymd {
 		     Observation* next_obs,Done* done,std::size_t N) override {
       auto next_index = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,N);
-      this->set_priorities(next_index,N,this->get_stored_size());
+      this->set_priorities(next_index,N,this->get_buffer_size());
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
@@ -386,7 +386,7 @@ namespace ymd {
 		     Priority* priority,std::size_t N){
       auto next_index = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,N);
-      this->set_priorities(next_index,priority,N,this->get_stored_size());
+      this->set_priorities(next_index,priority,N,this->get_buffer_size());
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
