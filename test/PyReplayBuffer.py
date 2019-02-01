@@ -24,11 +24,19 @@ class TestPyReplayBuffer(unittest.TestCase):
 
     @classmethod
     def fill_ReplayBuffer(cls):
-        cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                   np.zeros(shape=(cls.act_dim)),
-                   0.5,
-                   np.ones(shape=(cls.obs_dim)),
-                   0)
+        for i in range(cls.N_add):
+            cls.rb.add(np.ones(shape=(cls.obs_dim)),
+                       np.zeros(shape=(cls.act_dim)),
+                       0.5,
+                       np.ones(shape=(cls.obs_dim)),
+                       0)
+        else:
+            cls.rb.add(np.ones(shape=(cls.obs_dim)),
+                       np.zeros(shape=(cls.act_dim)),
+                       0.5,
+                       np.ones(shape=(cls.obs_dim)),
+                       1)
+
 
         cls.rb.clear()
 
