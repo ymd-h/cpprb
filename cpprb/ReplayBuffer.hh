@@ -457,7 +457,7 @@ namespace ymd {
   private:
     const std::size_t buffer_size;
     const std::size_t obs_dim;
-    std::size_t nstep;
+    const std::size_t nstep;
     Reward gamma;
     std::vector<Reward> gamma_buffer;
     std::vector<Reward> nstep_rew_buffer;
