@@ -108,7 +108,7 @@ namespace ymd {
 	  will_update.insert(parent(access_index(i+n)));
 	}
 
-	N = (end > max) ? end - max: 0ul;
+	N = (N > copy_N) ? N - copy_N: 0ul;
 	i = 0ul;
       }
 
