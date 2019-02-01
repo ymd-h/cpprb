@@ -102,7 +102,7 @@ namespace ymd {
 
       while(N){
 	auto copy_N = std::min(N,max-i);
-	std::generete_n(buffer.data()+access_index(i),copy_N,f);
+	std::generate_n(buffer.data()+access_index(i),copy_N,f);
 
 	for(auto n = 0ul; n < copy_N; ++n){
 	  will_update.insert(parent(access_index(i+n)));
