@@ -60,7 +60,8 @@ int main(){
 
   auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
   auto v = std::vector<Observation>{};
-  std::generate_n(std::back_inserter(v),obs_dim,[i=0ul]()mutable{ return Observation(i++); });
+  std::generate_n(std::back_inserter(v),obs_dim,
+		  [i=0ul]()mutable{ return Observation(i++); });
 
   std::cout << "DimensionalBuffer: " << std::endl;
   Observation* obs_ptr = nullptr;
@@ -145,7 +146,8 @@ int main(){
 
   std::cout << std::endl;
   std::cout << "PER Sample: " << N_times << " times execution" << std::endl;
-  timer([&](){ per.sample(N_batch_size,beta,per_o,per_a,per_r,per_no,per_d,per_w,per_i); },N_times);
+  timer([&](){ per.sample(N_batch_size,beta,
+			  per_o,per_a,per_r,per_no,per_d,per_w,per_i); },N_times);
 
   return 0;
 }
