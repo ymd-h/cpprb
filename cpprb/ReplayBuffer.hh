@@ -57,18 +57,6 @@ namespace ymd {
     DimensionalBuffer<Reward> rew_buffer;
     DimensionalBuffer<Observation> next_obs_buffer;
     DimensionalBuffer<Done> done_buffer;
-    void store(Observation* obs, Action* act, Reward* rew,
-	       Observation* next_obs, Done* done,
-	       std::size_t shift, std::size_t N){
-      obs_buffer     .store_data(     obs,shift,next_index,N);
-      act_buffer     .store_data(     act,shift,next_index,N);
-      rew_buffer     .store_data(     rew,shift,next_index,N);
-      next_obs_buffer.store_data(next_obs,shift,next_index,N);
-      done_buffer    .store_data(    done,shift,next_index,N);
-
-      next_index += N;
-      stored_size = std::min(stored_size+N,buffer_size);
-    }
 
   public:
     InternalBuffer(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
@@ -89,14 +77,25 @@ namespace ymd {
     InternalBuffer& operator=(InternalBuffer&&) = default;
     virtual ~InternalBuffer() = default;
     virtual void store(Observation* obs, Action* act, Reward* rew,
-	       Observation* next_obs, Done* done,
-	       std::size_t N = 1ul){
-      auto copy_N = std::min(N,buffer_size - next_index);
-      store(obs,act,rew,next_obs,done,0ul,copy_N);
+		       Observation* next_obs, Done* done,
+		       std::size_t N = 1ul){
+      auto shift = 0ul;
+      while(N){
+	auto copy_N = std::min(N,buffer_size - next_index);
 
-      if(buffer_size == next_index){
-	next_index = 0ul;
-	store(obs,act,rew,next_obs,done,copy_N,N - copy_N);
+	obs_buffer     .store_data(     obs,shift,next_index,copy_N);
+	act_buffer     .store_data(     act,shift,next_index,copy_N);
+	rew_buffer     .store_data(     rew,shift,next_index,copy_N);
+	next_obs_buffer.store_data(next_obs,shift,next_index,copy_N);
+	done_buffer    .store_data(    done,shift,next_index,copy_N);
+
+	next_index += copy_N;
+	if(next_index >= buffer_size){ next_index = 0ul; }
+
+	if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
+
+	N = (N > copy_N) ? N - copy_N: 0ul;
+	shift += copy_N;
       }
     }
 
