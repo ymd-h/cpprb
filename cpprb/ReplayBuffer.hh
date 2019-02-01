@@ -503,25 +503,22 @@ namespace ymd {
     template<typename Done>
     void sample(const std::vector<std::size_t>& indexes,
 		Reward* rew,Observation* next_obs,Done* done){
-      const auto index_size = indexes.size();
-      reset_buffers(index_size);
+      reset_buffers(indexes.size());
 
       for(auto index: indexes){
 	auto gamma_i = Reward{1};
 	nstep_rew_buffer.push_back(rew[index]);
 
-	auto i = index;
-	if(!done[i]){
-	  i = (i < buffer_size - 1) ? i+1: 0ul;
-	  update_nstep(i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
+	auto remain = nstep;
+	while(!done[index] && remain){
+	  index = (index < buffer_size - 1) ? index+1: 0ul;
 
-	  if((!done[i]) && (buffer_size -1 == i)){
-	    i = 0ul;
-	    update_nstep(i,buffer_size-(index+nstep),rew,done,gamma_i);
-	  }
+	  auto end = index + remain;
+	  update_nstep(index,std::min(end,buffer_size),rew,done,gamma_i);
+	  remain = (end > buffer_size) ? end - buffer_size: 0ul;
 	}
 
-	std::copy_n(next_obs+i*obs_dim,obs_dim,
+	std::copy_n(next_obs+index*obs_dim,obs_dim,
 		    std::back_inserter(nstep_next_obs_buffer));
 	gamma_buffer.push_back(gamma_i);
       }
