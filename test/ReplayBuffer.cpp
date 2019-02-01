@@ -14,8 +14,8 @@ int main(){
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
 
-  constexpr const auto N_step = 100ul;
-  constexpr const auto N_buffer_size = 32ul;
+  constexpr const auto N_buffer_size = 1024ul;
+  constexpr const auto N_step = 3 * N_buffer_size;
   constexpr const auto N_batch_size = 16ul;
 
   constexpr const auto N_times = 1000ul;
@@ -148,6 +148,20 @@ int main(){
   std::cout << "PER Sample: " << N_times << " times execution" << std::endl;
   timer([&](){ per.sample(N_batch_size,beta,
 			  per_o,per_a,per_r,per_no,per_d,per_w,per_i); },N_times);
+
+  auto ps = ymd::PrioritizedSampler(N_buffer_size,0.7);
+  for(auto i = 0ul; i < N_step; ++i){
+    ps.set_priorities(i % N_buffer_size,0.5);
+  }
+
+  auto ps_w = std::vector<Priority>{};
+  auto ps_i = std::vector<std::size_t>{};
+
+  ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
+
+  std::cout << "PrioritizedSampler" << std::endl;
+  show_vector(ps_w,"weights");
+  show_vector(ps_i,"indexes");
 
   return 0;
 }
