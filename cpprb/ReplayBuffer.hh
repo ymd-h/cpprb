@@ -318,6 +318,7 @@ namespace ymd {
     }
 
     void set_priorities(std::size_t next_index,Priority p){
+      if(p > max_priority){ max_priority = p; }
       auto v = std::pow(p,alpha);
       sum.set(next_index,v);
       min.set(next_index,v);
@@ -329,6 +330,9 @@ namespace ymd {
 
     void set_priorities(std::size_t next_index,Priority* p,
 			std::size_t N,std::size_t buffer_size){
+      if(auto p_max = *std::max_element(p,p+N); p_max > max_priority){
+	max_priority = p_max;
+      }
       set_priorities(next_index,[=]() mutable { return std::pow(*(p++),alpha); },
 		     N,buffer_size);
     }
