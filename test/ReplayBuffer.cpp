@@ -149,6 +149,9 @@ int main(){
   timer([&](){ per.sample(N_batch_size,beta,
 			  per_o,per_a,per_r,per_no,per_d,per_w,per_i); },N_times);
 
+
+  std::cout << std::endl;
+  std::cout << "PrioritizedSampler" << std::endl;
   auto ps = ymd::PrioritizedSampler(N_buffer_size,0.7);
   for(auto i = 0ul; i < N_step; ++i){
     ps.set_priorities(i % N_buffer_size,0.5);
@@ -159,9 +162,14 @@ int main(){
 
   ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
 
-  std::cout << "PrioritizedSampler" << std::endl;
-  show_vector(ps_w,"weights");
-  show_vector(ps_i,"indexes");
+  show_vector(ps_w,"weights [0.5,...,0.5]");
+  show_vector(ps_i,"indexes [0.5,...,0.5]");
+
+  ps_w[0] = 1000;
+  ps.update_priorities(ps_i,ps_w);
+  ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
+  show_vector(ps_w,"weights [0.5,.,1000,..,0.5]");
+  show_vector(ps_i,"indexes [0.5,.,1000,..,0.5]");
 
   return 0;
 }
