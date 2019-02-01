@@ -237,14 +237,14 @@ cdef class PyPrioritizedReplayBuffer(PyInternalBuffer):
         cdef size_t next_index = self.get_next_index()
         if obs.ndim == 1:
             self._add_1(obs,act,rew,next_obs,done)
-            if priorities:
+            if priorities is not None:
                 self._update_1p(next_index,priorities)
             else:
                 self._update_1(next_index)
         else:
             N = obs.shape[0]
             self._add_N(obs,act,rew,next_obs,done,N)
-            if priorities:
+            if priorities is not None:
                 self._update_Np(next_index,priorities,N)
             else:
                 self._update_N(next_index,N)

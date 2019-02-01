@@ -14,8 +14,8 @@ int main(){
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
 
-  constexpr const auto N_step = 100ul;
-  constexpr const auto N_buffer_size = 32ul;
+  constexpr const auto N_buffer_size = 1024ul;
+  constexpr const auto N_step = 3 * N_buffer_size;
   constexpr const auto N_batch_size = 16ul;
 
   constexpr const auto N_times = 1000ul;
@@ -60,7 +60,8 @@ int main(){
 
   auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
   auto v = std::vector<Observation>{};
-  std::generate_n(std::back_inserter(v),obs_dim,[i=0ul]()mutable{ return Observation(i++); });
+  std::generate_n(std::back_inserter(v),obs_dim,
+		  [i=0ul]()mutable{ return Observation(i++); });
 
   std::cout << "DimensionalBuffer: " << std::endl;
   Observation* obs_ptr = nullptr;
@@ -145,7 +146,30 @@ int main(){
 
   std::cout << std::endl;
   std::cout << "PER Sample: " << N_times << " times execution" << std::endl;
-  timer([&](){ per.sample(N_batch_size,beta,per_o,per_a,per_r,per_no,per_d,per_w,per_i); },N_times);
+  timer([&](){ per.sample(N_batch_size,beta,
+			  per_o,per_a,per_r,per_no,per_d,per_w,per_i); },N_times);
+
+
+  std::cout << std::endl;
+  std::cout << "PrioritizedSampler" << std::endl;
+  auto ps = ymd::PrioritizedSampler(N_buffer_size,0.7);
+  for(auto i = 0ul; i < N_step; ++i){
+    ps.set_priorities(i % N_buffer_size,0.5);
+  }
+
+  auto ps_w = std::vector<Priority>{};
+  auto ps_i = std::vector<std::size_t>{};
+
+  ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
+
+  show_vector(ps_w,"weights [0.5,...,0.5]");
+  show_vector(ps_i,"indexes [0.5,...,0.5]");
+
+  ps_w[0] = 1e+10;
+  ps.update_priorities(ps_i,ps_w);
+  ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
+  show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
+  show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
 
   return 0;
 }

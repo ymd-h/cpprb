@@ -57,18 +57,6 @@ namespace ymd {
     DimensionalBuffer<Reward> rew_buffer;
     DimensionalBuffer<Observation> next_obs_buffer;
     DimensionalBuffer<Done> done_buffer;
-    void store(Observation* obs, Action* act, Reward* rew,
-	       Observation* next_obs, Done* done,
-	       std::size_t shift, std::size_t N){
-      obs_buffer     .store_data(     obs,shift,next_index,N);
-      act_buffer     .store_data(     act,shift,next_index,N);
-      rew_buffer     .store_data(     rew,shift,next_index,N);
-      next_obs_buffer.store_data(next_obs,shift,next_index,N);
-      done_buffer    .store_data(    done,shift,next_index,N);
-
-      next_index += N;
-      stored_size = std::min(stored_size+N,buffer_size);
-    }
 
   public:
     InternalBuffer(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
@@ -89,14 +77,25 @@ namespace ymd {
     InternalBuffer& operator=(InternalBuffer&&) = default;
     virtual ~InternalBuffer() = default;
     virtual void store(Observation* obs, Action* act, Reward* rew,
-	       Observation* next_obs, Done* done,
-	       std::size_t N = 1ul){
-      auto copy_N = std::min(N,buffer_size - next_index);
-      store(obs,act,rew,next_obs,done,0ul,copy_N);
+		       Observation* next_obs, Done* done,
+		       std::size_t N = 1ul){
+      auto shift = 0ul;
+      while(N){
+	auto copy_N = std::min(N,buffer_size - next_index);
 
-      if(buffer_size == next_index){
-	next_index = 0ul;
-	store(obs,act,rew,next_obs,done,copy_N,N - copy_N);
+	obs_buffer     .store_data(     obs,shift,next_index,copy_N);
+	act_buffer     .store_data(     act,shift,next_index,copy_N);
+	rew_buffer     .store_data(     rew,shift,next_index,copy_N);
+	next_obs_buffer.store_data(next_obs,shift,next_index,copy_N);
+	done_buffer    .store_data(    done,shift,next_index,copy_N);
+
+	next_index += copy_N;
+	if(next_index >= buffer_size){ next_index = 0ul; }
+
+	if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
+
+	N = (N > copy_N) ? N - copy_N: 0ul;
+	shift += copy_N;
       }
     }
 
@@ -280,9 +279,9 @@ namespace ymd {
 
     template<typename F>
     void set_priorities(std::size_t next_index,F&& f,
-			std::size_t N,std::size_t stored_size){
-      sum.set(next_index,std::forward<F>(f),N,stored_size);
-      min.set(next_index,std::forward<F>(f),N,stored_size);
+			std::size_t N,std::size_t buffer_size){
+      sum.set(next_index,std::forward<F>(f),N,buffer_size);
+      min.set(next_index,std::forward<F>(f),N,buffer_size);
     }
 
   public:
@@ -319,6 +318,7 @@ namespace ymd {
     }
 
     void set_priorities(std::size_t next_index,Priority p){
+      if(p > max_priority){ max_priority = p; }
       auto v = std::pow(p,alpha);
       sum.set(next_index,v);
       min.set(next_index,v);
@@ -329,15 +329,18 @@ namespace ymd {
     }
 
     void set_priorities(std::size_t next_index,Priority* p,
-			std::size_t N,std::size_t stored_size){
+			std::size_t N,std::size_t buffer_size){
+      if(auto p_max = *std::max_element(p,p+N); p_max > max_priority){
+	max_priority = p_max;
+      }
       set_priorities(next_index,[=]() mutable { return std::pow(*(p++),alpha); },
-		     N,stored_size);
+		     N,buffer_size);
     }
 
     void set_priorities(std::size_t next_index,
-			std::size_t N,std::size_t stored_size){
-      set_priorities(next_index,[=](){ return std::pow(max_priority,alpha); },
-		     N,stored_size);
+			std::size_t N,std::size_t buffer_size){
+      set_priorities(next_index,[v=std::pow(max_priority,alpha)](){ return v; },
+		     N,buffer_size);
     }
 
     void update_priorities(std::vector<std::size_t>& indexes,
@@ -379,7 +382,7 @@ namespace ymd {
 		     Observation* next_obs,Done* done,std::size_t N) override {
       auto next_index = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,N);
-      this->set_priorities(next_index,N,this->get_stored_size());
+      this->set_priorities(next_index,N,this->get_buffer_size());
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
@@ -387,7 +390,7 @@ namespace ymd {
 		     Priority* priority,std::size_t N){
       auto next_index = this->get_next_index();
       this->BaseClass::add(obs,act,rew,next_obs,done,N);
-      this->set_priorities(next_index,priority,N,this->get_stored_size());
+      this->set_priorities(next_index,priority,N,this->get_buffer_size());
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
@@ -457,7 +460,7 @@ namespace ymd {
   private:
     const std::size_t buffer_size;
     const std::size_t obs_dim;
-    std::size_t nstep;
+    const std::size_t nstep;
     Reward gamma;
     std::vector<Reward> gamma_buffer;
     std::vector<Reward> nstep_rew_buffer;
@@ -503,25 +506,22 @@ namespace ymd {
     template<typename Done>
     void sample(const std::vector<std::size_t>& indexes,
 		Reward* rew,Observation* next_obs,Done* done){
-      const auto index_size = indexes.size();
-      reset_buffers(index_size);
+      reset_buffers(indexes.size());
 
       for(auto index: indexes){
 	auto gamma_i = Reward{1};
 	nstep_rew_buffer.push_back(rew[index]);
 
-	auto i = index;
-	if(!done[i]){
-	  i = (i < buffer_size - 1) ? i+1: 0ul;
-	  update_nstep(i,std::min(index+nstep,buffer_size),rew,done,gamma_i);
+	auto remain = nstep;
+	while(!done[index] && remain){
+	  index = (index < buffer_size - 1) ? index+1: 0ul;
 
-	  if((!done[i]) && (buffer_size -1 == i)){
-	    i = 0ul;
-	    update_nstep(i,buffer_size-(index+nstep),rew,done,gamma_i);
-	  }
+	  auto end = index + remain;
+	  update_nstep(index,std::min(end,buffer_size),rew,done,gamma_i);
+	  remain = (end > buffer_size) ? end - buffer_size: 0ul;
 	}
 
-	std::copy_n(next_obs+i*obs_dim,obs_dim,
+	std::copy_n(next_obs+index*obs_dim,obs_dim,
 		    std::back_inserter(nstep_next_obs_buffer));
 	gamma_buffer.push_back(gamma_i);
       }

@@ -24,11 +24,19 @@ class TestPyReplayBuffer(unittest.TestCase):
 
     @classmethod
     def fill_ReplayBuffer(cls):
-        cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                   np.zeros(shape=(cls.act_dim)),
-                   0.5,
-                   np.ones(shape=(cls.obs_dim)),
-                   0)
+        for i in range(cls.N_add):
+            cls.rb.add(np.ones(shape=(cls.obs_dim)),
+                       np.zeros(shape=(cls.act_dim)),
+                       0.5,
+                       np.ones(shape=(cls.obs_dim)),
+                       0)
+        else:
+            cls.rb.add(np.ones(shape=(cls.obs_dim)),
+                       np.zeros(shape=(cls.act_dim)),
+                       0.5,
+                       np.ones(shape=(cls.obs_dim)),
+                       1)
+
 
         cls.rb.clear()
 
@@ -91,6 +99,41 @@ class TestPrioritizedBase:
     def test_indexes(self):
         self._check_ndarray(self.s['indexes'],1,(self.batch_size,),"indexes")
 
+    def test_priority_add(self):
+        for i in range(self.N_add):
+            self.rb2.add(np.ones(shape=(self.obs_dim))*i,
+                         np.zeros(shape=(self.act_dim)),
+                         0.5*i,
+                         np.ones(shape=(self.obs_dim))*(i+1),
+                         0.0,
+                         0.0 + 1e-6)
+        for i in range(self.N_add):
+            self.rb2.add(np.ones(shape=(self.add_dim,self.obs_dim))*i,
+                         np.zeros(shape=(self.add_dim,self.act_dim)),
+                         np.ones((self.add_dim)) * 0.5*i,
+                         np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
+                         np.zeros(shape=(self.add_dim)),
+                         np.zeros(shape=(self.add_dim)))
+        else:
+            self.rb2.add(np.ones(shape=(self.obs_dim)),
+                         np.zeros(shape=(self.act_dim)),
+                         0.5,
+                         np.ones(shape=(self.obs_dim)),
+                         1,
+                         0.1)
+
+        self.s2 = self.rb2.sample(self.batch_size)
+        self._check_ndarray(self.s2['indexes'],1,(self.batch_size,),
+                            "indexes [0,...,0.1]")
+        self._check_ndarray(self.s2['weights'],1,(self.batch_size,),
+                            "weights [0,...,0.1]")
+
+        self.rb2.update_priorities(np.ones(shape=(1)),np.ones(shape=(1))*0.5)
+        self.s3 = self.rb2.sample(self.batch_size)
+        self._check_ndarray(self.s3['indexes'],1,(self.batch_size,),
+                            "indexes [0.5,...,0.1]")
+        self._check_ndarray(self.s3['weights'],1,(self.batch_size,),
+                            "weights [0.5,...,0.1]")
 
 class TestPyPrioritizedReplayBuffer(TestPyReplayBuffer,TestPrioritizedBase):
     """=== PyPrioritizedReplayBuffer.py ==="""
@@ -102,6 +145,10 @@ class TestPyPrioritizedReplayBuffer(TestPyReplayBuffer,TestPrioritizedBase):
                                                         cls.obs_dim,
                                                         cls.act_dim,
                                                         alpha=cls.alpha)
+        cls.rb2 = ReplayBuffer.PyPrioritizedReplayBuffer(cls.buffer_size,
+                                                         cls.obs_dim,
+                                                         cls.act_dim,
+                                                         alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
@@ -142,9 +189,13 @@ class TestPyNstepPrioritizedReplayBuffer(TestPyReplayBuffer,
     @classmethod
     def setUpClass(cls):
         cls.rb = ReplayBuffer.PyNstepPrioritizedReplayBuffer(cls.buffer_size,
-                                                        cls.obs_dim,
-                                                        cls.act_dim,
-                                                        alpha=cls.alpha)
+                                                             cls.obs_dim,
+                                                             cls.act_dim,
+                                                             alpha=cls.alpha)
+        cls.rb2 = ReplayBuffer.PyNstepPrioritizedReplayBuffer(cls.buffer_size,
+                                                              cls.obs_dim,
+                                                              cls.act_dim,
+                                                              alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
