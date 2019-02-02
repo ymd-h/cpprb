@@ -99,7 +99,7 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
-  class RingEnvironment :public Environment<Observation,Action,Reward,Done>{
+  class CppRingEnvironment :public Environment<Observation,Action,Reward,Done>{
   public:
     using Env_t = Environment<Observation,Action,Reward,Done>;
 
@@ -108,16 +108,16 @@ namespace ymd {
     std::size_t next_index;
 
   public:
-    RingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
+    CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
       : Env_t{size,obs_dim,act_dim},
 	stored_size{0ul},
 	next_index{0ul} {}
-    RingEnvironment(): RingEnvironment{1ul,1ul,1ul} {}
-    RingEnvironment(const RingEnvironment&) = default;
-    RingEnvironment(RingEnvironment&&) = default;
-    RingEnvironment& operator=(const RingEnvironment&) = default;
-    RingEnvironment& operator=(RingEnvironment&&) = default;
-    virtual ~RingEnvironment() = default;
+    CppRingEnvironment(): CppRingEnvironment{1ul,1ul,1ul} {}
+    CppRingEnvironment(const CppRingEnvironment&) = default;
+    CppRingEnvironment(CppRingEnvironment&&) = default;
+    CppRingEnvironment& operator=(const CppRingEnvironment&) = default;
+    CppRingEnvironment& operator=(CppRingEnvironment&&) = default;
+    virtual ~CppRingEnvironment() = default;
     virtual void store(Observation* obs, Action* act, Reward* rew,
 		       Observation* next_obs, Done* done,
 		       std::size_t N = 1ul){
@@ -147,9 +147,9 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
-  class ReplayBuffer : public RingEnvironment<Observation,Action,Reward,Done>{
+  class CppReplayBuffer : public CppRingEnvironment<Observation,Action,Reward,Done>{
   public:
-    using Buffer_t = RingEnvironment<Observation,Action,Reward,Done>;
+    using Buffer_t = CppRingEnvironment<Observation,Action,Reward,Done>;
     using rand_t = std::uniform_int_distribution<std::size_t>;
   private:
     std::vector<std::size_t> index_buffer;
@@ -197,20 +197,20 @@ namespace ymd {
     }
 
   public:
-    ReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim)
+    CppReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim)
       : Buffer_t{n,obs_dim,act_dim},
 	index_buffer{},
 	g{std::random_device{}()} {}
-    ReplayBuffer(Buffer_t&& buffer)
+    CppReplayBuffer(Buffer_t&& buffer)
       : Buffer_t{buffer},
 	index_buffer{},
 	g{std::random_device{}()} {}
-    ReplayBuffer(): ReplayBuffer{1,1,1} {}
-    ReplayBuffer(const ReplayBuffer&) = default;
-    ReplayBuffer(ReplayBuffer&&) = default;
-    ReplayBuffer& operator=(const ReplayBuffer&) = default;
-    ReplayBuffer& operator=(ReplayBuffer&&) = default;
-    virtual ~ReplayBuffer() = default;
+    CppReplayBuffer(): CppReplayBuffer{1,1,1} {}
+    CppReplayBuffer(const CppReplayBuffer&) = default;
+    CppReplayBuffer(CppReplayBuffer&&) = default;
+    CppReplayBuffer& operator=(const CppReplayBuffer&) = default;
+    CppReplayBuffer& operator=(CppReplayBuffer&&) = default;
+    virtual ~CppReplayBuffer() = default;
 
     virtual void add(Observation* obs,
 		     Action* act,
@@ -382,23 +382,23 @@ namespace ymd {
 
   template<typename Observation,typename Action,typename Reward,typename Done,
 	   typename Priority>
-  class PrioritizedReplayBuffer:
-    public ReplayBuffer<Observation,Action,Reward,Done>,
+  class CppPrioritizedReplayBuffer:
+    public CppReplayBuffer<Observation,Action,Reward,Done>,
     public PrioritizedSampler<Priority> {
   private:
-    using BaseClass = ReplayBuffer<Observation,Action,Reward,Done>;
+    using BaseClass = CppReplayBuffer<Observation,Action,Reward,Done>;
     using Sampler = PrioritizedSampler<Priority>;
   public:
-    PrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
+    CppPrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
 			    Priority alpha)
       : BaseClass{n,obs_dim,act_dim},
 	Sampler{n,alpha} {}
-    PrioritizedReplayBuffer() : PrioritizedReplayBuffer{1,1,1,0.0} {}
-    PrioritizedReplayBuffer(const PrioritizedReplayBuffer&) = default;
-    PrioritizedReplayBuffer(PrioritizedReplayBuffer&&) = default;
-    PrioritizedReplayBuffer& operator=(const PrioritizedReplayBuffer&) = default;
-    PrioritizedReplayBuffer& operator=(PrioritizedReplayBuffer&&) = default;
-    virtual ~PrioritizedReplayBuffer() override = default;
+    CppPrioritizedReplayBuffer() : CppPrioritizedReplayBuffer{1,1,1,0.0} {}
+    CppPrioritizedReplayBuffer(const CppPrioritizedReplayBuffer&) = default;
+    CppPrioritizedReplayBuffer(CppPrioritizedReplayBuffer&&) = default;
+    CppPrioritizedReplayBuffer& operator=(const CppPrioritizedReplayBuffer&)=default;
+    CppPrioritizedReplayBuffer& operator=(CppPrioritizedReplayBuffer&&) = default;
+    virtual ~CppPrioritizedReplayBuffer() override = default;
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done,std::size_t N) override {
