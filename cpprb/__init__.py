@@ -1,2 +1,2 @@
-from .ReplayBuffer import PyReplayBuffer,PyPrioritizedReplayBuffer
-from .ReplayBuffer import PyNstepReplayBuffer,PyNstepPrioritizedReplayBuffer
+from .ReplayBuffer import ReplayBuffer,PrioritizedReplayBuffer
+from .ReplayBuffer import NstepReplayBuffer,NstepPrioritizedReplayBuffer

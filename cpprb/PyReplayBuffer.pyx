@@ -125,8 +125,8 @@ cdef class PointerDouble(VectorWrapper):
     cdef void update_vec_size(self,size):
         self._vec_size = self.value_dim * size
 
-cdef class PyRingEnvironment:
-    cdef RingEnvironment[double,double,double,double] *buffer
+cdef class RingEnvironment:
+    cdef CppRingEnvironment[double,double,double,double] *buffer
     cdef PointerDouble obs
     cdef PointerDouble act
     cdef PointerDouble rew
@@ -145,9 +145,9 @@ cdef class PyRingEnvironment:
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=1,value_dim=1,size=size)
 
-        self.buffer = new RingEnvironment[double,double,double,double](size,
-                                                                      obs_dim,
-                                                                      act_dim)
+        self.buffer = new CppRingEnvironment[double,double,double,double](size,
+                                                                          obs_dim,
+                                                                          act_dim)
 
         self.buffer.get_buffer_pointers(self.obs.ptr,
                                         self.act.ptr,
@@ -200,7 +200,7 @@ cdef class PyRingEnvironment:
     def get_next_index(self):
         return self.buffer.get_next_index()
 
-cdef class PyReplayBuffer(PyRingEnvironment):
+cdef class ReplayBuffer(RingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         pass
 
@@ -208,15 +208,15 @@ cdef class PyReplayBuffer(PyRingEnvironment):
         idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
-cdef class PyPrioritizedReplayBuffer(PyRingEnvironment):
+cdef class PrioritizedReplayBuffer(RingEnvironment):
     cdef VectorDouble weights
     cdef VectorULong indexes
     cdef double alpha
-    cdef PrioritizedSampler[double]* per
+    cdef CppPrioritizedSampler[double]* per
     def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
         self.alpha = alpha
 
-        self.per = new PrioritizedSampler[double](size,alpha)
+        self.per = new CppPrioritizedSampler[double](size,alpha)
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
@@ -268,13 +268,14 @@ cdef class PyPrioritizedReplayBuffer(PyRingEnvironment):
     def get_max_priority(self):
         return self.per.get_max_priority()
 
-cdef class PyNstepReplayBuffer(PyReplayBuffer):
-    cdef NstepRewardBuffer[double,double]* nrb
+cdef class NstepReplayBuffer(ReplayBuffer):
+    cdef CppNstepRewardBuffer[double,double]* nrb
     cdef PointerDouble gamma
     cdef PointerDouble nstep_rew
     cdef PointerDouble nstep_next_obs
     def __cinit__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
-        self.nrb = new NstepRewardBuffer[double,double](size,obs_dim,n_step,discount)
+        self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
+                                                           n_step,discount)
         self.gamma = PointerDouble(ndim=1,value_dim=1,size=size)
         self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
@@ -295,14 +296,15 @@ cdef class PyNstepReplayBuffer(PyReplayBuffer):
         samples['next_obs'] = np.asarray(self.nstep_next_obs)
         return samples
 
-cdef class PyNstepPrioritizedReplayBuffer(PyPrioritizedReplayBuffer):
-    cdef NstepRewardBuffer[double,double]* nrb
+cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
+    cdef CppNstepRewardBuffer[double,double]* nrb
     cdef PointerDouble gamma
     cdef PointerDouble nstep_rew
     cdef PointerDouble nstep_next_obs
     def __cinit__(self,size,obs_dim,act_dim,*,
                   alpha = 0.6,n_step = 4, discount = 0.99,**kwargs):
-        self.nrb = new NstepRewardBuffer[double,double](size,obs_dim,n_step,discount)
+        self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
+                                                           n_step,discount)
         self.gamma = PointerDouble(ndim=1,value_dim=1,size=size)
         self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
