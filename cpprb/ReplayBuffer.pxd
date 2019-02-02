@@ -2,8 +2,8 @@ from libcpp.vector cimport vector
 from libcpp cimport bool
 
 cdef extern from "ReplayBuffer.hh" namespace "ymd":
-    cdef cppclass InternalBuffer[Obs,Act,Rew,Done]:
-        InternalBuffer(size_t,size_t,size_t)
+    cdef cppclass RingEnvironment[Obs,Act,Rew,Done]:
+        RingEnvironment(size_t,size_t,size_t)
         void store(Obs*,Act*,Rew*,Obs*,Done*,size_t)
         void clear()
         size_t get_stored_size()
