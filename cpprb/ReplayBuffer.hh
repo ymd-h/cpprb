@@ -18,7 +18,7 @@ namespace ymd {
   class DimensionalBuffer {
   private:
     std::vector<T> buffer;
-    std::size_t dim;
+    const std::size_t dim;
   public:
     DimensionalBuffer(std::size_t size,std::size_t dim)
       : buffer(size * dim,T{0}),
@@ -49,8 +49,8 @@ namespace ymd {
   private:
     const std::size_t buffer_size;
     std::size_t stored_size;
-    std::size_t obs_dim;
-    std::size_t act_dim;
+    const std::size_t obs_dim;
+    const std::size_t act_dim;
     std::size_t next_index;
     DimensionalBuffer<Observation> obs_buffer;
     DimensionalBuffer<Action> act_buffer;
