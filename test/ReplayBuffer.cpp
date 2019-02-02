@@ -65,12 +65,19 @@ void test_NstepReward(){
   rb.sample(indexes,rew.data(),next_obs.data(),done.data());
   rb.get_buffer_pointers(discounts,ret,nstep_next_obs);
 
-  std::cout << std::endl << "NstepRewardBuffer" << std::endl;
+  std::cout << std::endl
+	    << "NstepRewardBuffer "
+	    << "(buffer_size=" << buffer_size
+	    << ",nstep=" << nstep
+	    << ",gamma=" << gamma
+	    << ")" << std::endl;
 
+  std::cout << "[Input]" << std::endl;
   show_vector(rew,"rew");
   show_vector(next_obs,"next_obs (obs_dim="s + std::to_string(obs_dim) + ")");
   show_vector(done,"done");
 
+  std::cout << "[Output]" << std::endl;
   show_pointer(discounts,buffer_size,"discounts");
   show_pointer(ret,buffer_size,"ret");
   show_pointer(nstep_next_obs,buffer_size,"nstep_next_obs");
