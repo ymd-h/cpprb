@@ -84,7 +84,7 @@ void test_NstepReward(){
   show_pointer(nstep_next_obs,buffer_size*obs_dim,"nstep_next_obs");
 
   auto r =std::vector<Reward>{};
-  std::generate_n(std::back_inserter(r),nstep+1,
+  std::generate_n(std::back_inserter(r),nstep,
 		  [=,i=0ul]() mutable { return std::pow(gamma,i++); });
 
   for(auto i = 0ul; i < buffer_size; ++i){
@@ -93,7 +93,7 @@ void test_NstepReward(){
 						 [last=0.0](auto v) mutable {
 						   return std::exchange(last,v) > 0.5;
 						 }));
-    auto exp_d = (i + nstep < end ? r.back(): r[end - i -1]);
+    auto exp_d = (i + nstep -1 < end ? r.back(): r[end - i -1]);
     if(std::abs(discounts[i] - exp_d) > exp_d * 0.001){
       std::cout << "discounts["<< i << "] != " << exp_d << std::endl;
       assert(!(std::abs(discounts[i] - exp_d) > exp_d * 0.001));
