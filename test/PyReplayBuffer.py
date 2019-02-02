@@ -2,8 +2,8 @@ import numpy as np
 import unittest, time
 from cpprb import ReplayBuffer
 
-class TestPyReplayBuffer(unittest.TestCase):
-    """=== PyReplayBuffer.py ==="""
+class TestReplayBuffer(unittest.TestCase):
+    """=== ReplayBuffer.py ==="""
     class_name = "ER"
 
     obs_dim = 3
@@ -55,9 +55,9 @@ class TestPyReplayBuffer(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer.PyReplayBuffer(cls.buffer_size,
-                                             cls.obs_dim,
-                                             cls.act_dim)
+        cls.rb = ReplayBuffer.ReplayBuffer(cls.buffer_size,
+                                           cls.obs_dim,
+                                           cls.act_dim)
 
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
@@ -135,20 +135,20 @@ class TestPrioritizedBase:
         self._check_ndarray(self.s3['weights'],1,(self.batch_size,),
                             "weights [0.5,...,0.1]")
 
-class TestPyPrioritizedReplayBuffer(TestPyReplayBuffer,TestPrioritizedBase):
-    """=== PyPrioritizedReplayBuffer.py ==="""
+class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
+    """=== PrioritizedReplayBuffer.py ==="""
     class_name = "PER"
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer.PyPrioritizedReplayBuffer(cls.buffer_size,
-                                                        cls.obs_dim,
-                                                        cls.act_dim,
-                                                        alpha=cls.alpha)
-        cls.rb2 = ReplayBuffer.PyPrioritizedReplayBuffer(cls.buffer_size,
-                                                         cls.obs_dim,
-                                                         cls.act_dim,
-                                                         alpha=cls.alpha)
+        cls.rb = ReplayBuffer.PrioritizedReplayBuffer(cls.buffer_size,
+                                                      cls.obs_dim,
+                                                      cls.act_dim,
+                                                      alpha=cls.alpha)
+        cls.rb2 = ReplayBuffer.PrioritizedReplayBuffer(cls.buffer_size,
+                                                       cls.obs_dim,
+                                                       cls.act_dim,
+                                                       alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
@@ -167,35 +167,35 @@ class TestNstepBase:
             if(d > 0.0):
                 self.assertAlmostEqual(g,1.0)
 
-class TestPyNstepReplayBuffer(TestPyReplayBuffer,TestNstepBase):
-    """=== PyNstepReplayBuffer.py ==="""
+class TestNstepReplayBuffer(TestReplayBuffer,TestNstepBase):
+    """=== NstepReplayBuffer.py ==="""
     class_name = "N-ER"
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer.PyNstepReplayBuffer(cls.buffer_size,
-                                                  cls.obs_dim,
-                                                  cls.act_dim,
-                                                  nstep = cls.nstep,
-                                                  discount = cls.discount)
+        cls.rb = ReplayBuffer.NstepReplayBuffer(cls.buffer_size,
+                                                cls.obs_dim,
+                                                cls.act_dim,
+                                                nstep = cls.nstep,
+                                                discount = cls.discount)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
 
-class TestPyNstepPrioritizedReplayBuffer(TestPyReplayBuffer,
-                                         TestPrioritizedBase,TestNstepBase):
-    """=== PyNstepPrioritizedReplayBuffer.py ==="""
+class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
+                                       TestPrioritizedBase,TestNstepBase):
+    """=== NstepPrioritizedReplayBuffer.py ==="""
     class_name = "N-PER"
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer.PyNstepPrioritizedReplayBuffer(cls.buffer_size,
-                                                             cls.obs_dim,
-                                                             cls.act_dim,
-                                                             alpha=cls.alpha)
-        cls.rb2 = ReplayBuffer.PyNstepPrioritizedReplayBuffer(cls.buffer_size,
-                                                              cls.obs_dim,
-                                                              cls.act_dim,
-                                                              alpha=cls.alpha)
+        cls.rb = ReplayBuffer.NstepPrioritizedReplayBuffer(cls.buffer_size,
+                                                           cls.obs_dim,
+                                                           cls.act_dim,
+                                                           alpha=cls.alpha)
+        cls.rb2 = ReplayBuffer.NstepPrioritizedReplayBuffer(cls.buffer_size,
+                                                            cls.obs_dim,
+                                                            cls.act_dim,
+                                                            alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
