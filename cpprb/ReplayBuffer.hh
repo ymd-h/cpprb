@@ -45,7 +45,7 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
-  class InternalBuffer {
+  class RingEnvironment {
   private:
     const std::size_t buffer_size;
     std::size_t stored_size;
@@ -59,7 +59,7 @@ namespace ymd {
     DimensionalBuffer<Done> done_buffer;
 
   public:
-    InternalBuffer(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
+    RingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
       : buffer_size{size},
 	stored_size{0ul},
 	obs_dim{obs_dim},
@@ -70,12 +70,12 @@ namespace ymd {
 	rew_buffer{size,1ul},
 	next_obs_buffer{size,obs_dim},
 	done_buffer{size,1ul} {}
-    InternalBuffer(): InternalBuffer{1ul,1ul,1ul} {}
-    InternalBuffer(const InternalBuffer&) = default;
-    InternalBuffer(InternalBuffer&&) = default;
-    InternalBuffer& operator=(const InternalBuffer&) = default;
-    InternalBuffer& operator=(InternalBuffer&&) = default;
-    virtual ~InternalBuffer() = default;
+    RingEnvironment(): RingEnvironment{1ul,1ul,1ul} {}
+    RingEnvironment(const RingEnvironment&) = default;
+    RingEnvironment(RingEnvironment&&) = default;
+    RingEnvironment& operator=(const RingEnvironment&) = default;
+    RingEnvironment& operator=(RingEnvironment&&) = default;
+    virtual ~RingEnvironment() = default;
     virtual void store(Observation* obs, Action* act, Reward* rew,
 		       Observation* next_obs, Done* done,
 		       std::size_t N = 1ul){
@@ -125,9 +125,9 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
-  class ReplayBuffer : public InternalBuffer<Observation,Action,Reward,Done>{
+  class ReplayBuffer : public RingEnvironment<Observation,Action,Reward,Done>{
   public:
-    using Buffer_t = InternalBuffer<Observation,Action,Reward,Done>;
+    using Buffer_t = RingEnvironment<Observation,Action,Reward,Done>;
     using rand_t = std::uniform_int_distribution<std::size_t>;
   private:
     std::vector<std::size_t> index_buffer;
