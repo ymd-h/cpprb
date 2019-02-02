@@ -3,7 +3,7 @@ from Cython.Build import cythonize
 import numpy as np
 
 ext_modules = cythonize([Extension("cpprb.ReplayBuffer",
-                                   sources=["cpprb/PyReplayBuffer.pyx"],
+                                   sources=["cpprb/ReplayBuffer.pyx"],
                                    extra_compile_args=["-std=c++17"],
                                    extra_link_args=["-std=c++17"],
                                    language="c++")],
