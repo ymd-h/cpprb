@@ -45,64 +45,42 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
-  class RingEnvironment {
+  class Environment {
   private:
     const std::size_t buffer_size;
-    std::size_t stored_size;
     const std::size_t obs_dim;
     const std::size_t act_dim;
-    std::size_t next_index;
     DimensionalBuffer<Observation> obs_buffer;
     DimensionalBuffer<Action> act_buffer;
     DimensionalBuffer<Reward> rew_buffer;
     DimensionalBuffer<Observation> next_obs_buffer;
     DimensionalBuffer<Done> done_buffer;
-
   public:
-    RingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
+    Environment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
       : buffer_size{size},
-	stored_size{0ul},
 	obs_dim{obs_dim},
 	act_dim{act_dim},
-	next_index{0ul},
 	obs_buffer{size,obs_dim},
 	act_buffer{size,act_dim},
 	rew_buffer{size,1ul},
 	next_obs_buffer{size,obs_dim},
 	done_buffer{size,1ul} {}
-    RingEnvironment(): RingEnvironment{1ul,1ul,1ul} {}
-    RingEnvironment(const RingEnvironment&) = default;
-    RingEnvironment(RingEnvironment&&) = default;
-    RingEnvironment& operator=(const RingEnvironment&) = default;
-    RingEnvironment& operator=(RingEnvironment&&) = default;
-    virtual ~RingEnvironment() = default;
-    virtual void store(Observation* obs, Action* act, Reward* rew,
-		       Observation* next_obs, Done* done,
-		       std::size_t N = 1ul){
-      auto shift = 0ul;
-      while(N){
-	auto copy_N = std::min(N,buffer_size - next_index);
-
-	obs_buffer     .store_data(     obs,shift,next_index,copy_N);
-	act_buffer     .store_data(     act,shift,next_index,copy_N);
-	rew_buffer     .store_data(     rew,shift,next_index,copy_N);
-	next_obs_buffer.store_data(next_obs,shift,next_index,copy_N);
-	done_buffer    .store_data(    done,shift,next_index,copy_N);
-
-	next_index += copy_N;
-	if(next_index >= buffer_size){ next_index = 0ul; }
-
-	if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
-
-	N = (N > copy_N) ? N - copy_N: 0ul;
-	shift += copy_N;
-      }
+    Environment(): Environment{1ul,1ul,1ul} {}
+    Environment(const Environment&) = default;
+    Environment(Environment&&) = default;
+    Environment& operator=(const Environment&) = default;
+    Environment& operator=(Environment&&) = default;
+    virtual ~Environment() = default;
+    void store(Observation* obs,Action* act, Reward* rew,
+	       Observation* next_obs,Done* done,
+	       std::size_t shift = 0ul,
+	       std::size_t index = 0ul, size_t N = 1ul){
+      obs_buffer     .store_data(     obs,shift,index,N);
+      act_buffer     .store_data(     act,shift,index,N);
+      rew_buffer     .store_data(     rew,shift,index,N);
+      next_obs_buffer.store_data(next_obs,shift,index,N);
+      done_buffer    .store_data(    done,shift,index,N);
     }
-
-    std::size_t get_buffer_size() const { return buffer_size; }
-    std::size_t get_stored_size() const { return stored_size; }
-    std::size_t get_next_index() const { return next_index; }
-
     template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
     void get(std::size_t index,Obs_t& obs,Act_t& act,Rew_t& rew,
 	     Obs_t& next_obs,Done_t& done) const {
@@ -117,6 +95,50 @@ namespace ymd {
 			     Observation*& next_obs, Done*& done) const {
       get(0ul,obs,act,rew,next_obs,done);
     }
+    std::size_t get_buffer_size() const { return buffer_size; }
+  };
+
+  template<typename Observation,typename Action,typename Reward,typename Done>
+  class RingEnvironment :public Environment<Observation,Action,Reward,Done>{
+  public:
+    using Env_t = Environment<Observation,Action,Reward,Done>;
+
+  private:
+    std::size_t stored_size;
+    std::size_t next_index;
+
+  public:
+    RingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
+      : Env_t{size,obs_dim,act_dim},
+	stored_size{0ul},
+	next_index{0ul} {}
+    RingEnvironment(): RingEnvironment{1ul,1ul,1ul} {}
+    RingEnvironment(const RingEnvironment&) = default;
+    RingEnvironment(RingEnvironment&&) = default;
+    RingEnvironment& operator=(const RingEnvironment&) = default;
+    RingEnvironment& operator=(RingEnvironment&&) = default;
+    virtual ~RingEnvironment() = default;
+    virtual void store(Observation* obs, Action* act, Reward* rew,
+		       Observation* next_obs, Done* done,
+		       std::size_t N = 1ul){
+      const auto buffer_size = this->get_buffer_size();
+      auto shift = 0ul;
+      while(N){
+	auto copy_N = std::min(N,buffer_size - next_index);
+
+	this->Env_t::store(obs,act,rew,next_obs,done,shift,next_index,copy_N);
+
+	next_index += copy_N;
+	if(next_index >= buffer_size){ next_index = 0ul; }
+
+	if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
+
+	N = (N > copy_N) ? N - copy_N: 0ul;
+	shift += copy_N;
+      }
+    }
+    std::size_t get_stored_size() const { return stored_size; }
+    std::size_t get_next_index() const { return next_index; }
 
     virtual void clear(){
       stored_size = 0ul;
