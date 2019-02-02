@@ -87,7 +87,12 @@ void test_NstepReward(){
 		  [=,i=0ul]() mutable { return std::pow(gamma,i++); });
 
   for(auto i = 0ul; i < buffer_size; ++i){
-    auto exp_d = (i + nstep < buffer_size ? r.back(): r[buffer_size - i -1]);
+    std::size_t end = std::distance(done.begin(),
+				    std::find_if(done.begin()+i,done.end(),
+						 [last=0.0](auto v) mutable {
+						   return std::exchange(last,v) > 0.5;
+						 }));
+    auto exp_d = (i + nstep < end ? r.back(): r[end - i -1]);
     if(std::abs(discounts[i] - exp_d) > exp_d * 0.001){
       std::cout << "discounts["<< i << "] != " << exp_d << std::endl;
       assert(!(std::abs(discounts[i] - exp_d) > exp_d * 0.001));
