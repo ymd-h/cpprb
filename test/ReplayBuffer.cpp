@@ -41,7 +41,7 @@ void test_NstepReward(){
 						       obs_dim,act_dim,gamma);
 
   auto rew = std::vector(buffer_size,Reward{1});
-  auto next_obs = std::vector(buffer_size,Observation{0});
+  auto next_obs = std::vector(buffer_size * obs_dim,Observation{0});
   std::iota(next_obs.begin(),next_obs.end(),Observation{1});
 
   auto done = std::vector(buffer_size,Done{0});
