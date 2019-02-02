@@ -6,7 +6,7 @@ cimport numpy as np
 import numpy as np
 import cython
 
-from cpprb cimport ReplayBuffer
+from cpprb cimport CppReplayBuffer
 
 cdef class VectorWrapper:
     cdef Py_ssize_t *shape
