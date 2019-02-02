@@ -268,7 +268,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     def get_max_priority(self):
         return self.per.get_max_priority()
 
-cdef class NstepReplayBuffer(PyReplayBuffer):
+cdef class NstepReplayBuffer(ReplayBuffer):
     cdef CppNstepRewardBuffer[double,double]* nrb
     cdef PointerDouble gamma
     cdef PointerDouble nstep_rew
