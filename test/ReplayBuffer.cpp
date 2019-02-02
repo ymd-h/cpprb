@@ -46,8 +46,8 @@ void test_NstepReward(){
   constexpr const auto nstep = 4;
   constexpr const auto gamma = 0.99;
 
-  auto rb = ymd::NstepRewardBuffer<Observation,Reward>(buffer_size,
-						       obs_dim,nstep,gamma);
+  auto rb = ymd::CppNstepRewardBuffer<Observation,Reward>(buffer_size,
+							  obs_dim,nstep,gamma);
 
   auto rew = std::vector(buffer_size,Reward{1});
   auto next_obs = std::vector(buffer_size * obs_dim,Observation{0});
@@ -156,15 +156,15 @@ int main(){
     dm.store_data(v.data(),0ul,next_index,1ul);
   }
 
-  auto rb = ymd::ReplayBuffer<Observation,Action,Reward,Done>{N_buffer_size,
-							      obs_dim,
-							      act_dim};
+  auto rb = ymd::CppReplayBuffer<Observation,Action,Reward,Done>{N_buffer_size,
+								 obs_dim,
+								 act_dim};
 
-  auto per = ymd::PrioritizedReplayBuffer<Observation,Action,
-					  Reward,Done,Priority>{N_buffer_size,
-								obs_dim,
-								act_dim,
-								alpha};
+  auto per = ymd::CppPrioritizedReplayBuffer<Observation,Action,
+					     Reward,Done,Priority>{N_buffer_size,
+								   obs_dim,
+								   act_dim,
+								   alpha};
 
 
   for(auto i = 0ul; i < N_step; ++i){
@@ -228,7 +228,7 @@ int main(){
 
   std::cout << std::endl;
   std::cout << "PrioritizedSampler" << std::endl;
-  auto ps = ymd::PrioritizedSampler(N_buffer_size,0.7);
+  auto ps = ymd::CppPrioritizedSampler(N_buffer_size,0.7);
   for(auto i = 0ul; i < N_step; ++i){
     ps.set_priorities(i % N_buffer_size,0.5);
   }
