@@ -200,7 +200,7 @@ cdef class RingEnvironment:
     def get_next_index(self):
         return self.buffer.get_next_index()
 
-cdef class PyReplayBuffer(RingEnvironment):
+cdef class ReplayBuffer(RingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         pass
 
