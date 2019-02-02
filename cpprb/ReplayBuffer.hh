@@ -254,7 +254,7 @@ namespace ymd {
   };
 
   template<typename Priority>
-  class PrioritizedSampler {
+  class CppPrioritizedSampler {
   private:
     Priority alpha;
     Priority max_priority;
@@ -307,7 +307,7 @@ namespace ymd {
     }
 
   public:
-    PrioritizedSampler(std::size_t buffer_size,Priority alpha)
+    CppPrioritizedSampler(std::size_t buffer_size,Priority alpha)
       : alpha{alpha},
 	max_priority{1.0},
 	default_max_priority{1.0},
@@ -316,12 +316,12 @@ namespace ymd {
 	    [](Priority a,Priority b){ return  std::min(a,b); },
 	    std::numeric_limits<Priority>::max()},
 	g{std::random_device{}()} {}
-    PrioritizedSampler() = default;
-    PrioritizedSampler(const PrioritizedSampler&) = default;
-    PrioritizedSampler(PrioritizedSampler&&) = default;
-    PrioritizedSampler& operator=(const PrioritizedSampler&) = default;
-    PrioritizedSampler& operator=(PrioritizedSampler&&) = default;
-    ~PrioritizedSampler() = default;
+    CppPrioritizedSampler() = default;
+    CppPrioritizedSampler(const CppPrioritizedSampler&) = default;
+    CppPrioritizedSampler(CppPrioritizedSampler&&) = default;
+    CppPrioritizedSampler& operator=(const CppPrioritizedSampler&) = default;
+    CppPrioritizedSampler& operator=(CppPrioritizedSampler&&) = default;
+    ~CppPrioritizedSampler() = default;
 
     void sample(std::size_t batch_size,Priority beta,
 		std::vector<Priority>& weights,std::vector<std::size_t>& indexes,
@@ -384,10 +384,10 @@ namespace ymd {
 	   typename Priority>
   class CppPrioritizedReplayBuffer:
     public CppReplayBuffer<Observation,Action,Reward,Done>,
-    public PrioritizedSampler<Priority> {
+    public CppPrioritizedSampler<Priority> {
   private:
     using BaseClass = CppReplayBuffer<Observation,Action,Reward,Done>;
-    using Sampler = PrioritizedSampler<Priority>;
+    using Sampler = CppPrioritizedSampler<Priority>;
   public:
     CppPrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
 			    Priority alpha)
