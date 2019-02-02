@@ -1,15 +1,63 @@
 #include <iostream>
 #include <chrono>
 #include <tuple>
+#include <string>
+#include <cassert>
 
 #include <ReplayBuffer.hh>
 
+using Observation = double;
+using Action = double;
+using Reward = double;
+using Done = double;
+using Priority = double;
+
+template<typename T>
+void show_vector(T v,std::string name){
+  std::cout << name << ": ";
+  for(auto ve: v){ std::cout << ve << " "; }
+  std::cout << std::endl;
+}
+
+template<typename T>
+void show_vector_of_vector(T v,std::string name){
+  std::cout << name << ": " << std::endl;
+  for(auto ve: v){
+    std::cout << " ";
+    for(auto vee: ve){ std::cout << vee << " "; }
+    std::cout << std::endl;
+  }
+  std::cout << std::endl;
+}
+
+void test_NstepReward(){
+  constexpr const auto buffer_size = 32ul;
+  constexpr const auto obs_dim = 3ul;
+  constexpr const auto act_dim = 1ul;
+  constexpr const auto nstep = 4;
+  constexpr const auto gamma = 0.99;
+
+  auto rb = ymd::NstepRewardBuffer<Observation,Reward>(buffer_size,
+						       obs_dim,act_dim,gamma);
+
+  auto rew = std::vector(buffer_size,Reward{1});
+  auto next_obs = std::vector(buffer_size,Observation{0});
+  std::iota(next_obs.begin(),next_obs.end(),Observation{1});
+
+  auto done = std::vector(buffer_size,Done{0});
+  done.back() = Done{1};
+
+  auto indexes = std::vector(buffer_size,0ul);
+  std::iota(indexes.begin(),indexes.end(),0ul);
+
+  Reward *discounts, *ret;
+  Observation* nstep_next_obs;
+
+  rb.sample(indexes,rew.data(),next_obs.data(),done.data());
+  rb.get_buffer_pointers(discounts,ret,nstep_next_obs);
+}
+
 int main(){
-  using Observation = double;
-  using Action = double;
-  using Reward = double;
-  using Done = int;
-  using Priority = double;
 
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
@@ -41,22 +89,6 @@ int main(){
 
   auto alpha = 0.7;
   auto beta = 0.5;
-
-  auto show_vector = [](auto v,auto name){
-		       std::cout << name << ": ";
-		       for(auto ve: v){ std::cout << ve << " "; }
-		       std::cout << std::endl;
-		     };
-
-  auto show_vector_of_vector = [](auto v,std::string name){
-				 std::cout << name << ": " << std::endl;
-				 for(auto ve: v){
-				   std::cout << " ";
-				   for(auto vee: ve){ std::cout << vee << " "; }
-				   std::cout << std::endl;
-				 }
-				 std::cout << std::endl;
-			       };
 
   auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
   auto v = std::vector<Observation>{};
@@ -96,7 +128,7 @@ int main(){
     auto act = std::vector<Action>(act_dim,2.0*i);
     auto rew = 0.1 * i;
     auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
-    auto done = (N_step - 1 == i) ? 1: 0;
+    auto done = (N_step - 1 == i) ? 1.0: 0.0;
 
     rb.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
     per.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
@@ -110,7 +142,7 @@ int main(){
     auto act = std::vector<Action>(act_dim,2.0*i);
     auto rew = 0.1 * i;
     auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
-    auto done = (N_step - 1 == i) ? 1: 0;
+    auto done = (N_step - 1 == i) ? 1.0: 0.0;
 
     rb.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
     per.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
@@ -170,6 +202,8 @@ int main(){
   ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
   show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
   show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
+
+  test_NstepReward();
 
   return 0;
 }
