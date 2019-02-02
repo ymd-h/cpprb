@@ -3,8 +3,11 @@
 #include <tuple>
 #include <string>
 #include <cassert>
+#include <type_traits>
 
 #include <ReplayBuffer.hh>
+
+using namespace std::literals;
 
 using Observation = double;
 using Action = double;
@@ -28,6 +31,12 @@ void show_vector_of_vector(T v,std::string name){
     std::cout << std::endl;
   }
   std::cout << std::endl;
+}
+
+template<typename T>
+void show_pointer(T ptr,std::size_t N,std::string name){
+  auto v = std::vector<std::remove_pointer_t<T>>(ptr,ptr+N);
+  show_vector(v,name);
 }
 
 void test_NstepReward(){
@@ -55,6 +64,16 @@ void test_NstepReward(){
 
   rb.sample(indexes,rew.data(),next_obs.data(),done.data());
   rb.get_buffer_pointers(discounts,ret,nstep_next_obs);
+
+  std::cout << std::endl << "NstepRewardBuffer" << std::endl;
+
+  show_vector(rew,"rew");
+  show_vector(next_obs,"next_obs (obs_dim="s + std::to_string(obs_dim) + ")");
+  show_vector(done,"done");
+
+  show_pointer(discounts,buffer_size,"discounts");
+  show_pointer(ret,buffer_size,"ret");
+  show_pointer(nstep_next_obs,buffer_size,"nstep_next_obs");
 }
 
 int main(){
