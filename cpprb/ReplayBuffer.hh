@@ -45,6 +45,37 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
+  class Environment {
+  private:
+    const std::size_t buffer_size;
+    std::size_t stored_size;
+    const std::size_t obs_dim;
+    const std::size_t act_dim;
+    DimensionalBuffer<Observation> obs_buffer;
+    DimensionalBuffer<Action> act_buffer;
+    DimensionalBuffer<Reward> rew_buffer;
+    DimensionalBuffer<Observation> next_obs_buffer;
+    DimensionalBuffer<Done> done_buffer;
+  public:
+    Environment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
+      : buffer_size{size},
+	stored_size{0ul},
+	obs_dim{obs_dim},
+	act_dim{act_dim},
+	obs_buffer{size,obs_dim},
+	act_buffer{size,act_dim},
+	rew_buffer{size,1ul},
+	next_obs_buffer{size,obs_dim},
+	done_buffer{size,1ul} {}
+    Environment(): Environment{1ul,1ul,1ul} {}
+    Environment(const Environment&) = default;
+    Environment(Environment&&) = default;
+    Environment& operator=(const Environment&) = default;
+    Environment& operator=(Environment&&) = default;
+    virtual ~Environment() = default;
+  };
+
+  template<typename Observation,typename Action,typename Reward,typename Done>
   class RingEnvironment {
   private:
     const std::size_t buffer_size;
