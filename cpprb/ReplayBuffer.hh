@@ -534,7 +534,7 @@ namespace ymd {
 	auto gamma_i = Reward{1};
 	nstep_rew_buffer.push_back(rew[index]);
 
-	auto remain = nstep;
+	auto remain = nstep - 1;
 	while((!done[index]) && remain){
 	  index = (index < buffer_size - 1) ? index+1: 0ul;
 
