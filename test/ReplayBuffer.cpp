@@ -3,6 +3,7 @@
 #include <tuple>
 #include <string>
 #include <cassert>
+#include <cmath>
 #include <type_traits>
 
 #include <ReplayBuffer.hh>
@@ -80,6 +81,18 @@ void test_NstepReward(){
   show_pointer(discounts,buffer_size,"discounts");
   show_pointer(ret,buffer_size,"ret");
   show_pointer(nstep_next_obs,buffer_size*obs_dim,"nstep_next_obs");
+
+  auto r =std::vector<Reward>{};
+  std::generate_n(std::back_inserter(r),nstep+1,
+		  [=,i=0ul]() mutable { return std::pow(gamma,i++); });
+
+  for(auto i = 0ul; i < buffer_size; ++i){
+    auto exp_d = (i + nstep < buffer_size ? r.back(): r[buffer_size - i -1]);
+    if(std::abs(discounts[i] - exp_d) > exp_d * 0.001){
+      std::cout << "discounts["<< i << "] != " << exp_d << std::endl;
+      assert(!(std::abs(discounts[i] - exp_d) > exp_d * 0.001));
+    }
+  }
 }
 
 int main(){
