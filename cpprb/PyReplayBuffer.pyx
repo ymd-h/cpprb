@@ -125,8 +125,8 @@ cdef class PointerDouble(VectorWrapper):
     cdef void update_vec_size(self,size):
         self._vec_size = self.value_dim * size
 
-cdef class PyRingEnvironment:
-    cdef RingEnvironment[double,double,double,double] *buffer
+cdef class RingEnvironment:
+    cdef CppRingEnvironment[double,double,double,double] *buffer
     cdef PointerDouble obs
     cdef PointerDouble act
     cdef PointerDouble rew
@@ -145,9 +145,9 @@ cdef class PyRingEnvironment:
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=1,value_dim=1,size=size)
 
-        self.buffer = new RingEnvironment[double,double,double,double](size,
-                                                                      obs_dim,
-                                                                      act_dim)
+        self.buffer = new CppRingEnvironment[double,double,double,double](size,
+                                                                          obs_dim,
+                                                                          act_dim)
 
         self.buffer.get_buffer_pointers(self.obs.ptr,
                                         self.act.ptr,
@@ -200,7 +200,7 @@ cdef class PyRingEnvironment:
     def get_next_index(self):
         return self.buffer.get_next_index()
 
-cdef class PyReplayBuffer(PyRingEnvironment):
+cdef class PyReplayBuffer(RingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         pass
 
@@ -208,7 +208,7 @@ cdef class PyReplayBuffer(PyRingEnvironment):
         idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
-cdef class PyPrioritizedReplayBuffer(PyRingEnvironment):
+cdef class PyPrioritizedReplayBuffer(RingEnvironment):
     cdef VectorDouble weights
     cdef VectorULong indexes
     cdef double alpha
