@@ -80,7 +80,7 @@ void test_NstepReward(){
   std::cout << "[Output]" << std::endl;
   show_pointer(discounts,buffer_size,"discounts");
   show_pointer(ret,buffer_size,"ret");
-  show_pointer(nstep_next_obs,buffer_size,"nstep_next_obs");
+  show_pointer(nstep_next_obs,buffer_size*obs_dim,"nstep_next_obs");
 }
 
 int main(){
