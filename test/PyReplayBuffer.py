@@ -1,6 +1,7 @@
 import numpy as np
 import unittest, time
-from cpprb import ReplayBuffer
+from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,
+                   NstepReplayBuffer,NstepPrioritizedReplayBuffer)
 
 class TestReplayBuffer(unittest.TestCase):
     """=== ReplayBuffer.py ==="""
@@ -55,9 +56,9 @@ class TestReplayBuffer(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer.ReplayBuffer(cls.buffer_size,
-                                           cls.obs_dim,
-                                           cls.act_dim)
+        cls.rb = ReplayBuffer(cls.buffer_size,
+                              cls.obs_dim,
+                              cls.act_dim)
 
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
@@ -141,14 +142,14 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer.PrioritizedReplayBuffer(cls.buffer_size,
-                                                      cls.obs_dim,
-                                                      cls.act_dim,
-                                                      alpha=cls.alpha)
-        cls.rb2 = ReplayBuffer.PrioritizedReplayBuffer(cls.buffer_size,
-                                                       cls.obs_dim,
-                                                       cls.act_dim,
-                                                       alpha=cls.alpha)
+        cls.rb = PrioritizedReplayBuffer(cls.buffer_size,
+                                         cls.obs_dim,
+                                         cls.act_dim,
+                                         alpha=cls.alpha)
+        cls.rb2 = PrioritizedReplayBuffer(cls.buffer_size,
+                                          cls.obs_dim,
+                                          cls.act_dim,
+                                          alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
@@ -173,7 +174,7 @@ class TestNstepReplayBuffer(TestReplayBuffer,TestNstepBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer.NstepReplayBuffer(cls.buffer_size,
+        cls.rb = NstepReplayBuffer(cls.buffer_size,
                                                 cls.obs_dim,
                                                 cls.act_dim,
                                                 nstep = cls.nstep,
@@ -188,14 +189,14 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer.NstepPrioritizedReplayBuffer(cls.buffer_size,
-                                                           cls.obs_dim,
-                                                           cls.act_dim,
-                                                           alpha=cls.alpha)
-        cls.rb2 = ReplayBuffer.NstepPrioritizedReplayBuffer(cls.buffer_size,
-                                                            cls.obs_dim,
-                                                            cls.act_dim,
-                                                            alpha=cls.alpha)
+        cls.rb = NstepPrioritizedReplayBuffer(cls.buffer_size,
+                                              cls.obs_dim,
+                                              cls.act_dim,
+                                              alpha=cls.alpha)
+        cls.rb2 = NstepPrioritizedReplayBuffer(cls.buffer_size,
+                                               cls.obs_dim,
+                                               cls.act_dim,
+                                               alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
