@@ -55,6 +55,7 @@ void test_NstepReward(){
 
   auto done = std::vector(buffer_size,Done{0});
   done.back() = Done{1};
+  done[buffer_size / 2] = Done{1};
 
   auto indexes = std::vector(buffer_size,0ul);
   std::iota(indexes.begin(),indexes.end(),0ul);
