@@ -478,7 +478,7 @@ namespace ymd {
   };
 
   template<typename Observation,typename Reward>
-  class NstepRewardBuffer {
+  class CppNstepRewardBuffer {
   private:
     const std::size_t buffer_size;
     const std::size_t obs_dim;
@@ -509,7 +509,7 @@ namespace ymd {
       nstep_next_obs_buffer.reserve(size*obs_dim);
     }
   public:
-    NstepRewardBuffer(std::size_t size,std::size_t obs_dim,
+    CppNstepRewardBuffer(std::size_t size,std::size_t obs_dim,
 		      std::size_t nstep,Reward gamma)
       : buffer_size{size},
 	obs_dim{obs_dim},
@@ -518,12 +518,12 @@ namespace ymd {
 	gamma_buffer{},
 	nstep_rew_buffer{},
 	nstep_next_obs_buffer{} {}
-    NstepRewardBuffer() = default;
-    NstepRewardBuffer(const NstepRewardBuffer&) = default;
-    NstepRewardBuffer(NstepRewardBuffer&&) = default;
-    NstepRewardBuffer& operator=(const NstepRewardBuffer&) = default;
-    NstepRewardBuffer& operator=(NstepRewardBuffer&&) = default;
-    virtual ~NstepRewardBuffer() = default;
+    CppNstepRewardBuffer() = default;
+    CppNstepRewardBuffer(const CppNstepRewardBuffer&) = default;
+    CppNstepRewardBuffer(CppNstepRewardBuffer&&) = default;
+    CppNstepRewardBuffer& operator=(const CppNstepRewardBuffer&) = default;
+    CppNstepRewardBuffer& operator=(CppNstepRewardBuffer&&) = default;
+    virtual ~CppNstepRewardBuffer() = default;
 
     template<typename Done>
     void sample(const std::vector<std::size_t>& indexes,
