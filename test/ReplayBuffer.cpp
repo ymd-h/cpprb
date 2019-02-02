@@ -42,12 +42,11 @@ void show_pointer(T ptr,std::size_t N,std::string name){
 void test_NstepReward(){
   constexpr const auto buffer_size = 16ul;
   constexpr const auto obs_dim = 3ul;
-  constexpr const auto act_dim = 1ul;
   constexpr const auto nstep = 4;
   constexpr const auto gamma = 0.99;
 
   auto rb = ymd::NstepRewardBuffer<Observation,Reward>(buffer_size,
-						       obs_dim,act_dim,gamma);
+						       obs_dim,nstep,gamma);
 
   auto rew = std::vector(buffer_size,Reward{1});
   auto next_obs = std::vector(buffer_size * obs_dim,Observation{0});
