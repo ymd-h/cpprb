@@ -202,7 +202,7 @@ cdef class PyRingEnvironment:
 
 cdef class PyReplayBuffer(PyRingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
-        print("Replay Buffer")
+        pass
 
     def sample(self,batch_size):
         idx = np.random.randint(0,self.get_stored_size(),batch_size)
@@ -214,7 +214,6 @@ cdef class PyPrioritizedReplayBuffer(PyRingEnvironment):
     cdef double alpha
     cdef PrioritizedSampler[double]* per
     def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
-        print("Prioritized Replay Buffer")
         self.alpha = alpha
 
         self.per = new PrioritizedSampler[double](size,alpha)
