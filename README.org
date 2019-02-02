@@ -43,12 +43,12 @@ You might need =sudo= for installation.
 * Usage
 A simple example is following;
 #+BEGIN_SRC python
-from cpprb import PyReplayBuffer
+from cpprb import ReplayBuffer
 
 buffer_size = 256
 obs_dim = 3
 act_dim = 1
-rb = PyReplayBuffer(buffer_size,obs_dim,act_dim)
+rb = ReplayBuffer(buffer_size,obs_dim,act_dim)
 
 obs = np.ones(shape=(obs_dim))
 act = np.ones(shape=(act_dim))
@@ -66,35 +66,35 @@ sample = rb.sample(batch_size)
 #+END_SRC
 
 * Classes
-=PyReplayBuffer=, =PyPrioritizedReplayBuffer=, =PyNstepReplayBuffer=,
-and =PyNstepPrioritizedReplayBuffer= are supported.
+=ReplayBuffer=, =PrioritizedReplayBuffer=, =NstepReplayBuffer=,
+and =NstepPrioritizedReplayBuffer= are supported.
 
 The other classes (including C++ classes) are considered as internal
 classes, whose interfaces can change frequently.
 
-** PyReplayBuffer
-=PyReplayBuffer= is a basic replay buffer, where we pick up each time
+** ReplayBuffer
+=ReplayBuffer= is a basic replay buffer, where we pick up each time
 point randomly. (Duplicated pick up is allowed.)
 
-** PyPrioritizedReplayBuffer
-=PyPrioritizedReplayBuffer= is a prioritized replay buffer, where you
+** PrioritizedReplayBuffer
+=PrioritizedReplayBuffer= is a prioritized replay buffer, where you
 can set importance (e.g. TD error) to each time point by calling
-=PyPrioritizedReplayBuffer.update_priorities(self,ps)= or
-=PyPrioritizedReplayBuffer.add(self,obs,act,rew,next_obs,done,p)=.
+=PrioritizedReplayBuffer.update_priorities(self,ps)= or
+=PrioritizedReplayBuffer.add(self,obs,act,rew,next_obs,done,p)=.
 The constructor also take =alpha= parameter, whose default value is =0.6=.
 For sampling, you need to pass =beata= argument as well as =batch_size=.
 
-** PyNstepReplayBuffer
-=PyNstepReplayBuffer= is a N-step reward version of replay buffer. Its
-usage is same as =PyReplayBuffer=, except whose return value has
+** NstepReplayBuffer
+=NstepReplayBuffer= is a N-step reward version of replay buffer. Its
+usage is same as =ReplayBuffer=, except whose return value has
 =discounts= key. The step size and discount rate are passed to its
 constructor as =n_step= (default =4=) and =discount= (default 0.99),
 respectively.
 
-** PyNstepPrioritizedReplayBuffer
-=PyNstepPrioritizedReplayBuffer= is a N-step reward version of
+** NstepPrioritizedReplayBuffer
+=NstepPrioritizedReplayBuffer= is a N-step reward version of
 prioritized replay buffer.  The usage is a mixture of
-=PyPrioritizedReplayBuffer= and =PyNstepReplayBuffer=.
+=PrioritizedReplayBuffer= and =NstepReplayBuffer=.
 
 * Test Environment
 - GCC 8.2.0
