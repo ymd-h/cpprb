@@ -192,9 +192,15 @@ namespace ymd {
     void get_episode(std::size_t i,std::size_t& ep_len,
 		     Observation*& obs,Action*& act,Reward*& rew,
 		     Observation*& next_obs,Done*& done) const {
+      if(i >= get_stored_episode_size()){
+	ep_len = 0ul;
+	return;
+      }
+
       auto begin = episode_begins[i];
-      auto end = episode_begins[i+1];
       this->Env_t::get(begin,obs,act,rew,next_obs,done);
+
+      auto end = (i+1 < episode_begins.size()) ? episode_begins[i+1]: next_index;
       ep_len = end - begin;
     }
 
