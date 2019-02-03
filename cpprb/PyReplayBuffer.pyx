@@ -214,23 +214,13 @@ cdef class RingEnvironment(Environment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add_N(self,
-               np.ndarray[double, ndim=2, mode="c"] obs not None,
-               np.ndarray[double, ndim=2, mode="c"] act not None,
-               np.ndarray[double, ndim=1, mode="c"] rew not None,
-               np.ndarray[double, ndim=2, mode="c"] next_obs not None,
-               np.ndarray[double, ndim=1, mode="c"] done not None,
+    def _add_N(self, ObsN obs, ActN act, RewN rew, Next_ObsN next_obs, DoneN done,
                size_t N=1):
         self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add_1(self,
-               np.ndarray[double, ndim=1, mode="c"] obs not None,
-               np.ndarray[double, ndim=1, mode="c"] act not None,
-               double rew,
-               np.ndarray[double, ndim=1, mode="c"] next_obs not None,
-               double done):
+    def _add_1(self, Obs1 obs, Act1 act, Rew1 rew, Next_Obs1 next_obs, Done1 done):
         self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
@@ -261,23 +251,13 @@ cdef class SelectiveEnvironment(Environment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add_N(self,
-               np.ndarray[double, ndim=2, mode="c"] obs not None,
-               np.ndarray[double, ndim=2, mode="c"] act not None,
-               np.ndarray[double, ndim=1, mode="c"] rew not None,
-               np.ndarray[double, ndim=2, mode="c"] next_obs not None,
-               np.ndarray[double, ndim=1, mode="c"] done not None,
+    def _add_N(self, ObsN obs, ActN act, RewN rew, Next_ObsN next_obs, DoneN done,
                size_t N=1):
         self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add_1(self,
-               np.ndarray[double, ndim=1, mode="c"] obs not None,
-               np.ndarray[double, ndim=1, mode="c"] act not None,
-               double rew,
-               np.ndarray[double, ndim=1, mode="c"] next_obs not None,
-               double done):
+    def _add_1(self, Obs1 obs, Act1 act, Rew1 rew, Next_Obs1 next_obs, Done1 done):
         self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
