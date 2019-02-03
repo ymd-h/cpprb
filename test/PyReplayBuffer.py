@@ -232,10 +232,10 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
                          np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
                          np.random.randint(0,2,size=self.add_dim)*1.0)
 
-        self.assertEqual(srb.get_next_index(),
-                         min(self.N_add*self.add_dim,srb.get_buffer_size()))
+        self.assertEqual(self.srb.get_next_index(),
+                         min(self.N_add*self.add_dim,self.srb.get_buffer_size()))
 
-        old_index = srb.get_next_index()
+        old_index = self.srb.get_next_index()
         s = self.srb.get_episode(2)
         delete_len = self.delete_episode(2)
         self.assertEqual(self.get_next_index(), old_index - delete_len)
