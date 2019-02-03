@@ -198,6 +198,16 @@ namespace ymd {
       ep_len = end - begin;
     }
 
+    auto get_episode(std::size_t i) const {
+      Observation *obs,*next_obs;
+      Action* act;
+      Reward* rew;
+      Done* done;
+      std::size_t ep_len;
+      get_episode(i,ep_len,obs,act,rew,next_obs,done);
+      return std::make_tuple(obs,act,rew,next_obs,done,ep_len);
+    }
+
     auto delete_eipsode(std::size_t i){
       if(i >= episode_begins.size() -1){
 	auto old_index = std::exchange(next_index,episode_begins.back());
