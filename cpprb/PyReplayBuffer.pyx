@@ -379,8 +379,12 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         samples['indexes'] = idx
         return samples
 
+    cdef void _update_priorities(self,size_t [:] indexes,PrioN priorities,size_t N=1):
+        self.per.update_priorities(indexes,priorities,N)
+
     def update_priorities(self,indexes,priorities):
-        self.per.update_priorities(indexes,priorities)
+        cdef size_t N = indexes.shape[0]
+        self._update_priorities(indexes,priorities,N)
 
     def clear(self):
         super().clear()
