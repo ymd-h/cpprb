@@ -241,6 +241,7 @@ namespace ymd {
       return delete_size;
     }
     std::size_t get_next_index() const { return next_index; }
+    std::size_t get_stored_size() const { return next_index; }
     auto get_stored_episode_size() const {
       return episode_begins.size() - (next_index == episode_begins.back() ? 1ul: 0ul);
     }
