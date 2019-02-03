@@ -236,7 +236,7 @@ namespace ymd {
       next_index -= delete_size;
       std::transform(episode_begins.begin() + i+1, episode_begins.end(),
 		     episode_begins.begin() + i,
-		     [=delete_size](auto begin){ return begin - delete_size; });
+		     [delete_size](auto begin){ return begin - delete_size; });
       episode_begins.pop_back();
       return delete_size;
     }
