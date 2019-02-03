@@ -177,6 +177,9 @@ void test_SelectiveEnvironment(){
   assert(2*episode_len - 1ul == se.get_next_index());
   assert(2*episode_len - 1ul == se.get_stored_size());
   assert(2ul == se.get_stored_episode_size());
+
+  se.get_episode(1,ep_len,obs_,act_,rew_,next_obs_,done_);
+  assert(episode_len - 1ul == ep_len);
 }
 
 int main(){
