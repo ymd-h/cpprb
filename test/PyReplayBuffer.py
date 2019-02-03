@@ -1,7 +1,6 @@
 import numpy as np
 import unittest, time
-from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,
-                   NstepReplayBuffer,NstepPrioritizedReplayBuffer)
+from cpprb import *
 
 class TestReplayBuffer(unittest.TestCase):
     """=== ReplayBuffer.py ==="""
@@ -206,6 +205,40 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
         end = time.perf_counter()
         print("N-PER Sample {} time execution".format(cls.N_time))
         print("{} s".format(end - start))
+
+class TestSelectiveReplayBuffer(TestReplayBuffer):
+    """=== SelectiveReplayBuffer ==="""
+    class_name = "S-ER"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rb = SelectiveReplayBuffer(cls.buffer_size,
+                                       cls.obs_dim,
+                                       cls.act_dim,
+                                       Nepisodes=10)
+        cls.fill_ReplayBuffer()
+        cls.s = cls.rb.sample(cls.batch_size)
+
+    def test_episode(self):
+        self.srb = SelectiveReplayBuffer(self.buffer_size,
+                                         self.obs_dim,
+                                         self.act_dim,
+                                         Nepisodes=10)
+
+        for i in range(self.N_add):
+            self.srb.add(np.ones(shape=(self.add_dim,self.obs_dim))*i,
+                         np.zeros(shape=(self.add_dim,self.act_dim)),
+                         np.ones((self.add_dim)) * 0.5*i,
+                         np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
+                         np.random.randint(0,2,size=self.add_dim)*1.0)
+
+        self.assertEqual(self.srb.get_next_index(),
+                         min(self.N_add*self.add_dim,self.srb.get_buffer_size()))
+
+        old_index = self.srb.get_next_index()
+        s = self.srb.get_episode(2)
+        delete_len = self.srb.delete_episode(2)
+        self.assertEqual(self.srb.get_next_index(), old_index - delete_len)
 
 if __name__ == '__main__':
     unittest.main()

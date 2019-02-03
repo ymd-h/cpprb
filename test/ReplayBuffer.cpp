@@ -101,6 +101,131 @@ void test_NstepReward(){
   }
 }
 
+void test_SelectiveEnvironment(){
+  constexpr const auto obs_dim = 3ul;
+  constexpr const auto act_dim = 1ul;
+  constexpr const auto episode_len = 4ul;
+  constexpr const auto Nepisodes = 10ul;
+
+  auto se = ymd::CppSelectiveEnvironment<Observation,Action,Reward,Done>(episode_len,
+									 Nepisodes,
+									 obs_dim,
+									 act_dim);
+
+  std::cout << std::endl
+	    << "SelectiveEnvironment("
+	    << "episode_len=" << episode_len
+	    << ",Nepisodes=" << Nepisodes
+	    << ",obs_dim=" << obs_dim
+	    << ",act_dim=" << act_dim
+	    << ")" << std::endl;
+
+  assert(0ul == se.get_next_index());
+  assert(0ul == se.get_stored_size());
+  assert(0ul == se.get_stored_episode_size());
+  assert(episode_len*Nepisodes == se.get_buffer_size());
+
+  auto obs = std::vector(obs_dim*(episode_len+1),Observation{1});
+  auto act = std::vector(act_dim*episode_len,Action{1.5});
+  auto rew = std::vector(episode_len,Reward{1});
+  auto done = std::vector(episode_len,Done{0});
+  done.back() = Done{1};
+
+  // Add 1-step
+  se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),1ul);
+  auto [obs_,act_,rew_,next_obs_,done_,ep_len] = se.get_episode(0);
+  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  show_pointer(rew_,se.get_stored_size(),"rew");
+  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  show_pointer(done_,se.get_stored_size(),"done");
+
+  assert(1ul == ep_len);
+  assert(1ul == se.get_next_index());
+  assert(1ul == se.get_stored_size());
+  assert(1ul == se.get_stored_episode_size());
+
+  // Add remained 3-steps
+  se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
+	   episode_len - 1ul);
+  se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
+  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  show_pointer(rew_,se.get_stored_size(),"rew");
+  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  show_pointer(done_,se.get_stored_size(),"done");
+
+  assert(episode_len == ep_len);
+  assert(episode_len == se.get_next_index());
+  assert(episode_len == se.get_stored_size());
+  assert(1ul == se.get_stored_episode_size());
+
+  // Try to get non stored episode
+  se.get_episode(1,ep_len,obs_,act_,rew_,next_obs_,done_);
+  assert(0ul == ep_len);
+
+  // Add shorter epsode
+  se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
+	   episode_len - 1ul);
+  se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
+  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  show_pointer(rew_,se.get_stored_size(),"rew");
+  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  show_pointer(done_,se.get_stored_size(),"done");
+
+  assert(2*episode_len - 1ul == se.get_next_index());
+  assert(2*episode_len - 1ul == se.get_stored_size());
+  assert(2ul == se.get_stored_episode_size());
+
+  se.get_episode(1,ep_len,obs_,act_,rew_,next_obs_,done_);
+  assert(episode_len - 1ul == ep_len);
+
+  // Delete non existing episode
+  assert(0ul == se.delete_episode(99));
+  assert(2*episode_len - 1ul == se.get_next_index());
+  assert(2*episode_len - 1ul == se.get_stored_size());
+  assert(2ul == se.get_stored_episode_size());
+
+  // Delete 0
+  se.delete_episode(0);
+  se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
+  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  show_pointer(rew_,se.get_stored_size(),"rew");
+  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  show_pointer(done_,se.get_stored_size(),"done");
+  assert(episode_len - 1ul == se.get_next_index());
+  assert(episode_len - 1ul == se.get_stored_size());
+  assert(1ul == se.get_stored_episode_size());
+
+  // Add shorter epsode with not terminating
+  se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),
+	   episode_len - 1ul);
+  assert(2*episode_len - 2ul == se.get_next_index());
+  assert(2*episode_len - 2ul == se.get_stored_size());
+  assert(2ul == se.get_stored_episode_size());
+
+  // Delete half-open episode
+  se.delete_eipsode(1);
+  assert(episode_len - 1ul == se.get_next_index());
+  assert(episode_len - 1ul == se.get_stored_size());
+  assert(1ul == se.get_stored_episode_size());
+
+  // Add shorter epsode with not terminating
+  se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),
+	   episode_len - 1ul);
+  assert(2*episode_len - 2ul == se.get_next_index());
+  assert(2*episode_len - 2ul == se.get_stored_size());
+  assert(2ul == se.get_stored_episode_size());
+
+  // Delete 0 when finishing half-open episode
+  se.delete_episode(0);
+  assert(episode_len - 1ul == se.get_next_index());
+  assert(episode_len - 1ul == se.get_stored_size());
+  assert(1ul == se.get_stored_episode_size());
+}
+
 int main(){
 
   constexpr const auto obs_dim = 3ul;
@@ -248,6 +373,7 @@ int main(){
   show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
 
   test_NstepReward();
+  test_SelectiveEnvironment();
 
   return 0;
 }

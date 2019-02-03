@@ -125,8 +125,7 @@ cdef class PointerDouble(VectorWrapper):
     cdef void update_vec_size(self,size):
         self._vec_size = self.value_dim * size
 
-cdef class RingEnvironment:
-    cdef CppRingEnvironment[double,double,double,double] *buffer
+cdef class Environment:
     cdef PointerDouble obs
     cdef PointerDouble act
     cdef PointerDouble rew
@@ -135,8 +134,8 @@ cdef class RingEnvironment:
     cdef int buffer_size
     cdef int obs_dim
     cdef int act_dim
+
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
-        self.buffer_size = size
         self.obs_dim = obs_dim
         self.act_dim = act_dim
         self.obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
@@ -144,6 +143,27 @@ cdef class RingEnvironment:
         self.rew = PointerDouble(ndim=1,value_dim=1,size=size)
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=1,value_dim=1,size=size)
+
+    def add(self,obs,act,rew,next_obs,done):
+        if obs.ndim == 1:
+            self._add_1(obs,act,rew,next_obs,done)
+        else:
+            self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
+
+    def _encode_sample(self,idx):
+        return {'obs': np.asarray(self.obs)[idx,:],
+                'act': np.asarray(self.act)[idx,:],
+                'rew': np.asarray(self.rew)[idx],
+                'next_obs': np.asarray(self.next_obs)[idx,:],
+                'done': np.asarray(self.done)[idx]}
+
+    def get_buffer_size(self):
+        return self.buffer_size
+
+cdef class RingEnvironment(Environment):
+    cdef CppRingEnvironment[double,double,double,double] *buffer
+    def __cinit__(self,size,obs_dim,act_dim,**kwargs):
+        self.buffer_size = size
 
         self.buffer = new CppRingEnvironment[double,double,double,double](size,
                                                                           obs_dim,
@@ -153,7 +173,8 @@ cdef class RingEnvironment:
                                         self.act.ptr,
                                         self.rew.ptr,
                                         self.next_obs.ptr,
-                                        self.done.ptr);
+                                        self.done.ptr)
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _add_N(self,
@@ -175,21 +196,52 @@ cdef class RingEnvironment:
                double done):
         self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
-    def add(self,obs,act,rew,next_obs,done):
-        if obs.ndim == 1:
-            self._add_1(obs,act,rew,next_obs,done)
-        else:
-            self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
+    def clear(self):
+        return self.buffer.clear()
 
-    def _encode_sample(self,idx):
-        return {'obs': np.asarray(self.obs)[idx,:],
-                'act': np.asarray(self.act)[idx,:],
-                'rew': np.asarray(self.rew)[idx],
-                'next_obs': np.asarray(self.next_obs)[idx,:],
-                'done': np.asarray(self.done)[idx]}
+    def get_stored_size(self):
+        return self.buffer.get_stored_size()
 
-    def get_buffer_size(self):
-        return self.buffer_size
+    def get_next_index(self):
+        return self.buffer.get_next_index()
+
+cdef class SelectiveEnvironment(Environment):
+    cdef CppSelectiveEnvironment[double,double,double,double] *buffer
+    def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,**kwargs):
+        self.buffer_size = episode_len * Nepisodes
+
+        self.buffer = new CppSelectiveEnvironment[double,double,
+                                                  double,double](episode_len,
+                                                                 Nepisodes,
+                                                                 obs_dim,
+                                                                 act_dim)
+
+        self.buffer.get_buffer_pointers(self.obs.ptr,
+                                        self.act.ptr,
+                                        self.rew.ptr,
+                                        self.next_obs.ptr,
+                                        self.done.ptr)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_N(self,
+               np.ndarray[double, ndim=2, mode="c"] obs not None,
+               np.ndarray[double, ndim=2, mode="c"] act not None,
+               np.ndarray[double, ndim=1, mode="c"] rew not None,
+               np.ndarray[double, ndim=2, mode="c"] next_obs not None,
+               np.ndarray[double, ndim=1, mode="c"] done not None,
+               size_t N=1):
+        self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_1(self,
+               np.ndarray[double, ndim=1, mode="c"] obs not None,
+               np.ndarray[double, ndim=1, mode="c"] act not None,
+               double rew,
+               np.ndarray[double, ndim=1, mode="c"] next_obs not None,
+               double done):
+        self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
         return self.buffer.clear()
@@ -200,8 +252,59 @@ cdef class RingEnvironment:
     def get_next_index(self):
         return self.buffer.get_next_index()
 
+    def get_stored_episode_size(self):
+        return self.buffer.get_stored_episode_size()
+
+    def delete_episode(self,i):
+        return self.buffer.delete_episode(i)
+
+    def get_episode(self,i):
+        cdef size_t len = 0
+        self.buffer.get_episode(i,len,
+                                self.obs.ptr,self.act.ptr,self.rew.ptr,
+                                self.next_obs.ptr,self.done.ptr)
+        if len == 0:
+            return {'obs': np.ndarray((0,self.obs_dim)),
+                'act': np.ndarray((0,self.act_dim)),
+                'rew': np.ndarray((0)),
+                'next_obs': np.ndarray((0,self.obs_dim)),
+                'done': np.ndarray(0)}
+
+        self.obs.update_vec_size(len)
+        self.act.update_vec_size(len)
+        self.rew.update_vec_size(len)
+        self.next_obs.update_vec_size(len)
+        self.done.update_vec_size(len)
+        return {'obs': np.asarray(self.obs),
+                'act': np.asarray(self.act),
+                'rew': np.asarray(self.rew),
+                'next_obs': np.asarray(self.next_obs),
+                'done': np.asarray(self.done)}
+
+    def _encode_sample(self,indexes):
+        self.buffer.get_buffer_pointers(self.obs.ptr,
+                                        self.act.ptr,
+                                        self.rew.ptr,
+                                        self.next_obs.ptr,
+                                        self.done.ptr)
+        buffer_size = self.get_buffer_size()
+        self.obs.update_vec_size(buffer_size)
+        self.act.update_vec_size(buffer_size)
+        self.rew.update_vec_size(buffer_size)
+        self.next_obs.update_vec_size(buffer_size)
+        self.done.update_vec_size(buffer_size)
+        return super()._encode_sample(indexes)
+
 cdef class ReplayBuffer(RingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
+        pass
+
+    def sample(self,batch_size):
+        idx = np.random.randint(0,self.get_stored_size(),batch_size)
+        return self._encode_sample(idx)
+
+cdef class SelectiveReplayBuffer(SelectiveEnvironment):
+    def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,**kwargs):
         pass
 
     def sample(self,batch_size):
