@@ -186,6 +186,19 @@ void test_SelectiveEnvironment(){
   assert(2*episode_len - 1ul == se.get_next_index());
   assert(2*episode_len - 1ul == se.get_stored_size());
   assert(2ul == se.get_stored_episode_size());
+
+  // Delete 0
+  se.delete_eipsode(0);
+  se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
+  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  show_pointer(rew_,se.get_stored_size(),"rew");
+  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  show_pointer(done_,se.get_stored_size(),"done");
+  assert(episode_len - 1ul == se.get_next_index());
+  assert(episode_len - 1ul == se.get_stored_size());
+  assert(1ul == se.get_stored_episode_size());
+
 }
 
 int main(){
