@@ -230,7 +230,7 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
                          np.zeros(shape=(self.add_dim,self.act_dim)),
                          np.ones((self.add_dim)) * 0.5*i,
                          np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
-                         np.randint(0,2,shape=self.add_dim))
+                         np.random.randint(0,2,size=self.add_dim)*1.0)
 
         self.assertEqual(srb.get_next_index(),
                          min(self.N_add*self.add_dim,srb.get_buffer_size()))
