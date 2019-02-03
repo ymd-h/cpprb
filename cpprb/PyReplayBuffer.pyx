@@ -220,7 +220,7 @@ cdef class SelectiveEnvironment(Environment):
                                         self.act.ptr,
                                         self.rew.ptr,
                                         self.next_obs.ptr,
-                                        self.done.ptr);
+                                        self.done.ptr)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -273,6 +273,20 @@ cdef class SelectiveEnvironment(Environment):
                 'rew': np.asarray(self.rew),
                 'next_obs': np.asarray(self.next_obs),
                 'done': np.asarray(self.done)}
+
+    def _encode_sample(self,indexes):
+        self.buffer.get_buffer_pointers(self.obs.ptr,
+                                        self.act.ptr,
+                                        self.rew.ptr,
+                                        self.next_obs.ptr,
+                                        self.done.ptr)
+        buffer_size = self.get_buffer_size()
+        self.obs.update_vec_size(buffer_size)
+        self.act.update_vec_size(buffer_size)
+        self.rew.update_vec_size(buffer_size)
+        self.next_obs.update_vec_size(buffer_size)
+        self.done.update_vec_size(buffer_size)
+        return super()._encode_sample(indexes)
 
 cdef class ReplayBuffer(RingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
