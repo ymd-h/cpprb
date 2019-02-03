@@ -19,8 +19,8 @@ ctypedef fused Act_t:
     np.ndarray[float , ndim=2, mode="c"]
     np.ndarray[double, ndim=2, mode="c"]
 ctypedef fused Rew_t:
-    float
-    double
+    cython.float
+    cython.double
     np.ndarray[float , ndim=1, mode="c"]
     np.ndarray[double, ndim=1, mode="c"]
 ctypedef fused Next_Obs_t:
@@ -29,13 +29,13 @@ ctypedef fused Next_Obs_t:
     np.ndarray[float , ndim=2, mode="c"]
     np.ndarray[double, ndim=2, mode="c"]
 ctypedef fused Done_t:
-    float
-    double
+    cython.float
+    cython.double
     np.ndarray[float , ndim=1, mode="c"]
     np.ndarray[double, ndim=1, mode="c"]
 ctypedef fused Prio_t:
-    float
-    double
+    cython.float
+    cython.double
     np.ndarray[float , ndim=1, mode="c"]
     np.ndarray[double, ndim=1, mode="c"]
 
