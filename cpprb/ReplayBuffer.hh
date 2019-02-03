@@ -473,7 +473,10 @@ namespace ymd {
       return max_priority;
     }
 
-    void set_priorities(std::size_t next_index,Priority p){
+    template<typename P,
+	     std::enable_if_t<std::is_convertible_v<P,Priority>,
+			      std::nullptr_t> = nullptr>
+    void set_priorities(std::size_t next_index,P p){
       if(p > max_priority){ max_priority = p; }
       auto v = std::pow(p,alpha);
       sum.set(next_index,v);
@@ -484,7 +487,10 @@ namespace ymd {
       set_priorities(next_index,max_priority);
     }
 
-    void set_priorities(std::size_t next_index,Priority* p,
+    template<typename P,
+	     std::enable_if_t<std::is_convertible_v<P,Priority>,
+			      std::nullptr_t> = nullptr>
+    void set_priorities(std::size_t next_index,P* p,
 			std::size_t N,std::size_t buffer_size){
       if(auto p_max = *std::max_element(p,p+N); p_max > max_priority){
 	max_priority = p_max;
@@ -499,17 +505,20 @@ namespace ymd {
 		     N,buffer_size);
     }
 
+    template<typename P,
+	     std::enable_if_t<std::is_convertible_v<P,Priority>,
+			      std::nullptr_t> = nullptr>
     void update_priorities(std::vector<std::size_t>& indexes,
-			   std::vector<Priority>& priorities){
+			   std::vector<P>& priorities){
 
       max_priority = std::accumulate(indexes.begin(),indexes.end(),max_priority,
 				     [=,p=priorities.begin()]
 				     (auto max_p, auto index) mutable {
-				       auto v = std::pow(*p,this->alpha);
+				       Priority v = std::pow(*p,this->alpha);
 				       this->sum.set(index,v);
 				       this->min.set(index,v);
 
-				       return std::max(max_p,*(p++));
+				       return std::max<Priority>(max_p,*(p++));
 				     });
     }
   };
