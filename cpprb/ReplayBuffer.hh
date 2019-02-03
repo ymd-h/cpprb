@@ -179,7 +179,7 @@ namespace ymd {
 		       std::size_t N = 1ul){
       const auto buffer_size = this->get_buffer_size();
       auto shift = 0ul;
-      auto copy_N = std::min({N,buffer_size - next_index,episode_len});
+      auto copy_N = std::min(N,buffer_size - next_index);
       this->Env_t::store(obs,act,rew,next_obs,done,shift,next_index,copy_N);
       next_index += copy_N;
 
