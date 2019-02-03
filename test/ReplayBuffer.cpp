@@ -207,7 +207,7 @@ void test_SelectiveEnvironment(){
   assert(2ul == se.get_stored_episode_size());
 
   // Delete half-open episode
-  se.delete_eipsode(1);
+  se.delete_episode(1);
   assert(episode_len - 1ul == se.get_next_index());
   assert(episode_len - 1ul == se.get_stored_size());
   assert(1ul == se.get_stored_episode_size());
