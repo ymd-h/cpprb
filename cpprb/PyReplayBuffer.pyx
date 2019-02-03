@@ -316,34 +316,57 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         self.weights = VectorDouble()
         self.indexes = VectorULong()
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef _update_1(self,size_t next_index):
         self.per.set_priorities(next_index)
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef _update_1p(self,size_t next_index,Prio1 p):
         self.per.set_priorities(next_index,p)
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef _update_N(self,size_t next_index,size_t N=1):
         self.per.set_priorities(next_index,N,self.get_stored_size())
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef _update_Np(self,size_t next_index,PrioN p,size_t N=1):
         self.per.set_priorities(next_index,&p[0],N,self.get_stored_size())
 
-    def add(self,obs,act,rew,next_obs,done,priorities = None):
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    cdef void _add(self,obs,act,rew,next_obs,done):
         cdef size_t next_index = self.get_next_index()
         cdef size_t N
-        if obs.ndim == 1:
+        if obs.dim == 1:
             self._add_1(obs,act,rew,next_obs,done)
-            if priorities is not None:
-                self._update_1p(next_index,priorities)
-            else:
-                self._update_1(next_index)
+            self._update_1(next_index)
         else:
             N = obs.shape[0]
             self._add_N(obs,act,rew,next_obs,done,N)
-            if priorities is not None:
-                self._update_Np(next_index,priorities,N)
-            else:
-                self._update_N(next_index,N)
+            self._update_N(next_index,N)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    cdef void _add_p(self,obs,act,rew,next_obs,done,priorities):
+        cdef size_t next_index = self.get_next_index()
+        cdef size_t N
+        if obs.dim == 1:
+            self._add_1(obs,act,rew,next_obs,done)
+            self._update_1p(next_index,priorities)
+        else:
+            N = obs.shape[0]
+            self._add_N(obs,act,rew,next_obs,done,N)
+            self._update_Np(next_index,priorities,N)
+
+    def add(self,obs,act,rew,next_obs,done,priorities = None):
+        if priorities is not None:
+            self._add_p(obs,act,rew,next_obs,done,priorities)
+        else:
+            self._add(obs,act,rew,next_obs,done)
 
     def sample(self,batch_size,beta = 0.4):
         self.per.sample(batch_size,beta,
