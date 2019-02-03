@@ -147,6 +147,35 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
+  class CppSelectiveEnvironment :public Environment<Observation,Action,Reward,Done>{
+  public:
+    using Env_t = Environment<Observation,Action,Reward,Done>;
+
+  private:
+    std::size_t next_index;
+    std::size_t episode_len;
+    std::size_t episode_N;
+    std::vector<std::size_t> episode_begins;
+    std::size_t episode_index;
+
+  public:
+    CppSelectiveEnvironment(std::size_t episode_len,std::size_t episode_N,
+			 std::size_t obs_dim,std::size_t act_dim)
+      : Env_t{episode_len * episode_N,obs_dim,act_dim},
+	next_index{0ul},
+	episode_begins{},
+	episode_index{0ul} {
+	  episode_begins.reserve(episonde_N);
+	}
+    CppSelectiveEnvironment(): CppSelectiveEnvironment{1ul,1ul,1ul,1ul} {}
+    CppSelectiveEnvironment(const CppSelectiveEnvironment&) = default;
+    CppSelectiveEnvironment(CppSelectiveEnvironment&&) = default;
+    CppSelectiveEnvironment& operator=(const CppSelectiveEnvironment&) = default;
+    CppSelectiveEnvironment& operator=(CppSelectiveEnvironment&&) = default;
+    ~CppSelectiveEnvironment() = default;
+  };
+
+  template<typename Observation,typename Action,typename Reward,typename Done>
   class CppReplayBuffer : public CppRingEnvironment<Observation,Action,Reward,Done>{
   public:
     using Buffer_t = CppRingEnvironment<Observation,Action,Reward,Done>;
