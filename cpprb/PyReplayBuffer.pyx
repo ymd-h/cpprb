@@ -361,7 +361,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
             else:
                 self._update_1(next_index)
         else:
-            N = obs.shape[0]
+            cdef size_t N = obs.shape[0]
             self._add_N(obs,act,rew,next_obs,done,N)
             if priorities is not None:
                 self._update_Np(next_index,priorities,N)
