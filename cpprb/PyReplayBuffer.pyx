@@ -255,6 +255,25 @@ cdef class SelectiveEnvironment(Environment):
     def get_stored_episode_size(self):
         return self.buffer.get_stored_episode_size()
 
+    def delete_episode(self,i):
+        return self.buffer.delete_episode(i)
+
+    def get_episode(self,i):
+        len = 0
+        self.get_episode(i,len,
+                         self.obs.ptr,self.act.ptr,self.rew.ptr,
+                         self.next_obs.ptr,self.done.ptr)
+        self.obs.update_vec_size(len)
+        self.act.update_vec_size(len)
+        self.rew.update_vec_size(len)
+        self.next_obs.update_vec_size(len)
+        self.done.update_vec_size(len)
+        return {'obs': np.asarray(self.obs),
+                'act': np.asarray(self.act),
+                'rew': np.asarray(self.rew),
+                'next_obs': np.asarray(self.next_obs),
+                'done': np.asarray(self.done)}
+
 cdef class ReplayBuffer(RingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         pass
