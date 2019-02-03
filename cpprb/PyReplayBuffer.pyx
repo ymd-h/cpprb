@@ -125,8 +125,7 @@ cdef class PointerDouble(VectorWrapper):
     cdef void update_vec_size(self,size):
         self._vec_size = self.value_dim * size
 
-cdef class RingEnvironment:
-    cdef CppRingEnvironment[double,double,double,double] *buffer
+cdef class Environment:
     cdef PointerDouble obs
     cdef PointerDouble act
     cdef PointerDouble rew
@@ -135,8 +134,8 @@ cdef class RingEnvironment:
     cdef int buffer_size
     cdef int obs_dim
     cdef int act_dim
+
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
-        self.buffer_size = size
         self.obs_dim = obs_dim
         self.act_dim = act_dim
         self.obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
@@ -144,6 +143,27 @@ cdef class RingEnvironment:
         self.rew = PointerDouble(ndim=1,value_dim=1,size=size)
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=1,value_dim=1,size=size)
+
+    def add(self,obs,act,rew,next_obs,done):
+        if obs.ndim == 1:
+            self._add_1(obs,act,rew,next_obs,done)
+        else:
+            self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
+
+    def _encode_sample(self,idx):
+        return {'obs': np.asarray(self.obs)[idx,:],
+                'act': np.asarray(self.act)[idx,:],
+                'rew': np.asarray(self.rew)[idx],
+                'next_obs': np.asarray(self.next_obs)[idx,:],
+                'done': np.asarray(self.done)[idx]}
+
+    def get_buffer_size(self):
+        return self.buffer_size
+
+cdef class RingEnvironment(Environment):
+    cdef CppRingEnvironment[double,double,double,double] *buffer
+    def __cinit__(self,size,obs_dim,act_dim,**kwargs):
+        self.buffer_size = size
 
         self.buffer = new CppRingEnvironment[double,double,double,double](size,
                                                                           obs_dim,
@@ -154,6 +174,7 @@ cdef class RingEnvironment:
                                         self.rew.ptr,
                                         self.next_obs.ptr,
                                         self.done.ptr);
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _add_N(self,
@@ -174,22 +195,6 @@ cdef class RingEnvironment:
                np.ndarray[double, ndim=1, mode="c"] next_obs not None,
                double done):
         self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
-
-    def add(self,obs,act,rew,next_obs,done):
-        if obs.ndim == 1:
-            self._add_1(obs,act,rew,next_obs,done)
-        else:
-            self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
-
-    def _encode_sample(self,idx):
-        return {'obs': np.asarray(self.obs)[idx,:],
-                'act': np.asarray(self.act)[idx,:],
-                'rew': np.asarray(self.rew)[idx],
-                'next_obs': np.asarray(self.next_obs)[idx,:],
-                'done': np.asarray(self.done)[idx]}
-
-    def get_buffer_size(self):
-        return self.buffer_size
 
     def clear(self):
         return self.buffer.clear()
