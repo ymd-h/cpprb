@@ -9,35 +9,35 @@ import cython
 from cpprb cimport ReplayBuffer
 
 ctypedef fused Obs_t:
-    np.ndarray[float , ndim=1, mode="c"]
-    np.ndarray[double, ndim=1, mode="c"]
-    np.ndarray[float , ndim=2, mode="c"]
-    np.ndarray[double, ndim=2, mode="c"]
+    cython.float[:]
+    cython.double[:]
+    cython.float[:,:]
+    cython.double[:,:]
 ctypedef fused Act_t:
-    np.ndarray[float , ndim=1, mode="c"]
-    np.ndarray[double, ndim=1, mode="c"]
-    np.ndarray[float , ndim=2, mode="c"]
-    np.ndarray[double, ndim=2, mode="c"]
+    cython.float[:]
+    cython.double[:]
+    cython.float[:,:]
+    cython.double[:,:]
 ctypedef fused Rew_t:
     cython.float
     cython.double
-    np.ndarray[float , ndim=1, mode="c"]
-    np.ndarray[double, ndim=1, mode="c"]
+    cython.float[:]
+    cython.double[:]
 ctypedef fused Next_Obs_t:
-    np.ndarray[float , ndim=1, mode="c"]
-    np.ndarray[double, ndim=1, mode="c"]
-    np.ndarray[float , ndim=2, mode="c"]
-    np.ndarray[double, ndim=2, mode="c"]
+    cython.float[:]
+    cython.double[:]
+    cython.float[:,:]
+    cython.double[:,:]
 ctypedef fused Done_t:
     cython.float
     cython.double
-    np.ndarray[float , ndim=1, mode="c"]
-    np.ndarray[double, ndim=1, mode="c"]
+    cython.float[:]
+    cython.double[:]
 ctypedef fused Prio_t:
     cython.float
     cython.double
-    np.ndarray[float , ndim=1, mode="c"]
-    np.ndarray[double, ndim=1, mode="c"]
+    cython.float[:]
+    cython.double[:]
 
 cdef class VectorWrapper:
     cdef Py_ssize_t *shape
