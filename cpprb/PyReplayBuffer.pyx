@@ -343,13 +343,13 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     cdef _update_1(self,size_t next_index):
         self.per.set_priorities(next_index)
 
-    cdef _update_1p(self,size_t next_index,double p):
+    cdef _update_1p(self,size_t next_index,Prio1 p):
         self.per.set_priorities(next_index,p)
 
     cdef _update_N(self,size_t next_index,size_t N=1):
         self.per.set_priorities(next_index,N,self.get_stored_size())
 
-    cdef _update_Np(self,size_t next_index,np.ndarray[double,ndim=1] p,size_t N=1):
+    cdef _update_Np(self,size_t next_index,PrioN p,size_t N=1):
         self.per.set_priorities(next_index,&p[0],N,self.get_stored_size())
 
     def add(self,obs,act,rew,next_obs,done,priorities = None):
