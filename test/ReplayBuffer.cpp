@@ -101,6 +101,19 @@ void test_NstepReward(){
   }
 }
 
+void test_SelectiveEnvironment(){
+  constexpr const auto obs_dim = 3ul;
+  constexpr const auto act_dim = 1ul;
+  constexpr const auto episode_len = 4ul;
+  constexpr const auto Nepisodes = 10ul;
+
+  auto se = ymd::CppSelectiveEnvironment(episode_len,Nepisodes,obs_dim,act_dim);
+
+  assert(0ul == se.get_next_index());
+  assert(0ul == se.get_stored_size());
+  assert(0ul == se.get_stored_episode_size());
+}
+
 int main(){
 
   constexpr const auto obs_dim = 3ul;
@@ -248,6 +261,7 @@ int main(){
   show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
 
   test_NstepReward();
+  test_SelectiveEnvironment();
 
   return 0;
 }
