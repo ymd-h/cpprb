@@ -205,6 +205,56 @@ cdef class RingEnvironment(Environment):
     def get_next_index(self):
         return self.buffer.get_next_index()
 
+cdef class SelectiveEnvironment(Environment):
+    cdef CppSelectiveEnvironment[double,double,double,double] *buffer
+    def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,**kwargs):
+        self.buffer_size = episode_len * Nepisodes
+
+        self.buffer = new CppSelectiveEnvironment[double,double,
+                                                  double,double](episode_len,
+                                                                 Nepisodes,
+                                                                 obs_dim,
+                                                                 act_dim)
+
+        self.buffer.get_buffer_pointers(self.obs.ptr,
+                                        self.act.ptr,
+                                        self.rew.ptr,
+                                        self.next_obs.ptr,
+                                        self.done.ptr);
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_N(self,
+               np.ndarray[double, ndim=2, mode="c"] obs not None,
+               np.ndarray[double, ndim=2, mode="c"] act not None,
+               np.ndarray[double, ndim=1, mode="c"] rew not None,
+               np.ndarray[double, ndim=2, mode="c"] next_obs not None,
+               np.ndarray[double, ndim=1, mode="c"] done not None,
+               size_t N=1):
+        self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_1(self,
+               np.ndarray[double, ndim=1, mode="c"] obs not None,
+               np.ndarray[double, ndim=1, mode="c"] act not None,
+               double rew,
+               np.ndarray[double, ndim=1, mode="c"] next_obs not None,
+               double done):
+        self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
+
+    def clear(self):
+        return self.buffer.clear()
+
+    def get_stored_size(self):
+        return self.buffer.get_stored_size()
+
+    def get_next_index(self):
+        return self.buffer.get_next_index()
+
+    def get_stored_episode_size(self):
+        return self.buffer.get_stored_episode_size()
+
 cdef class ReplayBuffer(RingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         pass
