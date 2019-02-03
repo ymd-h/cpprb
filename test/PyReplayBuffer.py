@@ -219,5 +219,26 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
 
+    def test_episode(self):
+        self.srb = SelectiveReplayBuffer(self.buffer_size,
+                                         self.obs_dim,
+                                         self.act_dim,
+                                         Nepisodes=10)
+
+        for i in range(self.N_add):
+            self.srb.add(np.ones(shape=(self.add_dim,self.obs_dim))*i,
+                         np.zeros(shape=(self.add_dim,self.act_dim)),
+                         np.ones((self.add_dim)) * 0.5*i,
+                         np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
+                         np.randint(0,2,shape=self.add_dim))
+
+        self.assertEqual(srb.get_next_index(),
+                         min(self.N_add*self.add_dim,srb.get_buffer_size()))
+
+        old_index = srb.get_next_index()
+        s = self.srb.get_episode(2)
+        delete_len = self.delete_episode(2)
+        self.assertEqual(self.get_next_index(), old_index - delete_len)
+
 if __name__ == '__main__':
     unittest.main()
