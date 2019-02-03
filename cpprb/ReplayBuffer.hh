@@ -122,9 +122,11 @@ namespace ymd {
     CppRingEnvironment& operator=(const CppRingEnvironment&) = default;
     CppRingEnvironment& operator=(CppRingEnvironment&&) = default;
     virtual ~CppRingEnvironment() = default;
-    virtual void store(Observation* obs, Action* act, Reward* rew,
-		       Observation* next_obs, Done* done,
-		       std::size_t N = 1ul){
+    template<typename Obs_t,typename Act_t,typename Rew_t,
+	     typename Next_Obs_t,typename Done_t>
+    void store(Obs_t* obs, Act_t* act, Rew_t* rew,
+	       Next_Obs_t* next_obs, Done_t* done,
+	       std::size_t N = 1ul){
       const auto buffer_size = this->get_buffer_size();
       auto shift = 0ul;
       while(N){
@@ -178,9 +180,11 @@ namespace ymd {
     CppSelectiveEnvironment& operator=(CppSelectiveEnvironment&&) = default;
     ~CppSelectiveEnvironment() = default;
 
-    virtual void store(Observation* obs,Action* act,Reward* rew,
-		       Observation* next_obs, Done* done,
-		       std::size_t N = 1ul){
+    template<typename Obs_t,typename Act_t,typename Rew_t,
+	     typename Next_Obs_t,typename Done_t>
+    void store(Obs_t* obs,Act_t* act,Rew_t* rew,
+	       Next_Obs_t* next_obs, Done_t* done,
+	       std::size_t N = 1ul){
       const auto buffer_size = this->get_buffer_size();
       auto shift = 0ul;
       auto copy_N = std::min(N,buffer_size - next_index);
