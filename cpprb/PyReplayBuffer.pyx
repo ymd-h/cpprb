@@ -8,6 +8,37 @@ import cython
 
 from cpprb cimport ReplayBuffer
 
+ctypedef fused Obs_t:
+    np.ndarray[float , ndim=1, mode="c"]
+    np.ndarray[double, ndim=1, mode="c"]
+    np.ndarray[float , ndim=2, mode="c"]
+    np.ndarray[double, ndim=2, mode="c"]
+ctypedef fused Act_t:
+    np.ndarray[float , ndim=1, mode="c"]
+    np.ndarray[double, ndim=1, mode="c"]
+    np.ndarray[float , ndim=2, mode="c"]
+    np.ndarray[double, ndim=2, mode="c"]
+ctypedef fused Rew_t:
+    float
+    double
+    np.ndarray[float , ndim=1, mode="c"]
+    np.ndarray[double, ndim=1, mode="c"]
+ctypedef fused Next_Obs_t:
+    np.ndarray[float , ndim=1, mode="c"]
+    np.ndarray[double, ndim=1, mode="c"]
+    np.ndarray[float , ndim=2, mode="c"]
+    np.ndarray[double, ndim=2, mode="c"]
+ctypedef fused Done_t:
+    float
+    double
+    np.ndarray[float , ndim=1, mode="c"]
+    np.ndarray[double, ndim=1, mode="c"]
+ctypedef fused Prio_t:
+    float
+    double
+    np.ndarray[float , ndim=1, mode="c"]
+    np.ndarray[double, ndim=1, mode="c"]
+
 cdef class VectorWrapper:
     cdef Py_ssize_t *shape
     cdef Py_ssize_t *strides
