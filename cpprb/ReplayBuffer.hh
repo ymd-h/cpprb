@@ -165,7 +165,7 @@ namespace ymd {
 	episode_len{episode_len},
 	Nepisodes{Nepisodes},
 	episode_begins{0ul} {
-	  episode_begins.reserve(episonde_N);
+	  episode_begins.reserve(Nepisodes);
 	}
     CppSelectiveEnvironment(): CppSelectiveEnvironment{1ul,1ul,1ul,1ul} {}
     CppSelectiveEnvironment(const CppSelectiveEnvironment&) = default;
