@@ -181,12 +181,13 @@ namespace ymd {
       auto shift = 0ul;
       auto copy_N = std::min(N,buffer_size - next_index);
       this->Env_t::store(obs,act,rew,next_obs,done,shift,next_index,copy_N);
-      next_index += copy_N;
 
       if(auto done_index = std::find_if(done,done+copy_N,[](auto d){ return d; });
 	 done_index != done + copy_N){
-	episode_begins.emplace_back(std::distance(done,done_index) +1ul);
+	episode_begins.emplace_back(next_index + std::distance(done,done_index) +1ul);
       }
+
+      next_index += copy_N;
     }
 
     void get_episode(std::size_t i,std::size_t& ep_len,
