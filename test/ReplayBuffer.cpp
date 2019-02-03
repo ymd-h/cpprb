@@ -131,12 +131,26 @@ void test_SelectiveEnvironment(){
   done.back() = Done{1};
 
   se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),1ul);
+  auto [obs_,act_,rew_,next_obs_,done_,ep_len] = se.get_episode(0);
+  show_pointer(obs_,ep_len,"obs");
+  show_pointer(act_,ep_len,"act");
+  show_pointer(rew_,ep_len,"rew");
+  show_pointer(next_obs_,ep_len,"next_obs");
+  show_pointer(done_,ep_len,"done");
+
   assert(1ul == se.get_next_index());
   assert(1ul == se.get_stored_size());
   assert(1ul == se.get_stored_episode_size());
 
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
 	   episode_len - 1ul);
+  se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
+  show_pointer(obs_,ep_len,"obs");
+  show_pointer(act_,ep_len,"act");
+  show_pointer(rew_,ep_len,"rew");
+  show_pointer(next_obs_,ep_len,"next_obs");
+  show_pointer(done_,ep_len,"done");
+
   assert(episode_len == se.get_next_index());
   assert(episode_len == se.get_stored_size());
   assert(1ul == se.get_stored_episode_size());
