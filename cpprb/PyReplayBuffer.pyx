@@ -263,6 +263,13 @@ cdef class SelectiveEnvironment(Environment):
         self.buffer.get_episode(i,len,
                                 self.obs.ptr,self.act.ptr,self.rew.ptr,
                                 self.next_obs.ptr,self.done.ptr)
+        if len == 0:
+            return {'obs': np.ndarray((0,self.obs_dim)),
+                'act': np.ndarray((0,self.act_dim)),
+                'rew': np.ndarray((0)),
+                'next_obs': np.ndarray((0,self.obs_dim)),
+                'done': np.ndarray(0)}
+
         self.obs.update_vec_size(len)
         self.act.update_vec_size(len)
         self.rew.update_vec_size(len)
