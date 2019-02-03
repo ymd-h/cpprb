@@ -245,6 +245,10 @@ namespace ymd {
     auto get_stored_episode_size() const {
       return episode_begins.size() - (next_index == episode_begins.back() ? 1ul: 0ul);
     }
+    virtual void clear(){
+      next_index = 0ul;
+      episode_begins.resize(1);
+    }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
