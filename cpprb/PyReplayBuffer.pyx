@@ -173,7 +173,7 @@ cdef class RingEnvironment(Environment):
                                         self.act.ptr,
                                         self.rew.ptr,
                                         self.next_obs.ptr,
-                                        self.done.ptr);
+                                        self.done.ptr)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
