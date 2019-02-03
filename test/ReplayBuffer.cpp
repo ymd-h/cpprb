@@ -123,6 +123,7 @@ void test_SelectiveEnvironment(){
   assert(0ul == se.get_next_index());
   assert(0ul == se.get_stored_size());
   assert(0ul == se.get_stored_episode_size());
+  assert(episode_len*Nepisodes == se.get_buffer_size());
 
   auto obs = std::vector(obs_dim*(episode_len+1),Observation{1});
   auto act = std::vector(act_dim*episode_len,Action{1.5});
