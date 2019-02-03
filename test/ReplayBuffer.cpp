@@ -134,10 +134,10 @@ void test_SelectiveEnvironment(){
   se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),1ul);
   auto [obs_,act_,rew_,next_obs_,done_,ep_len] = se.get_episode(0);
   std::cout << "ep_len=" << ep_len << std::endl;
-  show_pointer(obs_,se.get_stored_size(),"obs");
-  show_pointer(act_,se.get_stored_size(),"act");
+  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  show_pointer(act_,se.get_stored_size()*act_dim,"act");
   show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size(),"next_obs");
+  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   show_pointer(done_,se.get_stored_size(),"done");
 
   assert(1ul == se.get_next_index());
@@ -148,10 +148,10 @@ void test_SelectiveEnvironment(){
 	   episode_len - 1ul);
   se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
   std::cout << "ep_len=" << ep_len << std::endl;
-  show_pointer(obs_,se.get_stored_size(),"obs");
-  show_pointer(act_,se.get_stored_size(),"act");
+  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  show_pointer(act_,se.get_stored_size()*act_dim,"act");
   show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size(),"next_obs");
+  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   show_pointer(done_,se.get_stored_size(),"done");
 
   assert(episode_len == se.get_next_index());
