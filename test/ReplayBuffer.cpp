@@ -112,9 +112,34 @@ void test_SelectiveEnvironment(){
 									 obs_dim,
 									 act_dim);
 
+  std::cout << std::endl
+	    << "SelectiveEnvironment("
+	    << "episode_len=" << episode_len
+	    << ",Nepisodes=" << Nepisodes
+	    << ",obs_dim=" << obs_dim
+	    << ",act_dim=" << act_dim
+	    << ")" << std::endl;
+
   assert(0ul == se.get_next_index());
   assert(0ul == se.get_stored_size());
   assert(0ul == se.get_stored_episode_size());
+
+  auto obs = std::vector(obs_dim*(episode_len+1),Observation{1});
+  auto act = std::vector(act_dim*episode_len,Action{1.5});
+  auto rew = std::vector(episode_len,Reward{1});
+  auto done = std::vector(episode_len,Done{0});
+  done.back() = Done{1};
+
+  se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),1ul);
+  assert(1ul == se.get_next_index());
+  assert(1ul == se.get_stored_size());
+  assert(1ul == se.get_stored_episode_size());
+
+  se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
+	   episode_len - 1ul);
+  assert(episode_len == se.get_next_index());
+  assert(episode_len == se.get_stored_size());
+  assert(1ul == se.get_stored_episode_size());
 }
 
 int main(){
