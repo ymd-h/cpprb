@@ -8,42 +8,18 @@ import cython
 
 from cpprb cimport ReplayBuffer
 
-ctypedef fused Obs1:
-    cython.float[:]
-    cython.double[:]
-ctypedef fused ObsN:
-    cython.float[:,:]
-    cython.double[:,:]
-ctypedef fused Act1:
-    cython.float[:]
-    cython.double[:]
-ctypedef fused ActN:
-    cython.float[:,:]
-    cython.double[:,:]
-ctypedef fused Rew1:
-    cython.float
-    cython.double
-ctypedef fused RewN:
-    cython.float[:]
-    cython.double[:]
-ctypedef fused Next_Obs1:
-    cython.float[:]
-    cython.double[:]
-ctypedef fused Next_ObsN:
-    cython.float[:,:]
-    cython.double[:,:]
-ctypedef fused Done1:
-    cython.float
-    cython.double
-ctypedef fused DoneN:
-    cython.float[:]
-    cython.double[:]
-ctypedef fused Prio1:
-    cython.float
-    cython.double
-ctypedef fused PrioN:
-    cython.float[:]
-    cython.double[:]
+Obs1      = cython.fused_type(cython.float[:]  , cython.double[:]  )
+ObsN      = cython.fused_type(cython.float[:,:], cython.double[:,:])
+Act1      = cython.fused_type(cython.float[:]  , cython.double[:]  )
+ActN      = cython.fused_type(cython.float[:,:], cython.double[:,:])
+Rew1      = cython.fused_type(cython.float     , cython.double     )
+RewN      = cython.fused_type(cython.float[:]  , cython.double[:]  )
+Next_Obs1 = cython.fused_type(cython.float[:]  , cython.double[:]  )
+Next_ObsN = cython.fused_type(cython.float[:,:], cython.double[:,:])
+Done1     = cython.fused_type(cython.float     , cython.double     )
+DoneN     = cython.fused_type(cython.float[:]  , cython.double[:]  )
+Prio1     = cython.fused_type(cython.float     , cython.double     )
+PrioN     = cython.fused_type(cython.float[:]  , cython.double[:]  )
 
 cdef class VectorWrapper:
     cdef Py_ssize_t *shape
