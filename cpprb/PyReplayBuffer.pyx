@@ -318,27 +318,27 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef _update_1(self,size_t next_index):
+    def _update_1(self,size_t next_index):
         self.per.set_priorities(next_index)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef _update_1p(self,size_t next_index,Prio1 p):
+    def _update_1p(self,size_t next_index,Prio1 p):
         self.per.set_priorities(next_index,p)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef _update_N(self,size_t next_index,size_t N=1):
+    def _update_N(self,size_t next_index,size_t N=1):
         self.per.set_priorities(next_index,N,self.get_stored_size())
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef _update_Np(self,size_t next_index,PrioN p,size_t N=1):
+    def _update_Np(self,size_t next_index,PrioN p,size_t N=1):
         self.per.set_priorities(next_index,&p[0],N,self.get_stored_size())
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef void _add(self,obs,act,rew,next_obs,done):
+    def _add(self,obs,act,rew,next_obs,done):
         cdef size_t next_index = self.get_next_index()
         cdef size_t N
         if obs.dim == 1:
@@ -351,7 +351,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef void _add_p(self,obs,act,rew,next_obs,done,priorities):
+    def _add_p(self,obs,act,rew,next_obs,done,priorities):
         cdef size_t next_index = self.get_next_index()
         cdef size_t N
         if obs.dim == 1:
@@ -380,7 +380,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef void _update_priorities(self,size_t [:] indexes,PrioN priorities,size_t N=1):
+    def _update_priorities(self,size_t [:] indexes,PrioN priorities,size_t N=1):
         self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
