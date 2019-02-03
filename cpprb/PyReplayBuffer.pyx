@@ -378,8 +378,10 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         samples['indexes'] = idx
         return samples
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef void _update_priorities(self,size_t [:] indexes,PrioN priorities,size_t N=1):
-        self.per.update_priorities(indexes,&priorities[0,0],N)
+        self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
         cdef size_t N = indexes.shape[0]
