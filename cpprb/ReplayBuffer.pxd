@@ -9,6 +9,17 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_stored_size()
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
         size_t get_next_index()
+    cdef cppclass CppSelectiveEnvironment[Obs,Act,Rew,Done]:
+        CppSelectiveEnvironment(size_t,size_t,size_t,size_t)
+        void store(Obs*,Act*,Rew*,Obs*,Done*,size_t)
+        void clear()
+        void get_episode(size_t,size_t&,
+                         Obs*&,Act*&,Rew*&,Obs*&,Done*&)
+        size_t delete_episode(size_t)
+        size_t get_stored_size()
+        size_t get_stored_episode_size()
+        void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
+        size_t get_next_index()
     cdef cppclass CppPrioritizedSampler[Prio]:
         CppPrioritizedSampler(size_t,Prio)
         void sample(size_t,Prio,vector[Prio]&,vector[size_t]&,size_t)
@@ -23,13 +34,3 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         CppNstepRewardBuffer(size_t,size_t,size_t,Rew)
         void sample[Done](const vector[size_t]&,Rew*,Obs*,Done*)
         void get_buffer_pointers(Rew*,Rew*,Obs*&)
-    cdef cppclass CppSelectiveEnvironment[Obs,Act,Rew,Done]:
-        CppSelectiveEnvironment(size_t,size_t,size_t,size_t)
-        void store(Obs*,Act*,Rew*,Obs*,Done*,size_t)
-        void clear()
-        void get_episode(size_t,size_t&,
-                         Obs*&,Act*&,Rew*&,Obs*&,Done*&)
-        size_t delete_episode(size_t)
-        size_t get_stored_size()
-        size_t get_stored_episode_size()
-        size_t get_next_index()
