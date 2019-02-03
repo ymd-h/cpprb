@@ -8,34 +8,40 @@ import cython
 
 from cpprb cimport ReplayBuffer
 
-ctypedef fused Obs_t:
+ctypedef fused Obs1:
     cython.float[:]
     cython.double[:]
+ctypedef fused ObsN:
     cython.float[:,:]
     cython.double[:,:]
-ctypedef fused Act_t:
+ctypedef fused Act1:
     cython.float[:]
     cython.double[:]
+ctypedef fused ActN:
     cython.float[:,:]
     cython.double[:,:]
-ctypedef fused Rew_t:
+ctypedef fused Rew1:
     cython.float
     cython.double
+ctypedef fused RewN:
     cython.float[:]
     cython.double[:]
-ctypedef fused Next_Obs_t:
+ctypedef fused Next_Obs1:
     cython.float[:]
     cython.double[:]
+ctypedef fused Next_ObsN:
     cython.float[:,:]
     cython.double[:,:]
-ctypedef fused Done_t:
+ctypedef fused Done1:
     cython.float
     cython.double
+ctypedef fused DoneN:
     cython.float[:]
     cython.double[:]
-ctypedef fused Prio_t:
+ctypedef fused Prio1:
     cython.float
     cython.double
+ctypedef fused PrioN:
     cython.float[:]
     cython.double[:]
 
