@@ -259,7 +259,7 @@ cdef class SelectiveEnvironment(Environment):
         return self.buffer.delete_episode(i)
 
     def get_episode(self,i):
-        len = 0
+        cdef size_t len = 0
         self.buffer.get_episode(i,len,
                                 self.obs.ptr,self.act.ptr,self.rew.ptr,
                                 self.next_obs.ptr,self.done.ptr)
