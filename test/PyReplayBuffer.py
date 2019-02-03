@@ -206,5 +206,18 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
         print("N-PER Sample {} time execution".format(cls.N_time))
         print("{} s".format(end - start))
 
+class TestSelectiveReplayBuffer(TestReplayBuffer):
+    """=== SelectiveReplayBuffer ==="""
+    class_name = "S-ER"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rb = SelectiveReplayBuffer(cls.buffer_size,
+                                       cls.obs_dim,
+                                       cls.act_dim,
+                                       Nepisodes=10)
+        cls.fill_ReplayBuffer()
+        cls.s = cls.rb.sample(cls.batch_size)
+
 if __name__ == '__main__':
     unittest.main()
