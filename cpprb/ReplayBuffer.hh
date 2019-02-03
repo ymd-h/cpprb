@@ -209,7 +209,11 @@ namespace ymd {
     }
 
     auto delete_eipsode(std::size_t i){
-      if(i >= episode_begins.size() -1){
+      if(i > episode_begins.size() -1){
+	return 0ul;
+      }
+
+      if(i == episode_begins.size() -1){
 	auto old_index = std::exchange(next_index,episode_begins.back());
 	return old_index - next_index;
       }
