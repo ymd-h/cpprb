@@ -237,8 +237,8 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
 
         old_index = self.srb.get_next_index()
         s = self.srb.get_episode(2)
-        delete_len = self.delete_episode(2)
-        self.assertEqual(self.get_next_index(), old_index - delete_len)
+        delete_len = self.srb.delete_episode(2)
+        self.assertEqual(self.srb.get_next_index(), old_index - delete_len)
 
 if __name__ == '__main__':
     unittest.main()
