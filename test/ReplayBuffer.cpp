@@ -107,7 +107,10 @@ void test_SelectiveEnvironment(){
   constexpr const auto episode_len = 4ul;
   constexpr const auto Nepisodes = 10ul;
 
-  auto se = ymd::CppSelectiveEnvironment(episode_len,Nepisodes,obs_dim,act_dim);
+  auto se = ymd::CppSelectiveEnvironment<Observation,Action,Reward,Done>(episode_len,
+									 Nepisodes,
+									 obs_dim,
+									 act_dim);
 
   assert(0ul == se.get_next_index());
   assert(0ul == se.get_stored_size());
