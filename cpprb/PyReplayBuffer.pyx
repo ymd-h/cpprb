@@ -296,6 +296,14 @@ cdef class ReplayBuffer(RingEnvironment):
         idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
+cdef class SelectiveReplayBuffer(SelectiveEnvironment):
+    def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,**kwargs):
+        pass
+
+    def sample(self,batch_size):
+        idx = np.random.randint(0,self.get_stored_size(),batch_size)
+        return self._encode_sample(idx)
+
 cdef class PrioritizedReplayBuffer(RingEnvironment):
     cdef VectorDouble weights
     cdef VectorULong indexes
