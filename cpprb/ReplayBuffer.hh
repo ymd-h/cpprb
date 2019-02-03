@@ -73,8 +73,10 @@ namespace ymd {
     Environment& operator=(const Environment&) = default;
     Environment& operator=(Environment&&) = default;
     virtual ~Environment() = default;
-    void store(Observation* obs,Action* act, Reward* rew,
-	       Observation* next_obs,Done* done,
+    template<typename Obs_t,typename Act_t,typename Rew_t,
+	     typename Next_Obs_t,typename Done_t>
+    void store(Obs_t* obs,Act_t* act, Rew_t* rew,
+	       Next_Obs_t* next_obs,Done_t* done,
 	       std::size_t shift = 0ul,
 	       std::size_t index = 0ul, size_t N = 1ul){
       obs_buffer     .store_data(     obs,shift,index,N);
