@@ -521,6 +521,21 @@ namespace ymd {
 				       return std::max<Priority>(max_p,*(p++));
 				     });
     }
+    template<typename P,
+	     std::enable_if_t<std::is_convertible_v<P,Priority>,
+			      std::nullptr_t> = nullptr>
+    void update_priorities(std::size_t* indexes, P* priorities,std::size_t N =1){
+
+      max_priority = std::accumulate(indexes,indexes+N,max_priority,
+				     [=,p=priorities]
+				     (auto max_p, auto index) mutable {
+				       Priority v = std::pow(*p,this->alpha);
+				       this->sum.set(index,v);
+				       this->min.set(index,v);
+
+				       return std::max<Priority>(max_p,*(p++));
+				     });
+    }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done,
