@@ -153,18 +153,18 @@ namespace ymd {
 
   private:
     std::size_t next_index;
-    std::size_t episode_len;
-    std::size_t episode_N;
+    const std::size_t episode_len;
+    const std::size_t Nepisodes;
     std::vector<std::size_t> episode_begins;
-    std::size_t episode_index;
 
   public:
-    CppSelectiveEnvironment(std::size_t episode_len,std::size_t episode_N,
+    CppSelectiveEnvironment(std::size_t episode_len,std::size_t Nepisodes,
 			 std::size_t obs_dim,std::size_t act_dim)
-      : Env_t{episode_len * episode_N,obs_dim,act_dim},
+      : Env_t{episode_len * Nepisodes,obs_dim,act_dim},
 	next_index{0ul},
-	episode_begins{},
-	episode_index{0ul} {
+	episode_len{episode_len},
+	Nepisodes{Nepisodes},
+	episode_begins{0ul} {
 	  episode_begins.reserve(episonde_N);
 	}
     CppSelectiveEnvironment(): CppSelectiveEnvironment{1ul,1ul,1ul,1ul} {}
@@ -173,6 +173,77 @@ namespace ymd {
     CppSelectiveEnvironment& operator=(const CppSelectiveEnvironment&) = default;
     CppSelectiveEnvironment& operator=(CppSelectiveEnvironment&&) = default;
     ~CppSelectiveEnvironment() = default;
+
+    virtual void store(Observation* obs,Action* act,Reward* rew,
+		       Observation* next_obs, Done* done,
+		       std::size_t N = 1ul){
+      const auto buffer_size = this->get_buffer_size();
+      auto shift = 0ul;
+      auto copy_N = std::min({N,buffer_size - next_index,episode_len});
+      this->Env_t::store(obs,act,rew,next_obs,done,shift,next_index,copy_N);
+      next_index += copy_N;
+
+      if(auto done_index = std::find_if(done,done+copy_N,[](auto d){ return d; });
+	 done_index != done + copy_N){
+	episode_begins.emplace_back(std::distance(done,done_index) +1ul);
+      }
+    }
+
+    void get_episode(std::size_t i,std::size_t& ep_len,
+		     Observation* obs,Action* act,Reward* rew,
+		     Observation* next_obs,Done* done) const {
+      auto begin = episode_begins[i];
+      auto end = episode_begins[i+1];
+      this->Env_t::get(begin,obs,act,rew,next_obs,done);
+      ep_len = end - begin;
+    }
+
+    auto delete_eipsode(std::size_t i){
+      if(i >= episode_begins.size() -1){
+	auto old_index = std::exchange(next_index,episode_begins.back());
+	return old_index - next_index;
+      }
+
+      auto delete_begin = episode_begins[i];
+      auto move_begin = episode_begins[i+1];
+      auto move_end = next_index;
+
+      if(move_begin == move_end){
+	next_index = delete_begin;
+	episode_begins.pop_back();
+	return move_begin - delete_begin;
+      }
+
+      Observation *delete_obs,*move_obs,*end_obs;
+      Observation *delete_next_obs,*move_next_obs,*end_next_obs;
+      Action *delete_act,*move_act,*end_act;
+      Reward *delete_rew,*move_rew,*end_rew;
+      Done *delete_done,*move_done,*end_done;
+
+      this->Env_t::get(delete_begin,
+		       delete_obs,delete_act,delete_rew,delete_next_obs,delete_done);
+      this->Env_t::get(move_begin,
+		       move_obs,move_act,move_rew,move_next_obs,move_done);
+      this->Env_t::get(move_end,end_obs,end_act,end_rew,end_next_obs,end_done);
+
+      std::move(move_obs,end_obs,delete_obs);
+      std::move(move_act,end_act,delete_act);
+      std::move(move_rew,end_rew,delete_rew);
+      std::move(move_next_obs,end_next_obs,delete_next_obs);
+      std::move(move_done,end_done,delete_done);
+
+      std::size_t delete_size = move_begin - delete_begin;
+      next_index -= delete_size;
+      std::transform(episode_begins.begin() + i+1, episode_begins.end(),
+		     episode_begins.begin() + i,
+		     [=delete_size](auto begin){ return begin - delete_size; });
+      episode_begins.pop_back();
+      return delete_size;
+    }
+    std::size_t get_next_index() const { return next_index; }
+    auto get_stored_episode_size() const {
+      return episode_begins.size() - (next_index == episode_begins.back() ? 1ul: 0ul);
+    }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
