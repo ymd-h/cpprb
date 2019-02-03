@@ -131,6 +131,7 @@ void test_SelectiveEnvironment(){
   auto done = std::vector(episode_len,Done{0});
   done.back() = Done{1};
 
+  // Add 1-step
   se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),1ul);
   auto [obs_,act_,rew_,next_obs_,done_,ep_len] = se.get_episode(0);
   std::cout << "ep_len=" << ep_len << std::endl;
@@ -144,6 +145,7 @@ void test_SelectiveEnvironment(){
   assert(1ul == se.get_stored_size());
   assert(1ul == se.get_stored_episode_size());
 
+  // Add remained 3-steps
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
 	   episode_len - 1ul);
   se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
@@ -158,6 +160,7 @@ void test_SelectiveEnvironment(){
   assert(episode_len == se.get_stored_size());
   assert(1ul == se.get_stored_episode_size());
 
+  // Add shorter epsode
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
 	   episode_len - 1ul);
   se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
