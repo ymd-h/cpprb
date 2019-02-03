@@ -30,7 +30,7 @@ namespace ymd {
     DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
     ~DimensionalBuffer() = default;
     template<typename V,
-	     std::enable_if_t<std::is_convertible_t<V,T>,std::nullptr_t> = nullptr>
+	     std::enable_if_t<std::is_convertible_v<V,T>,std::nullptr_t> = nullptr>
     void store_data(V* v,std::size_t shift,std::size_t next_index,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
     }
