@@ -199,6 +199,12 @@ void test_SelectiveEnvironment(){
   assert(episode_len - 1ul == se.get_stored_size());
   assert(1ul == se.get_stored_episode_size());
 
+  // Add shorter epsode with not terminating
+  se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),
+	   episode_len - 1ul);
+  assert(2*episode_len - 2ul == se.get_next_index());
+  assert(2*episode_len - 2ul == se.get_stored_size());
+  assert(2ul == se.get_stored_episode_size());
 }
 
 int main(){
