@@ -29,7 +29,9 @@ namespace ymd {
     DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
     DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
     ~DimensionalBuffer() = default;
-    void store_data(T* v,std::size_t shift,std::size_t next_index,std::size_t N){
+    template<typename V,
+	     std::enable_if_t<std::is_compatible_t<V,T>,std::nullptr_t> = nullptr>
+    void store_data(V* v,std::size_t shift,std::size_t next_index,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
     }
     void get_data(std::size_t ith,std::vector<T>& v) const {
