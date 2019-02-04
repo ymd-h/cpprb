@@ -24,7 +24,7 @@ copying large data.
 * Requirements
 - C++17 (at least GCC 7.2)
 - Python 3
-- Cython
+- Cython (>= 0.29)
 
 
 * Installation
