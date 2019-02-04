@@ -184,15 +184,23 @@ cdef class RingEnvironment(Environment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add_N(self, Obs[:,:] obs, Act[:,:] act, Rew [:] rew,
-               Next_Obs[:,:] next_obs, Done [:] done,
+    def _add_N(self,
+               np.ndarray[Obs     ,ndim = 2, mode="c"] obs not None,
+               np.ndarray[Act     ,ndim = 2, mode="c"] act not None,
+               np.ndarray[Rew     ,ndim = 1, mode="c"] rew not None,
+               np.ndarray[Next_Obs,ndim = 2, mode="c"] next_obs not None,
+               np.ndarray[Done    ,ndim = 1, mode="c"] done not None,
                size_t N=1):
         self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add_1(self, Obs [:] obs, Act [:] act, Rew rew,
-               Next_Obs [:] next_obs, Done done):
+    def _add_1(self,
+               np.ndarray[Obs     ,ndim = 1, mode="c"] obs not None,
+               np.ndarray[Act     ,ndim = 1, mode="c"] act not None,
+               Rew rew,
+               np.ndarray[Next_Obs,ndim = 1, mode="c"] next_obs not None,
+               double done):
         self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
@@ -223,15 +231,25 @@ cdef class SelectiveEnvironment(Environment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add_N(self, Obs [:,:] obs, Act[:,:] act, Rew[:] rew,
-               Next_Obs [:,:] next_obs, Done [:] done,
+    def _add_N(self,
+               np.ndarray[Obs     ,ndim = 2, mode="c"] obs not None,
+               np.ndarray[Act     ,ndim = 2, mode="c"] act not None,
+               np.ndarray[Rew     ,ndim = 1, mode="c"] rew not None,
+               np.ndarray[Next_Obs,ndim = 2, mode="c"] next_obs not None,
+               np.ndarray[Done    ,ndim = 1, mode="c"] done not None,
                size_t N=1):
         self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _add_1(self, Obs [:] obs, Act [:] act, Rew rew,
-               Next_Obs[:] next_obs, Done done):
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_1(self,
+               np.ndarray[Obs     ,ndim = 1, mode="c"] obs not None,
+               np.ndarray[Act     ,ndim = 1, mode="c"] act not None,
+               Rew rew,
+               np.ndarray[Next_Obs,ndim = 1, mode="c"] next_obs not None,
+               double done):
         self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
