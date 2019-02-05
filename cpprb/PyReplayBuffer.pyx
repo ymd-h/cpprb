@@ -15,6 +15,20 @@ Next_Obs = cython.fused_type(cython.float, cython.double)
 Done     = cython.fused_type(cython.float, cython.double)
 Prio     = cython.fused_type(cython.float, cython.double)
 
+ctypedef fused Idx:
+    cython.char
+    cython.short
+    cython.int
+    cython.long
+    long long
+    cython.float
+    cython.double
+    unsigned char
+    unsigned short
+    unsigned int
+    unsigned long
+    unsigned long long
+
 cdef class VectorWrapper:
     cdef Py_ssize_t *shape
     cdef Py_ssize_t *strides
@@ -406,7 +420,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _update_priorities(self,size_t [:] indexes,Prio [:] priorities,size_t N=1):
+    def _update_priorities(self,Idx [:] indexes,Prio [:] priorities,size_t N=1):
         self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
