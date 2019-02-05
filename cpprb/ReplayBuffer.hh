@@ -505,10 +505,12 @@ namespace ymd {
 		     N,buffer_size);
     }
 
-    template<typename P,
+    template<typename I,typename P,
+	     std::enable_if_t<std::is_convertible_v<I,std::size_t>,
+			      std::nullptr_t> = nullptr,
 	     std::enable_if_t<std::is_convertible_v<P,Priority>,
 			      std::nullptr_t> = nullptr>
-    void update_priorities(std::vector<std::size_t>& indexes,
+    void update_priorities(std::vector<I>& indexes,
 			   std::vector<P>& priorities){
 
       max_priority = std::accumulate(indexes.begin(),indexes.end(),max_priority,
@@ -521,10 +523,12 @@ namespace ymd {
 				       return std::max<Priority>(max_p,*(p++));
 				     });
     }
-    template<typename P,
+    template<typename I,typename P,
+	     std::enable_if_t<std::is_convertible_v<I,std::size_t>,
+			      std::nullptr_t> = nullptr,
 	     std::enable_if_t<std::is_convertible_v<P,Priority>,
 			      std::nullptr_t> = nullptr>
-    void update_priorities(std::size_t* indexes, P* priorities,std::size_t N =1){
+    void update_priorities(I* indexes, P* priorities,std::size_t N =1){
 
       max_priority = std::accumulate(indexes,indexes+N,max_priority,
 				     [=,p=priorities]
