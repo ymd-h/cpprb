@@ -94,7 +94,7 @@ cdef class VectorDouble(VectorWrapper):
         buffer.buf = <void*>(self.vec.data())
         buffer.format = 'd'
 
-cdef class VectorULong(VectorWrapper):
+cdef class VectorSize_t(VectorWrapper):
     cdef vector[size_t] vec
 
     def __cinit__(self,*,value_dim=1,**kwargs):
@@ -109,7 +109,7 @@ cdef class VectorULong(VectorWrapper):
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*>(self.vec.data())
-        buffer.format = 'L'
+        buffer.format = 'N'
 
 cdef class PointerDouble(VectorWrapper):
     cdef double* ptr
@@ -322,7 +322,7 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
 
 cdef class PrioritizedReplayBuffer(RingEnvironment):
     cdef VectorDouble weights
-    cdef VectorULong indexes
+    cdef VectorSize_t indexes
     cdef double alpha
     cdef CppPrioritizedSampler[double]* per
     def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
@@ -330,7 +330,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
         self.per = new CppPrioritizedSampler[double](size,alpha)
         self.weights = VectorDouble()
-        self.indexes = VectorULong()
+        self.indexes = VectorSize_t()
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
