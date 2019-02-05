@@ -109,7 +109,17 @@ cdef class VectorSize_t(VectorWrapper):
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*>(self.vec.data())
-        buffer.format = 'N'
+        if sizeof(size_t) == sizeof(unsigned long):
+            buffer.format = 'L'
+        elif sizeof(size_t) == sizeof(unsigned long long):
+            buffer.format = 'Q'
+        elif sizeof(size_t) == sizeof(unsigned int):
+            buffer.format = 'I'
+        elif sizeof(size_t) == sizeof(unsigned char):
+            buffer.format = 'B'
+        else:
+            raise BufferError("Unknown size_t implementation!")
+
 
 cdef class PointerDouble(VectorWrapper):
     cdef double* ptr
