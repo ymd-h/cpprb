@@ -141,7 +141,11 @@ namespace ymd {
       auto index = (min + max)/2ul;
 
       while(max - min > 1ul){
-	( condition(reduce(0ul,index)) ? min : max ) = index;
+	if( condition(reduce(0ul,index)) ){
+	  min = index;
+	}else{
+	  max = index;
+	}
 	index = (min + max)/2ul;
       }
 
