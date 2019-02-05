@@ -223,7 +223,7 @@ namespace ymd {
       return std::make_tuple(obs,act,rew,next_obs,done,ep_len);
     }
 
-    auto delete_episode(std::size_t i){
+    std::size_t delete_episode(std::size_t i){
       if(i > episode_begins.size() -1){
 	return 0ul;
       }
