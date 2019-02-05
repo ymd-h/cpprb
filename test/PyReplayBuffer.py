@@ -128,7 +128,8 @@ class TestPrioritizedBase:
         self._check_ndarray(self.s2['weights'],1,(self.batch_size,),
                             "weights [0,...,0.1]")
 
-        self.rb2.update_priorities(np.ones(shape=(1)),np.ones(shape=(1))*0.5)
+        self.rb2.update_priorities(np.ones(shape=(1),dtype=np.uintp),
+                                   np.ones(shape=(1))*0.5)
         self.s3 = self.rb2.sample(self.batch_size)
         self._check_ndarray(self.s3['indexes'],1,(self.batch_size,),
                             "indexes [0.5,...,0.1]")

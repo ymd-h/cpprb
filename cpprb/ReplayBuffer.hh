@@ -29,7 +29,9 @@ namespace ymd {
     DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
     DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
     ~DimensionalBuffer() = default;
-    void store_data(T* v,std::size_t shift,std::size_t next_index,std::size_t N){
+    template<typename V,
+	     std::enable_if_t<std::is_convertible_v<V,T>,std::nullptr_t> = nullptr>
+    void store_data(V* v,std::size_t shift,std::size_t next_index,std::size_t N){
       std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
     }
     void get_data(std::size_t ith,std::vector<T>& v) const {
@@ -71,8 +73,10 @@ namespace ymd {
     Environment& operator=(const Environment&) = default;
     Environment& operator=(Environment&&) = default;
     virtual ~Environment() = default;
-    void store(Observation* obs,Action* act, Reward* rew,
-	       Observation* next_obs,Done* done,
+    template<typename Obs_t,typename Act_t,typename Rew_t,
+	     typename Next_Obs_t,typename Done_t>
+    void store(Obs_t* obs,Act_t* act, Rew_t* rew,
+	       Next_Obs_t* next_obs,Done_t* done,
 	       std::size_t shift = 0ul,
 	       std::size_t index = 0ul, size_t N = 1ul){
       obs_buffer     .store_data(     obs,shift,index,N);
@@ -118,9 +122,11 @@ namespace ymd {
     CppRingEnvironment& operator=(const CppRingEnvironment&) = default;
     CppRingEnvironment& operator=(CppRingEnvironment&&) = default;
     virtual ~CppRingEnvironment() = default;
-    virtual void store(Observation* obs, Action* act, Reward* rew,
-		       Observation* next_obs, Done* done,
-		       std::size_t N = 1ul){
+    template<typename Obs_t,typename Act_t,typename Rew_t,
+	     typename Next_Obs_t,typename Done_t>
+    void store(Obs_t* obs, Act_t* act, Rew_t* rew,
+	       Next_Obs_t* next_obs, Done_t* done,
+	       std::size_t N = 1ul){
       const auto buffer_size = this->get_buffer_size();
       auto shift = 0ul;
       while(N){
@@ -174,9 +180,11 @@ namespace ymd {
     CppSelectiveEnvironment& operator=(CppSelectiveEnvironment&&) = default;
     ~CppSelectiveEnvironment() = default;
 
-    virtual void store(Observation* obs,Action* act,Reward* rew,
-		       Observation* next_obs, Done* done,
-		       std::size_t N = 1ul){
+    template<typename Obs_t,typename Act_t,typename Rew_t,
+	     typename Next_Obs_t,typename Done_t>
+    void store(Obs_t* obs,Act_t* act,Rew_t* rew,
+	       Next_Obs_t* next_obs, Done_t* done,
+	       std::size_t N = 1ul){
       const auto buffer_size = this->get_buffer_size();
       auto shift = 0ul;
       auto copy_N = std::min(N,buffer_size - next_index);
@@ -465,7 +473,10 @@ namespace ymd {
       return max_priority;
     }
 
-    void set_priorities(std::size_t next_index,Priority p){
+    template<typename P,
+	     std::enable_if_t<std::is_convertible_v<P,Priority>,
+			      std::nullptr_t> = nullptr>
+    void set_priorities(std::size_t next_index,P p){
       if(p > max_priority){ max_priority = p; }
       auto v = std::pow(p,alpha);
       sum.set(next_index,v);
@@ -476,7 +487,10 @@ namespace ymd {
       set_priorities(next_index,max_priority);
     }
 
-    void set_priorities(std::size_t next_index,Priority* p,
+    template<typename P,
+	     std::enable_if_t<std::is_convertible_v<P,Priority>,
+			      std::nullptr_t> = nullptr>
+    void set_priorities(std::size_t next_index,P* p,
 			std::size_t N,std::size_t buffer_size){
       if(auto p_max = *std::max_element(p,p+N); p_max > max_priority){
 	max_priority = p_max;
@@ -491,17 +505,39 @@ namespace ymd {
 		     N,buffer_size);
     }
 
-    void update_priorities(std::vector<std::size_t>& indexes,
-			   std::vector<Priority>& priorities){
+    template<typename I,typename P,
+	     std::enable_if_t<std::is_convertible_v<I,std::size_t>,
+			      std::nullptr_t> = nullptr,
+	     std::enable_if_t<std::is_convertible_v<P,Priority>,
+			      std::nullptr_t> = nullptr>
+    void update_priorities(std::vector<I>& indexes,
+			   std::vector<P>& priorities){
 
       max_priority = std::accumulate(indexes.begin(),indexes.end(),max_priority,
 				     [=,p=priorities.begin()]
 				     (auto max_p, auto index) mutable {
-				       auto v = std::pow(*p,this->alpha);
+				       Priority v = std::pow(*p,this->alpha);
 				       this->sum.set(index,v);
 				       this->min.set(index,v);
 
-				       return std::max(max_p,*(p++));
+				       return std::max<Priority>(max_p,*(p++));
+				     });
+    }
+    template<typename I,typename P,
+	     std::enable_if_t<std::is_convertible_v<I,std::size_t>,
+			      std::nullptr_t> = nullptr,
+	     std::enable_if_t<std::is_convertible_v<P,Priority>,
+			      std::nullptr_t> = nullptr>
+    void update_priorities(I* indexes, P* priorities,std::size_t N =1){
+
+      max_priority = std::accumulate(indexes,indexes+N,max_priority,
+				     [=,p=priorities]
+				     (auto max_p, auto index) mutable {
+				       Priority v = std::pow(*p,this->alpha);
+				       this->sum.set(index,v);
+				       this->min.set(index,v);
+
+				       return std::max<Priority>(max_p,*(p++));
 				     });
     }
   };
