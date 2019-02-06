@@ -136,6 +136,43 @@ class TestPrioritizedBase:
         self._check_ndarray(self.s3['weights'],1,(self.batch_size,),
                             "weights [0.5,...,0.1]")
 
+    def test_update_indexes(self):
+        for i in range(self.N_add):
+            self.rb_ui.add(np.ones(shape=(self.add_dim,self.obs_dim))*i,
+                           np.zeros(shape=(self.add_dim,self.act_dim)),
+                           np.ones((self.add_dim)) * 0.5*i,
+                           np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
+                           np.zeros(shape=(self.add_dim)),
+                           np.zeros(shape=(self.add_dim)))
+        else:
+            self.rb_ui.add(np.ones(shape=(self.obs_dim)),
+                           np.zeros(shape=(self.act_dim)),
+                           0.5,
+                           np.ones(shape=(self.obs_dim)),
+                           1,
+                           0.1)
+
+        for i,type in enumerate([np.bool,
+                                 np.byte,np.ubyte,
+                                 np.short,np.ushort,
+                                 np.intc,np.uintc,
+                                 np.int_,np.uint,
+                                 np.longlong,np.ulonglong,
+                                 np.half,np.single,
+                                 np.double,np.longdouble,
+                                 np.int8,np.int16,
+                                 np.int32,np.int64,
+                                 np.uint8,np.uint16,
+                                 np.uint32,np.uint64,
+                                 np.intp,np.uintp,
+                                 np.float32,np.float64]):
+            with self.subTest(i=i):
+                print("{}: {}".format(i,type))
+                self.rb_ui.update_priorities(np.arange(0,self.buffer_size,
+                                                       dtype=type),
+                                             np.ones(shape=(self.buffer_size))*0.5)
+
+
 class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
     """=== PrioritizedReplayBuffer.py ==="""
     class_name = "PER"
@@ -150,6 +187,10 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
                                           cls.obs_dim,
                                           cls.act_dim,
                                           alpha=cls.alpha)
+        cls.rb_ui = PrioritizedReplayBuffer(cls.buffer_size,
+                                            cls.obs_dim,
+                                            cls.act_dim,
+                                            alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
@@ -197,6 +238,10 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
                                                cls.obs_dim,
                                                cls.act_dim,
                                                alpha=cls.alpha)
+        cls.rb_ui = NstepPrioritizedReplayBuffer(cls.buffer_size,
+                                                 cls.obs_dim,
+                                                 cls.act_dim,
+                                                 alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
