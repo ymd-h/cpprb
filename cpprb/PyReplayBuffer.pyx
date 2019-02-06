@@ -172,9 +172,9 @@ cdef class Environment:
         self.act_dim = act_dim
         self.obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.act = PointerDouble(ndim=2,value_dim=act_dim,size=size)
-        self.rew = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
-        self.done = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
     def add(self,obs,act,rew,next_obs,done):
         if obs.ndim == 1:
@@ -349,10 +349,9 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     cdef VectorDouble weights
     cdef VectorSize_t indexes
     cdef double alpha
-    cdef CppPrioritizedSampler[double]* per
+    cdef CppPrioritizedSampler[double]* per 
     def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
         self.alpha = alpha
-
         self.per = new CppPrioritizedSampler[double](size,alpha)
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
@@ -421,8 +420,11 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _update_priorities(self,Idx [:] indexes,Prio [:] priorities,size_t N=1):
-        self.per.update_priorities(&indexes[0],&priorities[0],N)
+    def _update_priorities(self,
+                           np.ndarray[Idx     ,ndim = 1, mode="c"] indexes not None,
+                           np.ndarray[Prio    ,ndim = 2, mode="c"] priorities not None,
+                           size_t N=1):
+        self.per.update_priorities(&indexes[0],&priorities[0,0],N)
 
     def update_priorities(self,indexes,priorities):
         cdef size_t N = indexes.shape[0]
@@ -443,8 +445,8 @@ cdef class NstepReplayBuffer(ReplayBuffer):
     def __cinit__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
         self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
                                                            n_step,discount)
-        self.gamma = PointerDouble(ndim=1,value_dim=1,size=size)
-        self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.gamma = PointerDouble(ndim=2,value_dim=1,size=size)
+        self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
     def _encode_sample(self,indexes):
@@ -472,8 +474,8 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
                   alpha = 0.6,n_step = 4, discount = 0.99,**kwargs):
         self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
                                                            n_step,discount)
-        self.gamma = PointerDouble(ndim=1,value_dim=1,size=size)
-        self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.gamma = PointerDouble(ndim=2,value_dim=1,size=size)
+        self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
     def _encode_sample(self,indexes):
