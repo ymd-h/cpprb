@@ -23,6 +23,7 @@ ctypedef fused Idx:
     long long
     cython.float
     cython.double
+    long double
     unsigned char
     unsigned short
     unsigned int
