@@ -63,7 +63,7 @@ namespace ymd {
     }
 
     void update_all(){
-      for(auto i = access_index(0) -1, end = std::size_t(0) - std::size_t(1); i != end; --i){
+      for(std::size_t i = access_index(0) -1, end = -1; i != end; --i){
 	update_buffer(i);
       }
     }
