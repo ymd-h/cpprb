@@ -152,8 +152,7 @@ class TestPrioritizedBase:
                            1,
                            0.1)
 
-        for i,type in enumerate([np.bool,
-                                 np.byte,np.ubyte,
+        for i,type in enumerate([np.byte,np.ubyte,
                                  np.short,np.ushort,
                                  np.intc,np.uintc,
                                  np.int_,np.uint,
