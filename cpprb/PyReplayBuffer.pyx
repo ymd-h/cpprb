@@ -443,7 +443,7 @@ cdef class NstepReplayBuffer(ReplayBuffer):
 
     def _encode_sample(self,indexes):
         samples = super()._encode_sample(indexes)
-        batch_size = indexes.shape[0]
+        cdef size_t batch_size = indexes.shape[0]
 
         self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         self.nrb.get_buffer_pointers(self.gamma.ptr,
@@ -472,7 +472,7 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
 
     def _encode_sample(self,indexes):
         samples = super()._encode_sample(indexes)
-        batch_size = indexes.shape[0]
+        cdef size_t batch_size = indexes.shape[0]
 
         self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         self.nrb.get_buffer_pointers(self.gamma.ptr,
