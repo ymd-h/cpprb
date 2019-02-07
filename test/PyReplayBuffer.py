@@ -78,7 +78,7 @@ class TestReplayBuffer(unittest.TestCase):
                             "act")
 
     def test_rew(self):
-        self._check_ndarray(self.s['rew'],1,(self.batch_size,),"rew")
+        self._check_ndarray(self.s['rew'],2,(self.batch_size,1),"rew")
 
     def test_next_obs(self):
         self._check_ndarray(self.s['next_obs'],2,
@@ -86,7 +86,7 @@ class TestReplayBuffer(unittest.TestCase):
                             "next_obs")
 
     def test_done(self):
-        self._check_ndarray(self.s['done'],1,(self.batch_size,),"done")
+        self._check_ndarray(self.s['done'],2,(self.batch_size,1),"done")
         for d in self.s['done']:
             self.assertIn(d,[0,1])
 
@@ -202,7 +202,7 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
 
 class TestNstepBase:
     def test_discounts(self):
-        self._check_ndarray(self.s['discounts'],1,(self.batch_size,),"discounts")
+        self._check_ndarray(self.s['discounts'],2,(self.batch_size,1),"discounts")
         for g,d in zip(self.s['discounts'],self.s['done']):
             if(d > 0.0):
                 self.assertAlmostEqual(g,1.0)
