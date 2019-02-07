@@ -173,10 +173,10 @@ cdef class Environment:
             self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
 
     def _encode_sample(self,idx):
-        return {'obs': np.asarray(self.obs)[idx,:],
-                'act': np.asarray(self.act)[idx,:],
+        return {'obs': np.asarray(self.obs)[idx],
+                'act': np.asarray(self.act)[idx],
                 'rew': np.asarray(self.rew)[idx],
-                'next_obs': np.asarray(self.next_obs)[idx,:],
+                'next_obs': np.asarray(self.next_obs)[idx],
                 'done': np.asarray(self.done)[idx]}
 
     def get_buffer_size(self):
