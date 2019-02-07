@@ -165,7 +165,7 @@ class TestPrioritizedBase:
                                  np.uint32,np.uint64,
                                  np.intp,np.uintp,
                                  np.float32,np.float64]):
-            with self.subTest(i=i):
+            with self.subTest(dtype=type):
                 print("{}: {}".format(i,type))
                 self.rb_ui.update_priorities(np.arange(0,self.buffer_size,
                                                        dtype=type),
