@@ -129,19 +129,21 @@ namespace ymd {
     void store(Obs_t* obs, Act_t* act, Rew_t* rew,
 	       Next_Obs_t* next_obs, Done_t* done,
 	       std::size_t N = std::size_t(1)){
+      constexpr const std::size_t zero = 0;
       const auto buffer_size = this->get_buffer_size();
-      auto shift = std::size_t(0);
+
+      std::size_t shift = zero;
       while(N){
 	auto copy_N = std::min(N,buffer_size - next_index);
 
 	this->Env_t::store(obs,act,rew,next_obs,done,shift,next_index,copy_N);
 
 	next_index += copy_N;
-	if(next_index >= buffer_size){ next_index = std::size_t(0); }
+	if(next_index >= buffer_size){ next_index = zero; }
 
 	if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
 
-	N = (N > copy_N) ? N - copy_N: std::size_t(0);
+	N = (N > copy_N) ? N - copy_N: zero;
 	shift += copy_N;
       }
     }
