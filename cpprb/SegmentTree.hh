@@ -42,8 +42,8 @@ namespace ymd {
 	       _reduce(start,end,2*index+2,region_m,region_e));
     }
 
-    auto parent(std::size_t node) const {
-      return (node - 1)/std::size_t(2);
+    constexpr std::size_t parent(std::size_t node) const {
+      return node ? (node - 1)/2: node;
     }
 
     auto child_left(std::size_t node) const {
