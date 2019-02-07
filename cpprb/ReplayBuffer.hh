@@ -171,8 +171,14 @@ namespace ymd {
     std::size_t get_next_index() const { return next_index; }
 
     virtual void clear(){
-      stored_size = std::size_t(0);
-      next_index = std::size_t(0);
+      if constexpr (MultiThread){
+	std::lock_guard<std::mutex>{mtx};
+	stored_size = std::size_t(0);
+	next_index = std::size_t(0);
+      }else{
+	stored_size = std::size_t(0);
+	next_index = std::size_t(0);
+      }
     }
   };
 
