@@ -8,8 +8,8 @@
 #include <set>
 
 namespace ymd {
-  inline constexpr auto PowerOf2(std::size_t n) noexcept {
-    auto m = 1ul;
+  inline constexpr auto PowerOf2(const std::size_t n) noexcept {
+    auto m = std::size_t(1);
     while(m < n){ m *= 2; }
     return m;
   }
@@ -42,15 +42,15 @@ namespace ymd {
 	       _reduce(start,end,2*index+2,region_m,region_e));
     }
 
-    auto parent(std::size_t node) const {
-      return (node - 1)/2ul;
+    constexpr std::size_t parent(std::size_t node) const {
+      return node ? (node - 1)/2: node;
     }
 
-    auto child_left(std::size_t node) const {
+    constexpr auto child_left(std::size_t node) const {
       return 2 * node + 1;
     }
 
-    auto child_right(std::size_t node) const {
+    constexpr auto child_right(std::size_t node) const {
       return 2 * node + 2;
     }
 
@@ -63,7 +63,7 @@ namespace ymd {
     }
 
     void update_all(){
-      for(auto i = access_index(0) -1, end = 0ul - 1ul; i != end; --i){
+      for(std::size_t i = access_index(0) -1, end = -1; i != end; --i){
 	update_buffer(i);
       }
     }
@@ -89,14 +89,15 @@ namespace ymd {
       do {
 	n = parent(n);
 	update_buffer(n);
-      } while(n != 0ul);
+      } while(n != std::size_t(0));
     }
 
     template<typename F,
 	     typename std::enable_if<!(std::is_convertible_v<F,T>),
 				     std::nullptr_t>::type = nullptr>
-    void set(std::size_t i,F&& f,std::size_t N,std::size_t max = 0ul){
-      if(0ul == max){ max = size; }
+    void set(std::size_t i,F&& f,std::size_t N,std::size_t max = std::size_t(0)){
+      constexpr const std::size_t zero = 0;
+      if(zero == max){ max = size; }
 
       std::set<std::size_t> will_update{};
 
@@ -104,12 +105,12 @@ namespace ymd {
 	auto copy_N = std::min(N,max-i);
 	std::generate_n(buffer.data()+access_index(i),copy_N,f);
 
-	for(auto n = 0ul; n < copy_N; ++n){
+	for(auto n = std::size_t(0); n < copy_N; ++n){
 	  will_update.insert(parent(access_index(i+n)));
 	}
 
-	N = (N > copy_N) ? N - copy_N: 0ul;
-	i = 0ul;
+	N = (N > copy_N) ? N - copy_N: zero;
+	i = zero;
       }
 
 
@@ -121,7 +122,7 @@ namespace ymd {
       }
     }
 
-    void set(std::size_t i,T v,std::size_t N,std::size_t max = 0ul){
+    void set(std::size_t i,T v,std::size_t N,std::size_t max = std::size_t(0)){
       set(i,[=](){ return v; },N,max);
     }
 
@@ -132,21 +133,25 @@ namespace ymd {
     }
 
     auto largest_region_index(std::function<bool(T)> condition,
-			      std::size_t n=0ul) const {
+			      std::size_t n=std::size_t(0)) const {
       // max index of reduce( [0,index) ) -> true
 
-      auto min = 0ul;
-      auto max = (0ul != n) ? n: size;
+      constexpr const std::size_t zero = 0;
+      constexpr const std::size_t one  = 1;
+      constexpr const std::size_t two  = 2;
 
-      auto index = (min + max)/2ul;
+      std::size_t min = zero;
+      auto max = (zero != n) ? n: size;
 
-      while(max - min > 1ul){
-	if( condition(reduce(0ul,index)) ){
+      auto index = (min + max)/two;
+
+      while(max - min > one){
+	if( condition(reduce(zero,index)) ){
 	  min = index;
 	}else{
 	  max = index;
 	}
-	index = (min + max)/2ul;
+	index = (min + max)/two;
       }
 
       return index;

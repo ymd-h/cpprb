@@ -16,15 +16,6 @@ Done     = cython.fused_type(cython.float, cython.double)
 Prio     = cython.fused_type(cython.float, cython.double)
 
 ctypedef fused Idx:
-    cython.char
-    cython.short
-    cython.int
-    cython.long
-    long long
-    cython.float
-    cython.double
-    unsigned char
-    unsigned short
     unsigned int
     unsigned long
     unsigned long long
@@ -171,9 +162,9 @@ cdef class Environment:
         self.act_dim = act_dim
         self.obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.act = PointerDouble(ndim=2,value_dim=act_dim,size=size)
-        self.rew = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
-        self.done = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
     def add(self,obs,act,rew,next_obs,done):
         if obs.ndim == 1:
@@ -182,10 +173,10 @@ cdef class Environment:
             self._add_N(obs,act,rew,next_obs,done,obs.shape[0])
 
     def _encode_sample(self,idx):
-        return {'obs': np.asarray(self.obs)[idx,:],
-                'act': np.asarray(self.act)[idx,:],
+        return {'obs': np.asarray(self.obs)[idx],
+                'act': np.asarray(self.act)[idx],
                 'rew': np.asarray(self.rew)[idx],
-                'next_obs': np.asarray(self.next_obs)[idx,:],
+                'next_obs': np.asarray(self.next_obs)[idx],
                 'done': np.asarray(self.done)[idx]}
 
     def get_buffer_size(self):
@@ -298,10 +289,10 @@ cdef class SelectiveEnvironment(Environment):
                                 self.next_obs.ptr,self.done.ptr)
         if len == 0:
             return {'obs': np.ndarray((0,self.obs_dim)),
-                'act': np.ndarray((0,self.act_dim)),
-                'rew': np.ndarray((0)),
-                'next_obs': np.ndarray((0,self.obs_dim)),
-                'done': np.ndarray(0)}
+                    'act': np.ndarray((0,self.act_dim)),
+                    'rew': np.ndarray((0)),
+                    'next_obs': np.ndarray((0,self.obs_dim)),
+                    'done': np.ndarray(0)}
 
         self.obs.update_vec_size(len)
         self.act.update_vec_size(len)
@@ -320,7 +311,7 @@ cdef class SelectiveEnvironment(Environment):
                                         self.rew.ptr,
                                         self.next_obs.ptr,
                                         self.done.ptr)
-        buffer_size = self.get_buffer_size()
+        cdef size_t buffer_size = self.get_buffer_size()
         self.obs.update_vec_size(buffer_size)
         self.act.update_vec_size(buffer_size)
         self.rew.update_vec_size(buffer_size)
@@ -333,7 +324,7 @@ cdef class ReplayBuffer(RingEnvironment):
         pass
 
     def sample(self,batch_size):
-        idx = np.random.randint(0,self.get_stored_size(),batch_size)
+        cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
@@ -341,7 +332,7 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
         pass
 
     def sample(self,batch_size):
-        idx = np.random.randint(0,self.get_stored_size(),batch_size)
+        cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
 cdef class PrioritizedReplayBuffer(RingEnvironment):
@@ -351,7 +342,6 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     cdef CppPrioritizedSampler[double]* per
     def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
         self.alpha = alpha
-
         self.per = new CppPrioritizedSampler[double](size,alpha)
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
@@ -420,12 +410,17 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _update_priorities(self,Idx [:] indexes,Prio [:] priorities,size_t N=1):
+    def _update_priorities(self,
+                           np.ndarray[Idx  ,ndim = 1, mode="c"] indexes    not None,
+                           np.ndarray[Prio ,ndim = 1, mode="c"] priorities not None,
+                           size_t N=1):
         self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
-        cdef size_t N = indexes.shape[0]
-        self._update_priorities(indexes,priorities,N)
+        cdef idx = np.asarray(np.ravel(indexes),dtype=np.uint64)
+        cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
+        cdef size_t N = idx.shape[0]
+        self._update_priorities(idx,priorities,N)
 
     def clear(self):
         super().clear()
@@ -442,13 +437,13 @@ cdef class NstepReplayBuffer(ReplayBuffer):
     def __cinit__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
         self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
                                                            n_step,discount)
-        self.gamma = PointerDouble(ndim=1,value_dim=1,size=size)
-        self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.gamma = PointerDouble(ndim=2,value_dim=1,size=size)
+        self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
     def _encode_sample(self,indexes):
         samples = super()._encode_sample(indexes)
-        batch_size = indexes.shape[0]
+        cdef size_t batch_size = indexes.shape[0]
 
         self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         self.nrb.get_buffer_pointers(self.gamma.ptr,
@@ -471,13 +466,13 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
                   alpha = 0.6,n_step = 4, discount = 0.99,**kwargs):
         self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
                                                            n_step,discount)
-        self.gamma = PointerDouble(ndim=1,value_dim=1,size=size)
-        self.nstep_rew = PointerDouble(ndim=1,value_dim=1,size=size)
+        self.gamma = PointerDouble(ndim=2,value_dim=1,size=size)
+        self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
     def _encode_sample(self,indexes):
         samples = super()._encode_sample(indexes)
-        batch_size = indexes.shape[0]
+        cdef size_t batch_size = indexes.shape[0]
 
         self.nrb.sample(indexes,self.rew.ptr,self.next_obs.ptr,self.done.ptr)
         self.nrb.get_buffer_pointers(self.gamma.ptr,
