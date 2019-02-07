@@ -324,7 +324,7 @@ cdef class ReplayBuffer(RingEnvironment):
         pass
 
     def sample(self,batch_size):
-        idx = np.random.randint(0,self.get_stored_size(),batch_size)
+        cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
@@ -332,7 +332,7 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
         pass
 
     def sample(self,batch_size):
-        idx = np.random.randint(0,self.get_stored_size(),batch_size)
+        cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
 cdef class PrioritizedReplayBuffer(RingEnvironment):
