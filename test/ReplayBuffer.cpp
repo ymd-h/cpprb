@@ -245,6 +245,48 @@ void test_SelectiveEnvironment(){
   assert(1ul == se.get_stored_episode_size());
 }
 
+void test_MultiThreadRingEnvironment(){
+  constexpr const auto buffer_size = 1024ul;
+  constexpr const auto obs_dim = 3ul;
+  constexpr const auto act_dim = 1ul;
+  constexpr const auto N_step = buffer_size * 3;
+  constexpr const auto N_times = 1000;
+
+  std::cout << "Multi-Thread RingEnvironment" << std::endl;
+
+  auto single = ymd::CppRingEnvironment<Observation,Action,
+					Reward,Done,false>(buffer_size,
+							   obs_dim,act_dim);
+  auto multi = ymd::CppRingEnvironment<Observation,Action,
+				       Reward,Done,true>(buffer_size,
+							 obs_dim,act_dim);
+  std::cout << "without lock" << std::endl;
+  timer([&]() mutable {
+	  for(auto i = 0ul; i < N_step; ++i){
+	    auto obs = std::vector<Observation>(obs_dim,0.1*i);
+	    auto act = std::vector<Action>(act_dim,2.0*i);
+	    auto rew = 0.1 * i;
+	    auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
+	    auto done = (N_step - 1 == i) ? 1.0: 0.0;
+
+	    single.store(obs.data(),act.data(),&rew,next_obs.data(),&done);
+	  }
+	},N_times);
+
+  std::cout << "with lock" << std::endl;
+  timer([&]() mutable {
+	  for(auto i = 0ul; i < N_step; ++i){
+	    auto obs = std::vector<Observation>(obs_dim,0.1*i);
+	    auto act = std::vector<Action>(act_dim,2.0*i);
+	    auto rew = 0.1 * i;
+	    auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
+	    auto done = (N_step - 1 == i) ? 1.0: 0.0;
+
+	    single.store(obs.data(),act.data(),&rew,next_obs.data(),&done);
+	  }
+	},N_times);
+}
+
 int main(){
 
   constexpr const auto obs_dim = 3ul;
@@ -374,6 +416,8 @@ int main(){
 
   test_NstepReward();
   test_SelectiveEnvironment();
+
+  test_MultiThreadRingEnvironment();
 
   return 0;
 }
