@@ -700,6 +700,7 @@ namespace ymd {
     template<typename Done>
     void sample(const std::vector<std::size_t>& indexes,
 		Reward* rew,Observation* next_obs,Done* done){
+      constexpr const std::size_t zero = 0;
       reset_buffers(indexes.size());
 
       for(auto index: indexes){
@@ -708,11 +709,11 @@ namespace ymd {
 
 	auto remain = nstep - 1;
 	while((!done[index]) && remain){
-	  index = (index < buffer_size - 1) ? index+1: std::size_t(0);
+	  index = (index < buffer_size - 1) ? index+1: zero;
 
 	  auto end = index + remain;
 	  update_nstep(index,std::min(end,buffer_size),rew,done,gamma_i);
-	  remain = (end > buffer_size) ? end - buffer_size: std::size_t(0);
+	  remain = (end > buffer_size) ? end - buffer_size: zero;
 	}
 
 	std::copy_n(next_obs+index*obs_dim,obs_dim,
