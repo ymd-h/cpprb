@@ -8,7 +8,7 @@
 #include <set>
 
 namespace ymd {
-  inline constexpr auto PowerOf2(std::size_t n) noexcept {
+  inline constexpr auto PowerOf2(const std::size_t n) noexcept {
     auto m = std::size_t(1);
     while(m < n){ m *= 2; }
     return m;
