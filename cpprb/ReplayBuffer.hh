@@ -199,7 +199,9 @@ namespace ymd {
 
       if(auto done_index = std::find_if(done,done+copy_N,[](auto d){ return d; });
 	 done_index != done + copy_N){
-	episode_begins.emplace_back(next_index + std::distance(done,done_index) +std::size_t(1));
+	episode_begins.emplace_back(next_index
+				    + std::distance(done,done_index)
+				    + std::size_t(1));
       }
 
       next_index += copy_N;
