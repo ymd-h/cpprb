@@ -64,10 +64,10 @@ namespace ymd {
 	act_dim{act_dim},
 	obs_buffer{size,obs_dim},
 	act_buffer{size,act_dim},
-	rew_buffer{size,size_t(1)},
+	rew_buffer{size,std::size_t(1)},
 	next_obs_buffer{size,obs_dim},
-	done_buffer{size,size_t(1)} {}
-    Environment(): Environment{size_t(1),size_t(1),size_t(1)} {}
+	done_buffer{size,std::size_t(1)} {}
+    Environment(): Environment{std::size_t(1),std::size_t(1),std::size_t(1)} {}
     Environment(const Environment&) = default;
     Environment(Environment&&) = default;
     Environment& operator=(const Environment&) = default;
@@ -77,8 +77,8 @@ namespace ymd {
 	     typename Next_Obs_t,typename Done_t>
     void store(Obs_t* obs,Act_t* act, Rew_t* rew,
 	       Next_Obs_t* next_obs,Done_t* done,
-	       std::size_t shift = size_t(0),
-	       std::size_t index = size_t(0), size_t N = size_t(1)){
+	       std::size_t shift = std::size_t(0),
+	       std::size_t index = std::size_t(0), size_t N = std::size_t(1)){
       obs_buffer     .store_data(     obs,shift,index,N);
       act_buffer     .store_data(     act,shift,index,N);
       rew_buffer     .store_data(     rew,shift,index,N);
@@ -97,7 +97,7 @@ namespace ymd {
 
     void get_buffer_pointers(Observation*& obs, Action*& act, Reward*& rew,
 			     Observation*& next_obs, Done*& done) const {
-      get(size_t(0),obs,act,rew,next_obs,done);
+      get(std::size_t(0),obs,act,rew,next_obs,done);
     }
     std::size_t get_buffer_size() const { return buffer_size; }
   };
@@ -114,9 +114,9 @@ namespace ymd {
   public:
     CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
       : Env_t{size,obs_dim,act_dim},
-	stored_size{size_t(0)},
-	next_index{size_t(0)} {}
-    CppRingEnvironment(): CppRingEnvironment{size_t(1),size_t(1),size_t(1)} {}
+	stored_size{std::size_t(0)},
+	next_index{std::size_t(0)} {}
+    CppRingEnvironment(): CppRingEnvironment{std::size_t(1),std::size_t(1),std::size_t(1)} {}
     CppRingEnvironment(const CppRingEnvironment&) = default;
     CppRingEnvironment(CppRingEnvironment&&) = default;
     CppRingEnvironment& operator=(const CppRingEnvironment&) = default;
@@ -126,20 +126,20 @@ namespace ymd {
 	     typename Next_Obs_t,typename Done_t>
     void store(Obs_t* obs, Act_t* act, Rew_t* rew,
 	       Next_Obs_t* next_obs, Done_t* done,
-	       std::size_t N = size_t(1)){
+	       std::size_t N = std::size_t(1)){
       const auto buffer_size = this->get_buffer_size();
-      auto shift = size_t(0);
+      auto shift = std::size_t(0);
       while(N){
 	auto copy_N = std::min(N,buffer_size - next_index);
 
 	this->Env_t::store(obs,act,rew,next_obs,done,shift,next_index,copy_N);
 
 	next_index += copy_N;
-	if(next_index >= buffer_size){ next_index = size_t(0); }
+	if(next_index >= buffer_size){ next_index = std::size_t(0); }
 
 	if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
 
-	N = (N > copy_N) ? N - copy_N: size_t(0);
+	N = (N > copy_N) ? N - copy_N: std::size_t(0);
 	shift += copy_N;
       }
     }
@@ -147,8 +147,8 @@ namespace ymd {
     std::size_t get_next_index() const { return next_index; }
 
     virtual void clear(){
-      stored_size = size_t(0);
-      next_index = size_t(0);
+      stored_size = std::size_t(0);
+      next_index = std::size_t(0);
     }
   };
 
@@ -167,13 +167,13 @@ namespace ymd {
     CppSelectiveEnvironment(std::size_t episode_len,std::size_t Nepisodes,
 			 std::size_t obs_dim,std::size_t act_dim)
       : Env_t{episode_len * Nepisodes,obs_dim,act_dim},
-	next_index{size_t(0)},
+	next_index{std::size_t(0)},
 	episode_len{episode_len},
 	Nepisodes{Nepisodes},
-	episode_begins{size_t(0)} {
+	episode_begins{std::size_t(0)} {
 	  episode_begins.reserve(Nepisodes);
 	}
-    CppSelectiveEnvironment(): CppSelectiveEnvironment{size_t(1),size_t(1),size_t(1),size_t(1)} {}
+    CppSelectiveEnvironment(): CppSelectiveEnvironment{std::size_t(1),std::size_t(1),std::size_t(1),std::size_t(1)} {}
     CppSelectiveEnvironment(const CppSelectiveEnvironment&) = default;
     CppSelectiveEnvironment(CppSelectiveEnvironment&&) = default;
     CppSelectiveEnvironment& operator=(const CppSelectiveEnvironment&) = default;
@@ -184,15 +184,15 @@ namespace ymd {
 	     typename Next_Obs_t,typename Done_t>
     void store(Obs_t* obs,Act_t* act,Rew_t* rew,
 	       Next_Obs_t* next_obs, Done_t* done,
-	       std::size_t N = size_t(1)){
+	       std::size_t N = std::size_t(1)){
       const auto buffer_size = this->get_buffer_size();
-      auto shift = size_t(0);
+      auto shift = std::size_t(0);
       auto copy_N = std::min(N,buffer_size - next_index);
       this->Env_t::store(obs,act,rew,next_obs,done,shift,next_index,copy_N);
 
       if(auto done_index = std::find_if(done,done+copy_N,[](auto d){ return d; });
 	 done_index != done + copy_N){
-	episode_begins.emplace_back(next_index + std::distance(done,done_index) +size_t(1));
+	episode_begins.emplace_back(next_index + std::distance(done,done_index) +std::size_t(1));
       }
 
       next_index += copy_N;
@@ -202,7 +202,7 @@ namespace ymd {
 		     Observation*& obs,Action*& act,Reward*& rew,
 		     Observation*& next_obs,Done*& done) const {
       if(i >= get_stored_episode_size()){
-	ep_len = size_t(0);
+	ep_len = std::size_t(0);
 	return;
       }
 
@@ -225,7 +225,7 @@ namespace ymd {
 
     std::size_t delete_episode(std::size_t i){
       if(i > episode_begins.size() -1){
-	return size_t(0);
+	return std::size_t(0);
       }
 
       if(i == episode_begins.size() -1){
@@ -272,10 +272,10 @@ namespace ymd {
     std::size_t get_next_index() const { return next_index; }
     std::size_t get_stored_size() const { return next_index; }
     auto get_stored_episode_size() const {
-      return episode_begins.size() - (next_index == episode_begins.back() ? size_t(1): size_t(0));
+      return episode_begins.size() - (next_index == episode_begins.back() ? std::size_t(1): std::size_t(0));
     }
     virtual void clear(){
-      next_index = size_t(0);
+      next_index = std::size_t(0);
       episode_begins.resize(1);
     }
   };
@@ -291,7 +291,7 @@ namespace ymd {
   protected:
     std::mt19937 g;
 
-    auto initialize_space(std::size_t size = size_t(0)) const {
+    auto initialize_space(std::size_t size = std::size_t(0)) const {
       std::vector<std::vector<Observation>> obs{},next_obs{};
       std::vector<std::vector<Action>> act{};
       std::vector<Reward> rew{};
@@ -351,7 +351,7 @@ namespace ymd {
 		     Reward* rew,
 		     Observation* next_obs,
 		     Done* done,
-		     std::size_t N = size_t(1)){
+		     std::size_t N = std::size_t(1)){
       this->Buffer_t::store(obs,act,rew,next_obs,done,N);
     }
 
@@ -407,7 +407,7 @@ namespace ymd {
 	= Priority{1.0} * sum.reduce(0,stored_size) / batch_size;
 
       std::generate_n(std::back_inserter(indexes),batch_size,
-		      [=,i=size_t(0),
+		      [=,i=std::size_t(0),
 		       d=std::uniform_real_distribution<Priority>{}]()mutable{
 			auto mass = (d(this->g) + (i++))*every_range_len;
 			return this->sum.largest_region_index([=](auto v){
@@ -580,14 +580,14 @@ namespace ymd {
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done,Priority p){
       auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,size_t(1));
+      this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
       this->set_priorities(next_index,p);
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done){
       auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,size_t(1));
+      this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
       this->set_priorities(next_index);
     }
 
@@ -698,11 +698,11 @@ namespace ymd {
 
 	auto remain = nstep - 1;
 	while((!done[index]) && remain){
-	  index = (index < buffer_size - 1) ? index+1: size_t(0);
+	  index = (index < buffer_size - 1) ? index+1: std::size_t(0);
 
 	  auto end = index + remain;
 	  update_nstep(index,std::min(end,buffer_size),rew,done,gamma_i);
-	  remain = (end > buffer_size) ? end - buffer_size: size_t(0);
+	  remain = (end > buffer_size) ? end - buffer_size: std::size_t(0);
 	}
 
 	std::copy_n(next_obs+index*obs_dim,obs_dim,
