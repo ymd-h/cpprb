@@ -250,7 +250,7 @@ void test_MultiThreadRingEnvironment(){
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
   constexpr const auto N_step = buffer_size * 3;
-  constexpr const auto N_times = 1000;
+  constexpr const auto N_times = 100;
 
   std::cout << "Multi-Thread RingEnvironment" << std::endl;
 
