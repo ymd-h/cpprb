@@ -116,7 +116,9 @@ namespace ymd {
       : Env_t{size,obs_dim,act_dim},
 	stored_size{std::size_t(0)},
 	next_index{std::size_t(0)} {}
-    CppRingEnvironment(): CppRingEnvironment{std::size_t(1),std::size_t(1),std::size_t(1)} {}
+    CppRingEnvironment(): CppRingEnvironment{std::size_t(1),
+					     std::size_t(1),
+					     std::size_t(1)} {}
     CppRingEnvironment(const CppRingEnvironment&) = default;
     CppRingEnvironment(CppRingEnvironment&&) = default;
     CppRingEnvironment& operator=(const CppRingEnvironment&) = default;
