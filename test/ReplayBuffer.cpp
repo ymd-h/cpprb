@@ -252,7 +252,7 @@ void test_MultiThreadRingEnvironment(){
   constexpr const auto N_step = buffer_size * 3;
   constexpr const auto N_times = 100;
 
-  std::cout << "Multi-Thread RingEnvironment" << std::endl;
+  std::cout << std::endl << "Multi-Thread RingEnvironment" << std::endl;
 
   auto single = ymd::CppRingEnvironment<Observation,Action,
 					Reward,Done,false>(buffer_size,
