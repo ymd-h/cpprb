@@ -16,6 +16,25 @@ using Reward = double;
 using Done = double;
 using Priority = double;
 
+auto timer = [](auto&& f,auto N){
+	       auto start = std::chrono::high_resolution_clock::now();
+
+	       for(auto i = 0ul; i < N; ++i){ f(); }
+
+	       auto end = std::chrono::high_resolution_clock::now();
+	       auto elapsed = end - start;
+
+	       auto s = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
+	       auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
+	       auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
+	       auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed);
+	       std::cout << s.count() << "s "
+			 << ms.count() - s.count() * 1000 << "ms "
+			 << us.count() - ms.count() * 1000 << "us "
+			 << ns.count() - us.count() * 1000 << "ns"
+			 << std::endl;
+	     };
+
 template<typename T>
 void show_vector(T v,std::string name){
   std::cout << name << ": ";
@@ -236,25 +255,6 @@ int main(){
   constexpr const auto N_batch_size = 16ul;
 
   constexpr const auto N_times = 1000ul;
-
-  auto timer = [](auto&& f,auto N){
-		 auto start = std::chrono::high_resolution_clock::now();
-
-		 for(auto i = 0ul; i < N; ++i){ f(); }
-
-		 auto end = std::chrono::high_resolution_clock::now();
-		 auto elapsed = end - start;
-
-		 auto s = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
-		 auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
-		 auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-		 auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed);
-		 std::cout << s.count() << "s "
-			   << ms.count() - s.count() * 1000 << "ms "
-			   << us.count() - ms.count() * 1000 << "us "
-			   << ns.count() - us.count() * 1000 << "ns"
-			   << std::endl;
-	       };
 
   auto alpha = 0.7;
   auto beta = 0.5;
