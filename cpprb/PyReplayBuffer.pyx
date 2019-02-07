@@ -422,13 +422,15 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     @cython.wraparound(False)
     def _update_priorities(self,
                            np.ndarray[Idx  ,ndim = 1, mode="c"] indexes    not None,
-                           np.ndarray[Prio ,ndim = 2, mode="c"] priorities not None,
+                           np.ndarray[Prio ,ndim = 1, mode="c"] priorities not None,
                            size_t N=1):
-        self.per.update_priorities(&indexes[0],&priorities[0,0],N)
+        self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
-        cdef size_t N = indexes.shape[0]
-        self._update_priorities(indexes,priorities,N)
+        cdef idx = np.asarray(np.ravel(indexes),dtype=np.int64)
+        cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
+        cdef size_t N = idx.shape[0]
+        self._update_priorities(idx,priorities,N)
 
     def clear(self):
         super().clear()
