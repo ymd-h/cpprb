@@ -16,8 +16,6 @@ Done     = cython.fused_type(cython.float, cython.double)
 Prio     = cython.fused_type(cython.float, cython.double)
 
 ctypedef fused Idx:
-    unsigned char
-    unsigned short
     unsigned int
     unsigned long
     unsigned long long
