@@ -46,11 +46,11 @@ namespace ymd {
       return node ? (node - 1)/2: node;
     }
 
-    auto child_left(std::size_t node) const {
+    constexpr auto child_left(std::size_t node) const {
       return 2 * node + 1;
     }
 
-    auto child_right(std::size_t node) const {
+    constexpr auto child_right(std::size_t node) const {
       return 2 * node + 2;
     }
 
