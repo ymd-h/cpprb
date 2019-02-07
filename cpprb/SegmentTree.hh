@@ -136,18 +136,22 @@ namespace ymd {
 			      std::size_t n=std::size_t(0)) const {
       // max index of reduce( [0,index) ) -> true
 
-      auto min = std::size_t(0);
-      auto max = (std::size_t(0) != n) ? n: size;
+      constexpr const std::size_t zero = 0;
+      constexpr const std::size_t one  = 1;
+      constexpr const std::size_t two  = 2;
 
-      auto index = (min + max)/std::size_t(2);
+      std::size_t min = zero;
+      auto max = (zero != n) ? n: size;
 
-      while(max - min > std::size_t(1)){
-	if( condition(reduce(std::size_t(0),index)) ){
+      auto index = (min + max)/two;
+
+      while(max - min > one){
+	if( condition(reduce(zero,index)) ){
 	  min = index;
 	}else{
 	  max = index;
 	}
-	index = (min + max)/std::size_t(2);
+	index = (min + max)/two;
       }
 
       return index;
