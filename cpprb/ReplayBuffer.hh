@@ -10,6 +10,7 @@
 #include <functional>
 #include <type_traits>
 #include <limits>
+#include <mutex>
 
 #include "SegmentTree.hh"
 
@@ -102,7 +103,8 @@ namespace ymd {
     std::size_t get_buffer_size() const { return buffer_size; }
   };
 
-  template<typename Observation,typename Action,typename Reward,typename Done>
+  template<typename Observation,typename Action,typename Reward,typename Done,
+	   bool MultiThread = false>
   class CppRingEnvironment :public Environment<Observation,Action,Reward,Done>{
   public:
     using Env_t = Environment<Observation,Action,Reward,Done>;
@@ -110,12 +112,28 @@ namespace ymd {
   private:
     std::size_t stored_size;
     std::size_t next_index;
+    std::mutex mtx;
+
+    auto increment_index(std::size_t N,const std::size_t buffer_size){
+      constexpr const std::size_t zero = 0;
+
+      auto copy_N = std::min(N,buffer_size - next_index);
+      auto tmp_next_index = next_index;
+
+      next_index += copy_N;
+      if(next_index >= buffer_size){ next_index = zero; }
+
+      if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
+
+      return std::make_tuple(copy_N,tmp_next_index);
+    }
 
   public:
     CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
       : Env_t{size,obs_dim,act_dim},
 	stored_size{std::size_t(0)},
-	next_index{std::size_t(0)} {}
+	next_index{std::size_t(0)},
+	mtx{} {}
     CppRingEnvironment(): CppRingEnvironment{std::size_t(1),
 					     std::size_t(1),
 					     std::size_t(1)} {}
@@ -133,15 +151,17 @@ namespace ymd {
       const auto buffer_size = this->get_buffer_size();
 
       std::size_t shift = zero;
+      std::size_t copy_N{zero}, tmp_next_index{zero};
       while(N){
-	auto copy_N = std::min(N,buffer_size - next_index);
+	if constexpr (MultiThread){
+	  std::lock_guard<std::mutex>{mtx};
+          std::tie(copy_N,tmp_next_index) = increment_index(N,buffer_size);
+	}else{
+	  std::tie(copy_N,tmp_next_index) = increment_index(N,buffer_size);
+	}
 
-	this->Env_t::store(obs,act,rew,next_obs,done,shift,next_index,copy_N);
+	this->Env_t::store(obs,act,rew,next_obs,done,shift,tmp_next_index,copy_N);
 
-	next_index += copy_N;
-	if(next_index >= buffer_size){ next_index = zero; }
-
-	if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
 
 	N = (N > copy_N) ? N - copy_N: zero;
 	shift += copy_N;
