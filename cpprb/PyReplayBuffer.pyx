@@ -349,7 +349,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     cdef VectorDouble weights
     cdef VectorSize_t indexes
     cdef double alpha
-    cdef CppPrioritizedSampler[double]* per 
+    cdef CppPrioritizedSampler[double]* per
     def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
         self.alpha = alpha
         self.per = new CppPrioritizedSampler[double](size,alpha)
