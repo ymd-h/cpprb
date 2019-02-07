@@ -9,7 +9,7 @@
 
 namespace ymd {
   inline constexpr auto PowerOf2(std::size_t n) noexcept {
-    auto m = size_t(1);
+    auto m = std::size_t(1);
     while(m < n){ m *= 2; }
     return m;
   }
@@ -43,7 +43,7 @@ namespace ymd {
     }
 
     auto parent(std::size_t node) const {
-      return (node - 1)/size_t(2);
+      return (node - 1)/std::size_t(2);
     }
 
     auto child_left(std::size_t node) const {
@@ -63,7 +63,7 @@ namespace ymd {
     }
 
     void update_all(){
-      for(auto i = access_index(0) -1, end = size_t(0) - size_t(1); i != end; --i){
+      for(auto i = access_index(0) -1, end = std::size_t(0) - std::size_t(1); i != end; --i){
 	update_buffer(i);
       }
     }
@@ -89,14 +89,14 @@ namespace ymd {
       do {
 	n = parent(n);
 	update_buffer(n);
-      } while(n != size_t(0));
+      } while(n != std::size_t(0));
     }
 
     template<typename F,
 	     typename std::enable_if<!(std::is_convertible_v<F,T>),
 				     std::nullptr_t>::type = nullptr>
-    void set(std::size_t i,F&& f,std::size_t N,std::size_t max = size_t(0)){
-      if(size_t(0) == max){ max = size; }
+    void set(std::size_t i,F&& f,std::size_t N,std::size_t max = std::size_t(0)){
+      if(std::size_t(0) == max){ max = size; }
 
       std::set<std::size_t> will_update{};
 
@@ -104,12 +104,12 @@ namespace ymd {
 	auto copy_N = std::min(N,max-i);
 	std::generate_n(buffer.data()+access_index(i),copy_N,f);
 
-	for(auto n = size_t(0); n < copy_N; ++n){
+	for(auto n = std::size_t(0); n < copy_N; ++n){
 	  will_update.insert(parent(access_index(i+n)));
 	}
 
-	N = (N > copy_N) ? N - copy_N: size_t(0);
-	i = size_t(0);
+	N = (N > copy_N) ? N - copy_N: std::size_t(0);
+	i = std::size_t(0);
       }
 
 
@@ -121,7 +121,7 @@ namespace ymd {
       }
     }
 
-    void set(std::size_t i,T v,std::size_t N,std::size_t max = size_t(0)){
+    void set(std::size_t i,T v,std::size_t N,std::size_t max = std::size_t(0)){
       set(i,[=](){ return v; },N,max);
     }
 
@@ -132,21 +132,21 @@ namespace ymd {
     }
 
     auto largest_region_index(std::function<bool(T)> condition,
-			      std::size_t n=size_t(0)) const {
+			      std::size_t n=std::size_t(0)) const {
       // max index of reduce( [0,index) ) -> true
 
-      auto min = size_t(0);
-      auto max = (size_t(0) != n) ? n: size;
+      auto min = std::size_t(0);
+      auto max = (std::size_t(0) != n) ? n: size;
 
-      auto index = (min + max)/size_t(2);
+      auto index = (min + max)/std::size_t(2);
 
-      while(max - min > size_t(1)){
-	if( condition(reduce(size_t(0),index)) ){
+      while(max - min > std::size_t(1)){
+	if( condition(reduce(std::size_t(0),index)) ){
 	  min = index;
 	}else{
 	  max = index;
 	}
-	index = (min + max)/size_t(2);
+	index = (min + max)/std::size_t(2);
       }
 
       return index;
