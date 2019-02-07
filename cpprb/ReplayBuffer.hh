@@ -177,7 +177,10 @@ namespace ymd {
 	episode_begins{std::size_t(0)} {
 	  episode_begins.reserve(Nepisodes);
 	}
-    CppSelectiveEnvironment(): CppSelectiveEnvironment{std::size_t(1),std::size_t(1),std::size_t(1),std::size_t(1)} {}
+    CppSelectiveEnvironment(): CppSelectiveEnvironment{std::size_t(1),
+						       std::size_t(1),
+						       std::size_t(1),
+						       std::size_t(1)} {}
     CppSelectiveEnvironment(const CppSelectiveEnvironment&) = default;
     CppSelectiveEnvironment(CppSelectiveEnvironment&&) = default;
     CppSelectiveEnvironment& operator=(const CppSelectiveEnvironment&) = default;
