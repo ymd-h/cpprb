@@ -311,7 +311,7 @@ cdef class SelectiveEnvironment(Environment):
                                         self.rew.ptr,
                                         self.next_obs.ptr,
                                         self.done.ptr)
-        buffer_size = self.get_buffer_size()
+        cdef size_t buffer_size = self.get_buffer_size()
         self.obs.update_vec_size(buffer_size)
         self.act.update_vec_size(buffer_size)
         self.rew.update_vec_size(buffer_size)
