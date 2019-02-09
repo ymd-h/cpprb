@@ -1,6 +1,15 @@
 import numpy as np
 import unittest, time
+from multiprocessing import Pool
 from cpprb import *
+
+def timer(f,N_times,name,*args,**kwargs):
+        start = time.perf_counter()
+        for _ in range(N_times):
+            f(*args,**kwargs)
+        end = time.perf_counter()
+        print("{}: {} time execution".format(name,N_times))
+        print("{} s".format(end - start))
 
 class TestReplayBuffer(unittest.TestCase):
     """=== ReplayBuffer.py ==="""
