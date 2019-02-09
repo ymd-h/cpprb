@@ -10,6 +10,8 @@
 #include <functional>
 #include <type_traits>
 #include <limits>
+#include <atomic>
+#include <memory>
 #include <mutex>
 
 #include "SegmentTree.hh"
@@ -110,29 +112,17 @@ namespace ymd {
     using Env_t = Environment<Observation,Action,Reward,Done>;
 
   private:
-    std::size_t stored_size;
-    std::size_t next_index;
+    std::atomic_size_t stored_size;
+    std::atomic_size_t next_index;
+    const std::size_t mask;
     std::mutex mtx;
-
-    auto increment_index(std::size_t N,const std::size_t buffer_size){
-      constexpr const std::size_t zero = 0;
-
-      auto copy_N = std::min(N,buffer_size - next_index);
-      auto tmp_next_index = next_index;
-
-      next_index += copy_N;
-      if(next_index >= buffer_size){ next_index = zero; }
-
-      if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
-
-      return std::make_tuple(copy_N,tmp_next_index);
-    }
 
   public:
     CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
       : Env_t{PowerOf2(size),obs_dim,act_dim},
 	stored_size{std::size_t(0)},
 	next_index{std::size_t(0)},
+	mask{PowerOf2(size)-1},
 	mtx{} {}
     CppRingEnvironment(): CppRingEnvironment{std::size_t(1),
 					     std::size_t(1),
@@ -150,25 +140,34 @@ namespace ymd {
       constexpr const std::size_t zero = 0;
       const auto buffer_size = this->get_buffer_size();
 
+      stored_size.fetch_add(N,std::memory_order_relaxed);
+
       std::size_t shift = zero;
-      std::size_t copy_N{zero}, tmp_next_index{zero};
+      std::size_t tmp_next_index{next_index.fetch_add(N) & mask};
       while(N){
-	if constexpr (MultiThread){
-	  std::lock_guard<std::mutex> lock{mtx};
-          std::tie(copy_N,tmp_next_index) = increment_index(N,buffer_size);
-	}else{
-	  std::tie(copy_N,tmp_next_index) = increment_index(N,buffer_size);
-	}
+	auto copy_N = std::min(N,buffer_size - tmp_next_index);
 
 	this->Env_t::store(obs,act,rew,next_obs,done,shift,tmp_next_index,copy_N);
 
-
 	N = (N > copy_N) ? N - copy_N: zero;
 	shift += copy_N;
+	tmp_next_index = zero;
       }
+
     }
-    std::size_t get_stored_size() const { return stored_size; }
-    std::size_t get_next_index() const { return next_index; }
+
+    std::size_t get_stored_size(){
+      const auto size = stored_size.load(std::memory_order_acquire);
+      const auto buffer_size = this->get_buffer_size();
+
+      if(size < buffer_size){ return size; }
+
+      stored_size.store(size,std::memory_order_release);
+      return buffer_size;
+    }
+    std::size_t get_next_index() const {
+      return next_index.load(std::memory_order_acquire) & mask;
+    }
 
     virtual void clear(){
       if constexpr (MultiThread){
