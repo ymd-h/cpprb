@@ -10,6 +10,9 @@
 #include <functional>
 #include <type_traits>
 #include <limits>
+#include <atomic>
+#include <memory>
+#include <mutex>
 
 #include "SegmentTree.hh"
 
@@ -102,20 +105,25 @@ namespace ymd {
     std::size_t get_buffer_size() const { return buffer_size; }
   };
 
-  template<typename Observation,typename Action,typename Reward,typename Done>
+  template<typename Observation,typename Action,typename Reward,typename Done,
+	   bool MultiThread = true>
   class CppRingEnvironment :public Environment<Observation,Action,Reward,Done>{
   public:
     using Env_t = Environment<Observation,Action,Reward,Done>;
 
   private:
-    std::size_t stored_size;
-    std::size_t next_index;
+    std::atomic_size_t stored_size;
+    std::atomic_size_t next_index;
+    const std::size_t mask;
+    std::mutex mtx;
 
   public:
     CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
-      : Env_t{size,obs_dim,act_dim},
+      : Env_t{PowerOf2(size),obs_dim,act_dim},
 	stored_size{std::size_t(0)},
-	next_index{std::size_t(0)} {}
+	next_index{std::size_t(0)},
+	mask{PowerOf2(size)-1},
+	mtx{} {}
     CppRingEnvironment(): CppRingEnvironment{std::size_t(1),
 					     std::size_t(1),
 					     std::size_t(1)} {}
@@ -130,29 +138,48 @@ namespace ymd {
 	       Next_Obs_t* next_obs, Done_t* done,
 	       std::size_t N = std::size_t(1)){
       constexpr const std::size_t zero = 0;
+      constexpr const auto order
+	= MultiThread ? std::memory_order_seq_cst : std::memory_order_relaxed;
+
       const auto buffer_size = this->get_buffer_size();
 
+      stored_size.fetch_add(N,std::memory_order_relaxed);
+
       std::size_t shift = zero;
+      std::size_t tmp_next_index{next_index.fetch_add(N,order) & mask};
       while(N){
-	auto copy_N = std::min(N,buffer_size - next_index);
+	auto copy_N = std::min(N,buffer_size - tmp_next_index);
 
-	this->Env_t::store(obs,act,rew,next_obs,done,shift,next_index,copy_N);
-
-	next_index += copy_N;
-	if(next_index >= buffer_size){ next_index = zero; }
-
-	if(stored_size + copy_N < buffer_size){ stored_size += copy_N; }
+	this->Env_t::store(obs,act,rew,next_obs,done,shift,tmp_next_index,copy_N);
 
 	N = (N > copy_N) ? N - copy_N: zero;
 	shift += copy_N;
+	tmp_next_index = zero;
       }
     }
-    std::size_t get_stored_size() const { return stored_size; }
-    std::size_t get_next_index() const { return next_index; }
+
+    std::size_t get_stored_size(){
+      const auto size = stored_size.load(std::memory_order_acquire);
+      const auto buffer_size = this->get_buffer_size();
+
+      if(size < buffer_size){ return size; }
+
+      stored_size.store(size,std::memory_order_release);
+      return buffer_size;
+    }
+    std::size_t get_next_index() const {
+      return next_index.load(std::memory_order_acquire) & mask;
+    }
 
     virtual void clear(){
-      stored_size = std::size_t(0);
-      next_index = std::size_t(0);
+      if constexpr (MultiThread){
+	std::lock_guard<std::mutex> lock{mtx};
+	stored_size = std::size_t(0);
+	next_index = std::size_t(0);
+      }else{
+	stored_size = std::size_t(0);
+	next_index = std::size_t(0);
+      }
     }
   };
 
