@@ -5,6 +5,8 @@
 #include <cassert>
 #include <cmath>
 #include <type_traits>
+#include <future>
+#include <thread>
 
 #include <ReplayBuffer.hh>
 
@@ -249,42 +251,110 @@ void test_MultiThreadRingEnvironment(){
   constexpr const auto buffer_size = 1024ul;
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
-  constexpr const auto N_step = buffer_size * 3;
+  constexpr const auto N_step = buffer_size * 300;
   constexpr const auto N_times = 100;
+  constexpr const auto N_add = 100;
 
-  std::cout << std::endl << "Multi-Thread RingEnvironment" << std::endl;
+  std::cout << std::endl << "Multi-Thread RingEnvironment("
+	    << "buffer_size=" << buffer_size
+	    << ",obs_dim=" << obs_dim
+	    << ",act_dim=" << act_dim
+	    << ")" << std::endl;
 
-  auto single = ymd::CppRingEnvironment<Observation,Action,
-					Reward,Done,false>(buffer_size,
-							   obs_dim,act_dim);
-  auto multi = ymd::CppRingEnvironment<Observation,Action,
-				       Reward,Done,true>(buffer_size,
-							 obs_dim,act_dim);
-  std::cout << "without lock" << std::endl;
-  timer([&]() mutable {
-	  for(auto i = 0ul; i < N_step; ++i){
-	    auto obs = std::vector<Observation>(obs_dim,0.1*i);
-	    auto act = std::vector<Action>(act_dim,2.0*i);
-	    auto rew = 0.1 * i;
-	    auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
-	    auto done = (N_step - 1 == i) ? 1.0: 0.0;
+  using NoLock_t = ymd::CppRingEnvironment<Observation,Action,Reward,Done,false>;
+  using Lock_t = ymd::CppRingEnvironment<Observation,Action,Reward,Done,true>;
 
-	    single.store(obs.data(),act.data(),&rew,next_obs.data(),&done);
-	  }
-	},N_times);
+  auto single = NoLock_t(buffer_size,obs_dim,act_dim);
+  auto multi  = Lock_t(buffer_size,obs_dim,act_dim);
+  auto multi2 = Lock_t(buffer_size,obs_dim,act_dim);
 
-  std::cout << "with lock" << std::endl;
-  timer([&]() mutable {
-	  for(auto i = 0ul; i < N_step; ++i){
-	    auto obs = std::vector<Observation>(obs_dim,0.1*i);
-	    auto act = std::vector<Action>(act_dim,2.0*i);
-	    auto rew = 0.1 * i;
-	    auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
-	    auto done = (N_step - 1 == i) ? 1.0: 0.0;
 
-	    single.store(obs.data(),act.data(),&rew,next_obs.data(),&done);
-	  }
-	},N_times);
+  auto obs = std::vector<Observation>{};
+  auto act = std::vector<Action>{};
+  auto rew = std::vector<Reward>{};
+  auto next_obs = std::vector<Observation>{};
+  auto done = std::vector<Done>{};
+
+  obs.reserve(obs_dim * buffer_size);
+  act.reserve(act_dim * buffer_size);
+  rew.reserve(buffer_size);
+  next_obs.reserve(obs_dim * buffer_size);
+  done.reserve(buffer_size);
+
+  for(auto i = 0ul; i < N_step; ++i){
+    std::fill_n(std::back_inserter(obs),obs_dim,1.0*i);
+    std::fill_n(std::back_inserter(act),act_dim,0.5*i);
+    rew.push_back(0.1*i);
+    std::fill_n(std::back_inserter(next_obs),obs_dim,1.0*(i+1));
+    done.push_back(i % 25 == 0 ? 1: 0);
+  }
+
+  std::cout << N_times << " times execution" << std::endl;
+
+  auto f_core =
+    [&](auto& b, std::size_t N_add,std::size_t start,std::size_t stop){
+      for(auto i = start; i < stop; i += N_add){
+	b.store(obs.data() + i*obs_dim,
+		act.data() + i*act_dim,
+		rew.data() + i,
+		next_obs.data() + i*obs_dim,
+		done.data() + i,
+		std::min(N_add,stop-i));
+      }
+    };
+
+  auto f =
+    [&](auto& b,std::size_t N_add){
+      std::cout << "Adding " << N_add << " time-points at once" << std::endl;
+      timer([&]() mutable {
+	      f_core(b,N_add,0ul,N_step);
+	    },N_times);
+    };
+
+  auto multi_f =
+    [&](auto& b,std::size_t N_add,auto cores){
+
+      const std::size_t n = N_step/cores;
+
+      auto v = std::vector<std::future<void>>{};
+      v.reserve(cores-1);
+
+      std::cout << "Adding " << N_add << " time-points at once" << std::endl;
+      timer([&]() mutable {
+	      for(std::remove_const_t<decltype(cores)> i = 0; i < cores-1; ++i){
+		v.push_back(std::async(std::launch::async,
+				       [&](){ f_core(b,N_add,n*i,n*(i+1)); }));
+	      }
+	      f_core(b,N_add,n*(cores-1),N_step);
+
+	      for(auto& ve: v){ ve.wait(); }
+	    },N_times);
+    };
+
+  std::cout << "Single-thread without lock" << std::endl;
+  f(single,1);
+  std::cout << std::endl;
+  single.clear();
+  f(single,100);
+  std::cout << std::endl;
+
+  std::cout << "Single-thread with lock" << std::endl;
+  f(multi,1);
+  std::cout << std::endl;
+  multi.clear();
+  f(multi,100);
+  std::cout << std::endl;
+
+  std::cout << "Multi-thread with lock" << std::endl;
+  const auto cores = std::thread::hardware_concurrency();
+  std::cout << cores << " cores execution." << std::endl;
+
+  multi_f(multi2,1,cores);
+  std::cout << std::endl;
+  multi2.clear();
+  multi_f(multi2,100,cores);
+  std::cout << std::endl;
+
 }
 
 int main(){
