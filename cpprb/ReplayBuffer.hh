@@ -138,12 +138,15 @@ namespace ymd {
 	       Next_Obs_t* next_obs, Done_t* done,
 	       std::size_t N = std::size_t(1)){
       constexpr const std::size_t zero = 0;
+      constexpr const auto order
+	= MultiThread ? std::memory_order_seq_cst : std::memory_order_relaxed;
+
       const auto buffer_size = this->get_buffer_size();
 
       stored_size.fetch_add(N,std::memory_order_relaxed);
 
       std::size_t shift = zero;
-      std::size_t tmp_next_index{next_index.fetch_add(N) & mask};
+      std::size_t tmp_next_index{next_index.fetch_add(N,order) & mask};
       while(N){
 	auto copy_N = std::min(N,buffer_size - tmp_next_index);
 
@@ -153,7 +156,6 @@ namespace ymd {
 	shift += copy_N;
 	tmp_next_index = zero;
       }
-
     }
 
     std::size_t get_stored_size(){
