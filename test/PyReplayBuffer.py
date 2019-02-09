@@ -1,6 +1,6 @@
 import numpy as np
 import unittest, time
-from multiprocessing import Pool
+from multiprocessing import Process
 from cpprb import *
 
 def timer(f,N_times,name,*args,**kwargs):
@@ -292,6 +292,70 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
         s = self.srb.get_episode(2)
         delete_len = self.srb.delete_episode(2)
         self.assertEqual(self.srb.get_next_index(), old_index - delete_len)
+
+class TestMultiProcessReplayBuffer(TestReplayBuffer):
+    class_name = "MultiProcessing"
+    buffer_size = 1024 * 1024
+    N_add = buffer_size * 3
+    N_time = 100
+    add_dim = 100
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rb = ReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
+
+        def f(end):
+            for i in range(0,end):
+                cls.rb.add(np.ones(shape=(cls.obs_dim)),
+                           np.zeros(shape=(cls.act_dim)),
+                           1.0,
+                           np.ones(shape=(cls.obs_dim)),
+                           0)
+            cls.rb.clear()
+
+        def g(end):
+            for i in range(0,end,cls.add_dim):
+                cls.rb.add(np.ones(shape=(cls.add_dim,cls.obs_dim)),
+                           np.zeros(shape=(cls.add_dim,cls.act_dim)),
+                           np.ones((cls.add_dim)),
+                           np.ones(shape=(cls.add_dim,cls.obs_dim)),
+                           np.zeros((cls.add_dim)))
+            cls.rb.clear()
+
+        def Multi_f(end):
+            q = []
+
+            for _ in range(8):
+                q.append(Process(target=f,args=(end // 8,)))
+                q[-1].start()
+
+            for qe in q:
+                qe.join()
+
+        def Multi_g(end):
+            q = []
+
+            for _ in range(8):
+                q.append(Process(target=g,args=(end // 8,)))
+                q[-1].start()
+
+            for qe in q:
+                qe.join()
+
+        timer(lambda: f(cls.N_add),cls.N_time,
+              "Single thread adding 1 time-point")
+
+        timer(lambda: g(cls.N_add),cls.N_time,
+              "Single thread adding {} time-point".format(cls.add_dim))
+
+        timer(lambda: Multi_f(cls.N_add),cls.N_time,
+              "Multi thread adding 1 time-point")
+
+        timer(lambda: Multi_g(cls.N_add),cls.N_time,
+              "Multi thread adding {} time-point".format(cls.add_dim))
+
+        cls.fill_ReplayBuffer()
+        cls.s = cls.rb.sample(cls.batch_size)
 
 if __name__ == '__main__':
     unittest.main()
