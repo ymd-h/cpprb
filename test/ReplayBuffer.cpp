@@ -248,12 +248,11 @@ void test_SelectiveEnvironment(){
 }
 
 void test_MultiThreadRingEnvironment(){
-  constexpr const auto buffer_size = 1024ul;
+  constexpr const auto buffer_size = 1024ul * 1024ul;
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
-  constexpr const auto N_step = buffer_size * 300;
+  constexpr const auto N_step = buffer_size * 3;
   constexpr const auto N_times = 100;
-  constexpr const auto N_add = 100;
 
   std::cout << std::endl << "Multi-Thread RingEnvironment("
 	    << "buffer_size=" << buffer_size
