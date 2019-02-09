@@ -130,7 +130,7 @@ namespace ymd {
 
   public:
     CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
-      : Env_t{size,obs_dim,act_dim},
+      : Env_t{PowerOf2(size),obs_dim,act_dim},
 	stored_size{std::size_t(0)},
 	next_index{std::size_t(0)},
 	mtx{} {}
