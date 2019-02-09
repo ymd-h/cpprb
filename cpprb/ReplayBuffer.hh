@@ -154,7 +154,7 @@ namespace ymd {
       std::size_t copy_N{zero}, tmp_next_index{zero};
       while(N){
 	if constexpr (MultiThread){
-	  std::lock_guard<std::mutex>{mtx};
+	  std::lock_guard<std::mutex> lock{mtx};
           std::tie(copy_N,tmp_next_index) = increment_index(N,buffer_size);
 	}else{
 	  std::tie(copy_N,tmp_next_index) = increment_index(N,buffer_size);
@@ -172,7 +172,7 @@ namespace ymd {
 
     virtual void clear(){
       if constexpr (MultiThread){
-	std::lock_guard<std::mutex>{mtx};
+	std::lock_guard<std::mutex> lock{mtx};
 	stored_size = std::size_t(0);
 	next_index = std::size_t(0);
       }else{
