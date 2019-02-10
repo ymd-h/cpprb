@@ -227,6 +227,52 @@ cdef class RingEnvironment(Environment):
     def get_next_index(self):
         return self.buffer.get_next_index()
 
+cdef class ThreadSafeRingEnvironment(Environment):
+    cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
+    def __cinit__(self,size,obs_dim,act_dim,**kwargs):
+        self.buffer = new CppThreadSafeRingEnvironment[double,double,
+                                                       double,double](size,
+                                                                      obs_dim,
+                                                                      act_dim)
+
+        self.buffer.get_buffer_pointers(self.obs.ptr,
+                                        self.act.ptr,
+                                        self.rew.ptr,
+                                        self.next_obs.ptr,
+                                        self.done.ptr)
+
+        self.buffer_size = self.buffer.get_buffer_size()
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_N(self,
+               np.ndarray[Obs     ,ndim = 2, mode="c"] obs not None,
+               np.ndarray[Act     ,ndim = 2, mode="c"] act not None,
+               np.ndarray[Rew     ,ndim = 1, mode="c"] rew not None,
+               np.ndarray[Next_Obs,ndim = 2, mode="c"] next_obs not None,
+               np.ndarray[Done    ,ndim = 1, mode="c"] done not None,
+               size_t N=1):
+        self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_1(self,
+               np.ndarray[Obs     ,ndim = 1, mode="c"] obs not None,
+               np.ndarray[Act     ,ndim = 1, mode="c"] act not None,
+               Rew rew,
+               np.ndarray[Next_Obs,ndim = 1, mode="c"] next_obs not None,
+               double done):
+        self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
+
+    def clear(self):
+        return self.buffer.clear()
+
+    def get_stored_size(self):
+        return self.buffer.get_stored_size()
+
+    def get_next_index(self):
+        return self.buffer.get_next_index()
+
 cdef class SelectiveEnvironment(Environment):
     cdef CppSelectiveEnvironment[double,double,double,double] *buffer
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,**kwargs):
@@ -320,6 +366,14 @@ cdef class SelectiveEnvironment(Environment):
         return super()._encode_sample(indexes)
 
 cdef class ReplayBuffer(RingEnvironment):
+    def __cinit__(self,size,obs_dim,act_dim,**kwargs):
+        pass
+
+    def sample(self,batch_size):
+        cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
+        return self._encode_sample(idx)
+
+cdef class ThreadSafeReplayBuffer(ThreadSafeRingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         pass
 
