@@ -80,7 +80,7 @@ CLOSED: [2019-02-10 Sun 21:00]
 :PROPERTIES:
 :EXPORT_FILE_NAME: requirements
 :END:
-
+*** Requirements
 - =C++17=
 - =Python 3=
 - ~Cython (>= 0.29)~
@@ -100,7 +100,7 @@ We uses many C++17 features, such as =if constexpr=, structured
 bindings, etc., and we highly recommend to use recent gcc, which we
 use to build and test.
 
-*** Requirements
+
 
 ** TODO Installation
 :PROPERTIES:
