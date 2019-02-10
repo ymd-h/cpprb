@@ -7,6 +7,7 @@ theme = "learn"
 themesdir = "themes"
 metaDataFormat = "yaml"
 defaultContentLanguageInSubdir= true
+publishDir = "../public"
 
 [params]
   editURL = "https://gitlab.com/ymd_h/cpprb/edit/master/content/"
@@ -16,7 +17,6 @@ defaultContentLanguageInSubdir= true
   disableBreadcrumb = false
   disableNextPrev = false
   themeVariant = "blue"
-  publishDir = "../public"
 
 [outputs]
 home = [ "HTML", "RSS", "JSON"]
