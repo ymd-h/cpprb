@@ -185,8 +185,6 @@ cdef class Environment:
 cdef class RingEnvironment(Environment):
     cdef CppRingEnvironment[double,double,double,double] *buffer
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
-        self.buffer_size = size
-
         self.buffer = new CppRingEnvironment[double,double,double,double](size,
                                                                           obs_dim,
                                                                           act_dim)
@@ -196,6 +194,8 @@ cdef class RingEnvironment(Environment):
                                         self.rew.ptr,
                                         self.next_obs.ptr,
                                         self.done.ptr)
+
+        self.buffer_size = self.buffer.get_buffer_size()
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
