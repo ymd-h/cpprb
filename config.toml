@@ -1,0 +1,27 @@
+baseURL = "https://ymd_h.gitlab.io/cpprb/"
+languageCode = "ja-JP"
+defaultContentLanguage = "ja"
+
+title = "C++ Replay Buffer"
+theme = "beg"
+themesdir = "themes"
+metaDataFormat = "yaml"
+defaultContentLanguageInSubdir= true
+
+[params]
+  editURL = "https://gitlab.com/ymd_h/cpprb/edit/master/content/"
+  description = "Site for cpprb (C++ Replay Buffer)"
+  author = "Hiroyuki Yamada"
+  showVisitedLinks = true
+  disableBreadcrumb = false
+  disableNextPrev = false
+  post = ":year/:month/:filename/"
+
+[outputs]
+home = [ "HTML", "RSS", "JSON"]
+
+[Languages]
+[Languages.ja]
+title = "C++ Replay Buffer"
+weight = 1
+languageName = "日本語"
