@@ -154,7 +154,7 @@ namespace ymd {
 	       std::size_t N = std::size_t(1)){
       constexpr const std::size_t zero = 0;
       constexpr const auto order
-	= MultiThread ? std::memory_order_seq_cst : std::memory_order_relaxed;
+	= MultiThread ? std::memory_order_acquire : std::memory_order_relaxed;
 
       const auto buffer_size = this->get_buffer_size();
 
