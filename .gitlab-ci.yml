@@ -1,7 +1,7 @@
 image: registry.gitlab.com/ymd_h/cpprb/build:latest
 
 variables:
-  CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb"
+  CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
 
 before_script:
   - g++ --version
