@@ -159,34 +159,39 @@ sample = rb.sample(batch_size)
 :EXPORT_HUGO_SECTION*: reference
 :END:
 
-** ReplayBuffer
+** DONE ReplayBuffer
+CLOSED: [2019-02-10 Sun 21:40]
 :PROPERTIES:
 :EXPORT_FILE_NAME: replay_buffer
 :END:
 *** ReplayBuffer
 
-** PrioritizedReplayBuffer
+** DONE PrioritizedReplayBuffer
+CLOSED: [2019-02-10 Sun 21:40]
 :PROPERTIES:
 :EXPORT_FILE_NAME: prioritized_replay_buffer
 :END:
 *** PrioritizedReplayBuffer
 
 
-** NstepReplayBuffer
+** DONE NstepReplayBuffer
+CLOSED: [2019-02-10 Sun 21:40]
 :PROPERTIES:
 :EXPORT_FILE_NAME: nstep_replay_buffer
 :END:
 
 *** NstepReplayBuffer
 
-** NstepPrioritizedReplayBuffer
+** DONE NstepPrioritizedReplayBuffer
+CLOSED: [2019-02-10 Sun 21:40]
 :PROPERTIES:
 :EXPORT_FILE_NAME: nstep_prioritized_replay_buffer
 :END:
 
 *** NstepPrioritizedReplayBuffer
 
-** SelectiveReplayBuffer
+** DONE SelectiveReplayBuffer
+CLOSED: [2019-02-10 Sun 21:40]
 :PROPERTIES:
 :EXPORT_FILE_NAME: selective_replay_buffer
 :END:
