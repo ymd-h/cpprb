@@ -75,10 +75,30 @@ CLOSED: [2019-02-10 Sun 20:58]
 
 *** Basics
 
-** TODO Requirements
+** DONE Requirements
+CLOSED: [2019-02-10 Sun 21:00]
 :PROPERTIES:
 :EXPORT_FILE_NAME: requirements
 :END:
+
+- =C++17=
+- =Python 3=
+- ~Cython (>= 0.29)~
+
+We use [[https://cython.org/][Cython]] to write C++ extension for Python, so that you need
+Cython to build our packages on your computer.
+
+We observed a build failure with Cython 0.28.5.
+
+Cython can be installed by =pip=.
+
+#+BEGIN_SRC shell
+pip install cython
+#+END_SRC
+
+We uses many C++17 features, such as =if constexpr=, structured
+bindings, etc., and we highly recommend to use recent gcc, which we
+use to build and test.
 
 *** Requirements
 
