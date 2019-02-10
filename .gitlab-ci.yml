@@ -68,7 +68,7 @@ pages:
   environment: production
   script:
     - hugo version
-    - hugo -c content
+    - hugo -c content -v
   artifacts:
     paths:
       - public
