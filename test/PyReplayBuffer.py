@@ -302,7 +302,7 @@ class TestMultiProcessReplayBuffer(TestReplayBuffer):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
+        cls.rb = ThreadSafeReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
 
         def f(end):
             obs = np.ones(shape=(cls.obs_dim))

@@ -262,7 +262,7 @@ void test_MultiThreadRingEnvironment(){
 	    << ")" << std::endl;
 
   using NoLock_t = ymd::CppRingEnvironment<Observation,Action,Reward,Done,false>;
-  using Lock_t = ymd::CppRingEnvironment<Observation,Action,Reward,Done,true>;
+  using Lock_t = ymd::CppThreadSafeRingEnvironment<Observation,Action,Reward,Done>;
 
   auto single = NoLock_t(buffer_size,obs_dim,act_dim);
   auto multi  = Lock_t(buffer_size,obs_dim,act_dim);
