@@ -15,7 +15,6 @@ defaultContentLanguageInSubdir= true
   showVisitedLinks = true
   disableBreadcrumb = false
   disableNextPrev = false
-  post = ":year/:month/:filename/"
   themeVariant = "blue"
 
 [outputs]
