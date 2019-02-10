@@ -102,11 +102,24 @@ use to build and test.
 
 
 
-** TODO Installation
+** DONE Installation
+CLOSED: [2019-02-10 Sun 21:30]
 :PROPERTIES:
 :EXPORT_FILE_NAME: installation
 :END:
 *** Installation
+
+#+BEGIN_SRC shell
+git clone https://gitlab.com/ymd_h/cpprb.git cpprb
+cd cpprb
+python setup.py build
+python setup.py install
+#+END_SRC
+
+Depending on your environment, you might need to set =CC= and/or =CXX=
+variables like ~CXX=g++ python setup.py build~.
+
+You might need =sudo= for installation.
 
 
 ** DONE Simple Usage
