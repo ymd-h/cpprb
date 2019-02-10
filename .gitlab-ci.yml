@@ -55,10 +55,11 @@ emacs:
   stage: page_export
   script:
     - emacs --version
+    - cd site
     - emacs --batch site.org -l init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
   artifacts:
     paths:
-      - content
+      - site/content
   only:
     - master
 
@@ -68,7 +69,8 @@ pages:
   environment: production
   script:
     - hugo version
-    - hugo -c content -v
+    - cd site
+    - hugo -v
   artifacts:
     paths:
       - public

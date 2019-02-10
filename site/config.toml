@@ -16,6 +16,7 @@ defaultContentLanguageInSubdir= true
   disableBreadcrumb = false
   disableNextPrev = false
   themeVariant = "blue"
+  publishDir = "../public"
 
 [outputs]
 home = [ "HTML", "RSS", "JSON"]
