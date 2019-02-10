@@ -159,34 +159,34 @@ sample = rb.sample(batch_size)
 :EXPORT_HUGO_SECTION*: reference
 :END:
 
-** TODO ReplayBuffer
+** ReplayBuffer
 :PROPERTIES:
 :EXPORT_FILE_NAME: replay_buffer
 :END:
 *** ReplayBuffer
 
-** TODO PrioritizedReplayBuffer
+** PrioritizedReplayBuffer
 :PROPERTIES:
 :EXPORT_FILE_NAME: prioritized_replay_buffer
 :END:
 *** PrioritizedReplayBuffer
 
 
-** TODO NstepReplayBuffer
+** NstepReplayBuffer
 :PROPERTIES:
 :EXPORT_FILE_NAME: nstep_replay_buffer
 :END:
 
 *** NstepReplayBuffer
 
-** TODO NstepPrioritizedReplayBuffer
+** NstepPrioritizedReplayBuffer
 :PROPERTIES:
 :EXPORT_FILE_NAME: nstep_prioritized_replay_buffer
 :END:
 
 *** NstepPrioritizedReplayBuffer
 
-** TODO SelectiveReplayBuffer
+** SelectiveReplayBuffer
 :PROPERTIES:
 :EXPORT_FILE_NAME: selective_replay_buffer
 :END:
