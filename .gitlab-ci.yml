@@ -27,6 +27,7 @@ SegmentTree.cpp:
     - python3 --version
     - $CXX -o test/SegmentTree test/SegmentTree.cpp
     - test/SegmentTree
+  when: always
 
 py_build:
   image: registry.gitlab.com/ymd_h/cpprb/build:latest
