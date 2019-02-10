@@ -71,6 +71,7 @@ pages:
     - hugo version
     - cd site
     - hugo -v --debug
+    - ls -l ../public
   artifacts:
     paths:
       - public
