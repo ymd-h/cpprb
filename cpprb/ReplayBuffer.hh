@@ -120,7 +120,7 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done,
-	   bool MultiThread = true>
+	   bool MultiThread = false>
   class CppRingEnvironment :public Environment<Observation,Action,Reward,Done>{
   public:
     using Env_t = Environment<Observation,Action,Reward,Done>;
