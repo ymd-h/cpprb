@@ -51,3 +51,13 @@
 #+HUGO_WEIGHT:
 
 #+STARTUP: showall logdone
+* DONE cpprb (C++ Replay Buffer)
+CLOSED: [2019-02-10 Sun 20:24]
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:EXPORT_HUGO_SECTION: .
+:END:
+
+** cpprb (C++ Replay Buffer)
+~cpprb~ is a python package written by C++. The package provides
+replay buffer classes for reinforcement learning.
