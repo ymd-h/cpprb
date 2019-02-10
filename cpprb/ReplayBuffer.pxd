@@ -9,6 +9,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_stored_size()
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
         size_t get_next_index()
+        size_t get_buffer_size()
     cdef cppclass CppThreadSafeRingEnvironment[Obs,Act,Rew,Done]:
         CppThreadSafeRingEnvironment(size_t,size_t,size_t)
         void store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
@@ -16,6 +17,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_stored_size()
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
         size_t get_next_index()
+        size_t get_buffer_size()
     cdef cppclass CppSelectiveEnvironment[Obs,Act,Rew,Done]:
         CppSelectiveEnvironment(size_t,size_t,size_t,size_t)
         void store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
