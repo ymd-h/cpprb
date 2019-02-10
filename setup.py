@@ -4,7 +4,8 @@ import numpy as np
 
 ext_modules = cythonize([Extension("cpprb.ReplayBuffer",
                                    sources=["cpprb/PyReplayBuffer.pyx"],
-                                   extra_compile_args=["-std=c++17"],
+                                   extra_compile_args=["-std=c++17",
+                                                       "-march=native"],
                                    extra_link_args=["-std=c++17","-pthread"],
                                    language="c++")],
                          compiler_directives={'language_level':"3"},
