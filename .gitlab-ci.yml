@@ -70,7 +70,8 @@ pages:
   script:
     - hugo version
     - cd site
-    - hugo -v --debug
+    - ls -l content
+    - hugo -c content -v --debug
     - ls -l ../public
   artifacts:
     paths:
