@@ -17,7 +17,6 @@ Prio     = cython.fused_type(cython.float, cython.double)
 
 ctypedef fused Idx:
     unsigned int
-    unsigned long
     unsigned long long
 
 cdef class VectorWrapper:
