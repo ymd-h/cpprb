@@ -66,6 +66,7 @@ pages:
   stage: page_deploy
   environment: production
   script:
+    - ls -lR content
     - hugo version
     - hugo
   artifacts:
