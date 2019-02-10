@@ -105,15 +105,30 @@ namespace ymd {
     std::size_t get_buffer_size() const { return buffer_size; }
   };
 
+  template<bool MultiThread,typename T> struct ThreadSafe{
+    using type = std::atomic<T>;
+    static inline auto fetch_add(volatile type* v,T N,const std::memory_order& order){
+      return v->fetch_add(N,order);
+    }
+  };
+
+  template<typename T> struct ThreadSafe<false,T>{
+    using type = T;
+    static inline auto fetch_add(T* v,T N,const std::memory_order){
+      return std::exchange(*v,(*v + N));
+    }
+  };
+
   template<typename Observation,typename Action,typename Reward,typename Done,
 	   bool MultiThread = true>
   class CppRingEnvironment :public Environment<Observation,Action,Reward,Done>{
   public:
     using Env_t = Environment<Observation,Action,Reward,Done>;
+    using ThreadSafe_size_t = ThreadSafe<MultiThread,std::size_t>;
 
   private:
-    std::atomic_size_t stored_size;
-    std::atomic_size_t next_index;
+    typename ThreadSafe_size_t::type stored_size;
+    typename ThreadSafe_size_t::type next_index;
     const std::size_t mask;
     std::mutex mtx;
 
@@ -139,14 +154,15 @@ namespace ymd {
 	       std::size_t N = std::size_t(1)){
       constexpr const std::size_t zero = 0;
       constexpr const auto order
-	= MultiThread ? std::memory_order_seq_cst : std::memory_order_relaxed;
+	= MultiThread ? std::memory_order_acquire : std::memory_order_relaxed;
 
       const auto buffer_size = this->get_buffer_size();
 
-      stored_size.fetch_add(N,std::memory_order_relaxed);
+      ThreadSafe_size_t::fetch_add(&stored_size,N,std::memory_order_relaxed);
 
       std::size_t shift = zero;
-      std::size_t tmp_next_index{next_index.fetch_add(N,order) & mask};
+      std::size_t tmp_next_index{ThreadSafe_size_t::fetch_add(&next_index,N,order) &
+				 mask};
       while(N){
 	auto copy_N = std::min(N,buffer_size - tmp_next_index);
 
