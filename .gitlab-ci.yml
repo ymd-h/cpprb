@@ -16,6 +16,7 @@ ReplayBuffer.cpp:
     - python3 --version
     - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
     - test/ReplayBuffer
+  when: always
 
 SegmentTree.cpp:
   image: registry.gitlab.com/ymd_h/cpprb/build:latest
