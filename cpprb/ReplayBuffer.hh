@@ -175,16 +175,29 @@ namespace ymd {
     }
 
     std::size_t get_stored_size(){
-      const auto size = stored_size.load(std::memory_order_acquire);
+      std::size_t size;
+      if constexpr (MultiThread){
+	size = stored_size.load(std::memory_order_acquire);
+      }else{
+	size = stored_size;
+      }
       const auto buffer_size = this->get_buffer_size();
 
       if(size < buffer_size){ return size; }
 
-      stored_size.store(size,std::memory_order_release);
+      if constexpr (MultiThread){
+        stored_size.store(size,std::memory_order_release);
+      }else{
+	stored_size = size;
+      }
       return buffer_size;
     }
     std::size_t get_next_index() const {
-      return next_index.load(std::memory_order_acquire) & mask;
+      if constexpr (MultiThread){
+        return next_index.load(std::memory_order_acquire) & mask;
+      }else{
+	return next_index & mask;
+      }
     }
 
     virtual void clear(){
