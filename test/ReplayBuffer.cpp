@@ -331,12 +331,12 @@ void test_MultiThreadRingEnvironment(){
 	    },N_times);
     };
 
-  // std::cout << "Single-thread without lock" << std::endl;
-  // f(single,1);
-  // std::cout << std::endl;
-  // single.clear();
-  // f(single,100);
-  // std::cout << std::endl;
+  std::cout << "Single-thread without lock" << std::endl;
+  f(single,1);
+  std::cout << std::endl;
+  single.clear();
+  f(single,100);
+  std::cout << std::endl;
 
   std::cout << "Single-thread with lock" << std::endl;
   f(multi,1);
