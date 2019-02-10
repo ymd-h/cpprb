@@ -248,11 +248,12 @@ void test_SelectiveEnvironment(){
 }
 
 void test_MultiThreadRingEnvironment(){
-  constexpr const auto buffer_size = 1024ul * 1024ul;
+  constexpr const auto buffer_size = 1024ul * 256ul;
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
+  constexpr const auto add_dim = 100ul;
   constexpr const auto N_step = buffer_size * 3;
-  constexpr const auto N_times = 100;
+  constexpr const auto N_times = 10;
 
   std::cout << std::endl << "Multi-Thread RingEnvironment("
 	    << "buffer_size=" << buffer_size
@@ -330,18 +331,18 @@ void test_MultiThreadRingEnvironment(){
 	    },N_times);
     };
 
-  std::cout << "Single-thread without lock" << std::endl;
-  f(single,1);
-  std::cout << std::endl;
-  single.clear();
-  f(single,100);
-  std::cout << std::endl;
+  // std::cout << "Single-thread without lock" << std::endl;
+  // f(single,1);
+  // std::cout << std::endl;
+  // single.clear();
+  // f(single,100);
+  // std::cout << std::endl;
 
   std::cout << "Single-thread with lock" << std::endl;
   f(multi,1);
   std::cout << std::endl;
   multi.clear();
-  f(multi,100);
+  f(multi,add_dim);
   std::cout << std::endl;
 
   std::cout << "Multi-thread with lock" << std::endl;
@@ -351,7 +352,7 @@ void test_MultiThreadRingEnvironment(){
   multi_f(multi2,1,cores);
   std::cout << std::endl;
   multi2.clear();
-  multi_f(multi2,100,cores);
+  multi_f(multi2,add_dim,cores);
   std::cout << std::endl;
 
 }

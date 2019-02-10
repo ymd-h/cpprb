@@ -295,9 +295,9 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
 
 class TestMultiProcessReplayBuffer(TestReplayBuffer):
     class_name = "MultiProcessing"
-    buffer_size = 1024 * 1024
+    buffer_size = 1024 * 256
     N_add = buffer_size * 3
-    N_time = 100
+    N_time = 10
     add_dim = 100
 
     @classmethod
@@ -305,42 +305,37 @@ class TestMultiProcessReplayBuffer(TestReplayBuffer):
         cls.rb = ReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
 
         def f(end):
+            obs = np.ones(shape=(cls.obs_dim))
+            act = np.zeros(shape=(cls.act_dim))
+            next_obs = np.ones(shape=(cls.obs_dim))
             for i in range(0,end):
-                cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                           np.zeros(shape=(cls.act_dim)),
-                           1.0,
-                           np.ones(shape=(cls.obs_dim)),
-                           0)
+                cls.rb.add(obs,act,1.0,next_obs, 0)
             cls.rb.clear()
 
         def g(end):
+            obs = np.ones(shape=(cls.add_dim,cls.obs_dim))
+            act = np.zeros(shape=(cls.add_dim,cls.act_dim))
+            rew = np.ones((cls.add_dim))
+            next_obs = np.ones(shape=(cls.add_dim,cls.obs_dim))
+            done = np.zeros((cls.add_dim))
             for i in range(0,end,cls.add_dim):
-                cls.rb.add(np.ones(shape=(cls.add_dim,cls.obs_dim)),
-                           np.zeros(shape=(cls.add_dim,cls.act_dim)),
-                           np.ones((cls.add_dim)),
-                           np.ones(shape=(cls.add_dim,cls.obs_dim)),
-                           np.zeros((cls.add_dim)))
+                cls.rb.add(obs,act,rew,next_obs,done)
             cls.rb.clear()
 
+        def Multi_(_f):
+            def func(end):
+                q = [Process(target=_f,args=(end //8,)) for _ in range(8)]
+                for qe in q:
+                    qe.start()
+                for qe in q:
+                    qe.join()
+            return func
+
         def Multi_f(end):
-            q = []
-
-            for _ in range(8):
-                q.append(Process(target=f,args=(end // 8,)))
-                q[-1].start()
-
-            for qe in q:
-                qe.join()
+            Multi_(f)(end)
 
         def Multi_g(end):
-            q = []
-
-            for _ in range(8):
-                q.append(Process(target=g,args=(end // 8,)))
-                q[-1].start()
-
-            for qe in q:
-                qe.join()
+            Multi_(g)(end)
 
         timer(lambda: f(cls.N_add),cls.N_time,
               "Single thread adding 1 time-point")
@@ -348,10 +343,10 @@ class TestMultiProcessReplayBuffer(TestReplayBuffer):
         timer(lambda: g(cls.N_add),cls.N_time,
               "Single thread adding {} time-point".format(cls.add_dim))
 
-        timer(lambda: Multi_f(cls.N_add),cls.N_time,
+        timer(lambda: Multi_(f)(cls.N_add),cls.N_time,
               "Multi thread adding 1 time-point")
 
-        timer(lambda: Multi_g(cls.N_add),cls.N_time,
+        timer(lambda: Multi_(g)(cls.N_add),cls.N_time,
               "Multi thread adding {} time-point".format(cls.add_dim))
 
         cls.fill_ReplayBuffer()
