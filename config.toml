@@ -1,0 +1,34 @@
+baseURL = "https://ymd_h.gitlab.io/cpprb/"
+languageCode = "en-US"
+defaultContentLanguage = "en"
+
+title = "C++ Replay Buffer"
+theme = "learn"
+themesdir = "themes"
+metaDataFormat = "yaml"
+defaultContentLanguageInSubdir= true
+
+[params]
+  editURL = "https://gitlab.com/ymd_h/cpprb/edit/master/content/"
+  description = "Site for cpprb (C++ Replay Buffer)"
+  author = "Hiroyuki Yamada"
+  showVisitedLinks = true
+  disableBreadcrumb = false
+  disableNextPrev = false
+  post = ":year/:month/:filename/"
+  themeVariant = "blue"
+
+[outputs]
+home = [ "HTML", "RSS", "JSON"]
+
+[Languages]
+[Languages.en]
+title = "Documentation for Hugo Learn Theme"
+weight = 1
+languageName = "English"
+
+[[Languages.en.menu.shortcuts]]
+name = "<i class='fab fa-fw fa-gitlab'></i> Gitlab repo"
+identifier = "ds"
+url = "https://gitlab.com/ymd_h/cpprb"
+weight = 10

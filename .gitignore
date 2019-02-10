@@ -6,3 +6,6 @@ cpprb/PyReplayBuffer.cpp
 cpprb/PySegmentTree.cpp
 test/ReplayBuffer
 test/SegmentTree
+public
+content
+misc

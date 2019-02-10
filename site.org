@@ -1,0 +1,194 @@
+#+OPTIONS: ':nil -:nil ^:{} num:nil toc:nil
+#+AUTHOR: Hiroyuki Yamada
+#+CREATOR: Emacs 26.1 (Org mode 9.1.14 + ox-hugo)
+#+HUGO_WITH_LOCALE:
+#+HUGO_FRONT_MATTER_FORMAT: toml
+#+HUGO_LEVEL_OFFSET: 1
+#+HUGO_PRESERVE_FILLING:
+#+HUGO_DELETE_TRAILING_WS:
+#+HUGO_SECTION: .
+#+HUGO_BUNDLE:
+#+HUGO_BASE_DIR: ./
+#+HUGO_CODE_FENCE:
+#+HUGO_USE_CODE_FOR_KBD:
+#+HUGO_PREFER_HYPHEN_IN_TAGS:
+#+HUGO_ALLOW_SPACES_IN_TAGS:
+#+HUGO_AUTO_SET_LASTMOD:
+#+HUGO_CUSTOM_FRONT_MATTER:
+#+HUGO_BLACKFRIDAY:
+#+HUGO_FRONT_MATTER_KEY_REPLACE:
+#+HUGO_DATE_FORMAT: %Y-%m-%dT%T%z
+#+HUGO_PAIRED_SHORTCODES:
+#+HUGO_PANDOC_CITATIONS:
+#+BIBLIOGRAPHY:
+#+HUGO_ALIASES:
+#+HUGO_AUDIO:
+#+DATE: <2019-02-10 Sun>
+#+DESCRIPTION:
+#+HUGO_DRAFT:
+#+HUGO_EXPIRYDATE:
+#+HUGO_HEADLESS:
+#+HUGO_IMAGES:
+#+HUGO_ISCJKLANGUAGE:
+#+KEYWORDS:
+#+HUGO_LAYOUT:
+#+HUGO_LASTMOD:
+#+HUGO_LINKTITLE:
+#+HUGO_LOCALE:
+#+HUGO_MARKUP:
+#+HUGO_MENU:
+#+HUGO_MENU_OVERRIDE:
+#+HUGO_OUTPUTS:
+#+HUGO_PUBLISHDATE:
+#+HUGO_SERIES:
+#+HUGO_SLUG:
+#+HUGO_TAGS:
+#+HUGO_CATEGORIES:
+#+HUGO_RESOURCES:
+#+HUGO_TYPE:
+#+HUGO_URL:
+#+HUGO_VIDEOS:
+#+HUGO_WEIGHT: auto
+
+#+STARTUP: showall logdone
+* DONE cpprb (C++ Replay Buffer)
+CLOSED: [2019-02-10 Sun 20:24]
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:EXPORT_HUGO_SECTION: .
+:END:
+
+** cpprb (C++ Replay Buffer)
+~cpprb~ is a python package written by C++. The package provides
+replay buffer classes for reinforcement learning.
+
+* Basics
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: basics
+:END:
+
+** DONE Basics
+CLOSED: [2019-02-10 Sun 20:58]
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:END:
+
+*** Basics
+
+** DONE Requirements
+CLOSED: [2019-02-10 Sun 21:00]
+:PROPERTIES:
+:EXPORT_FILE_NAME: requirements
+:END:
+*** Requirements
+- =C++17=
+- =Python 3=
+- ~Cython (>= 0.29)~
+
+We use [[https://cython.org/][Cython]] to write C++ extension for Python, so that you need
+Cython to build our packages on your computer.
+
+We observed a build failure with Cython 0.28.5.
+
+Cython can be installed by =pip=.
+
+#+BEGIN_SRC shell
+pip install cython
+#+END_SRC
+
+We uses many C++17 features, such as =if constexpr=, structured
+bindings, etc., and we highly recommend to use recent gcc, which we
+use to build and test.
+
+
+
+** DONE Installation
+CLOSED: [2019-02-10 Sun 21:30]
+:PROPERTIES:
+:EXPORT_FILE_NAME: installation
+:END:
+*** Installation
+
+#+BEGIN_SRC shell
+git clone https://gitlab.com/ymd_h/cpprb.git cpprb
+cd cpprb
+python setup.py build
+python setup.py install
+#+END_SRC
+
+Depending on your environment, you might need to set =CC= and/or =CXX=
+variables like ~CXX=g++ python setup.py build~.
+
+You might need =sudo= for installation.
+
+
+** DONE Simple Usage
+CLOSED: [2019-02-10 Sun 21:28]
+:PROPERTIES:
+:EXPORT_FILE_NAME: simple_usage
+:END:
+
+*** Simple Usage
+
+
+#+BEGIN_SRC python
+from cpprb import ReplayBuffer
+
+buffer_size = 256
+obs_dim = 3
+act_dim = 1
+rb = ReplayBuffer(buffer_size,obs_dim,act_dim)
+
+obs = np.ones(shape=(obs_dim))
+act = np.ones(shape=(act_dim))
+rew = 0
+next_obs = np.ones(shape=(obs_dim))
+done = 0
+
+for i in range(500):
+    rb.add(obs,act,rew,next_obs,done)
+
+
+batch_size = 32
+sample = rb.sample(batch_size)
+# sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', and 'done'
+#+END_SRC
+
+* Class Reference
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: reference
+:END:
+
+** ReplayBuffer
+:PROPERTIES:
+:EXPORT_FILE_NAME: replay_buffer
+:END:
+*** ReplayBuffer
+
+** PrioritizedReplayBuffer
+:PROPERTIES:
+:EXPORT_FILE_NAME: prioritized_replay_buffer
+:END:
+*** PrioritizedReplayBuffer
+
+
+** NstepReplayBuffer
+:PROPERTIES:
+:EXPORT_FILE_NAME: nstep_replay_buffer
+:END:
+
+*** NstepReplayBuffer
+
+** NstepPrioritizedReplayBuffer
+:PROPERTIES:
+:EXPORT_FILE_NAME: nstep_prioritized_replay_buffer
+:END:
+
+*** NstepPrioritizedReplayBuffer
+
+** SelectiveReplayBuffer
+:PROPERTIES:
+:EXPORT_FILE_NAME: selective_replay_buffer
+:END:
+
+*** SelectiveReplayBuffer
