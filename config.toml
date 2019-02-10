@@ -3,7 +3,7 @@ languageCode = "ja-JP"
 defaultContentLanguage = "ja"
 
 title = "C++ Replay Buffer"
-theme = "beg"
+theme = "learn"
 themesdir = "themes"
 metaDataFormat = "yaml"
 defaultContentLanguageInSubdir= true
