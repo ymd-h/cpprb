@@ -67,7 +67,8 @@ replay buffer classes for reinforcement learning.
 :EXPORT_HUGO_SECTION*: basics
 :END:
 
-** TODO Basics
+** DONE Basics
+CLOSED: [2019-02-10 Sun 20:58]
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
 :END:
