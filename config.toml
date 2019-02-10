@@ -1,6 +1,6 @@
 baseURL = "https://ymd_h.gitlab.io/cpprb/"
-languageCode = "ja-JP"
-defaultContentLanguage = "ja"
+languageCode = "en-US"
+defaultContentLanguage = "en"
 
 title = "C++ Replay Buffer"
 theme = "learn"
@@ -22,7 +22,13 @@ defaultContentLanguageInSubdir= true
 home = [ "HTML", "RSS", "JSON"]
 
 [Languages]
-[Languages.ja]
-title = "C++ Replay Buffer"
+[Languages.en]
+title = "Documentation for Hugo Learn Theme"
 weight = 1
-languageName = "日本語"
+languageName = "English"
+
+[[Languages.en.menu.shortcuts]]
+name = "<i class='fab fa-fw fa-gitlab'></i> Gitlab repo"
+identifier = "ds"
+url = "https://gitlab.com/ymd_h/cpprb"
+weight = 10
