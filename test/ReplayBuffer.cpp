@@ -18,10 +18,10 @@ using Reward = double;
 using Done = double;
 using Priority = double;
 
-auto timer = [](auto&& f,auto N){
+auto timer = [](auto&& f,std::size_t N){
 	       auto start = std::chrono::high_resolution_clock::now();
 
-	       for(auto i = 0ul; i < N; ++i){ f(); }
+	       for(std::size_t i = 0ul; i < N; ++i){ f(); }
 
 	       auto end = std::chrono::high_resolution_clock::now();
 	       auto elapsed = end - start;
