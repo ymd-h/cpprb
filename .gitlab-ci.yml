@@ -55,7 +55,7 @@ emacs:
   stage: page_export
   script:
     - emacs --version
-    - emacs --batch README.org -l init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
+    - emacs --batch README.org -l site/init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
     - cd site
     - emacs --batch site.org -l init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
     - ls -l content
