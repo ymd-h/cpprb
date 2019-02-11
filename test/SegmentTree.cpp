@@ -44,11 +44,11 @@ int main(){
   }
   std::cout << std::endl;
 
-  std::cout << "[0,11): " << AlmostEqual(st.reduce(0,11),55) << std::endl;
-  std::cout << "[13,15): " << AlmostEqual(st.reduce(13,15),27) << std::endl;
+  std::cout << "[0,11): " << ymd::AlmostEqual(st.reduce(0,11),55) << std::endl;
+  std::cout << "[13,15): " << ymd::AlmostEqual(st.reduce(13,15),27) << std::endl;
 
   std::cout << "[0,x) <= 7: x = "
-	    << Equal(st.largest_region_index([](auto v){ return v <=7; }),4)
+	    << ymd::Equal(st.largest_region_index([](auto v){ return v <=7; }),4)
 	    << std::endl;
 
   std::cout << std::endl;
@@ -59,18 +59,18 @@ int main(){
 
   st.set(set_index,set_value,set_size);
   for(auto i = 0ul; i < 16ul; ++i){
-    std::cout << AlmostEqual(st.get(i),(i < set_size - (buffer_size - set_index) ||
+    std::cout << ymd::AlmostEqual(st.get(i),(i < set_size - (buffer_size - set_index) ||
 					set_index <= i) ? set_value : i)
 	      << " ";
   }
   std::cout << std::endl;
 
   std::cout << "[0,11): "
-	    << AlmostEqual(st.reduce(0,11),70) << std::endl;
-  std::cout << "[13,15): " << AlmostEqual(st.reduce(13,15),10) << std::endl;
+	    << ymd::AlmostEqual(st.reduce(0,11),70) << std::endl;
+  std::cout << "[13,15): " << ymd::AlmostEqual(st.reduce(13,15),10) << std::endl;
 
   std::cout << "[0,x) <= 7: x = "
-	    << Equal(st.largest_region_index([](auto v){ return v <=7; }),1)
+	    << ymd::Equal(st.largest_region_index([](auto v){ return v <=7; }),1)
 	    << std::endl;
 
   multi_thread_test();
