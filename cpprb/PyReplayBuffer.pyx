@@ -425,27 +425,27 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _add(self,obs,act,rew,next_obs,done):
-        cdef size_t next_index = self.get_next_index()
+        cdef size_t next_index
         cdef size_t N
         if obs.ndim == 1:
-            self._add_1(obs,act,rew,next_obs,done)
+            next_index = self._add_1(obs,act,rew,next_obs,done)
             self._update_1(next_index)
         else:
             N = obs.shape[0]
-            self._add_N(obs,act,rew,next_obs,done,N)
+            next_index = self._add_N(obs,act,rew,next_obs,done,N)
             self._update_N(next_index,N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _add_p(self,obs,act,rew,next_obs,done,priorities):
-        cdef size_t next_index = self.get_next_index()
+        cdef size_t next_index
         cdef size_t N
         if obs.ndim == 1:
-            self._add_1(obs,act,rew,next_obs,done)
+            next_index = self._add_1(obs,act,rew,next_obs,done)
             self._update_1p(next_index,priorities)
         else:
             N = obs.shape[0]
-            self._add_N(obs,act,rew,next_obs,done,N)
+            next_index = self._add_N(obs,act,rew,next_obs,done,N)
             self._update_Np(next_index,priorities,N)
 
     def add(self,obs,act,rew,next_obs,done,priorities = None):
