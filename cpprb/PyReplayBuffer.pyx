@@ -205,7 +205,8 @@ cdef class RingEnvironment(Environment):
                np.ndarray[Next_Obs,ndim = 2, mode="c"] next_obs not None,
                np.ndarray[Done    ,ndim = 1, mode="c"] done not None,
                size_t N=1):
-        self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+        return self.buffer.store(&obs[0,0],&act[0,0],&rew[0],
+                                 &next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -215,7 +216,7 @@ cdef class RingEnvironment(Environment):
                Rew rew,
                np.ndarray[Next_Obs,ndim = 1, mode="c"] next_obs not None,
                double done):
-        self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
+        return self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
         return self.buffer.clear()
@@ -251,7 +252,8 @@ cdef class ThreadSafeRingEnvironment(Environment):
                np.ndarray[Next_Obs,ndim = 2, mode="c"] next_obs not None,
                np.ndarray[Done    ,ndim = 1, mode="c"] done not None,
                size_t N=1):
-        self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+        return self.buffer.store(&obs[0,0],&act[0,0],&rew[0],
+                                 &next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -261,7 +263,7 @@ cdef class ThreadSafeRingEnvironment(Environment):
                Rew rew,
                np.ndarray[Next_Obs,ndim = 1, mode="c"] next_obs not None,
                double done):
-        self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
+        return self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
         return self.buffer.clear()
@@ -298,7 +300,8 @@ cdef class SelectiveEnvironment(Environment):
                np.ndarray[Next_Obs,ndim = 2, mode="c"] next_obs not None,
                np.ndarray[Done    ,ndim = 1, mode="c"] done not None,
                size_t N=1):
-        self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+        return self.buffer.store(&obs[0,0],&act[0,0],&rew[0],
+                                 &next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -310,7 +313,7 @@ cdef class SelectiveEnvironment(Environment):
                Rew rew,
                np.ndarray[Next_Obs,ndim = 1, mode="c"] next_obs not None,
                double done):
-        self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
+        return self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
         return self.buffer.clear()
