@@ -73,6 +73,24 @@ namespace ymd {
 	for(auto& c: changed){ c[i].store(false,std::memory_order_release); }
       }
     }
+
+    void update_changed(){
+      std::set<std::size_t> will_update{};
+
+      for(std::size_t i = 0, size = changed.size(); i < size; ++i){
+	if(changed[i].exchange(false,std::memory_order_acq_rel)){
+	  will_update.insert(parent(access_index(i)));
+	}
+      }
+
+      while(!will_update.empty()){
+	auto i = *(will_update.rbegin());
+	update_buffer(i);
+	will_update.erase(i);
+	if(i){ will_update.insert(parent(i)); }
+      }
+    }
+
   public:
     SegmentTree(std::size_t n,F f, T v = T{0})
       : size(n),
