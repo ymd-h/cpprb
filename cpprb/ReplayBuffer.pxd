@@ -4,7 +4,7 @@ from libcpp cimport bool
 cdef extern from "ReplayBuffer.hh" namespace "ymd":
     cdef cppclass CppRingEnvironment[Obs,Act,Rew,Done]:
         CppRingEnvironment(size_t,size_t,size_t)
-        void store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
+        size_t store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
         size_t get_stored_size()
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
@@ -12,7 +12,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_buffer_size()
     cdef cppclass CppThreadSafeRingEnvironment[Obs,Act,Rew,Done]:
         CppThreadSafeRingEnvironment(size_t,size_t,size_t)
-        void store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
+        size_t store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
         size_t get_stored_size()
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
