@@ -196,21 +196,12 @@ namespace ymd {
     }
 
     std::size_t get_stored_size(){
-      std::size_t size;
-      if constexpr (MultiThread){
-	size = stored_size.load(std::memory_order_acquire);
-      }else{
-	size = stored_size;
-      }
+      auto size = ThreadSafe_size_t::load(stored_size,std::memory_order_acquire);
       const auto buffer_size = this->get_buffer_size();
 
       if(size < buffer_size){ return size; }
 
-      if constexpr (MultiThread){
-        stored_size.store(size,std::memory_order_release);
-      }else{
-	stored_size = size;
-      }
+      ThreadSafe_size_t::store(stored_size,buffer_size,std::memory_order_release);
       return buffer_size;
     }
     std::size_t get_next_index() const {
