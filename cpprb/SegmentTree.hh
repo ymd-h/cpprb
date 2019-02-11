@@ -180,7 +180,7 @@ namespace ymd {
       set(i,[=](){ return v; },N,max);
     }
 
-    auto reduce(std::size_t start,std::size_t end) const {
+    auto reduce(std::size_t start,std::size_t end) {
       // Operation on [start,end)  # buffer[end] is not included
       if constexpr (MultiThread){
 	if(any_changed.load(std::memory_order_acquire)){
@@ -191,7 +191,7 @@ namespace ymd {
     }
 
     auto largest_region_index(std::function<bool(T)> condition,
-			      std::size_t n=std::size_t(0)) const {
+			      std::size_t n=std::size_t(0)) {
       // max index of reduce( [0,index) ) -> true
 
       constexpr const std::size_t zero = 0;

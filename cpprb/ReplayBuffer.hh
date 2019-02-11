@@ -500,7 +500,7 @@ namespace ymd {
     }
 
     void set_weights(const std::vector<std::size_t>& indexes,Priority beta,
-		     std::vector<Priority>& weights,std::size_t stored_size) const {
+		     std::vector<Priority>& weights,std::size_t stored_size) {
       weights.resize(0);
       weights.reserve(indexes.size());
 
