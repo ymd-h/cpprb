@@ -79,7 +79,7 @@ namespace ymd {
     void update_changed(){
       std::set<std::size_t> will_update{};
 
-      for(std::size_t i = 0, size = changed.size(); i < size; ++i){
+      for(std::size_t i = 0, changed_size = changed.size(); i < changed_size; ++i){
 	if(changed[i].exchange(false,std::memory_order_acq_rel)){
 	  will_update.insert(parent(access_index(i)));
 	}
