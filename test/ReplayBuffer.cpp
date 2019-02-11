@@ -10,6 +10,8 @@
 
 #include <ReplayBuffer.hh>
 
+#include "unittest.hh"
+
 using namespace std::literals;
 
 using Observation = double;
@@ -39,30 +41,6 @@ inline auto timer(F&& f,std::size_t N){
 	    << us.count() - ms.count() * 1000 << "us "
 	    << ns.count() - us.count() * 1000 << "ns"
 	    << std::endl;
-}
-
-template<typename T>
-void show_vector(T v,std::string name){
-  std::cout << name << ": ";
-  for(auto ve: v){ std::cout << ve << " "; }
-  std::cout << std::endl;
-}
-
-template<typename T>
-void show_vector_of_vector(T v,std::string name){
-  std::cout << name << ": " << std::endl;
-  for(auto ve: v){
-    std::cout << " ";
-    for(auto vee: ve){ std::cout << vee << " "; }
-    std::cout << std::endl;
-  }
-  std::cout << std::endl;
-}
-
-template<typename T>
-void show_pointer(T ptr,std::size_t N,std::string name){
-  auto v = std::vector<std::remove_pointer_t<T>>(ptr,ptr+N);
-  show_vector(v,name);
 }
 
 void test_NstepReward(){
