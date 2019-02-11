@@ -463,7 +463,7 @@ namespace ymd {
   class CppPrioritizedSampler {
   private:
     Priority alpha;
-    Priority max_priority;
+    typename ThreadSafe<MultiThread,Priority>::type max_priority;
     const Priority default_max_priority;
     SegmentTree<Priority,MultiThread> sum;
     SegmentTree<Priority,MultiThread> min;
