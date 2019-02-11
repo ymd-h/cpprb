@@ -12,7 +12,63 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.14)
 
-* Overview
+#+HUGO_WITH_LOCALE:
+#+HUGO_FRONT_MATTER_FORMAT: toml
+#+HUGO_LEVEL_OFFSET: 1
+#+HUGO_PRESERVE_FILLING:
+#+HUGO_DELETE_TRAILING_WS:
+#+HUGO_SECTION: overview
+#+HUGO_BUNDLE:
+#+HUGO_BASE_DIR: ./site
+#+HUGO_CODE_FENCE:
+#+HUGO_USE_CODE_FOR_KBD:
+#+HUGO_PREFER_HYPHEN_IN_TAGS:
+#+HUGO_ALLOW_SPACES_IN_TAGS:
+#+HUGO_AUTO_SET_LASTMOD:
+#+HUGO_CUSTOM_FRONT_MATTER:
+#+HUGO_BLACKFRIDAY:
+#+HUGO_FRONT_MATTER_KEY_REPLACE:
+#+HUGO_DATE_FORMAT: %Y-%m-%dT%T%z
+#+HUGO_PAIRED_SHORTCODES:
+#+HUGO_PANDOC_CITATIONS:
+#+BIBLIOGRAPHY:
+#+HUGO_ALIASES:
+#+HUGO_AUDIO:
+#+DESCRIPTION:
+#+HUGO_DRAFT:
+#+HUGO_EXPIRYDATE:
+#+HUGO_HEADLESS:
+#+HUGO_IMAGES:
+#+HUGO_ISCJKLANGUAGE:
+#+KEYWORDS:
+#+HUGO_LAYOUT:
+#+HUGO_LASTMOD:
+#+HUGO_LINKTITLE:
+#+HUGO_LOCALE:
+#+HUGO_MARKUP:
+#+HUGO_MENU:
+#+HUGO_MENU_OVERRIDE:
+#+HUGO_OUTPUTS:
+#+HUGO_PUBLISHDATE:
+#+HUGO_SERIES:
+#+HUGO_SLUG:
+#+HUGO_TAGS:
+#+HUGO_CATEGORIES:
+#+HUGO_RESOURCES:
+#+HUGO_TYPE:
+#+HUGO_URL:
+#+HUGO_VIDEOS:
+#+HUGO_WEIGHT: auto
+
+#+STARTUP: showall logdone
+
+
+* DONE Overview
+CLOSED: [2019-02-11 Mon 09:02]
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:END:
+
 Complicated calculation (e.g. Segment Tree) are offloaded onto C++
 which must be much faster than Python.
 
@@ -21,13 +77,38 @@ memory by [[https://cython.readthedocs.io/en/latest/src/userguide/buffer.html][i
 copying large data.
 
 
-* Requirements
+* DONE Requirements
+CLOSED: [2019-02-11 Mon 09:03]
+:PROPERTIES:
+:EXPORT_FILE_NAME: requirements
+:END:
+
 - C++17 (at least GCC 7.2)
 - Python 3
 - Cython (>= 0.29)
 
+We use [[https://cython.org/][Cython]] to write C++ extension for Python, so that you need
+Cython to build our packages on your computer.
 
-* Installation
+We observed a build failure with Cython 0.28.5 ([[https://gitlab.com/ymd_h/cpprb/issues/20][#20]] Japanese).
+
+Cython can be installed by =pip=.
+
+#+BEGIN_SRC shell
+pip install cython
+#+END_SRC
+
+We uses many C++17 features, such as =if constexpr=, structured
+bindings, etc., and we highly recommend to use recent gcc, which we
+use to build and test.
+
+
+* DONE Installation
+CLOSED: [2019-02-11 Mon 09:05]
+:PROPERTIES:
+:EXPORT_FILE_NAME: installation
+:END:
+
 #+BEGIN_SRC shell
 git clone https://gitlab.com/ymd_h/cpprb.git cpprb
 cd cpprb
@@ -40,7 +121,12 @@ variables like ~CXX=g++ python setup.py build~.
 
 You might need =sudo= for installation.
 
-* Usage
+* DONE Usage
+CLOSED: [2019-02-11 Mon 09:06]
+:PROPERTIES:
+:EXPORT_FILE_NAME: simple_usage
+:END:
+
 A simple example is following;
 #+BEGIN_SRC python
 from cpprb import ReplayBuffer

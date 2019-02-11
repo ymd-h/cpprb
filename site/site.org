@@ -67,16 +67,14 @@ replay buffer classes for reinforcement learning.
 :EXPORT_HUGO_SECTION*: basics
 :END:
 
-** DONE Basics
-CLOSED: [2019-02-10 Sun 20:58]
+** TODO Basics
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
 :END:
 
 *** Basics
 
-** DONE Requirements
-CLOSED: [2019-02-10 Sun 21:00]
+** TODO Requirements
 :PROPERTIES:
 :EXPORT_FILE_NAME: requirements
 :END:
@@ -102,8 +100,7 @@ use to build and test.
 
 
 
-** DONE Installation
-CLOSED: [2019-02-10 Sun 21:30]
+** TODO Installation
 :PROPERTIES:
 :EXPORT_FILE_NAME: installation
 :END:
@@ -122,8 +119,7 @@ variables like ~CXX=g++ python setup.py build~.
 You might need =sudo= for installation.
 
 
-** DONE Simple Usage
-CLOSED: [2019-02-10 Sun 21:28]
+** TODO Simple Usage
 :PROPERTIES:
 :EXPORT_FILE_NAME: simple_usage
 :END:
