@@ -396,6 +396,11 @@ void test_MultiThreadPrioritizedSampler(){
 				      });
 		  });
   for(auto& f : futures){ f.wait(); }
+
+  std::vector<std::size_t> indexes{};
+  std::vector<Priority> weights{};
+
+  per.sample(batch_size,beta,weights,indexes,buffer_size);
 }
 
 int main(){
