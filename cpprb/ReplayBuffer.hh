@@ -658,30 +658,26 @@ namespace ymd {
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done,std::size_t N) override {
-      auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,N);
+      auto next_index = this->BaseClass::add(obs,act,rew,next_obs,done,N);
       this->set_priorities(next_index,N,this->get_buffer_size());
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done,
 		     Priority* priority,std::size_t N){
-      auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,N);
+      auto next_index = this->BaseClass::add(obs,act,rew,next_obs,done,N);
       this->set_priorities(next_index,priority,N,this->get_buffer_size());
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done,Priority p){
-      auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
+      auto next_index= this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
       this->set_priorities(next_index,p);
     }
 
     virtual void add(Observation* obs,Action* act,Reward* rew,
 		     Observation* next_obs,Done* done){
-      auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
+      auto next_index= this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
       this->set_priorities(next_index);
     }
 
