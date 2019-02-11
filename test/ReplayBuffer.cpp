@@ -361,12 +361,40 @@ void test_MultiThreadRingEnvironment(){
 }
 
 void test_MultiThreadPrioritizedSampler(){
-  constexpr const auto buffer_size = 1024ul * 256ul;
+  constexpr const auto buffer_size = 1024ul;
   constexpr const auto alpha = 0.5;
   constexpr const auto beta = 0.4;
   constexpr const auto batch_size = 16ul;
 
   auto per = ymd::CppThreadSafePrioritizedSampler<Priority>(buffer_size,alpha);
+
+  std::vector<std::future<void>> futures{};
+  futures.reserve(cores);
+
+  const auto N = buffer_size / (cores - 1);
+
+  std::generate_n(std::back_inserter(futures),cores,
+		  [&,index = -N] () mutable {
+		    index += N;
+		    return std::async(std::launch::async,
+				      [&](){
+					per.set_priorities(index,N,buffer_size);
+				      });
+		  });
+  for(auto& f : futures){ f.wait(); }
+
+  auto ps = std::vector<Priority>(N,0.5);
+
+  std::generate_n(std::back_inserter(futures),cores,
+		  [&,index = -N] () mutable {
+		    index += N;
+		    return std::async(std::launch::async,
+				      [&](){
+					per.set_priorities(index,ps.data(),
+							   N,buffer_size);
+				      });
+		  });
+  for(auto& f : futures){ f.wait(); }
 }
 
 int main(){
