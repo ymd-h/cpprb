@@ -113,7 +113,7 @@ namespace ymd {
     static inline auto store(volatile type& v,T N,const std::memory_order& order){
       v.store(N,order);
     }
-    static inline auto load(volatile type& v,const std::memory_order& order){
+    static inline auto load(const volatile type& v,const std::memory_order& order){
       return v.load(order);
     }
     static inline auto store_max(volatile type& v,T N){
@@ -130,7 +130,7 @@ namespace ymd {
     static inline auto store(T& v,T N,const std::memory_order&){
       v = N;
     }
-    static inline auto load(T& v,const std::memory_order&){
+    static inline auto load(const T& v,const std::memory_order&){
       return v;
     }
     static inline auto store_max(T& v,T N){
