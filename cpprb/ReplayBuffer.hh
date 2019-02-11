@@ -646,7 +646,7 @@ namespace ymd {
     using Sampler = CppPrioritizedSampler<Priority>;
   public:
     CppPrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
-			    Priority alpha)
+			       Priority alpha)
       : BaseClass{n,obs_dim,act_dim},
 	Sampler{n,alpha} {}
     CppPrioritizedReplayBuffer() : CppPrioritizedReplayBuffer{1,1,1,0.0} {}
