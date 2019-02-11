@@ -621,13 +621,7 @@ namespace ymd {
 
 			  return std::max<Priority>(max_p,*(p++));
 			});
-
-      if constexpr (MultiThread){
-	auto tmp = max_priority.load(std::memory_order_acquire);
-	while(tmp < max_p &&  !max_priority.compare_exchange_weak(tmp,max_p)){}
-      }else{
-	max_priority = max_p;
-      }
+      ThreadSafePriority_t::store_max(max_priority,max_p);
     }
 
     template<typename I,typename P,
