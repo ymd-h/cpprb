@@ -607,14 +607,13 @@ namespace ymd {
 			      std::nullptr_t> = nullptr,
 	     std::enable_if_t<std::is_convertible_v<P,Priority>,
 			      std::nullptr_t> = nullptr>
-    void update_priorities(std::vector<I>& indexes,
-			   std::vector<P>& priorities){
+    void update_priorities(I* indexes, P* priorities,std::size_t N =1){
 
       const auto max_p =
-	std::accumulate(indexes.begin(),indexes.end(),
+	std::accumulate(indexes,indexes+N,
 			ThreadSafePriority_t::load(max_priority,
 						   std::memory_order_acquire),
-			[=,p=priorities.begin()]
+			[=,p=priorities]
 			(auto max_p, auto index) mutable {
 			  Priority v = std::pow(*p,this->alpha);
 			  this->sum.set(index,v);
@@ -636,17 +635,11 @@ namespace ymd {
 			      std::nullptr_t> = nullptr,
 	     std::enable_if_t<std::is_convertible_v<P,Priority>,
 			      std::nullptr_t> = nullptr>
-    void update_priorities(I* indexes, P* priorities,std::size_t N =1){
+    void update_priorities(std::vector<I>& indexes,
+			   std::vector<P>& priorities){
 
-      max_priority = std::accumulate(indexes,indexes+N,max_priority,
-				     [=,p=priorities]
-				     (auto max_p, auto index) mutable {
-				       Priority v = std::pow(*p,this->alpha);
-				       this->sum.set(index,v);
-				       this->min.set(index,v);
-
-				       return std::max<Priority>(max_p,*(p++));
-				     });
+      update_priorities(indexes.data(),priorities.data(),
+			std::min(indexes.size(),priorities.size()));
     }
   };
 
