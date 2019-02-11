@@ -587,14 +587,7 @@ namespace ymd {
 			      std::nullptr_t> = nullptr>
     void set_priorities(std::size_t next_index,P* p,
 			std::size_t N,std::size_t buffer_size){
-      if constexpr (MultiThread) {
-	auto p_max = *std::max_element(p,p+N);
-	auto tmp = max_priority.load(std::memory_order_acquire);
-	while(tmp < p_max &&  !max_priority.compare_exchange_weak(tmp,p_max)){}
-      }else{
-	if(auto p_max = *std::max_element(p,p+N); p_max > max_priority){
-	  max_priority = p_max;
-	}
+      ThreadSafePriority_t::store_max(max_priority, *std::max_element(p,p+N));
       }
 
       set_priorities(next_index,[=]() mutable { return std::pow(*(p++),alpha); },
