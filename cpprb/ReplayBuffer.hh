@@ -437,13 +437,13 @@ namespace ymd {
     CppReplayBuffer& operator=(CppReplayBuffer&&) = default;
     virtual ~CppReplayBuffer() = default;
 
-    virtual void add(Observation* obs,
-		     Action* act,
-		     Reward* rew,
-		     Observation* next_obs,
-		     Done* done,
-		     std::size_t N = std::size_t(1)){
-      this->Buffer_t::store(obs,act,rew,next_obs,done,N);
+    virtual std::size_t add(Observation* obs,
+			    Action* act,
+			    Reward* rew,
+			    Observation* next_obs,
+			    Done* done,
+			    std::size_t N = std::size_t(1)){
+      return this->Buffer_t::store(obs,act,rew,next_obs,done,N);
     }
 
     template<typename Obs_t,typename Act_t,typename  Rew_t,typename Done_t>
@@ -656,29 +656,33 @@ namespace ymd {
     CppPrioritizedReplayBuffer& operator=(CppPrioritizedReplayBuffer&&) = default;
     virtual ~CppPrioritizedReplayBuffer() override = default;
 
-    virtual void add(Observation* obs,Action* act,Reward* rew,
-		     Observation* next_obs,Done* done,std::size_t N) override {
+    virtual std::size_t add(Observation* obs,Action* act,Reward* rew,
+			    Observation* next_obs,Done* done,std::size_t N) override {
       auto next_index = this->BaseClass::add(obs,act,rew,next_obs,done,N);
       this->set_priorities(next_index,N,this->get_buffer_size());
+      return next_index;
     }
 
-    virtual void add(Observation* obs,Action* act,Reward* rew,
-		     Observation* next_obs,Done* done,
-		     Priority* priority,std::size_t N){
+    virtual std::size_t add(Observation* obs,Action* act,Reward* rew,
+			    Observation* next_obs,Done* done,
+			    Priority* priority,std::size_t N){
       auto next_index = this->BaseClass::add(obs,act,rew,next_obs,done,N);
       this->set_priorities(next_index,priority,N,this->get_buffer_size());
+      return next_index;
     }
 
-    virtual void add(Observation* obs,Action* act,Reward* rew,
-		     Observation* next_obs,Done* done,Priority p){
+    virtual std::size_t add(Observation* obs,Action* act,Reward* rew,
+			    Observation* next_obs,Done* done,Priority p){
       auto next_index= this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
       this->set_priorities(next_index,p);
+      return next_index;
     }
 
-    virtual void add(Observation* obs,Action* act,Reward* rew,
-		     Observation* next_obs,Done* done){
+    virtual std::size_t add(Observation* obs,Action* act,Reward* rew,
+			    Observation* next_obs,Done* done){
       auto next_index= this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
       this->set_priorities(next_index);
+      return next_index;
     }
 
     template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>
