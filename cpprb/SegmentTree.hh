@@ -100,13 +100,12 @@ namespace ymd {
 	buffer(2*n-1,v),
 	f(f),
 	any_changed{false},
-	changed{} {
+	changed(n) {
       update_all();
 
       if constexpr (MultiThread) {
-	changed.reserve(n);
-	for(std::size_t i = 0; i < n; ++i){
-	  changed.emplace_back(false);
+	for(auto& c: changed){
+	  c.store(false,std::memory_order_release);
 	}
       }
     }
