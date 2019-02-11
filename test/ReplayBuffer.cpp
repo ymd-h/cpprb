@@ -19,7 +19,7 @@ using Done = double;
 using Priority = double;
 
 const auto cores = std::thread::hardware_concurrency();
-using cores_t = std::remove_const_t(decltype(cores));
+using cores_t = std::remove_const_t<decltype(cores)>;
 
 template<typename F>
 inline auto timer(F&& f,std::size_t N){
