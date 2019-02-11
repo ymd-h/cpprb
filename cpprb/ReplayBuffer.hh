@@ -549,11 +549,8 @@ namespace ymd {
       set_weights(indexes,beta,weights,stored_size);
     }
     virtual void clear(){
-      if constexpr (MultiThread) {
-	max_priority.store(default_max_priority,std::memory_order_release);
-      }else{
-	max_priority = default_max_priority;
-      }
+      ThreadSafePriority_t::store(max_priority,default_max_priority,
+				  std::memory_order_release);
       sum.clear();
       min.clear(std::numeric_limits<Priority>::max());
     }
