@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cassert>
 #include <type_traits>
+#include <future>
 
 #include <SegmentTree.hh>
 
@@ -24,6 +25,12 @@ auto AlmostEqual(T1&& v,T2&& expected, std::common_type_t<T1,T2>&& eps = 1e-5){
   }
 
   return v;
+}
+
+void multi_thread_test(){
+  constexpr auto buffer_size = 16;
+  auto st = ymd::SegmentTree<double,true>(buffer_size,
+					  [](auto a,auto b){ return a+b; });
 }
 
 int main(){
@@ -65,6 +72,8 @@ int main(){
   std::cout << "[0,x) <= 7: x = "
 	    << Equal(st.largest_region_index([](auto v){ return v <=7; }),1)
 	    << std::endl;
+
+  multi_thread_test();
 
   return 0;
 }
