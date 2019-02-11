@@ -75,8 +75,15 @@ namespace ymd {
       : size(n),
 	buffer(2*n-1,v),
 	f(f),
-	changed(MultiThread ? n: size_t{0},std::atomic_bool{false}) {
+	changed{} {
       update_all();
+
+      if constexpr (MultiThread) {
+	changed.reserve(n);
+	for(std::size_t i = 0; i < n; ++i){
+	  changed.emplace_back(false);
+	}
+      }
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
     SegmentTree(const SegmentTree&) = default;
