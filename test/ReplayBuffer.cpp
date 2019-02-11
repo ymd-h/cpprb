@@ -382,6 +382,7 @@ void test_MultiThreadPrioritizedSampler(){
 				      });
 		  });
   for(auto& f : futures){ f.wait(); }
+  per.clear();
 
   auto ps = std::vector<Priority>(N,0.5);
 
