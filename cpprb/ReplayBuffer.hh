@@ -588,7 +588,6 @@ namespace ymd {
     void set_priorities(std::size_t next_index,P* p,
 			std::size_t N,std::size_t buffer_size){
       ThreadSafePriority_t::store_max(max_priority, *std::max_element(p,p+N));
-      }
 
       set_priorities(next_index,[=]() mutable { return std::pow(*(p++),alpha); },
 		     N,buffer_size);
