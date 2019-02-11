@@ -471,7 +471,7 @@ namespace ymd {
     }
   };
 
-  template<typename Priority,MultiThread = false>
+  template<typename Priority,bool MultiThread = false>
   class CppPrioritizedSampler {
   private:
     Priority alpha;
