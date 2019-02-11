@@ -71,7 +71,7 @@ namespace ymd {
 	update_buffer(i);
       }
       if constexpr (MultiThread){
-	for(auto& c: changed){ c[i].store(false,std::memory_order_release); }
+	for(auto& c: changed){ c.store(false,std::memory_order_release); }
       }
       any_changed.store(false,std::memory_order_release);
     }
