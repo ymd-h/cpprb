@@ -73,6 +73,7 @@ namespace ymd {
       if constexpr (MultiThread){
 	for(auto& c: changed){ c[i].store(false,std::memory_order_release); }
       }
+      any_changed.store(false,std::memory_order_release);
     }
 
     void update_changed(){
@@ -90,6 +91,7 @@ namespace ymd {
 	will_update.erase(i);
 	if(i){ will_update.insert(parent(i)); }
       }
+      any_changed.store(false,std::memory_order_release);
     }
 
   public:
