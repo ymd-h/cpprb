@@ -18,6 +18,9 @@ using Reward = double;
 using Done = double;
 using Priority = double;
 
+const auto cores = std::thread::hardware_concurrency();
+using cores_t = std::remove_const_t(decltype(cores));
+
 template<typename F>
 inline auto timer(F&& f,std::size_t N){
   auto start = std::chrono::high_resolution_clock::now();
@@ -347,7 +350,6 @@ void test_MultiThreadRingEnvironment(){
   std::cout << std::endl;
 
   std::cout << "Multi-thread with lock" << std::endl;
-  const auto cores = std::thread::hardware_concurrency();
   std::cout << cores << " cores execution." << std::endl;
 
   multi_f(multi2,1,cores);
