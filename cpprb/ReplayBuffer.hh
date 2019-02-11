@@ -546,7 +546,11 @@ namespace ymd {
     }
 
     Priority get_max_priority() const {
-      return max_priority;
+      if constexpr (MultiThread) {
+	return max_priority.load(std::memory_order_acquire);
+      }else{
+	return max_priority;
+      }
     }
 
     template<typename P,
