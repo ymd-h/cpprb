@@ -77,14 +77,14 @@ void test_NstepReward(){
 	    << ")" << std::endl;
 
   std::cout << "[Input]" << std::endl;
-  show_vector(rew,"rew");
-  show_vector(next_obs,"next_obs (obs_dim="s + std::to_string(obs_dim) + ")");
-  show_vector(done,"done");
+  ymd::show_vector(rew,"rew");
+  ymd::show_vector(next_obs,"next_obs (obs_dim="s + std::to_string(obs_dim) + ")");
+  ymd::show_vector(done,"done");
 
   std::cout << "[Output]" << std::endl;
-  show_pointer(discounts,buffer_size,"discounts");
-  show_pointer(ret,buffer_size,"ret");
-  show_pointer(nstep_next_obs,buffer_size*obs_dim,"nstep_next_obs");
+  ymd::show_pointer(discounts,buffer_size,"discounts");
+  ymd::show_pointer(ret,buffer_size,"ret");
+  ymd::show_pointer(nstep_next_obs,buffer_size*obs_dim,"nstep_next_obs");
 
   auto r =std::vector<Reward>{};
   std::generate_n(std::back_inserter(r),nstep,
@@ -137,11 +137,11 @@ void test_SelectiveEnvironment(){
   // Add 1-step
   se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),1ul);
   auto [obs_,act_,rew_,next_obs_,done_,ep_len] = se.get_episode(0);
-  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
-  show_pointer(act_,se.get_stored_size()*act_dim,"act");
-  show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
-  show_pointer(done_,se.get_stored_size(),"done");
+  ymd::show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  ymd::show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  ymd::show_pointer(rew_,se.get_stored_size(),"rew");
+  ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  ymd::show_pointer(done_,se.get_stored_size(),"done");
 
   assert(1ul == ep_len);
   assert(1ul == se.get_next_index());
@@ -152,11 +152,11 @@ void test_SelectiveEnvironment(){
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
 	   episode_len - 1ul);
   se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
-  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
-  show_pointer(act_,se.get_stored_size()*act_dim,"act");
-  show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
-  show_pointer(done_,se.get_stored_size(),"done");
+  ymd::show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  ymd::show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  ymd::show_pointer(rew_,se.get_stored_size(),"rew");
+  ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  ymd::show_pointer(done_,se.get_stored_size(),"done");
 
   assert(episode_len == ep_len);
   assert(episode_len == se.get_next_index());
@@ -171,11 +171,11 @@ void test_SelectiveEnvironment(){
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
 	   episode_len - 1ul);
   se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
-  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
-  show_pointer(act_,se.get_stored_size()*act_dim,"act");
-  show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
-  show_pointer(done_,se.get_stored_size(),"done");
+  ymd::show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  ymd::show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  ymd::show_pointer(rew_,se.get_stored_size(),"rew");
+  ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  ymd::show_pointer(done_,se.get_stored_size(),"done");
 
   assert(2*episode_len - 1ul == se.get_next_index());
   assert(2*episode_len - 1ul == se.get_stored_size());
@@ -193,11 +193,11 @@ void test_SelectiveEnvironment(){
   // Delete 0
   se.delete_episode(0);
   se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
-  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
-  show_pointer(act_,se.get_stored_size()*act_dim,"act");
-  show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
-  show_pointer(done_,se.get_stored_size(),"done");
+  ymd::show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  ymd::show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  ymd::show_pointer(rew_,se.get_stored_size(),"rew");
+  ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  ymd::show_pointer(done_,se.get_stored_size(),"done");
   assert(episode_len - 1ul == se.get_next_index());
   assert(episode_len - 1ul == se.get_stored_size());
   assert(1ul == se.get_stored_episode_size());
@@ -379,6 +379,7 @@ void test_MultiThreadPrioritizedSampler(){
   std::vector<Priority> weights{};
 
   per.sample(batch_size,beta,weights,indexes,buffer_size);
+  AlmostEqual(per.get_max_priority(),1.0);
 }
 
 int main(){
@@ -458,22 +459,22 @@ int main(){
   auto [per_o,per_a,per_r,per_no,per_d,per_w,per_i] = per.sample(N_batch_size,beta);
 
   std::cout << "ReplayBuffer" << std::endl;
-  show_vector_of_vector(rb_o,"obs");
-  show_vector_of_vector(rb_a,"act");
-  show_vector(rb_r,"rew");
-  show_vector_of_vector(rb_no,"next_obs");
-  show_vector(rb_d,"done");
+  ymd::show_vector_of_vector(rb_o,"obs");
+  ymd::show_vector_of_vector(rb_a,"act");
+  ymd::show_vector(rb_r,"rew");
+  ymd::show_vector_of_vector(rb_no,"next_obs");
+  ymd::show_vector(rb_d,"done");
 
   std::cout << std::endl;
 
   std::cout << "PrioritizedReplayBuffer" << std::endl;
-  show_vector_of_vector(per_o,"obs");
-  show_vector_of_vector(per_a,"act");
-  show_vector(per_r,"rew");
-  show_vector_of_vector(per_no,"next_obs");
-  show_vector(per_d,"done");
-  show_vector(per_w,"weights");
-  show_vector(per_i,"indexes");
+  ymd::show_vector_of_vector(per_o,"obs");
+  ymd::show_vector_of_vector(per_a,"act");
+  ymd::show_vector(per_r,"rew");
+  ymd::show_vector_of_vector(per_no,"next_obs");
+  ymd::show_vector(per_d,"done");
+  ymd::show_vector(per_w,"weights");
+  ymd::show_vector(per_i,"indexes");
 
   per.update_priorities(per_i,per_w);
 
@@ -499,14 +500,14 @@ int main(){
 
   ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
 
-  show_vector(ps_w,"weights [0.5,...,0.5]");
-  show_vector(ps_i,"indexes [0.5,...,0.5]");
+  ymd::show_vector(ps_w,"weights [0.5,...,0.5]");
+  ymd::show_vector(ps_i,"indexes [0.5,...,0.5]");
 
   ps_w[0] = 1e+10;
   ps.update_priorities(ps_i,ps_w);
   ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
-  show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
-  show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
+  ymd::show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
+  ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
 
   test_NstepReward();
   test_SelectiveEnvironment();
