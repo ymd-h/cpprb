@@ -1,6 +1,30 @@
 #include <iostream>
+#include <cassert>
+#include <type_traits>
 
 #include <SegmentTree.hh>
+
+template<typename T1,typename T2>
+auto Equal(T1&& v,T2&& expected){
+  if(v != expected){
+    std::cout << std::endl
+	      << "Assert Equal: " << v << " != " << expected << std::endl;
+    assert(v == expected);
+  }
+
+  return v;
+}
+
+template<typename T1,typename T2>
+auto AlmostEqual(T1&& v,T2&& expected, std::common_type_t<T1,T2>&& eps = 1e-5){
+  if(std::abs(v - expected) > eps){
+    std::cout << std::endl
+	      << "Assert AlmostEqual: " << v << " != " << expected << std::endl;
+    assert(std::abs(v - expected) <= eps);
+  }
+
+  return v;
+}
 
 int main(){
 
@@ -12,13 +36,14 @@ int main(){
   }
   std::cout << std::endl;
 
-  std::cout << "[0,11): " << st.reduce(0,11) << std::endl;
-  std::cout << "[13,15): " << st.reduce(13,15) << std::endl;
+  std::cout << "[0,11): " << AlmostEqual(st.reduce(0,11),55) << std::endl;
+  std::cout << "[13,15): " << AlmostEqual(st.reduce(13,15),27) << std::endl;
 
   std::cout << "[0,x) <= 7: x = "
-	    << st.largest_region_index([](auto v){ return v <=7; })
+	    << Equal(st.largest_region_index([](auto v){ return v <=7; }),4)
 	    << std::endl;
 
+  std::cout << std::endl;
   st.set(12,5,10);
   for(auto i = 0ul; i < 16ul; ++i){
     std::cout << st.get(i) << " ";
