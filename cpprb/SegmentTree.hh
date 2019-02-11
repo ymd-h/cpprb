@@ -20,7 +20,7 @@ namespace ymd {
   class SegmentTree {
   private:
     using F = std::function<T(T,T)>;
-    const std::size_t size;
+    const std::size_t buffer_size;
     std::vector<T> buffer;
     F f;
     std::atomic_bool any_changed;
@@ -59,7 +59,7 @@ namespace ymd {
     }
 
     auto access_index(std::size_t i) const {
-      return size + i - 1;
+      return buffer_size + i - 1;
     }
 
     void update_buffer(std::size_t i){
@@ -96,7 +96,7 @@ namespace ymd {
 
   public:
     SegmentTree(std::size_t n,F f, T v = T{0})
-      : size(n),
+      : buffer_size(n),
 	buffer(2*n-1,v),
 	f(f),
 	any_changed{false},
@@ -141,7 +141,7 @@ namespace ymd {
 				     std::nullptr_t>::type = nullptr>
     void set(std::size_t i,F&& f,std::size_t N,std::size_t max = std::size_t(0)){
       constexpr const std::size_t zero = 0;
-      if(zero == max){ max = size; }
+      if(zero == max){ max = buffer_size; }
 
       std::set<std::size_t> will_update{};
 
@@ -188,7 +188,7 @@ namespace ymd {
 	  update_changed();
 	}
       }
-      return _reduce(start,end,0,0,size);
+      return _reduce(start,end,0,0,buffer_size);
     }
 
     auto largest_region_index(std::function<bool(T)> condition,
@@ -206,12 +206,12 @@ namespace ymd {
       }
 
       std::size_t min = zero;
-      auto max = (zero != n) ? n: size;
+      auto max = (zero != n) ? n: buffer_size;
 
       auto index = (min + max)/two;
 
       while(max - min > one){
-	if( condition(_reduce(zero,index,zero,zero,size)) ){
+	if( condition(_reduce(zero,index,zero,zero,buffer_size)) ){
 	  min = index;
 	}else{
 	  max = index;
