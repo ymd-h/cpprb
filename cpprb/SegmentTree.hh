@@ -183,7 +183,11 @@ namespace ymd {
 
     auto reduce(std::size_t start,std::size_t end) const {
       // Operation on [start,end)  # buffer[end] is not included
-
+      if constexpr (MultiThread){
+	if(any_changed.load(std::memory_order_acquire)){
+	  update_changed();
+	}
+      }
       return _reduce(start,end,0,0,size);
     }
 
@@ -194,6 +198,12 @@ namespace ymd {
       constexpr const std::size_t zero = 0;
       constexpr const std::size_t one  = 1;
       constexpr const std::size_t two  = 2;
+
+      if constexpr (MultiThread){
+	if(any_changed.load(std::memory_order_acquire)){
+	  update_changed();
+	}
+      }
 
       std::size_t min = zero;
       auto max = (zero != n) ? n: size;
