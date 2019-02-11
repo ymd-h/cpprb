@@ -39,6 +39,16 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void update_priorities[I,P](I*,P*,size_t)
         void clear()
         Prio get_max_priority()
+    cdef cppclass CppThreadSafePrioritizedSampler[Prio]:
+        CppThreadSafePrioritizedSampler(size_t,Prio)
+        void sample(size_t,Prio,vector[Prio]&,vector[size_t]&,size_t)
+        void set_priorities(size_t)
+        void set_priorities[P](size_t,P)
+        void set_priorities(size_t,size_t,size_t)
+        void set_priorities[P](size_t,P*,size_t,size_t)
+        void update_priorities[I,P](I*,P*,size_t)
+        void clear()
+        Prio get_max_priority()
     cdef cppclass CppNstepRewardBuffer[Obs,Rew]:
         CppNstepRewardBuffer(size_t,size_t,size_t,Rew)
         void sample[Done](const vector[size_t]&,Rew*,Obs*,Done*)
