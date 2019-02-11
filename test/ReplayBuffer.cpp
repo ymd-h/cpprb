@@ -359,7 +359,12 @@ void test_MultiThreadRingEnvironment(){
 }
 
 void test_MultiThreadPrioritizedSampler(){
+  constexpr const auto buffer_size = 1024ul * 256ul;
+  constexpr const auto alpha = 0.5;
+  constexpr const auto beta = 0.4;
+  constexpr const auto batch_size = 16ul;
 
+  auto per = ymd::CppThreadSafePrioritizedSampler<Priority>(buffer_size,alpha);
 }
 
 int main(){
