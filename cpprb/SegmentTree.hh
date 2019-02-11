@@ -124,6 +124,7 @@ namespace ymd {
       buffer[n] = std::move(v);
 
       if constexpr (MultiThread){
+	any_changed.store(true,std::memory_order_release);
 	changed[n].store(true,std::memory_order_release);
       }else{
 	do {
@@ -141,6 +142,10 @@ namespace ymd {
       if(zero == max){ max = size; }
 
       std::set<std::size_t> will_update{};
+
+      if constexpr (MultiThread){
+	if(N){ any_changed.store(true,std::memory_order_release); }
+      }
 
       while(N){
 	auto copy_N = std::min(N,max-i);
