@@ -412,12 +412,12 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _update_N(self,size_t next_index,size_t N=1):
-        self.per.set_priorities(next_index,N,self.get_stored_size())
+        self.per.set_priorities(next_index,N,self.get_buffer_size())
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _update_Np(self,size_t next_index,Prio [:] p,size_t N=1):
-        self.per.set_priorities(next_index,&p[0],N,self.get_stored_size())
+        self.per.set_priorities(next_index,&p[0],N,self.get_buffer_size())
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
