@@ -69,6 +69,9 @@ namespace ymd {
       for(std::size_t i = access_index(0) -1, end = -1; i != end; --i){
 	update_buffer(i);
       }
+      if constexpr (MultiThread){
+	for(auto& c: changed){ c[i].store(false,std::memory_order_release); }
+      }
     }
   public:
     SegmentTree(std::size_t n,F f, T v = T{0})
