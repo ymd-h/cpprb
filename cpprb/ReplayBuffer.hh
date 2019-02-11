@@ -459,14 +459,14 @@ namespace ymd {
     }
   };
 
-  template<typename Priority>
+  template<typename Priority,MultiThread = false>
   class CppPrioritizedSampler {
   private:
     Priority alpha;
     Priority max_priority;
     const Priority default_max_priority;
-    SegmentTree<Priority> sum;
-    SegmentTree<Priority> min;
+    SegmentTree<Priority,MultiThread> sum;
+    SegmentTree<Priority,MultiThread> min;
     std::mt19937 g;
 
     void sample_proportional(std::size_t batch_size,
