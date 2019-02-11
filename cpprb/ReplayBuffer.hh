@@ -116,6 +116,10 @@ namespace ymd {
     static inline auto load(volatile type& v,const std::memory_order& order){
       return v.load(order);
     }
+    static inline auto store_max(volatile type& v,T N){
+      auto tmp = v.load(std::memory_order_acquire);
+      while(tmp < N &&  !v.compare_exchange_weak(tmp,N)){}
+    }
   };
 
   template<typename T> struct ThreadSafe<false,T>{
@@ -128,6 +132,9 @@ namespace ymd {
     }
     static inline auto load(T& v,const std::memory_order&){
       return v;
+    }
+    static inline auto store_max(T& v,T N){
+      if(v < N){ v = N; }
     }
   };
 
