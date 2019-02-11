@@ -325,7 +325,7 @@ void test_MultiThreadRingEnvironment(){
 
       std::cout << "Adding " << N_add << " time-points at once" << std::endl;
       timer([&]() mutable {
-	      for(std::remove_const_t<decltype(cores)> i = 0; i < cores-1; ++i){
+	      for(cores_t i = 0; i < cores-1; ++i){
 		v.push_back(std::async(std::launch::async,
 				       [&](){ f_core(b,N_add,n*i,n*(i+1)); }));
 	      }
