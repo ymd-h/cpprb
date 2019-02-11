@@ -474,8 +474,9 @@ namespace ymd {
   template<typename Priority,bool MultiThread = false>
   class CppPrioritizedSampler {
   private:
+    using ThreadSafePriority_t = ThreadSafe<MultiThread,Priority>;
     Priority alpha;
-    typename ThreadSafe<MultiThread,Priority>::type max_priority;
+    typename ThreadSafePriority_t::type max_priority;
     const Priority default_max_priority;
     SegmentTree<Priority,MultiThread> sum;
     SegmentTree<Priority,MultiThread> min;
