@@ -293,8 +293,8 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
         delete_len = self.srb.delete_episode(2)
         self.assertEqual(self.srb.get_next_index(), old_index - delete_len)
 
-class TestMultiProcessReplayBuffer(TestReplayBuffer):
-    class_name = "MultiProcessing"
+class TestThreadSafeReplayBuffer(TestReplayBuffer):
+    class_name = "TS-ER"
     buffer_size = 1024 * 256
     N_add = buffer_size * 3
     N_time = 10
@@ -352,8 +352,8 @@ class TestMultiProcessReplayBuffer(TestReplayBuffer):
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
 
-class TestMultiProcessPrioritizedReplayBuffer(TestPrioritizedReplayBuffer):
-    class_name = "MultiProcessing"
+class TestThreadSafePrioritizedReplayBuffer(TestPrioritizedReplayBuffer):
+    class_name = "TS-PER"
     buffer_size = 1024 * 256
     N_add = buffer_size * 3
     N_time = 10
