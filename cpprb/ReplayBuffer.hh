@@ -570,7 +570,7 @@ namespace ymd {
 	     std::enable_if_t<std::is_convertible_v<P,Priority>,
 			      std::nullptr_t> = nullptr>
     void set_priorities(std::size_t next_index,P p){
-      if(p > max_priority){ max_priority = p; }
+      ThreadSafePriority_t::store_max(max_priority,p);
       auto v = std::pow(p,alpha);
       sum.set(next_index,v);
       min.set(next_index,v);
