@@ -59,8 +59,9 @@ int main(){
 
   st.set(set_index,set_value,set_size);
   for(auto i = 0ul; i < 16ul; ++i){
-    std::cout << ymd::AlmostEqual(st.get(i),(i < set_size - (buffer_size - set_index) ||
-					set_index <= i) ? set_value : i)
+    std::cout << ymd::AlmostEqual(st.get(i),
+				  (i < set_size - (buffer_size - set_index) ||
+				   set_index <= i) ? set_value : i)
 	      << " ";
   }
   std::cout << std::endl;
