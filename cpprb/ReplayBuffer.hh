@@ -596,8 +596,10 @@ namespace ymd {
 
     void set_priorities(std::size_t next_index,
 			std::size_t N,std::size_t buffer_size){
-      set_priorities(next_index,[v=std::pow(max_priority,alpha)](){ return v; },
-		     N,buffer_size);
+      const auto v = std::pow(ThreadSafePriority_t::load(max_priority,
+							 std::memory_order_acquire),
+			      alpha);
+      set_priorities(next_index,[=](){ return v; },N,buffer_size);
     }
 
     template<typename I,typename P,
