@@ -379,7 +379,7 @@ void test_MultiThreadPrioritizedSampler(){
   std::vector<Priority> weights{};
 
   per.sample(batch_size,beta,weights,indexes,buffer_size);
-  AlmostEqual(per.get_max_priority(),1.0);
+  ymd::AlmostEqual(per.get_max_priority(),1.0);
 }
 
 int main(){
