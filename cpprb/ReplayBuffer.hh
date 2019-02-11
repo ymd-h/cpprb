@@ -110,12 +110,24 @@ namespace ymd {
     static inline auto fetch_add(volatile type* v,T N,const std::memory_order& order){
       return v->fetch_add(N,order);
     }
+    static inline auto store(volatile type& v,T N,const std::memory_order& order){
+      v.store(N,order);
+    }
+    static inline auto load(volatile type& v,const std::memory_order& order){
+      return v.load(order);
+    }
   };
 
   template<typename T> struct ThreadSafe<false,T>{
     using type = T;
     static inline auto fetch_add(T* v,T N,const std::memory_order){
       return std::exchange(*v,(*v + N));
+    }
+    static inline auto store(T& v,T N,const std::memory_order&){
+      v = N;
+    }
+    static inline auto load(T& v,const std::memory_order&){
+      return v;
     }
   };
 
