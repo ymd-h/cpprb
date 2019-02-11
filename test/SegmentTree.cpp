@@ -2,6 +2,7 @@
 #include <cassert>
 #include <type_traits>
 #include <future>
+#include <thread>
 
 #include <SegmentTree.hh>
 
@@ -28,9 +29,28 @@ auto AlmostEqual(T1&& v,T2&& expected, std::common_type_t<T1,T2>&& eps = 1e-5){
 }
 
 void multi_thread_test(){
-  constexpr auto buffer_size = 16;
+  constexpr auto buffer_size = 16ul;
   auto st = ymd::SegmentTree<double,true>(buffer_size,
 					  [](auto a,auto b){ return a+b; });
+  const auto cores = std::thread::hardware_concurrency();
+
+  auto futures = std::vector<std::future<void>>{};
+
+  std::generate_n(std::back_inserter(futures),cores,
+		  [&,index = 0,v = 2] () mutable {
+		    index = (index + 3) % buffer_size;
+		    v *= 2;
+		    return std::async(std::launch::async,
+				      [&st](auto index,auto v){
+					st.set(index,v,5);
+				      },index,v);
+		  });
+
+  for(auto& f : futures){ f.wait(); }
+  for(auto i = 0ul; i < buffer_size; ++i){
+    std::cout << st.get(i) << " ";
+  }
+  std::cout << std::endl;
 }
 
 int main(){
