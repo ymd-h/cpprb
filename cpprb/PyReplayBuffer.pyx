@@ -485,6 +485,100 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     def get_max_priority(self):
         return self.per.get_max_priority()
 
+cdef class ThreadSafePrioritizedReplayBuffer(ThreadSafeRingEnvironment):
+    cdef VectorDouble weights
+    cdef VectorSize_t indexes
+    cdef double alpha
+    cdef CppThreadSafePrioritizedSampler[double]* per
+    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
+        self.alpha = alpha
+        self.per = new CppThreadSafePrioritizedSampler[double](size,alpha)
+        self.weights = VectorDouble()
+        self.indexes = VectorSize_t()
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_1(self,size_t next_index):
+        self.per.set_priorities(next_index)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_1p(self,size_t next_index,Prio p):
+        self.per.set_priorities(next_index,p)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_N(self,size_t next_index,size_t N=1):
+        self.per.set_priorities(next_index,N,self.get_buffer_size())
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_Np(self,size_t next_index,Prio [:] p,size_t N=1):
+        self.per.set_priorities(next_index,&p[0],N,self.get_buffer_size())
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add(self,obs,act,rew,next_obs,done):
+        cdef size_t next_index
+        cdef size_t N
+        if obs.ndim == 1:
+            next_index = self._add_1(obs,act,rew,next_obs,done)
+            self._update_1(next_index)
+        else:
+            N = obs.shape[0]
+            next_index = self._add_N(obs,act,rew,next_obs,done,N)
+            self._update_N(next_index,N)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_p(self,obs,act,rew,next_obs,done,priorities):
+        cdef size_t next_index
+        cdef size_t N
+        if obs.ndim == 1:
+            next_index = self._add_1(obs,act,rew,next_obs,done)
+            self._update_1p(next_index,priorities)
+        else:
+            N = obs.shape[0]
+            next_index = self._add_N(obs,act,rew,next_obs,done,N)
+            self._update_Np(next_index,priorities,N)
+
+    def add(self,obs,act,rew,next_obs,done,priorities = None):
+        if priorities is not None:
+            self._add_p(obs,act,rew,next_obs,done,priorities)
+        else:
+            self._add(obs,act,rew,next_obs,done)
+
+    def sample(self,batch_size,beta = 0.4):
+        self.per.sample(batch_size,beta,
+                        self.weights.vec,self.indexes.vec,
+                        self.get_stored_size())
+        idx = np.asarray(self.indexes)
+        samples = self._encode_sample(idx)
+        samples['weights'] = np.asarray(self.weights)
+        samples['indexes'] = idx
+        return samples
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_priorities(self,
+                           np.ndarray[Idx  ,ndim = 1, mode="c"] indexes    not None,
+                           np.ndarray[Prio ,ndim = 1, mode="c"] priorities not None,
+                           size_t N=1):
+        self.per.update_priorities(&indexes[0],&priorities[0],N)
+
+    def update_priorities(self,indexes,priorities):
+        cdef idx = np.asarray(np.ravel(indexes),dtype=np.uint64)
+        cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
+        cdef size_t N = idx.shape[0]
+        self._update_priorities(idx,priorities,N)
+
+    def clear(self):
+        super().clear()
+        self.per.clear()
+
+    def get_max_priority(self):
+        return self.per.get_max_priority()
+
 cdef class NstepReplayBuffer(ReplayBuffer):
     cdef CppNstepRewardBuffer[double,double]* nrb
     cdef PointerDouble gamma
