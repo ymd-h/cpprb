@@ -358,6 +358,10 @@ void test_MultiThreadRingEnvironment(){
 
 }
 
+void test_MultiThreadPrioritizedSampler(){
+
+}
+
 int main(){
 
   constexpr const auto obs_dim = 3ul;
@@ -489,6 +493,8 @@ int main(){
   test_SelectiveEnvironment();
 
   test_MultiThreadRingEnvironment();
+
+  test_MultiThreadPrioritizedSampler();
 
   return 0;
 }
