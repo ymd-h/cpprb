@@ -6,6 +6,8 @@
 #include <utility>
 #include <vector>
 #include <set>
+#include <atomic>
+#include <memory>
 
 namespace ymd {
   inline constexpr auto PowerOf2(const std::size_t n) noexcept {
@@ -14,13 +16,14 @@ namespace ymd {
     return m;
   }
 
-  template<typename T>
+  template<typename T,bool MultiThread = false>
   class SegmentTree {
   private:
     using F = std::function<T(T,T)>;
     const std::size_t size;
     std::vector<T> buffer;
     F f;
+    std::vector<std::atomic_bool> changed;
 
     auto _reduce(const std::size_t start,const std::size_t end,std::size_t index,
 		 const std::size_t region_s,const std::size_t region_e) const {
@@ -68,7 +71,11 @@ namespace ymd {
       }
     }
   public:
-    SegmentTree(std::size_t n,F f, T v = T{0}): size(n), buffer(2*n-1,v), f(f) {
+    SegmentTree(std::size_t n,F f, T v = T{0})
+      : size(n),
+	buffer(2*n-1,v),
+	f(f),
+	changed(MultiThread ? n: size_t{0},std::atomic_bool{false}) {
       update_all();
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
