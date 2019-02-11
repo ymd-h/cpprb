@@ -570,7 +570,9 @@ namespace ymd {
     }
 
     void set_priorities(std::size_t next_index){
-      set_priorities(next_index,max_priority);
+      set_priorities(next_index,
+		     ThreadSafePriority_t::load(max_priority,
+						std::memory_order_acquire));
     }
 
     template<typename P,
