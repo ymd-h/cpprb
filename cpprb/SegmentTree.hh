@@ -23,6 +23,7 @@ namespace ymd {
     const std::size_t size;
     std::vector<T> buffer;
     F f;
+    std::atomic_bool any_changed;
     std::vector<std::atomic_bool> changed;
 
     auto _reduce(const std::size_t start,const std::size_t end,std::size_t index,
@@ -96,6 +97,7 @@ namespace ymd {
       : size(n),
 	buffer(2*n-1,v),
 	f(f),
+	any_changed{false},
 	changed{} {
       update_all();
 
