@@ -610,16 +610,27 @@ namespace ymd {
     void update_priorities(std::vector<I>& indexes,
 			   std::vector<P>& priorities){
 
-      max_priority = std::accumulate(indexes.begin(),indexes.end(),max_priority,
-				     [=,p=priorities.begin()]
-				     (auto max_p, auto index) mutable {
-				       Priority v = std::pow(*p,this->alpha);
-				       this->sum.set(index,v);
-				       this->min.set(index,v);
+      const auto max_p =
+	std::accumulate(indexes.begin(),indexes.end(),
+			ThreadSafePriority_t::load(max_priority,
+						   std::memory_order_acquire),
+			[=,p=priorities.begin()]
+			(auto max_p, auto index) mutable {
+			  Priority v = std::pow(*p,this->alpha);
+			  this->sum.set(index,v);
+			  this->min.set(index,v);
 
-				       return std::max<Priority>(max_p,*(p++));
-				     });
+			  return std::max<Priority>(max_p,*(p++));
+			});
+
+      if constexpr (MultiThread){
+	auto tmp = max_priority.load(std::memory_order_acquire);
+	while(tmp < max_p &&  !max_priority.compare_exchange_weak(tmp,max_p)){}
+      }else{
+	max_priority = max_p;
+      }
     }
+
     template<typename I,typename P,
 	     std::enable_if_t<std::is_convertible_v<I,std::size_t>,
 			      std::nullptr_t> = nullptr,
