@@ -627,6 +627,9 @@ namespace ymd {
     }
   };
 
+  template<typename Priority>
+  using CppThreadSafePrioritizedSampler = CppPrioritizedSampler<Priority,true>;
+
   template<typename Observation,typename Action,typename Reward,typename Done,
 	   typename Priority>
   class CppPrioritizedReplayBuffer:
