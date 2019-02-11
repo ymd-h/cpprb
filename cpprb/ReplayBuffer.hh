@@ -149,9 +149,9 @@ namespace ymd {
     virtual ~CppRingEnvironment() = default;
     template<typename Obs_t,typename Act_t,typename Rew_t,
 	     typename Next_Obs_t,typename Done_t>
-    void store(Obs_t* obs, Act_t* act, Rew_t* rew,
-	       Next_Obs_t* next_obs, Done_t* done,
-	       std::size_t N = std::size_t(1)){
+    std::size_t store(Obs_t* obs, Act_t* act, Rew_t* rew,
+		      Next_Obs_t* next_obs, Done_t* done,
+		      std::size_t N = std::size_t(1)){
       constexpr const std::size_t zero = 0;
       constexpr const auto order
 	= MultiThread ? std::memory_order_acquire : std::memory_order_relaxed;
@@ -163,6 +163,7 @@ namespace ymd {
       std::size_t shift = zero;
       std::size_t tmp_next_index{ThreadSafe_size_t::fetch_add(&next_index,N,order) &
 				 mask};
+      auto stored_index = tmp_next_index;
       while(N){
 	auto copy_N = std::min(N,buffer_size - tmp_next_index);
 
@@ -172,6 +173,7 @@ namespace ymd {
 	shift += copy_N;
 	tmp_next_index = zero;
       }
+      return stored_index;
     }
 
     std::size_t get_stored_size(){
@@ -249,9 +251,9 @@ namespace ymd {
 
     template<typename Obs_t,typename Act_t,typename Rew_t,
 	     typename Next_Obs_t,typename Done_t>
-    void store(Obs_t* obs,Act_t* act,Rew_t* rew,
-	       Next_Obs_t* next_obs, Done_t* done,
-	       std::size_t N = std::size_t(1)){
+    std::size_t store(Obs_t* obs,Act_t* act,Rew_t* rew,
+		      Next_Obs_t* next_obs, Done_t* done,
+		      std::size_t N = std::size_t(1)){
       const auto buffer_size = this->get_buffer_size();
       auto shift = std::size_t(0);
       auto copy_N = std::min(N,buffer_size - next_index);
@@ -264,7 +266,7 @@ namespace ymd {
 				    + std::size_t(1));
       }
 
-      next_index += copy_N;
+      return std::exchange(next_index,next_index + copy_N);
     }
 
     void get_episode(std::size_t i,std::size_t& ep_len,
