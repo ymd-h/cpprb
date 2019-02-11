@@ -100,10 +100,14 @@ namespace ymd {
       auto n = access_index(i);
       buffer[n] = std::move(v);
 
-      do {
-	n = parent(n);
-	update_buffer(n);
-      } while(n != std::size_t(0));
+      if constexpr (MultiThread){
+	changed[n].store(true,std::memory_order_release);
+      }else{
+	do {
+	  n = parent(n);
+	  update_buffer(n);
+	} while(n != std::size_t(0));
+      }
     }
 
     template<typename F,
@@ -119,20 +123,27 @@ namespace ymd {
 	auto copy_N = std::min(N,max-i);
 	std::generate_n(buffer.data()+access_index(i),copy_N,f);
 
-	for(auto n = std::size_t(0); n < copy_N; ++n){
-	  will_update.insert(parent(access_index(i+n)));
+	if constexpr (MultiThread) {
+	  std::for_each(changed.begin() + i,
+			changed.begin() + i + copy_N,
+			[](auto& c){ c.store(true,std::memory_order_release); });
+	}else{
+	  for(auto n = std::size_t(0); n < copy_N; ++n){
+	    will_update.insert(parent(access_index(i+n)));
+	  }
 	}
 
 	N = (N > copy_N) ? N - copy_N: zero;
 	i = zero;
       }
 
-
-      while(!will_update.empty()){
-	i = *(will_update.rbegin());
-	update_buffer(i);
-	will_update.erase(i);
-	if(i){ will_update.insert(parent(i)); }
+      if constexpr (!MultiThread) {
+	while(!will_update.empty()){
+	  i = *(will_update.rbegin());
+	  update_buffer(i);
+	  will_update.erase(i);
+	  if(i){ will_update.insert(parent(i)); }
+	}
       }
     }
 
