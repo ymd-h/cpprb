@@ -118,7 +118,10 @@ namespace ymd {
     }
     static inline auto store_max(volatile type& v,T N){
       auto tmp = v.load(std::memory_order_acquire);
-      while(tmp < N &&  !v.compare_exchange_weak(tmp,N)){}
+      std::cout << "tmp: " << tmp << ", N: " << N << std::endl;
+      while(tmp < N &&  !v.compare_exchange_weak(tmp,N)){
+	std::cout << "retry" << std::endl;
+      }
     }
   };
 
