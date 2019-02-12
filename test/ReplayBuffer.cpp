@@ -374,6 +374,7 @@ void test_MultiThreadPrioritizedSampler(){
   std::vector<std::future<void>> futures{};
   futures.reserve(cores);
 
+  std::cout << "Multi Thread set_prioriries(index,N,buffer_size)" << std::endl;
   std::generate_n(std::back_inserter(futures),cores,
 		  [&,index = -N] () mutable {
 		    index += N;
@@ -385,6 +386,7 @@ void test_MultiThreadPrioritizedSampler(){
   for(auto& f : futures){ f.wait(); }
   per.clear();
 
+  std::cout << "Multi Thread set_prioriries(index,p_ptr,N,buffer_size)" << std::endl;
   std::generate_n(std::back_inserter(futures),cores,
 		  [&,index = -N] () mutable {
 		    index += N;
@@ -399,6 +401,7 @@ void test_MultiThreadPrioritizedSampler(){
   std::vector<std::size_t> indexes{};
   std::vector<Priority> weights{};
 
+  std::cout << "sample(batch_size,beta,weights,indexes,buffer_size)" << std::endl;
   per.sample(batch_size,beta,weights,indexes,buffer_size);
   ymd::AlmostEqual(per.get_max_priority(),1.0);
 }
