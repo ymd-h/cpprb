@@ -403,6 +403,8 @@ void test_MultiThreadPrioritizedSampler(){
 
   std::cout << "sample(batch_size,beta,weights,indexes,buffer_size)" << std::endl;
   per.sample(batch_size,beta,weights,indexes,buffer_size);
+
+  std::cout << "get_max_priority" << std::endl;
   ymd::AlmostEqual(per.get_max_priority(),1.0);
 }
 
