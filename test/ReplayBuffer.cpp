@@ -343,13 +343,36 @@ void test_MultiThreadPrioritizedSampler(){
   constexpr const auto alpha = 0.5;
   constexpr const auto beta = 0.4;
   constexpr const auto batch_size = 16ul;
+  std::cout << "Multi-Thread PrioritizedSampler" << std::endl;
 
   auto per = ymd::CppThreadSafePrioritizedSampler<Priority>(buffer_size,alpha);
 
-  std::vector<std::future<void>> futures{};
-  futures.reserve(cores);
+
+  std::cout << "Single Thread set_prioriries(index)" << std::endl;
+  for(auto i = 0ul; i < 20ul; ++i){
+    per.set_priorities(i % buffer_size);
+  }
+
+  std::cout << "Single Thread set_prioriries(index,p)" << std::endl;
+  for(auto i = 0ul; i < 20ul; ++i){
+    per.set_priorities((i+20) % buffer_size,0.3*i);
+  }
 
   const auto N = buffer_size / (cores - 1);
+  auto ps = std::vector<Priority>(N,0.5);
+
+  std::cout << "Single Thread set_prioriries(index,p_ptr,N,buffer_size)" << std::endl;
+  for(auto i = 0ul; i < 20ul; ++i){
+    per.set_priorities((i+40) % buffer_size,ps.data(),N,buffer_size);
+  }
+
+  std::cout << "Single Thread set_prioriries(index,N,buffer_size)" << std::endl;
+  for(auto i = 0ul; i < 20ul; ++i){
+    per.set_priorities((i+40) % buffer_size,N,buffer_size);
+  }
+
+  std::vector<std::future<void>> futures{};
+  futures.reserve(cores);
 
   std::generate_n(std::back_inserter(futures),cores,
 		  [&,index = -N] () mutable {
@@ -361,8 +384,6 @@ void test_MultiThreadPrioritizedSampler(){
 		  });
   for(auto& f : futures){ f.wait(); }
   per.clear();
-
-  auto ps = std::vector<Priority>(N,0.5);
 
   std::generate_n(std::back_inserter(futures),cores,
 		  [&,index = -N] () mutable {
