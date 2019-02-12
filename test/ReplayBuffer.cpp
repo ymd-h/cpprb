@@ -358,7 +358,8 @@ void test_MultiThreadPrioritizedSampler(){
     per.set_priorities((i+20) % buffer_size,0.3*i);
   }
 
-  const auto N = buffer_size / (cores - 1);
+  std::cout << "cores: " << cores << std::endl;
+  const auto N = buffer_size / std::max((cores - 1),cores_t(1));
   auto ps = std::vector<Priority>(N,0.5);
 
   std::cout << "Single Thread set_prioriries(index,p_ptr,N,buffer_size)" << std::endl;
