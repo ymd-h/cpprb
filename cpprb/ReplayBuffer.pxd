@@ -11,7 +11,8 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_next_index()
         size_t get_buffer_size()
     cdef cppclass CppThreadSafeRingEnvironment[Obs,Act,Rew,Done]:
-        CppThreadSafeRingEnvironment(size_t,size_t,size_t)
+        CppThreadSafeRingEnvironment(size_t,size_t,size_t,size_t,size_t,
+                                     Obs*,Act*,Rew*,Obs*,Done*)
         void store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
         size_t get_stored_size()
