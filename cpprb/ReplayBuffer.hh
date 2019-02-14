@@ -26,7 +26,7 @@ namespace ymd {
     DimensionalBuffer(std::size_t size,std::size_t dim)
       : buffer(size * dim,T{0}),
 	dim{dim} {}
-    DimensionalBuffer(): DimensionalBuffer{size_t(1),size_t(1)}  {}
+    DimensionalBuffer(): DimensionalBuffer{std::size_t(1),std::size_t(1)}  {}
     DimensionalBuffer(const DimensionalBuffer&) = default;
     DimensionalBuffer(DimensionalBuffer&&) = default;
     DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
