@@ -159,18 +159,18 @@ namespace ymd {
     using ThreadSafe_size_t = ThreadSafe<MultiThread,std::size_t>;
 
   private:
-    typename ThreadSafe_size_t::type stored_size;
-    typename ThreadSafe_size_t::type next_index;
+    typename ThreadSafe_size_t::type *stored_size;
+    typename ThreadSafe_size_t::type *next_index;
     const std::size_t mask;
-    std::mutex mtx;
-
   public:
     CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
       : Env_t{PowerOf2(size),obs_dim,act_dim},
-	stored_size{std::size_t(0)},
-	next_index{std::size_t(0)},
-	mask{PowerOf2(size)-1},
-	mtx{} {}
+	stored_size{nullptr},
+	next_index{nullptr},
+	mask{ PowerOf2(size)-1 } {
+	  stored_size = new typename ThreadSafe_size_t::type{};
+	  next_index = new typename ThreadSafe_size_t::type{};
+	}
     CppRingEnvironment(): CppRingEnvironment{std::size_t(1),
 					     std::size_t(1),
 					     std::size_t(1)} {}
@@ -190,10 +190,10 @@ namespace ymd {
 
       const auto buffer_size = this->get_buffer_size();
 
-      ThreadSafe_size_t::fetch_add(&stored_size,N,std::memory_order_relaxed);
+      ThreadSafe_size_t::fetch_add(stored_size,N,std::memory_order_relaxed);
 
       std::size_t shift = zero;
-      std::size_t tmp_next_index{ThreadSafe_size_t::fetch_add(&next_index,N,order) &
+      std::size_t tmp_next_index{ThreadSafe_size_t::fetch_add(next_index,N,order) &
 				 mask};
       while(N){
 	auto copy_N = std::min(N,buffer_size - tmp_next_index);
@@ -209,37 +209,36 @@ namespace ymd {
     std::size_t get_stored_size(){
       std::size_t size;
       if constexpr (MultiThread){
-	size = stored_size.load(std::memory_order_acquire);
+	size = stored_size->load(std::memory_order_acquire);
       }else{
-	size = stored_size;
+	size = *stored_size;
       }
       const auto buffer_size = this->get_buffer_size();
 
       if(size < buffer_size){ return size; }
 
       if constexpr (MultiThread){
-        stored_size.store(size,std::memory_order_release);
+        stored_size->store(size,std::memory_order_release);
       }else{
-	stored_size = size;
+	*stored_size = size;
       }
       return buffer_size;
     }
     std::size_t get_next_index() const {
       if constexpr (MultiThread){
-        return next_index.load(std::memory_order_acquire) & mask;
+        return next_index->load(std::memory_order_acquire) & mask;
       }else{
-	return next_index & mask;
+	return (*next_index) & mask;
       }
     }
 
     virtual void clear(){
       if constexpr (MultiThread){
-	std::lock_guard<std::mutex> lock{mtx};
-	stored_size = std::size_t(0);
-	next_index = std::size_t(0);
+	stored_size->store(0);
+	next_index->store(0);
       }else{
-	stored_size = std::size_t(0);
-	next_index = std::size_t(0);
+	*stored_size = 0;
+	*next_index = 0;
       }
     }
   };
