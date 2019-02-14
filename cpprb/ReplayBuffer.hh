@@ -30,6 +30,11 @@ namespace ymd {
 	buffer_size(size),
 	dim{dim},
 	view(false) {}
+    DimensionalBuffer(T* pointer,std::size_t size,std::size_t dim)
+      : buffer{pointer},
+	buffer_size{size},
+	dim{dim},
+	view{true}{}
     DimensionalBuffer(): DimensionalBuffer{std::size_t(1),std::size_t(1)}  {}
     DimensionalBuffer(const DimensionalBuffer& other)
       : buffer_size{other.get_buffer_size()},
