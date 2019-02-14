@@ -20,32 +20,60 @@ namespace ymd {
   template<typename T>
   class DimensionalBuffer {
   private:
-    std::vector<T> buffer;
+    T* buffer;
+    const std::size_t buffer_size;
     const std::size_t dim;
+    const bool view;
   public:
     DimensionalBuffer(std::size_t size,std::size_t dim)
-      : buffer(size * dim,T{0}),
-	dim{dim} {}
+      : buffer(new T[size * dim]{}),
+	buffer_size(size),
+	dim{dim},
+	view(false) {}
     DimensionalBuffer(): DimensionalBuffer{std::size_t(1),std::size_t(1)}  {}
-    DimensionalBuffer(const DimensionalBuffer&) = default;
-    DimensionalBuffer(DimensionalBuffer&&) = default;
-    DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
-    DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
-    ~DimensionalBuffer() = default;
+    DimensionalBuffer(const DimensionalBuffer& other)
+      : buffer_size{other.get_buffer_size()},
+	dim{other.get_dim()},
+	view{true}
+    {
+      other.get_data(0,buffer);
+    }
+    DimensionalBuffer(DimensionalBuffer&& other)
+      : buffer_size{other.get_buffer_size()},
+	dim{other.get_dim()},
+	view{other.is_view()}
+    {
+      other.get_data(0,buffer);
+      if(!other.is_view()){
+	other.release();
+      }
+    }
+    DimensionalBuffer& operator=(const DimensionalBuffer&) = delete;
+    DimensionalBuffer& operator=(DimensionalBuffer&&) = delete;
+    virtual ~DimensionalBuffer(){
+      if(!view && buffer){ delete[] buffer; }
+    }
     template<typename V,
 	     std::enable_if_t<std::is_convertible_v<V,T>,std::nullptr_t> = nullptr>
     void store_data(V* v,std::size_t shift,std::size_t next_index,std::size_t N){
-      std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
+      std::copy_n(v + shift*dim, N*dim,buffer + next_index*dim);
     }
     void get_data(std::size_t ith,std::vector<T>& v) const {
-      std::copy_n(buffer.data() + ith * dim, dim,std::back_inserter(v));
+      std::copy_n(buffer + ith * dim, dim,std::back_inserter(v));
     }
     void get_data(std::size_t ith,std::vector<std::vector<T>>& v) const {
-      v.emplace_back(buffer.data() +  ith    * dim,
-		     buffer.data() + (ith+1) * dim);
+      v.emplace_back(buffer +  ith    * dim,
+		     buffer + (ith+1) * dim);
     }
     void get_data(std::size_t ith,T*& v) const {
-      v = (T*)(buffer.data()) + ith * dim;
+      v = (T*)buffer + ith * dim;
+    }
+    std::size_t get_buffer_size() const noexcept { return buffer_size; }
+    std::size_t get_dim() const noexcept { return dim; }
+    bool is_view() const noexcept { return view; }
+    void release(){
+      view = false;
+      buffer = nullptr;
     }
   };
 
