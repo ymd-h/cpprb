@@ -91,15 +91,17 @@ namespace ymd {
     DimensionalBuffer<Observation> next_obs_buffer;
     DimensionalBuffer<Done> done_buffer;
   public:
-    Environment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
+    Environment(std::size_t size,std::size_t obs_dim,std::size_t act_dim,
+		Observation* obs=nullptr,Action* act=nullptr,Reward* rew=nullptr,
+		Observation* next_obs=nullptr,Done* done=nullptr)
       : buffer_size{size},
 	obs_dim{obs_dim},
 	act_dim{act_dim},
-	obs_buffer{size,obs_dim},
-	act_buffer{size,act_dim},
-	rew_buffer{size,std::size_t(1)},
-	next_obs_buffer{size,obs_dim},
-	done_buffer{size,std::size_t(1)} {}
+	obs_buffer{size,obs_dim,obs},
+	act_buffer{size,act_dim,act},
+	rew_buffer{size,std::size_t(1),rew},
+	next_obs_buffer{size,obs_dim,next_obs},
+	done_buffer{size,std::size_t(1),done} {}
     Environment(): Environment{std::size_t(1),std::size_t(1),std::size_t(1)} {}
     Environment(const Environment&) = default;
     Environment(Environment&&) = default;
