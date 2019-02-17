@@ -117,12 +117,14 @@ namespace ymd {
 	buffer = new T[2*n-1];
       }
 
-      any_changed = (any_changed_ptr) ?
-	new(any_changed_ptr) std::atomic_bool(*any_changed_ptr):
-	new std::atomic_bool{true};
+      if constexpr (MultiThread){
+	any_changed = (any_changed_ptr) ?
+	  new(any_changed_ptr) std::atomic_bool(*any_changed_ptr):
+	  new std::atomic_bool{true};
 
-      if(!changed){
-	changed = new std::atomic_bool[n];
+	if(!changed){
+	  changed = new std::atomic_bool[n];
+	}
       }
 
       if(initialize){
