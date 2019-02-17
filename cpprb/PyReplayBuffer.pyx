@@ -1,12 +1,15 @@
 # distutils: language = c++
 
-from libc.stdlib cimport malloc, free
-from cython.operator cimport dereference
+from multiprocessing.sharedctypes import RawArray
+import ctypes
 cimport numpy as np
 import numpy as np
 import cython
 
 from cpprb cimport ReplayBuffer
+
+from .VectorWrapper cimport *
+from .VectorWrapper import (VectorInt,VectorDouble,VectorSize_t,PointerDouble)
 
 Obs      = cython.fused_type(cython.float, cython.double)
 Act      = cython.fused_type(cython.float, cython.double)
@@ -14,137 +17,6 @@ Rew      = cython.fused_type(cython.float, cython.double)
 Next_Obs = cython.fused_type(cython.float, cython.double)
 Done     = cython.fused_type(cython.float, cython.double)
 Prio     = cython.fused_type(cython.float, cython.double)
-
-ctypedef fused Idx:
-    unsigned int
-    unsigned long long
-
-cdef class VectorWrapper:
-    cdef Py_ssize_t *shape
-    cdef Py_ssize_t *strides
-    cdef Py_ssize_t itemsize
-    cdef int ndim
-    cdef int value_dim
-
-    def __cinit__(self,**kwarg):
-        self.shape   = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * 2)
-        self.strides = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * 2)
-
-    def __dealloc__(self):
-        free(self.shape)
-        free(self.strides)
-
-    cdef void update_size(self):
-        self.shape[0] = <Py_ssize_t>(self.vec_size()//self.value_dim)
-        self.strides[self.ndim -1] = <Py_ssize_t> self.itemsize
-
-        if self.ndim is 2:
-            self.shape[1] = <Py_ssize_t> (self.value_dim)
-            self.strides[0] = self.value_dim * <Py_ssize_t> self.itemsize
-
-    cdef void set_buffer(self,Py_buffer *buffer):
-        pass
-
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        # relevant documentation http://cython.readthedocs.io/en/latest/src/userguide/buffer.html#a-matrix-class
-
-        self.update_size()
-
-        self.set_buffer(buffer)
-        buffer.len = self.vec_size() * self.itemsize
-        buffer.readonly = 0
-        buffer.ndim = self.ndim
-        buffer.shape = self.shape
-        buffer.strides = self.strides
-        buffer.suboffsets = NULL
-        buffer.itemsize = self.itemsize
-        buffer.internal = NULL
-        buffer.obj = self
-
-    def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-cdef class VectorInt(VectorWrapper):
-    cdef vector[int] vec
-
-    def __cinit__(self,*,value_dim=1,**kwargs):
-        self.vec = vector[int]()
-        self.itemsize = sizeof(int)
-
-        self.ndim = 1 if value_dim is 1 else 2
-        self.value_dim = value_dim
-
-    def vec_size(self):
-        return self.vec.size()
-
-    cdef void set_buffer(self,Py_buffer* buffer):
-        buffer.buf = <void*>(self.vec.data())
-        buffer.format = 'i'
-
-cdef class VectorDouble(VectorWrapper):
-    cdef vector[double] vec
-
-    def __cinit__(self,*,value_dim=1,**kwargs):
-        self.vec = vector[double]()
-        self.itemsize = sizeof(double)
-
-        self.ndim = 1 if value_dim is 1 else 2
-        self.value_dim = value_dim
-
-    def vec_size(self):
-        return self.vec.size()
-
-    cdef void set_buffer(self,Py_buffer* buffer):
-        buffer.buf = <void*>(self.vec.data())
-        buffer.format = 'd'
-
-cdef class VectorSize_t(VectorWrapper):
-    cdef vector[size_t] vec
-
-    def __cinit__(self,*,value_dim=1,**kwargs):
-        self.vec = vector[size_t]()
-        self.itemsize = sizeof(size_t)
-
-        self.ndim = 1 if value_dim is 1 else 2
-        self.value_dim = value_dim
-
-    def vec_size(self):
-        return self.vec.size()
-
-    cdef void set_buffer(self,Py_buffer* buffer):
-        buffer.buf = <void*>(self.vec.data())
-        if sizeof(size_t) == sizeof(unsigned long):
-            buffer.format = 'L'
-        elif sizeof(size_t) == sizeof(unsigned long long):
-            buffer.format = 'Q'
-        elif sizeof(size_t) == sizeof(unsigned int):
-            buffer.format = 'I'
-        elif sizeof(size_t) == sizeof(unsigned char):
-            buffer.format = 'B'
-        else:
-            raise BufferError("Unknown size_t implementation!")
-
-
-cdef class PointerDouble(VectorWrapper):
-    cdef double* ptr
-    cdef int _vec_size
-
-    def __cinit__(self,*,ndim=1,value_dim=1,size=1,**kwargs):
-        self.itemsize = sizeof(double)
-
-        self.ndim = ndim
-        self.value_dim = value_dim
-        self._vec_size = value_dim * size
-
-    def vec_size(self):
-        return self._vec_size
-
-    cdef void set_buffer(self,Py_buffer* buffer):
-        buffer.buf = <void*> self.ptr
-        buffer.format = 'd'
-
-    cdef void update_vec_size(self,size):
-        self._vec_size = self.value_dim * size
 
 cdef class Environment:
     cdef PointerDouble obs
@@ -227,13 +99,48 @@ cdef class RingEnvironment(Environment):
     def get_next_index(self):
         return self.buffer.get_next_index()
 
-cdef class ThreadSafeRingEnvironment(Environment):
+cdef class ProcessSharedRingEnvironment(Environment):
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
-    def __cinit__(self,size,obs_dim,act_dim,**kwargs):
-        self.buffer = new CppThreadSafeRingEnvironment[double,double,
-                                                       double,double](size,
-                                                                      obs_dim,
-                                                                      act_dim)
+    cdef stored_size_v
+    cdef next_index_v
+    cdef obs_v
+    cdef act_v
+    cdef rew_v
+    cdef next_obs_v
+    cdef done_v
+    def __cinit__(self,size,obs_dim,act_dim,*,
+                  stored_size=None,next_index=None,
+                  obs=None,act=None,rew=None,next_obs=None,done=None,
+                  **kwargs):
+        self.stored_size_v = stored_size or RawArray(ctypes.c_size_t,1)
+        self.next_index_v = next_index or RawArray(ctypes.c_size_t,1)
+        self.obs_v = obs or RawArray(ctypes.c_double,size*obs_dim)
+        self.act_v = act or RawArray(ctypes.c_double,size*act_dim)
+        self.rew_v = rew or RawArray(ctypes.c_double,size)
+        self.next_obs_v = next_obs or RawArray(ctypes.c_double,size*obs_dim)
+        self.done_v = done or RawArray(ctypes.c_double,size)
+
+        cdef size_t [:] stored_size_view = self.stored_size_v
+        cdef size_t [:] next_index_view = self.next_index_v
+        cdef double [:] obs_view = self.obs_v
+        cdef double [:] act_view = self.act_v
+        cdef double [:] rew_view = self.rew_v
+        cdef double [:] next_obs_view = self.next_obs_v
+        cdef double [:] done_view = self.done_v
+
+        self.buffer = new CppThreadSafeRingEnvironment[double,
+                                                       double,
+                                                       double,
+                                                       double](size,
+                                                               obs_dim,
+                                                               act_dim,
+                                                               &stored_size_view[0],
+                                                               &next_index_view[0],
+                                                               &obs_view[0],
+                                                               &act_view[0],
+                                                               &rew_view[0],
+                                                               &next_obs_view[0],
+                                                               &done_view[0])
 
         self.buffer.get_buffer_pointers(self.obs.ptr,
                                         self.act.ptr,
@@ -375,13 +282,24 @@ cdef class ReplayBuffer(RingEnvironment):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
-cdef class ThreadSafeReplayBuffer(ThreadSafeRingEnvironment):
+cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         pass
 
     def sample(self,batch_size):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
+
+    def init_worker(self):
+        return ProcessSharedRingEnvironment(self.buffer_size,
+                                            self.obs_dim,self.act_dim,
+                                            stored_size = self.stored_size_v,
+                                            next_index = self.next_index_v,
+                                            obs = self.obs_v,
+                                            act = self.act_v,
+                                            rew = self.rew_v,
+                                            next_obs = self.next_obs_v,
+                                            done = self.done_v)
 
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,**kwargs):
@@ -561,13 +479,13 @@ cdef class ThreadSafePrioritizedReplayBuffer(ThreadSafeRingEnvironment):
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _update_priorities(self,
-                           np.ndarray[Idx  ,ndim = 1, mode="c"] indexes    not None,
-                           np.ndarray[Prio ,ndim = 1, mode="c"] priorities not None,
+                           np.ndarray[size_t,ndim = 1, mode="c"] indexes    not None,
+                           np.ndarray[Prio  ,ndim = 1, mode="c"] priorities not None,
                            size_t N=1):
         self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
-        cdef idx = np.asarray(np.ravel(indexes),dtype=np.uint64)
+        cdef idx = np.asarray(np.ravel(indexes),dtype=ctypes.c_size_t)
         cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
         cdef size_t N = idx.shape[0]
         self._update_priorities(idx,priorities,N)
