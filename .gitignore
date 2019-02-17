@@ -4,6 +4,7 @@ dist
 *.so
 cpprb/PyReplayBuffer.cpp
 cpprb/PySegmentTree.cpp
+cpprb/VectorWrapper.cpp
 test/ReplayBuffer
 test/SegmentTree
 public
