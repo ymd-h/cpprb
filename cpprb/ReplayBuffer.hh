@@ -589,7 +589,7 @@ namespace ymd {
 	new(max_p) typename ThreadSafePriority_t::type(*max_p) :
 	new typename ThreadSafePriority_t::type{};
     }
-    CppPrioritizedSampler() = default;
+    CppPrioritizedSampler(): CppPrioritizedSampler{1,0.5} {}
     CppPrioritizedSampler(const CppPrioritizedSampler&) = default;
     CppPrioritizedSampler(CppPrioritizedSampler&&) = default;
     CppPrioritizedSampler& operator=(const CppPrioritizedSampler&) = default;
