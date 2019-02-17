@@ -2,7 +2,7 @@
 
 from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference
-from multiprocessing.sharedctypes import RawValue,RawArray
+from multiprocessing.sharedctypes import RawArray
 import ctypes
 cimport numpy as np
 import numpy as np
