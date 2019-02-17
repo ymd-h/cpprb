@@ -243,7 +243,7 @@ cdef class ThreadSafeRingEnvironment(Environment):
                   **kwargs):
         self.stored_size_v = stored_size or RawValue(ctypes.c_size_t,0)
         self.next_index_v = next_index or RawValue(ctypes.c_size_t,0)
-        self.obs_v = obs or = RawArray(ctypes.c_double,size*obs_dim)
+        self.obs_v = obs or RawArray(ctypes.c_double,size*obs_dim)
         self.act_v = act or RawArray(ctypes.c_double,size*act_dim)
         self.rew_v = rew or RawArray(ctypes.c_double,size)
         self.next_obs_v = next_obs or RawArray(ctypes.c_double,size*obs_dim)
