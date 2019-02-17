@@ -409,6 +409,16 @@ cdef class ThreadSafeReplayBuffer(ThreadSafeRingEnvironment):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
+    def init_worker(self):
+        return ThreadSafeRingEnvironment(self.buffer_size,self.obs_dim,self.act_dim,
+                                         stored_size = self.stored_size_v,
+                                         next_index = self.next_index_v,
+                                         obs = self.obs_v,
+                                         act = self.act_v
+                                         rew = self.rew_v,
+                                         next_obs = self.next_obs_v
+                                         done = self.done_v)
+
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,**kwargs):
         pass
