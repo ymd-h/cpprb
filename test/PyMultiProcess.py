@@ -41,7 +41,7 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
             for i in range(0,end,self.add_dim):
                 rb.add(obs,act,rew,next_obs,done)
 
-        q = [Process(target=write,args=(tsrb,100,i)) for i in range(1,8)]
+        q = [Process(target=write,args=(tsrb,300,i)) for i in range(1,8)]
         for qe in q:
             qe.start()
 
