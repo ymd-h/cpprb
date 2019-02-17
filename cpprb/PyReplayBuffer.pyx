@@ -2,7 +2,7 @@
 
 from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference
-import multiprocessing as mp
+from multiprocessing.sharedctypes import RawValue,RawArray
 import ctypes
 cimport numpy as np
 import numpy as np
@@ -230,17 +230,24 @@ cdef class RingEnvironment(Environment):
 
 cdef class ThreadSafeRingEnvironment(Environment):
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
+    cdef RawValue stored_size_v
+    cdef RawValue next_index_v
+    cdef RawArray obs_v
+    cdef RawArray act_v
+    cdef RawArray rew_v
+    cdef RawArray next_obs_v
+    cdef RawArray done_v
     def __cinit__(self,size,obs_dim,act_dim,*,
                   stored_size=None,next_index=None,
                   obs=None,act=None,rew=None,ext_obs=None,done=None,
                   **kwargs):
-        stored_size = stored_size or mp.sharedctypes.RawValue(ctypes.c_size_t,0)
-        next_index = next_index or mp.sharedctypes.RawValue(ctypes.c_size_t,0)
-        obs = obs or = mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
-        act = act or mp.sharedctypes.RawArray(ctypes.c_double,size*act_dim)
-        rew = rew or mp.sharedctypes.RawArray(ctypes.c_double,size)
-        next_obs = next_obs or mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
-        done = done or mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
+        self.stored_size_v = stored_size or RawValue(ctypes.c_size_t,0)
+        self.next_index_v = next_index or RawValue(ctypes.c_size_t,0)
+        self.obs_v = obs or = RawArray(ctypes.c_double,size*obs_dim)
+        self.act_v = act or RawArray(ctypes.c_double,size*act_dim)
+        self.rew_v = rew or RawArray(ctypes.c_double,size)
+        self.next_obs_v = next_obs or RawArray(ctypes.c_double,size*obs_dim)
+        self.done_v = done or RawArray(ctypes.c_double,size)
 
         self.buffer = new CppThreadSafeRingEnvironment[double,
                                                        double,
