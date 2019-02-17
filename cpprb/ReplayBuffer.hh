@@ -521,7 +521,8 @@ namespace ymd {
   private:
     using ThreadSafePriority_t = ThreadSafe<MultiThread,Priority>;
     Priority alpha;
-    typename ThreadSafePriority_t::type max_priority;
+    typename ThreadSafePriority_t::type* max_priority;
+    bool max_priority_view;
     const Priority default_max_priority;
     SegmentTree<Priority,MultiThread> sum;
     SegmentTree<Priority,MultiThread> min;
@@ -571,21 +572,31 @@ namespace ymd {
     }
 
   public:
-    CppPrioritizedSampler(std::size_t buffer_size,Priority alpha)
+    CppPrioritizedSampler(std::size_t buffer_size,Priority alpha,
+			  Priority* max_p = nullptr,
+			  Priority* sum_ptr = nullptr,Priority* min_ptr = nullptr)
       : alpha{alpha},
-	max_priority{1.0},
+	max_priority{nullptr},
+	max_priority_view{bool(max_p)},
 	default_max_priority{1.0},
-	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; }},
-	min{PowerOf2(buffer_size),
-	    [](Priority a,Priority b){ return  std::min(a,b); },
-	    std::numeric_limits<Priority>::max()},
-	g{std::random_device{}()} {}
+	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; },
+	    Priority{0},sum_ptr},
+	min{PowerOf2(buffer_size),[](Priority a,Priority b){ return  std::min(a,b); },
+	    std::numeric_limits<Priority>::max(),min_ptr},
+	g{std::random_device{}()}
+    {
+      max_priority = (max_p) ?
+	new(max_p) typename ThreadSafePriority_t::type(*max_p) :
+	new typename ThreadSafePriority_t::type{};
+    }
     CppPrioritizedSampler() = default;
     CppPrioritizedSampler(const CppPrioritizedSampler&) = default;
     CppPrioritizedSampler(CppPrioritizedSampler&&) = default;
     CppPrioritizedSampler& operator=(const CppPrioritizedSampler&) = default;
     CppPrioritizedSampler& operator=(CppPrioritizedSampler&&) = default;
-    ~CppPrioritizedSampler() = default;
+    ~CppPrioritizedSampler(){
+      if(!max_priority_view){ delete max_priority; }
+    }
 
     void sample(std::size_t batch_size,Priority beta,
 		std::vector<Priority>& weights,std::vector<std::size_t>& indexes,
