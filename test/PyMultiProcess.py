@@ -72,8 +72,8 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
 
         def Multi_(_f):
             def func(rb,end):
-                q = [Process(target=_f,
-                             args=(rb.init_worker(),end //8,)) for _ in range(8)]
+                q = [Process(target=lambda rb,end: _f(rb.init_worker(),end),
+                             args=(rb,end //8,)) for _ in range(8)]
                 for qe in q:
                     qe.start()
                 for qe in q:
