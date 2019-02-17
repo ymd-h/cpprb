@@ -2,6 +2,8 @@
 
 from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference
+from multiprocessing.sharedctypes import RawArray
+import ctypes
 cimport numpy as np
 import numpy as np
 import cython
@@ -226,13 +228,48 @@ cdef class RingEnvironment(Environment):
     def get_next_index(self):
         return self.buffer.get_next_index()
 
-cdef class ThreadSafeRingEnvironment(Environment):
+cdef class ProcessSharedRingEnvironment(Environment):
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
-    def __cinit__(self,size,obs_dim,act_dim,**kwargs):
-        self.buffer = new CppThreadSafeRingEnvironment[double,double,
-                                                       double,double](size,
-                                                                      obs_dim,
-                                                                      act_dim)
+    cdef stored_size_v
+    cdef next_index_v
+    cdef obs_v
+    cdef act_v
+    cdef rew_v
+    cdef next_obs_v
+    cdef done_v
+    def __cinit__(self,size,obs_dim,act_dim,*,
+                  stored_size=None,next_index=None,
+                  obs=None,act=None,rew=None,next_obs=None,done=None,
+                  **kwargs):
+        self.stored_size_v = stored_size or RawArray(ctypes.c_size_t,1)
+        self.next_index_v = next_index or RawArray(ctypes.c_size_t,1)
+        self.obs_v = obs or RawArray(ctypes.c_double,size*obs_dim)
+        self.act_v = act or RawArray(ctypes.c_double,size*act_dim)
+        self.rew_v = rew or RawArray(ctypes.c_double,size)
+        self.next_obs_v = next_obs or RawArray(ctypes.c_double,size*obs_dim)
+        self.done_v = done or RawArray(ctypes.c_double,size)
+
+        cdef size_t [:] stored_size_view = self.stored_size_v
+        cdef size_t [:] next_index_view = self.next_index_v
+        cdef double [:] obs_view = self.obs_v
+        cdef double [:] act_view = self.act_v
+        cdef double [:] rew_view = self.rew_v
+        cdef double [:] next_obs_view = self.next_obs_v
+        cdef double [:] done_view = self.done_v
+
+        self.buffer = new CppThreadSafeRingEnvironment[double,
+                                                       double,
+                                                       double,
+                                                       double](size,
+                                                               obs_dim,
+                                                               act_dim,
+                                                               &stored_size_view[0],
+                                                               &next_index_view[0],
+                                                               &obs_view[0],
+                                                               &act_view[0],
+                                                               &rew_view[0],
+                                                               &next_obs_view[0],
+                                                               &done_view[0])
 
         self.buffer.get_buffer_pointers(self.obs.ptr,
                                         self.act.ptr,
@@ -372,13 +409,24 @@ cdef class ReplayBuffer(RingEnvironment):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
-cdef class ThreadSafeReplayBuffer(ThreadSafeRingEnvironment):
+cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         pass
 
     def sample(self,batch_size):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
+
+    def init_worker(self):
+        return ProcessSharedRingEnvironment(self.buffer_size,
+                                            self.obs_dim,self.act_dim,
+                                            stored_size = self.stored_size_v,
+                                            next_index = self.next_index_v,
+                                            obs = self.obs_v,
+                                            act = self.act_v,
+                                            rew = self.rew_v,
+                                            next_obs = self.next_obs_v,
+                                            done = self.done_v)
 
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,**kwargs):

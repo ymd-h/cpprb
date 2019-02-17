@@ -20,32 +20,62 @@ namespace ymd {
   template<typename T>
   class DimensionalBuffer {
   private:
-    std::vector<T> buffer;
+    T* buffer;
+    const std::size_t buffer_size;
     const std::size_t dim;
+    const bool view;
   public:
-    DimensionalBuffer(std::size_t size,std::size_t dim)
-      : buffer(size * dim,T{0}),
-	dim{dim} {}
-    DimensionalBuffer(): DimensionalBuffer{size_t(1),size_t(1)}  {}
-    DimensionalBuffer(const DimensionalBuffer&) = default;
-    DimensionalBuffer(DimensionalBuffer&&) = default;
-    DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
-    DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
-    ~DimensionalBuffer() = default;
+    DimensionalBuffer(std::size_t size,std::size_t dim,T* pointer=nullptr)
+      : buffer{pointer},
+	buffer_size(size),
+	dim{dim},
+	view(bool(pointer)) {
+	  if(!buffer){ buffer = new T[size * dim]{}; }
+	}
+    DimensionalBuffer(): DimensionalBuffer{std::size_t(1),std::size_t(1)}  {}
+    DimensionalBuffer(const DimensionalBuffer& other)
+      : buffer_size{other.get_buffer_size()},
+	dim{other.get_dim()},
+	view{true}
+    {
+      other.get_data(0,buffer);
+    }
+    DimensionalBuffer(DimensionalBuffer&& other)
+      : buffer_size{other.get_buffer_size()},
+	dim{other.get_dim()},
+	view{other.is_view()}
+    {
+      other.get_data(0,buffer);
+      if(!other.is_view()){
+	other.release();
+      }
+    }
+    DimensionalBuffer& operator=(const DimensionalBuffer&) = delete;
+    DimensionalBuffer& operator=(DimensionalBuffer&&) = delete;
+    virtual ~DimensionalBuffer(){
+      if(!view && buffer){ delete[] buffer; }
+    }
     template<typename V,
 	     std::enable_if_t<std::is_convertible_v<V,T>,std::nullptr_t> = nullptr>
     void store_data(V* v,std::size_t shift,std::size_t next_index,std::size_t N){
-      std::copy_n(v + shift*dim, N*dim,buffer.data() + next_index*dim);
+      std::copy_n(v + shift*dim, N*dim,buffer + next_index*dim);
     }
     void get_data(std::size_t ith,std::vector<T>& v) const {
-      std::copy_n(buffer.data() + ith * dim, dim,std::back_inserter(v));
+      std::copy_n(buffer + ith * dim, dim,std::back_inserter(v));
     }
     void get_data(std::size_t ith,std::vector<std::vector<T>>& v) const {
-      v.emplace_back(buffer.data() +  ith    * dim,
-		     buffer.data() + (ith+1) * dim);
+      v.emplace_back(buffer +  ith    * dim,
+		     buffer + (ith+1) * dim);
     }
     void get_data(std::size_t ith,T*& v) const {
-      v = (T*)(buffer.data()) + ith * dim;
+      v = (T*)buffer + ith * dim;
+    }
+    std::size_t get_buffer_size() const noexcept { return buffer_size; }
+    std::size_t get_dim() const noexcept { return dim; }
+    bool is_view() const noexcept { return view; }
+    void release(){
+      view = false;
+      buffer = nullptr;
     }
   };
 
@@ -61,15 +91,17 @@ namespace ymd {
     DimensionalBuffer<Observation> next_obs_buffer;
     DimensionalBuffer<Done> done_buffer;
   public:
-    Environment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
+    Environment(std::size_t size,std::size_t obs_dim,std::size_t act_dim,
+		Observation* obs=nullptr,Action* act=nullptr,Reward* rew=nullptr,
+		Observation* next_obs=nullptr,Done* done=nullptr)
       : buffer_size{size},
 	obs_dim{obs_dim},
 	act_dim{act_dim},
-	obs_buffer{size,obs_dim},
-	act_buffer{size,act_dim},
-	rew_buffer{size,std::size_t(1)},
-	next_obs_buffer{size,obs_dim},
-	done_buffer{size,std::size_t(1)} {}
+	obs_buffer{size,obs_dim,obs},
+	act_buffer{size,act_dim,act},
+	rew_buffer{size,std::size_t(1),rew},
+	next_obs_buffer{size,obs_dim,next_obs},
+	done_buffer{size,std::size_t(1),done} {}
     Environment(): Environment{std::size_t(1),std::size_t(1),std::size_t(1)} {}
     Environment(const Environment&) = default;
     Environment(Environment&&) = default;
@@ -127,18 +159,31 @@ namespace ymd {
     using ThreadSafe_size_t = ThreadSafe<MultiThread,std::size_t>;
 
   private:
-    typename ThreadSafe_size_t::type stored_size;
-    typename ThreadSafe_size_t::type next_index;
+    typename ThreadSafe_size_t::type *stored_size;
+    typename ThreadSafe_size_t::type *next_index;
+    bool stored_view;
+    bool index_view;
     const std::size_t mask;
-    std::mutex mtx;
-
   public:
-    CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim)
-      : Env_t{PowerOf2(size),obs_dim,act_dim},
-	stored_size{std::size_t(0)},
-	next_index{std::size_t(0)},
-	mask{PowerOf2(size)-1},
-	mtx{} {}
+    CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim,
+		       std::size_t* size_ptr=nullptr,std::size_t* index_ptr=nullptr,
+		       Observation* obs=nullptr,Action* act=nullptr,
+		       Reward* rew=nullptr,
+		       Observation* next_obs=nullptr,Done* done=nullptr)
+      : Env_t{PowerOf2(size),obs_dim,act_dim,obs,act,rew,next_obs,done},
+	stored_size{nullptr},
+	next_index{nullptr},
+	stored_view{bool(size_ptr)},
+	index_view{bool(index_ptr)},
+	mask{ PowerOf2(size)-1 }
+    {
+      stored_size = (index_ptr) ?
+	new(size_ptr) typename ThreadSafe_size_t::type(*size_ptr) :
+	new typename ThreadSafe_size_t::type{};
+      next_index = (size_ptr) ?
+	new(index_ptr) typename ThreadSafe_size_t::type(*index_ptr) :
+	new typename ThreadSafe_size_t::type{};
+    }
     CppRingEnvironment(): CppRingEnvironment{std::size_t(1),
 					     std::size_t(1),
 					     std::size_t(1)} {}
@@ -146,7 +191,10 @@ namespace ymd {
     CppRingEnvironment(CppRingEnvironment&&) = default;
     CppRingEnvironment& operator=(const CppRingEnvironment&) = default;
     CppRingEnvironment& operator=(CppRingEnvironment&&) = default;
-    virtual ~CppRingEnvironment() = default;
+    virtual ~CppRingEnvironment(){
+      if(!stored_view){ delete stored_size; }
+      if(!index_view){ delete next_index; }
+    };
     template<typename Obs_t,typename Act_t,typename Rew_t,
 	     typename Next_Obs_t,typename Done_t>
     void store(Obs_t* obs, Act_t* act, Rew_t* rew,
@@ -158,10 +206,10 @@ namespace ymd {
 
       const auto buffer_size = this->get_buffer_size();
 
-      ThreadSafe_size_t::fetch_add(&stored_size,N,std::memory_order_relaxed);
+      ThreadSafe_size_t::fetch_add(stored_size,N,std::memory_order_relaxed);
 
       std::size_t shift = zero;
-      std::size_t tmp_next_index{ThreadSafe_size_t::fetch_add(&next_index,N,order) &
+      std::size_t tmp_next_index{ThreadSafe_size_t::fetch_add(next_index,N,order) &
 				 mask};
       while(N){
 	auto copy_N = std::min(N,buffer_size - tmp_next_index);
@@ -177,37 +225,36 @@ namespace ymd {
     std::size_t get_stored_size(){
       std::size_t size;
       if constexpr (MultiThread){
-	size = stored_size.load(std::memory_order_acquire);
+	size = stored_size->load(std::memory_order_acquire);
       }else{
-	size = stored_size;
+	size = *stored_size;
       }
       const auto buffer_size = this->get_buffer_size();
 
       if(size < buffer_size){ return size; }
 
       if constexpr (MultiThread){
-        stored_size.store(size,std::memory_order_release);
+        stored_size->store(size,std::memory_order_release);
       }else{
-	stored_size = size;
+	*stored_size = size;
       }
       return buffer_size;
     }
     std::size_t get_next_index() const {
       if constexpr (MultiThread){
-        return next_index.load(std::memory_order_acquire) & mask;
+        return next_index->load(std::memory_order_acquire) & mask;
       }else{
-	return next_index & mask;
+	return (*next_index) & mask;
       }
     }
 
     virtual void clear(){
       if constexpr (MultiThread){
-	std::lock_guard<std::mutex> lock{mtx};
-	stored_size = std::size_t(0);
-	next_index = std::size_t(0);
+	stored_size->store(0);
+	next_index->store(0);
       }else{
-	stored_size = std::size_t(0);
-	next_index = std::size_t(0);
+	*stored_size = 0;
+	*next_index = 0;
       }
     }
   };
