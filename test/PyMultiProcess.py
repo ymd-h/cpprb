@@ -50,9 +50,7 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
 
         b = tsrb._encode_sample(range(buffer_size))
         print(b['obs'])
-        for o in b['obs']:
-            for oe in o:
-                self.assertIn(oe,[range(1,8)])
+        self.assertTrue(np.isin(b['obs'],[range(1,8)]).all())
 
     @unittest.skip
     def test_speed(self):
