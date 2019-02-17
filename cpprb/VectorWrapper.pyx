@@ -21,7 +21,7 @@ cdef class VectorWrapper:
             self.strides[0] = self.value_dim * <Py_ssize_t> self.itemsize
 
     cdef void set_buffer(self,Py_buffer *buffer):
-        pass
+        raise NotImplementedError()
 
     def __dealloc__(self):
         free(self.shape)
