@@ -5,9 +5,12 @@ from cython.operator cimport dereference
 import cython
 
 cdef class VectorWrapper:
-    def __cinit__(self,**kwarg):
-        self.shape   = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * 2)
-        self.strides = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * 2)
+    def __cinit__(self,*,ndim=1,value_dim=1,**kwarg):
+        self.ndim = min(ndim,2)
+        self.value_dim = value_dim
+
+        self.shape   = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * self.ndim)
+        self.strides = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * self.ndim)
 
     cdef void update_size(self):
         self.shape[0] = <Py_ssize_t>(self.vec_size()//self.value_dim)
@@ -42,12 +45,9 @@ cdef class VectorWrapper:
         pass
 
 cdef class VectorInt(VectorWrapper):
-    def __cinit__(self,*,value_dim=1,**kwargs):
+    def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[int]()
         self.itemsize = sizeof(int)
-
-        self.ndim = 1 if value_dim is 1 else 2
-        self.value_dim = value_dim
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*>(self.vec.data())
@@ -57,12 +57,9 @@ cdef class VectorInt(VectorWrapper):
         return self.vec.size()
 
 cdef class VectorDouble(VectorWrapper):
-    def __cinit__(self,*,value_dim=1,**kwargs):
+    def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[double]()
         self.itemsize = sizeof(double)
-
-        self.ndim = 1 if value_dim is 1 else 2
-        self.value_dim = value_dim
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*>(self.vec.data())
@@ -72,12 +69,9 @@ cdef class VectorDouble(VectorWrapper):
         return self.vec.size()
 
 cdef class VectorSize_t(VectorWrapper):
-    def __cinit__(self,*,value_dim=1,**kwargs):
+    def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[size_t]()
         self.itemsize = sizeof(size_t)
-
-        self.ndim = 1 if value_dim is 1 else 2
-        self.value_dim = value_dim
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*>(self.vec.data())
@@ -98,9 +92,6 @@ cdef class VectorSize_t(VectorWrapper):
 cdef class PointerDouble(VectorWrapper):
     def __cinit__(self,*,ndim=1,value_dim=1,size=1,**kwargs):
         self.itemsize = sizeof(double)
-
-        self.ndim = ndim
-        self.value_dim = value_dim
         self._vec_size = value_dim * size
 
     cdef void set_buffer(self,Py_buffer* buffer):
