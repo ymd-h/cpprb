@@ -53,7 +53,6 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
         print(b['obs'])
         self.assertTrue(np.isin(b['obs'],[range(1,8)]).all())
 
-    @unittest.skip
     def test_speed(self):
         def f(rb,end):
             obs = np.ones(shape=(self.obs_dim))
