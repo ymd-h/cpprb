@@ -241,21 +241,21 @@ cdef class ThreadSafeRingEnvironment(Environment):
                   stored_size=None,next_index=None,
                   obs=None,act=None,rew=None,next_obs=None,done=None,
                   **kwargs):
-        self.stored_size_v = stored_size or RawValue(ctypes.c_size_t,0)
-        self.next_index_v = next_index or RawValue(ctypes.c_size_t,0)
+        self.stored_size_v = stored_size or RawArray(ctypes.c_size_t,1)
+        self.next_index_v = next_index or RawArray(ctypes.c_size_t,1)
         self.obs_v = obs or RawArray(ctypes.c_double,size*obs_dim)
         self.act_v = act or RawArray(ctypes.c_double,size*act_dim)
         self.rew_v = rew or RawArray(ctypes.c_double,size)
         self.next_obs_v = next_obs or RawArray(ctypes.c_double,size*obs_dim)
         self.done_v = done or RawArray(ctypes.c_double,size)
 
-        cdef size_t [:] stored_size_view = self.stored_size_v.value
-        cdef size_t [:] next_index_view = self.next_index_v.value
-        cdef double [:] obs_view = self.obs_v.value
-        cdef double [:] act_view = self.act_v,value
-        cdef double [:] rew_view = self.rew_v.value
-        cdef double [:] next_obs_view = self.next_obs_v.value
-        cdef double [:] done_view = self.done_v.value
+        cdef size_t [:] stored_size_view = self.stored_size_v
+        cdef size_t [:] next_index_view = self.next_index_v
+        cdef double [:] obs_view = self.obs_v
+        cdef double [:] act_view = self.act_v
+        cdef double [:] rew_view = self.rew_v
+        cdef double [:] next_obs_view = self.next_obs_v
+        cdef double [:] done_view = self.done_v
 
         self.buffer = new CppThreadSafeRingEnvironment[double,
                                                        double,
