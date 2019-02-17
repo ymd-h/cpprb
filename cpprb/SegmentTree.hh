@@ -77,8 +77,8 @@ namespace ymd {
 	for(auto i = 0; i < buffer_size; ++i){
 	  changed[i].store(false,std::memory_order_release);
 	}
+	any_changed->store(false,std::memory_order_release);
       }
-      any_changed->store(false,std::memory_order_release);
     }
 
     void update_changed(){
