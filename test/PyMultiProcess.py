@@ -50,8 +50,8 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
 
         b = tsrb._encode_sample(range(buffer_size))
         print(b['obs'])
-        for o in b['obs']
-        self.assertAlmostIn(o,[range(1,8)])
+        for o in b['obs']:
+            self.assertAlmostIn(o,[range(1,8)])
 
     @unittest.skip
     def test_speed(self):
