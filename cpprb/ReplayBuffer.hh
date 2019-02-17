@@ -567,7 +567,7 @@ namespace ymd {
 	    [](Priority a,Priority b){ return  std::min(a,b); },
 	    std::numeric_limits<Priority>::max()},
 	g{std::random_device{}()} {}
-    CppPrioritizedSampler() = default;
+    CppPrioritizedSampler(): CppPrioritizedSampler{1,0.5} {}
     CppPrioritizedSampler(const CppPrioritizedSampler&) = default;
     CppPrioritizedSampler(CppPrioritizedSampler&&) = default;
     CppPrioritizedSampler& operator=(const CppPrioritizedSampler&) = default;
