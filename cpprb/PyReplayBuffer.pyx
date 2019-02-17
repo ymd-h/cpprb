@@ -17,10 +17,6 @@ Next_Obs = cython.fused_type(cython.float, cython.double)
 Done     = cython.fused_type(cython.float, cython.double)
 Prio     = cython.fused_type(cython.float, cython.double)
 
-ctypedef fused Idx:
-    unsigned int
-    unsigned long long
-
 cdef class VectorWrapper:
     cdef Py_ssize_t *shape
     cdef Py_ssize_t *strides
