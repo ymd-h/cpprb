@@ -25,12 +25,12 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ThreadSafeReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
+        cls.rb = ProcessSharedReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
 
     def test_write_address(self):
         buffer_size = 256
         add_dim = 5
-        tsrb = ThreadSafeReplayBuffer(buffer_size, self.obs_dim, self.act_dim)
+        tsrb = ProcessSharedReplayBuffer(buffer_size, self.obs_dim, self.act_dim)
 
         def write(_rb,end,n=1):
             rb = _rb.init_worker()
