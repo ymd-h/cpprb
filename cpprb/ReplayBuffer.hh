@@ -142,15 +142,15 @@ namespace ymd {
     static inline auto fetch_add(volatile type* v,T N,const std::memory_order& order){
       return v->fetch_add(N,order);
     }
-    static inline auto store(volatile type& v,T N,const std::memory_order& order){
-      v.store(N,order);
+    static inline auto store(volatile type* v,T N,const std::memory_order& order){
+      v->store(N,order);
     }
-    static inline auto load(const volatile type& v,const std::memory_order& order){
-      return v.load(order);
+    static inline auto load(const volatile type* v,const std::memory_order& order){
+      return v->load(order);
     }
-    static inline auto store_max(volatile type& v,T N){
-      auto tmp = v.load(std::memory_order_acquire);
-      while(tmp < N &&  !v.compare_exchange_weak(tmp,N)){}
+    static inline auto store_max(volatile type* v,T N){
+      auto tmp = v->load(std::memory_order_acquire);
+      while(tmp < N &&  !v->compare_exchange_weak(tmp,N)){}
     }
   };
 
@@ -159,14 +159,14 @@ namespace ymd {
     static inline auto fetch_add(T* v,T N,const std::memory_order){
       return std::exchange(*v,(*v + N));
     }
-    static inline auto store(T& v,T N,const std::memory_order&){
-      v = N;
+    static inline auto store(T* v,T N,const std::memory_order&){
+      *v = N;
     }
-    static inline auto load(const T& v,const std::memory_order&){
-      return v;
+    static inline auto load(const T* v,const std::memory_order&){
+      return *v;
     }
-    static inline auto store_max(T& v,T N){
-      if(v < N){ v = N; }
+    static inline auto store_max(T* v,T N){
+      if(*v < N){ *v = N; }
     }
   };
 
