@@ -15,28 +15,60 @@ def timer(f,N_times,name,*args,**kwargs):
 class TestMultiProcessReplayBuffer(unittest.TestCase):
     class_name = "MultiProcessing"
     buffer_size = 1024 * 256
-    N_add = buffer_size * 3
+    N_add = round(buffer_size * 1.5)
     N_time = 10
+
+    obs_dim = 3
+    act_dim = 1
+
     add_dim = 100
 
     @classmethod
     def setUpClass(cls):
         cls.rb = ThreadSafeReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
 
+    def test_write_address(self):
+        buffer_size = 1024
+        tsrb = ThreadSafeReplayBuffer(buffer_size, self.obs_dim, self.act_dim)
+
+        def write(_rb,end,n=1):
+            rb = _rb.init_worker()
+            obs = np.ones(shape=(self.add_dim,self.obs_dim)) * n
+            act = np.zeros(shape=(self.add_dim,self.act_dim))
+            rew = np.ones((self.add_dim))
+            next_obs = np.ones(shape=(self.add_dim,self.obs_dim))
+            done = np.zeros((self.add_dim))
+            for i in range(0,end,self.add_dim):
+                rb.add(obs,act,rew,next_obs,done)
+
+        q = [Process(target=write,args=(tsrb,100,i)) for i in range(1,8)]
+        for qe in q:
+            qe.start()
+
+        for qe in q:
+            qe.join()
+
+        b = tsrb._encode_sample(range(buffer_size))
+        print(b['obs'])
+        for o in b['obs']
+        self.assertAlmostIn(o,[range(1,8)])
+
+    @unittest.skip
+    def test_speed(self):
         def f(rb,end):
-            obs = np.ones(shape=(cls.obs_dim))
-            act = np.zeros(shape=(cls.act_dim))
-            next_obs = np.ones(shape=(cls.obs_dim))
+            obs = np.ones(shape=(self.obs_dim))
+            act = np.zeros(shape=(self.act_dim))
+            next_obs = np.ones(shape=(self.obs_dim))
             for i in range(0,end):
                 rb.add(obs,act,1.0,next_obs, 0)
 
         def g(rb,end):
-            obs = np.ones(shape=(cls.add_dim,cls.obs_dim))
-            act = np.zeros(shape=(cls.add_dim,cls.act_dim))
-            rew = np.ones((cls.add_dim))
-            next_obs = np.ones(shape=(cls.add_dim,cls.obs_dim))
-            done = np.zeros((cls.add_dim))
-            for i in range(0,end,cls.add_dim):
+            obs = np.ones(shape=(self.add_dim,self.obs_dim))
+            act = np.zeros(shape=(self.add_dim,self.act_dim))
+            rew = np.ones((self.add_dim))
+            next_obs = np.ones(shape=(self.add_dim,self.obs_dim))
+            done = np.zeros((self.add_dim))
+            for i in range(0,end,self.add_dim):
                 rb.add(obs,act,rew,next_obs,done)
 
         def Multi_(_f):
