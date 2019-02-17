@@ -414,9 +414,9 @@ cdef class ThreadSafeReplayBuffer(ThreadSafeRingEnvironment):
                                          stored_size = self.stored_size_v,
                                          next_index = self.next_index_v,
                                          obs = self.obs_v,
-                                         act = self.act_v
+                                         act = self.act_v,
                                          rew = self.rew_v,
-                                         next_obs = self.next_obs_v
+                                         next_obs = self.next_obs_v,
                                          done = self.done_v)
 
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
