@@ -138,10 +138,10 @@ namespace ymd {
       }
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
-    SegmentTree(const SegmentTree&) = default;
-    SegmentTree(SegmentTree&&) = default;
-    SegmentTree& operator=(const SegmentTree&) = default;
-    SegmentTree& operator=(SegmentTree&&) = default;
+    SegmentTree(const SegmentTree&) = delete;
+    SegmentTree(SegmentTree&&) = delete;
+    SegmentTree& operator=(const SegmentTree&) = delete;
+    SegmentTree& operator=(SegmentTree&&) = delete;
     ~SegmentTree(){
       if(!view){ delete buffer; }
       if(!any_changed_view){ delete any_changed; }
