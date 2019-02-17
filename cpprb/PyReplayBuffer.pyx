@@ -230,14 +230,17 @@ cdef class RingEnvironment(Environment):
 
 cdef class ThreadSafeRingEnvironment(Environment):
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
-    def __cinit__(self,size,obs_dim,act_dim,**kwargs):
-        stored_size = mp.sharedctypes.RawValue(ctypes.c_size_t,0)
-        next_index = mp.sharedctypes.RawValue(ctypes.c_size_t,0)
-        obs = mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
-        act = mp.sharedctypes.RawArray(ctypes.c_double,size*act_dim)
-        rew = mp.sharedctypes.RawArray(ctypes.c_double,size)
-        next_obs = mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
-        done = mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
+    def __cinit__(self,size,obs_dim,act_dim,*,
+                  stored_size=None,next_index=None,
+                  obs=None,act=None,rew=None,ext_obs=None,done=None,
+                  **kwargs):
+        stored_size = stored_size or mp.sharedctypes.RawValue(ctypes.c_size_t,0)
+        next_index = next_index or mp.sharedctypes.RawValue(ctypes.c_size_t,0)
+        obs = obs or = mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
+        act = act or mp.sharedctypes.RawArray(ctypes.c_double,size*act_dim)
+        rew = rew or mp.sharedctypes.RawArray(ctypes.c_double,size)
+        next_obs = next_obs or mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
+        done = done or mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
 
         self.buffer = new CppThreadSafeRingEnvironment[double,
                                                        double,
