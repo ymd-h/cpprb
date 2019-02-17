@@ -126,7 +126,7 @@ namespace ymd {
       }
 
       if(initialize){
-	std::copy_n(buffer+access_index(0),n,v);
+	std::fill_n(buffer+access_index(0),n,v);
 
 	update_all();
 
