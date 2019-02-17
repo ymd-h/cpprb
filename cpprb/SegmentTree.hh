@@ -118,7 +118,7 @@ namespace ymd {
       }
 
       any_changed = (any_changed_ptr) ?
-	new(any_changed_ptr) std::atomic_bool(*any_changed):
+	new(any_changed_ptr) std::atomic_bool(*any_changed_ptr):
 	new std::atomic_bool{true};
 
       if(!changed){
