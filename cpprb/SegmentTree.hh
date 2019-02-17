@@ -21,10 +21,13 @@ namespace ymd {
   private:
     using F = std::function<T(T,T)>;
     const std::size_t buffer_size;
-    std::vector<T> buffer;
+    T* buffer;
+    bool view;
     F f;
-    std::atomic_bool any_changed;
-    std::vector<std::atomic_bool> changed;
+    std::atomic_bool *any_changed;
+    bool any_changed_view;
+    std::atomic_bool *changed;
+    bool changed_view;
 
     auto _reduce(const std::size_t start,const std::size_t end,std::size_t index,
 		 const std::size_t region_s,const std::size_t region_e) const {
@@ -95,17 +98,40 @@ namespace ymd {
     }
 
   public:
-    SegmentTree(std::size_t n,F f, T v = T{0})
+    SegmentTree(std::size_t n,F f, T v = T{0},
+		T* buffer_ptr = nullptr,
+		bool* any_changed_ptr = nullptr,bool* changed_ptr = nullptr,
+		bool initialize = true)
       : buffer_size(n),
-	buffer(2*n-1,v),
+	buffer(buffer_ptr),
+	view{bool(buffer_ptr)},
 	f(f),
-	any_changed{false},
-	changed(n) {
-      update_all();
+	any_changed{nullptr},
+	any_changed_view{bool(any_changed_ptr)},
+	changed{(std::atomic_bool*)changed_ptr},
+	changed_view{bool(changed_ptr)}
+    {
+      if(!buffer){
+	buffer = new T[2*n-1];
+      }
 
-      if constexpr (MultiThread) {
-	for(auto& c: changed){
-	  c.store(false,std::memory_order_release);
+      any_changed = (any_changed_ptr) ?
+	new(any_changed_ptr) std::atomic_bool(*any_changed):
+	new std::atomic_bool{true};
+
+      if(!changed){
+	changed = new std::atomic_bool[n];
+      }
+
+      if(initialize){
+	std::copy_n(buffer+access_index(i),n,v);
+
+	update_all();
+
+	if constexpr (MultiThread) {
+	  for(std::size_t i = 0; i < n; ++i){
+	    changed[i].store(false,std::memory_order_release);
+	  }
 	}
       }
     }
@@ -114,7 +140,11 @@ namespace ymd {
     SegmentTree(SegmentTree&&) = default;
     SegmentTree& operator=(const SegmentTree&) = default;
     SegmentTree& operator=(SegmentTree&&) = default;
-    ~SegmentTree() = default;
+    ~SegmentTree(){
+      if(!view){ delete buffer; }
+      if(!any_changed_view){ delete any_changed; }
+      if(!changed_view){ delete changed; }
+    }
 
     T get(std::size_t i) const {
       return buffer[access_index(i)];
