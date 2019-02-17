@@ -2,6 +2,8 @@
 
 from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference
+import multiprocessing as mp
+import ctypes
 cimport numpy as np
 import numpy as np
 import cython
@@ -229,10 +231,27 @@ cdef class RingEnvironment(Environment):
 cdef class ThreadSafeRingEnvironment(Environment):
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
-        self.buffer = new CppThreadSafeRingEnvironment[double,double,
-                                                       double,double](size,
-                                                                      obs_dim,
-                                                                      act_dim)
+        stored_size = mp.sharedctypes.RawValue(ctypes.c_size_t,0)
+        next_index = mp.sharedctypes.RawValue(ctypes.c_size_t,0)
+        obs = mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
+        act = mp.sharedctypes.RawArray(ctypes.c_double,size*act_dim)
+        rew = mp.sharedctypes.RawArray(ctypes.c_double,size)
+        next_obs = mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
+        done = mp.sharedctypes.RawArray(ctypes.c_double,size*obs_dim)
+
+        self.buffer = new CppThreadSafeRingEnvironment[double,
+                                                       double,
+                                                       double,
+                                                       double](size,
+                                                               obs_dim,
+                                                               act_dim,
+                                                               &stored_size.value,
+                                                               &next_index.value,
+                                                               &obs.value,
+                                                               &act.value,
+                                                               &rew.value,
+                                                               &next_obs.value,
+                                                               &done.value)
 
         self.buffer.get_buffer_pointers(self.obs.ptr,
                                         self.act.ptr,
