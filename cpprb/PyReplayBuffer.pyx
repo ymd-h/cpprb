@@ -518,7 +518,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
-        cdef idx = np.asarray(np.ravel(indexes),dtype=np.uint64)
+        cdef idx = np.asarray(np.ravel(indexes),dtype=ctypes.c_size_t)
         cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
         cdef size_t N = idx.shape[0]
         self._update_priorities(idx,priorities,N)
