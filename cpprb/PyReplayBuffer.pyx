@@ -249,19 +249,27 @@ cdef class ThreadSafeRingEnvironment(Environment):
         self.next_obs_v = next_obs or RawArray(ctypes.c_double,size*obs_dim)
         self.done_v = done or RawArray(ctypes.c_double,size)
 
+        cdef size_t [:] stored_size_view = self.stored_size_v.value
+        cdef size_t [:] next_index_view = self.next_index_v.value
+        cdef double [:] obs_view = self.obs_v.value
+        cdef double [:] act_view = self.act_v,value
+        cdef double [:] rew_view = self.rew_v.value
+        cdef double [:] next_obs_view = self.next_obs_v.value
+        cdef double [:] done_view = self.done_v.value
+
         self.buffer = new CppThreadSafeRingEnvironment[double,
                                                        double,
                                                        double,
                                                        double](size,
                                                                obs_dim,
                                                                act_dim,
-                                                               &stored_size.value,
-                                                               &next_index.value,
-                                                               &obs.value,
-                                                               &act.value,
-                                                               &rew.value,
-                                                               &next_obs.value,
-                                                               &done.value)
+                                                               &stored_size_view[0],
+                                                               &next_index_view[0],
+                                                               &obs_view[0],
+                                                               &act_view[0],
+                                                               &rew_view[0],
+                                                               &next_obs_view[0],
+                                                               &done_view[0])
 
         self.buffer.get_buffer_pointers(self.obs.ptr,
                                         self.act.ptr,
