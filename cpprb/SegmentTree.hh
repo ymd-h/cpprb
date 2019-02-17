@@ -74,15 +74,17 @@ namespace ymd {
 	update_buffer(i);
       }
       if constexpr (MultiThread){
-	for(auto& c: changed){ c.store(false,std::memory_order_release); }
+	for(auto i = 0; i < buffer_size; ++i){
+	  changed[i].store(false,std::memory_order_release);
+	}
       }
-      any_changed.store(false,std::memory_order_release);
+      any_changed->store(false,std::memory_order_release);
     }
 
     void update_changed(){
       std::set<std::size_t> will_update{};
 
-      for(std::size_t i = 0, changed_size = changed.size(); i < changed_size; ++i){
+      for(std::size_t i = 0; i < buffer_size; ++i){
 	if(changed[i].exchange(false,std::memory_order_acq_rel)){
 	  will_update.insert(parent(access_index(i)));
 	}
@@ -94,7 +96,7 @@ namespace ymd {
 	will_update.erase(i);
 	if(i){ will_update.insert(parent(i)); }
       }
-      any_changed.store(false,std::memory_order_release);
+      any_changed->store(false,std::memory_order_release);
     }
 
   public:
@@ -124,7 +126,7 @@ namespace ymd {
       }
 
       if(initialize){
-	std::copy_n(buffer+access_index(i),n,v);
+	std::copy_n(buffer+access_index(0),n,v);
 
 	update_all();
 
@@ -155,7 +157,7 @@ namespace ymd {
       buffer[n] = std::move(v);
 
       if constexpr (MultiThread){
-	any_changed.store(true,std::memory_order_release);
+	any_changed->store(true,std::memory_order_release);
 	changed[n].store(true,std::memory_order_release);
       }else{
 	do {
@@ -175,16 +177,16 @@ namespace ymd {
       std::set<std::size_t> will_update{};
 
       if constexpr (MultiThread){
-	if(N){ any_changed.store(true,std::memory_order_release); }
+	if(N){ any_changed->store(true,std::memory_order_release); }
       }
 
       while(N){
 	auto copy_N = std::min(N,max-i);
-	std::generate_n(buffer.data()+access_index(i),copy_N,f);
+	std::generate_n(buffer+access_index(i),copy_N,f);
 
 	if constexpr (MultiThread) {
-	  std::for_each(changed.begin() + i,
-			changed.begin() + i + copy_N,
+	  std::for_each(changed + i,
+			changed + i + copy_N,
 			[](auto& c){ c.store(true,std::memory_order_release); });
 	}else{
 	  for(auto n = std::size_t(0); n < copy_N; ++n){
@@ -213,7 +215,7 @@ namespace ymd {
     auto reduce(std::size_t start,std::size_t end) {
       // Operation on [start,end)  # buffer[end] is not included
       if constexpr (MultiThread){
-	if(any_changed.load(std::memory_order_acquire)){
+	if(any_changed->load(std::memory_order_acquire)){
 	  update_changed();
 	}
       }
@@ -229,7 +231,7 @@ namespace ymd {
       constexpr const std::size_t two  = 2;
 
       if constexpr (MultiThread){
-	if(any_changed.load(std::memory_order_acquire)){
+	if(any_changed->load(std::memory_order_acquire)){
 	  update_changed();
 	}
       }
@@ -252,7 +254,7 @@ namespace ymd {
     }
 
     void clear(T v = T{0}){
-      std::fill(buffer.begin() + access_index(0), buffer.end(), v);
+      std::fill(buffer + access_index(0), buffer + access_index(buffer_size), v);
       update_all();
     }
   };
