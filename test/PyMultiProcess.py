@@ -28,20 +28,21 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
         cls.rb = ThreadSafeReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
 
     def test_write_address(self):
-        buffer_size = 1024
+        buffer_size = 256
+        add_dim = 5
         tsrb = ThreadSafeReplayBuffer(buffer_size, self.obs_dim, self.act_dim)
 
         def write(_rb,end,n=1):
             rb = _rb.init_worker()
-            obs = np.ones(shape=(self.add_dim,self.obs_dim)) * n
-            act = np.zeros(shape=(self.add_dim,self.act_dim))
-            rew = np.ones((self.add_dim))
-            next_obs = np.ones(shape=(self.add_dim,self.obs_dim))
-            done = np.zeros((self.add_dim))
-            for i in range(0,end,self.add_dim):
+            obs = np.ones(shape=(add_dim,self.obs_dim)) * n
+            act = np.zeros(shape=(add_dim,self.act_dim))
+            rew = np.ones((add_dim))
+            next_obs = np.ones(shape=(add_dim,self.obs_dim))
+            done = np.zeros((add_dim))
+            for i in range(0,end,add_dim):
                 rb.add(obs,act,rew,next_obs,done)
 
-        q = [Process(target=write,args=(tsrb,300,i)) for i in range(1,8)]
+        q = [Process(target=write,args=(tsrb,50,i)) for i in range(1,8)]
         for qe in q:
             qe.start()
 
