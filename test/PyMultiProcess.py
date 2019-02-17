@@ -88,20 +88,20 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
             Multi_(g)(rb,end)
 
         print("Test for single thread with 1 point")
-        timer(lambda: f(cls.rb,cls.N_add),cls.N_time,
+        timer(lambda: f(self.rb,self.N_add),self.N_time,
               "Single thread adding 1 time-point")
 
         print("Test for single thread with 100 point")
-        timer(lambda: g(cls.rb,cls.N_add),cls.N_time,
-              "Single thread adding {} time-point".format(cls.add_dim))
+        timer(lambda: g(self.rb,self.N_add),self.N_time,
+              "Single thread adding {} time-point".format(self.add_dim))
 
         print("Test for multi thread with 1 point")
-        timer(lambda: Multi_(f)(cls.rb,cls.N_add),cls.N_time,
+        timer(lambda: Multi_(f)(self.rb,self.N_add),self.N_time,
               "Multi thread adding 1 time-point")
 
         print("Test for multi thread with 100 point")
-        timer(lambda: Multi_(g)(cls.rb,cls.N_add),cls.N_time,
-              "Multi thread adding {} time-point".format(cls.add_dim))
+        timer(lambda: Multi_(g)(self.rb,self.N_add),self.N_time,
+              "Multi thread adding {} time-point".format(self.add_dim))
 
-        cls.fill_ReplayBuffer()
-        cls.s = cls.rb.sample(cls.batch_size)
+if __name__ == '__main__':
+    unittest.main()
