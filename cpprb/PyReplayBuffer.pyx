@@ -230,16 +230,16 @@ cdef class RingEnvironment(Environment):
 
 cdef class ThreadSafeRingEnvironment(Environment):
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
-    cdef RawValue stored_size_v
-    cdef RawValue next_index_v
-    cdef RawArray obs_v
-    cdef RawArray act_v
-    cdef RawArray rew_v
-    cdef RawArray next_obs_v
-    cdef RawArray done_v
+    cdef stored_size_v
+    cdef next_index_v
+    cdef obs_v
+    cdef act_v
+    cdef rew_v
+    cdef next_obs_v
+    cdef done_v
     def __cinit__(self,size,obs_dim,act_dim,*,
                   stored_size=None,next_index=None,
-                  obs=None,act=None,rew=None,ext_obs=None,done=None,
+                  obs=None,act=None,rew=None,next_obs=None,done=None,
                   **kwargs):
         self.stored_size_v = stored_size or RawValue(ctypes.c_size_t,0)
         self.next_index_v = next_index or RawValue(ctypes.c_size_t,0)
