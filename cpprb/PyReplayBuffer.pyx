@@ -403,7 +403,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     def get_max_priority(self):
         return self.per.get_max_priority()
 
-cdef class ThreadSafePrioritizedReplayBuffer(ThreadSafeRingEnvironment):
+cdef class ProcessSaredPrioritizedReplayBuffer(ProcessSharedRingEnvironment):
     cdef VectorDouble weights
     cdef VectorSize_t indexes
     cdef double alpha
