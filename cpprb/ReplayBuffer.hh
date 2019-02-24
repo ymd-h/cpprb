@@ -522,7 +522,7 @@ namespace ymd {
     using ThreadSafePriority_t = ThreadSafe<MultiThread,Priority>;
     Priority alpha;
     typename ThreadSafePriority_t::type* max_priority;
-    bool max_priority_view;
+    std::shared_ptr<typename ThreadSafePriority_t::type> max_priority_view;
     const Priority default_max_priority;
     SegmentTree<Priority,MultiThread> sum;
     SegmentTree<Priority,MultiThread> min;
@@ -587,7 +587,7 @@ namespace ymd {
 			  bool initialize = true)
       : alpha{alpha},
 	max_priority{(typename ThreadSafePriority_t::type*)max_p},
-	max_priority_view{bool(max_p)},
+	max_priority_view{},
 	default_max_priority{1.0},
 	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; },
 	    Priority{0},
@@ -599,6 +599,7 @@ namespace ymd {
     {
       if(!max_priority){
 	max_priority = new typename ThreadSafePriority_t::type{};
+	max_priority_view.reset(max_priority);
       }
       if(initialize){
 	ThreadSafePriority_t::store(max_priority,default_max_priority,
@@ -610,9 +611,7 @@ namespace ymd {
     CppPrioritizedSampler(CppPrioritizedSampler&&) = default;
     CppPrioritizedSampler& operator=(const CppPrioritizedSampler&) = default;
     CppPrioritizedSampler& operator=(CppPrioritizedSampler&&) = default;
-    ~CppPrioritizedSampler(){
-      if(!max_priority_view){ delete max_priority; }
-    }
+    ~CppPrioritizedSampler() = default;
 
     void sample(std::size_t batch_size,Priority beta,
 		std::vector<Priority>& weights,std::vector<std::size_t>& indexes,
