@@ -571,6 +571,12 @@ namespace ymd {
       min.set(next_index,std::forward<F>(f),N,buffer_size);
     }
 
+    void set_priority(std::size_t next_index,Priority p){
+      auto v = std::pow(p,alpha);
+      sum.set(next_index,v);
+      min.set(next_index,v);
+    }
+
   public:
     CppPrioritizedSampler(std::size_t buffer_size,Priority alpha,
 			  Priority* max_p = nullptr,
@@ -626,15 +632,12 @@ namespace ymd {
 			      std::nullptr_t> = nullptr>
     void set_priorities(std::size_t next_index,P p){
       ThreadSafePriority_t::store_max(max_priority,p);
-      auto v = std::pow(p,alpha);
-      sum.set(next_index,v);
-      min.set(next_index,v);
+      set_priority(next_index,p);
     }
 
     void set_priorities(std::size_t next_index){
-      set_priorities(next_index,
-		     ThreadSafePriority_t::load(max_priority,
-						std::memory_order_acquire));
+      auto p = ThreadSafePriority_t::load(max_priority,std::memory_order_acquire);
+      set_priority(next_index,p);
     }
 
     template<typename P,
