@@ -108,7 +108,7 @@ namespace ymd {
 	buffer(buffer_ptr),
 	view{bool(buffer_ptr)},
 	f(f),
-	any_changed{nullptr},
+	any_changed{any_changed_ptr},
 	any_changed_view{bool(any_changed_ptr)},
 	changed{(std::atomic_bool*)changed_ptr},
 	changed_view{bool(changed_ptr)}
@@ -118,9 +118,7 @@ namespace ymd {
       }
 
       if constexpr (MultiThread){
-	any_changed = (any_changed_ptr) ?
-	  new(any_changed_ptr) std::atomic_bool(*any_changed_ptr):
-	  new std::atomic_bool{true};
+	if(!any_changed){ any_changed = new std::atomic_bool{true}; }
 
 	if(!changed){
 	  changed = new std::atomic_bool[n];
