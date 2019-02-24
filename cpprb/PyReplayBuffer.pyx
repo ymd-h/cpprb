@@ -299,7 +299,15 @@ cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
                                             act = self.act_v,
                                             rew = self.rew_v,
                                             next_obs = self.next_obs_v,
-                                            done = self.done_v)
+                                            done = self.done_v,
+                                            max_priority = self.max_priority,
+                                            sum_tree = self.sum_tree,
+                                            sum_anychanged = self.sum_anychanged,
+                                            sum_changed = self.sum_changed,
+                                            min_tree = self.min_tree,
+                                            min_anychanged = self.min_anychanged,
+                                            min_changed = self.min_changed,
+                                            initialize = False)
 
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,**kwargs):
