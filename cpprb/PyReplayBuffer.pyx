@@ -403,7 +403,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     def get_max_priority(self):
         return self.per.get_max_priority()
 
-cdef class ProcessSaredPrioritizedReplayBuffer(ProcessSharedRingEnvironment):
+cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
     cdef VectorDouble weights
     cdef VectorSize_t indexes
     cdef double alpha
@@ -466,16 +466,6 @@ cdef class ProcessSaredPrioritizedReplayBuffer(ProcessSharedRingEnvironment):
         else:
             self._add(obs,act,rew,next_obs,done)
 
-    def sample(self,batch_size,beta = 0.4):
-        self.per.sample(batch_size,beta,
-                        self.weights.vec,self.indexes.vec,
-                        self.get_stored_size())
-        idx = np.asarray(self.indexes)
-        samples = self._encode_sample(idx)
-        samples['weights'] = np.asarray(self.weights)
-        samples['indexes'] = idx
-        return samples
-
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _update_priorities(self,
@@ -496,6 +486,30 @@ cdef class ProcessSaredPrioritizedReplayBuffer(ProcessSharedRingEnvironment):
 
     def get_max_priority(self):
         return self.per.get_max_priority()
+
+cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
+    def sample(self,batch_size,beta = 0.4):
+        self.per.sample(batch_size,beta,
+                        self.weights.vec,self.indexes.vec,
+                        self.get_stored_size())
+        idx = np.asarray(self.indexes)
+        samples = self._encode_sample(idx)
+        samples['weights'] = np.asarray(self.weights)
+        samples['indexes'] = idx
+        return samples
+
+    def init_worker(self):
+        return ProcessSharedPrioritizedWorker(self.buffer_size,
+                                              self.obs_dim,self.act_dim,
+                                              alpha = self.alpha,
+                                              stored_size = self.stored_size_v,
+                                              next_index = self.next_index_v,
+                                              obs = self.obs_v,
+                                              act = self.act_v,
+                                              rew = self.rew_v,
+                                              next_obs = self.next_obs_v,
+                                              done = self.done_v)
+
 
 cdef class NstepReplayBuffer(ReplayBuffer):
     cdef CppNstepRewardBuffer[double,double]* nrb
