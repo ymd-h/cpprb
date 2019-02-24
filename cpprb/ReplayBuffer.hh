@@ -600,6 +600,10 @@ namespace ymd {
       if(!max_priority){
 	max_priority = new typename ThreadSafePriority_t::type{};
       }
+      if(initialize){
+	ThreadSafePriority_t::store(max_priority,default_max_priority,
+				    std::memory_order_release);
+      }
     }
     CppPrioritizedSampler(): CppPrioritizedSampler{1,0.5} {}
     CppPrioritizedSampler(const CppPrioritizedSampler&) = default;
