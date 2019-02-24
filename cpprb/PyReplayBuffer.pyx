@@ -444,14 +444,22 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         self.min_anychanged or RawArray(ctypes.c_bool,1)
         self.min_changed or RawArray(ctypes.c_bool,N)
 
-        self.per=new CppThreadSafePrioritizedSampler[double](size,alpha,
-                                                             &self.max_priority[0],
-                                                             &self.sum_tree[0],
-                                                             &self.sum_anychanged[0],
-                                                             &self.min_tree[0],
-                                                             &self.min_anychanged[0],
-                                                             &self.min_changed[0],
-                                                             initialize)
+        cdef double [:] max_priority_view = self.max_priority
+        cdef double [:] sum_tree_view = self.sum_tree
+        cdef bool [:] sum_anychanged_view = self.sum_anychanged
+        cdef bool [:] sum_changed_view = self.sum_changed
+        cdef double [:] min_tree_view = self.min_tree
+        cdef bool [:] min_anychanged_view = self.min_anychanged
+        cdef bool [:] min_changed_view = self.min_changed
+
+        self.per= new CppThreadSafePrioritizedSampler[double](size,alpha,
+                                                              &max_priority_view[0],
+                                                              &sum_tree_view[0],
+                                                              &sum_anychanged_view[0],
+                                                              &min_tree_view[0],
+                                                              &min_anychanged_view[0],
+                                                              &min_changed_view[0],
+                                                              initialize)
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
