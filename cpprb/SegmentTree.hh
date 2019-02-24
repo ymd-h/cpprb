@@ -139,9 +139,9 @@ namespace ymd {
     SegmentTree& operator=(const SegmentTree&) = delete;
     SegmentTree& operator=(SegmentTree&&) = delete;
     ~SegmentTree(){
-      if(!view){ delete buffer; }
-      if(!any_changed_view){ delete any_changed; }
-      if(!changed_view){ delete changed; }
+      if(!view && buffer){ delete buffer; }
+      if(!any_changed_view && any_changed){ delete any_changed; }
+      if(!changed_view && changed){ delete changed; }
     }
 
     T get(std::size_t i) const {
