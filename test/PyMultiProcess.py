@@ -25,6 +25,7 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        print(f"{cls.class_name}")
         cls.rb = ProcessSharedReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
 
     def test_write_address(self):
@@ -108,6 +109,7 @@ class TestMultiProcessPrioritizedReplayBuffer(TestMultiProcessReplayBuffer):
 
     @classmethod
     def setUpClass(cls):
+        print(f"{cls.class_name}")
         cls.rb = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
                                                       cls.obs_dim,
                                                       cls.act_dim,
