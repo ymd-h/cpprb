@@ -22,12 +22,12 @@ namespace ymd {
     using F = std::function<T(T,T)>;
     const std::size_t buffer_size;
     T* buffer;
-    bool view;
+    std::shared_ptr<T[]> view;
     F f;
     std::atomic_bool *any_changed;
-    bool any_changed_view;
+    std::shared_ptr<std::atomic_bool> any_changed_view;
     std::atomic_bool *changed;
-    bool changed_view;
+    std::shared_ptr<std::atomic_bool[]> changed_view;
 
     auto _reduce(const std::size_t start,const std::size_t end,std::size_t index,
 		 const std::size_t region_s,const std::size_t region_e) const {
@@ -107,18 +107,27 @@ namespace ymd {
 		bool initialize = true)
       : buffer_size(n),
 	buffer(buffer_ptr),
-	view{bool(buffer_ptr)},
+	view{},
 	f(f),
 	any_changed{(std::atomic_bool*)any_changed_ptr},
-	any_changed_view{bool(any_changed_ptr)},
+	any_changed_view{},
 	changed{(std::atomic_bool*)changed_ptr},
-	changed_view{bool(changed_ptr)}
+	changed_view{}
     {
-      if(!buffer){ buffer = new T[2*n-1]; }
+      if(!buffer){
+	buffer = new T[2*n-1];
+	view.reset(buffer);
+      }
 
       if constexpr (MultiThread){
-	if(!any_changed){ any_changed = new std::atomic_bool{true}; }
-	if(!    changed){     changed = new std::atomic_bool[n]; }
+	if(!any_changed){
+	  any_changed = new std::atomic_bool{true};
+	  any_changed_view.reset(any_changed);
+	}
+	if(!changed){
+	  changed = new std::atomic_bool[n];
+	  changed_view.reset(changed);
+	}
       }
 
       if(initialize){
@@ -134,15 +143,11 @@ namespace ymd {
       }
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
-    SegmentTree(const SegmentTree&) = delete;
-    SegmentTree(SegmentTree&&) = delete;
-    SegmentTree& operator=(const SegmentTree&) = delete;
-    SegmentTree& operator=(SegmentTree&&) = delete;
-    ~SegmentTree(){
-      if(!view && buffer){ delete buffer; }
-      if(!any_changed_view && any_changed){ delete any_changed; }
-      if(!changed_view && changed){ delete changed; }
-    }
+    SegmentTree(const SegmentTree&) = default;
+    SegmentTree(SegmentTree&&) = default;
+    SegmentTree& operator=(const SegmentTree&) = default;
+    SegmentTree& operator=(SegmentTree&&) = default;
+    ~SegmentTree() = default;
 
     T get(std::size_t i) const {
       return buffer[access_index(i)];
