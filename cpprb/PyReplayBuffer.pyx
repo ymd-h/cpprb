@@ -444,7 +444,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         cdef bool [:] min_anychanged_view = self.min_anychanged
         cdef bool [:] min_changed_view = self.min_changed
 
-        self.per= new CppThreadSafePrioritizedSampler[double](size,alpha,
+        self.per= new CppThreadSafePrioritizedSampler[double](N,alpha,
                                                               &max_priority_view[0],
                                                               &sum_tree_view[0],
                                                               &sum_anychanged_view[0],
