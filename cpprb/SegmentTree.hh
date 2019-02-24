@@ -102,7 +102,8 @@ namespace ymd {
   public:
     SegmentTree(std::size_t n,F f, T v = T{0},
 		T* buffer_ptr = nullptr,
-		bool* any_changed_ptr = nullptr,bool* changed_ptr = nullptr,
+		bool* any_changed_ptr = nullptr,
+		bool* changed_ptr = nullptr,
 		bool initialize = true)
       : buffer_size(n),
 	buffer(buffer_ptr),
@@ -113,9 +114,7 @@ namespace ymd {
 	changed{(std::atomic_bool*)changed_ptr},
 	changed_view{bool(changed_ptr)}
     {
-      if(!buffer){
-	buffer = new T[2*n-1];
-      }
+      if(!buffer){ buffer = new T[2*n-1]; }
 
       if constexpr (MultiThread){
 	if(!any_changed){ any_changed = new std::atomic_bool{true}; }
