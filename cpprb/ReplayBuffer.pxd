@@ -3,7 +3,7 @@ from libcpp cimport bool
 
 cdef extern from "ReplayBuffer.hh" namespace "ymd":
     cdef cppclass CppRingEnvironment[Obs,Act,Rew,Done]:
-        CppRingEnvironment(size_t,size_t,size_t)
+        CppRingEnvironment(size_t,size_t,size_t) except +
         size_t store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
         size_t get_stored_size()
@@ -12,7 +12,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_buffer_size()
     cdef cppclass CppThreadSafeRingEnvironment[Obs,Act,Rew,Done]:
         CppThreadSafeRingEnvironment(size_t,size_t,size_t,size_t*,size_t*,
-                                     Obs*,Act*,Rew*,Obs*,Done*)
+                                     Obs*,Act*,Rew*,Obs*,Done*) except +
         size_t store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
         size_t get_stored_size()
@@ -20,7 +20,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_next_index()
         size_t get_buffer_size()
     cdef cppclass CppSelectiveEnvironment[Obs,Act,Rew,Done]:
-        CppSelectiveEnvironment(size_t,size_t,size_t,size_t)
+        CppSelectiveEnvironment(size_t,size_t,size_t,size_t) except +
         void store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
         void get_episode(size_t,size_t&,
@@ -31,7 +31,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void get_buffer_pointers(Obs*&,Act*&,Rew*&,Obs*&,Done*&)
         size_t get_next_index()
     cdef cppclass CppPrioritizedSampler[Prio]:
-        CppPrioritizedSampler(size_t,Prio)
+        CppPrioritizedSampler(size_t,Prio) except +
         void sample(size_t,Prio,vector[Prio]&,vector[size_t]&,size_t)
         void set_priorities(size_t)
         void set_priorities[P](size_t,P)
@@ -44,7 +44,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         CppThreadSafePrioritizedSampler(size_t,Prio,Prio*,
                                         Prio*,bool*,bool*,
                                         Prio*,bool*,bool*,
-                                        bool)
+                                        bool) except +
         void sample(size_t,Prio,vector[Prio]&,vector[size_t]&,size_t)
         void set_priorities(size_t)
         void set_priorities[P](size_t,P)
@@ -54,6 +54,6 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void clear()
         Prio get_max_priority()
     cdef cppclass CppNstepRewardBuffer[Obs,Rew]:
-        CppNstepRewardBuffer(size_t,size_t,size_t,Rew)
+        CppNstepRewardBuffer(size_t,size_t,size_t,Rew) except +
         void sample[Done](const vector[size_t]&,Rew*,Obs*,Done*)
         void get_buffer_pointers(Rew*,Rew*,Obs*&)
