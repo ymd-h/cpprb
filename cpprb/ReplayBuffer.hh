@@ -586,7 +586,7 @@ namespace ymd {
 			  bool* min_anychanged = nullptr,bool* min_changed = nullptr,
 			  bool initialize = true)
       : alpha{alpha},
-	max_priority{nullptr},
+	max_priority{(typename ThreadSafePriority_t::type*)max_p},
 	max_priority_view{bool(max_p)},
 	default_max_priority{1.0},
 	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; },
@@ -597,9 +597,9 @@ namespace ymd {
 	    min_ptr,min_anychanged,min_changed,initialize},
 	g{std::random_device{}()}
     {
-      max_priority = (max_p) ?
-	new(max_p) typename ThreadSafePriority_t::type(*max_p) :
-	new typename ThreadSafePriority_t::type{};
+      if(!max_priority){
+	max_priority = new typename ThreadSafePriority_t::type{};
+      }
     }
     CppPrioritizedSampler(): CppPrioritizedSampler{1,0.5} {}
     CppPrioritizedSampler(const CppPrioritizedSampler&) = default;
