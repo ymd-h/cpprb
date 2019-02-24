@@ -430,11 +430,11 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
 
         self.max_priority   = max_priority   or RawArray(ctypes.c_double,1)
         self.sum_tree       = sum_tree       or RawArray(ctypes.c_double,2*N-1)
-        self.sum_anychanged = sum_anychanged or RawArray(ctypes.c_bool  ,1)
-        self.sum_changed    = sum_changed    or RawArray(ctypes.c_bool  ,N)
+        self.sum_anychanged = sum_anychanged or RawArray(ctypes.c_char  ,1)
+        self.sum_changed    = sum_changed    or RawArray(ctypes.c_char  ,N)
         self.min_tree       = sum_tree       or RawArray(ctypes.c_double,2*N-1)
-        self.min_anychanged = min_anychanged or RawArray(ctypes.c_bool  ,1)
-        self.min_changed    = min_changed    or RawArray(ctypes.c_bool  ,N)
+        self.min_anychanged = min_anychanged or RawArray(ctypes.c_char  ,1)
+        self.min_changed    = min_changed    or RawArray(ctypes.c_char  ,N)
 
         cdef double [:] max_priority_view = self.max_priority
         cdef double [:] sum_tree_view = self.sum_tree
