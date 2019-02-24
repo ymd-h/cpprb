@@ -75,25 +75,25 @@ class TestReplayBuffer(unittest.TestCase):
         self.assertEqual(shape,array.shape)
         print(self.class_name + ": " + name + " {}".format(array))
 
-    def test_obs(self):
+    def test_1_obs(self):
         self._check_ndarray(self.s['obs'],2,
                             (self.batch_size, self.obs_dim),
                             "obs")
 
-    def test_act(self):
+    def test_2_act(self):
         self._check_ndarray(self.s['act'],2,
                             (self.batch_size, self.act_dim),
                             "act")
 
-    def test_rew(self):
+    def test_3_rew(self):
         self._check_ndarray(self.s['rew'],2,(self.batch_size,1),"rew")
 
-    def test_next_obs(self):
+    def test_4_next_obs(self):
         self._check_ndarray(self.s['next_obs'],2,
                             (self.batch_size, self.obs_dim),
                             "next_obs")
 
-    def test_done(self):
+    def test_5_done(self):
         self._check_ndarray(self.s['done'],2,(self.batch_size,1),"done")
         for d in self.s['done']:
             self.assertIn(d,[0,1])
