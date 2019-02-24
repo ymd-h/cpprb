@@ -108,7 +108,7 @@ namespace ymd {
 	buffer(buffer_ptr),
 	view{bool(buffer_ptr)},
 	f(f),
-	any_changed{any_changed_ptr},
+	any_changed{(std::atomic_bool*)any_changed_ptr},
 	any_changed_view{bool(any_changed_ptr)},
 	changed{(std::atomic_bool*)changed_ptr},
 	changed_view{bool(changed_ptr)}
