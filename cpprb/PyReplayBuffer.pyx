@@ -408,9 +408,42 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
     cdef VectorSize_t indexes
     cdef double alpha
     cdef CppThreadSafePrioritizedSampler[double]* per
-    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,**kwrags):
+    cdef max_priority
+    cdef sum_tree
+    cdef sum_anychanged
+    cdef sum_changed
+    cdef min_tree
+    cdef min_anychanged
+    cdef min_changed
+    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,
+                  max_priority = None,
+                  sum_tree = None,sum_anychanged = None,sum_changed = None,
+                  min_tree = None,min_anychanged = None,min_changed = None,
+                  initialize = True,**kwrags):
+        cdef size_t N = 1
+        cdef size_t b_size = size
+
+        while N < b_size:
+            N *= 2
+
         self.alpha = alpha
-        self.per = new CppThreadSafePrioritizedSampler[double](size,alpha)
+
+        self.max_priority = max_priority or RawArray(ctypes.c_double,1)
+        self.sum_tree = sum_tree or RawArray(ctypes.c_double,2*N-1)
+        self.sum_anychanged or RawArray(ctypes.c_bool,1)
+        self.sum_changed or RawArray(ctypes.c_bool,N)
+        self.min_tree = sum_tree or RawArray(ctypes.c_double,2*N-1)
+        self.min_anychanged or RawArray(ctypes.c_bool,1)
+        self.min_changed or RawArray(ctypes.c_bool,N)
+
+        self.per=new CppThreadSafePrioritizedSampler[double](size,alpha,
+                                                             &self.max_priority[0],
+                                                             &self.sum_tree[0],
+                                                             &self.sum_anychanged[0],
+                                                             &self.min_tree[0],
+                                                             &self.min_anychanged[0],
+                                                             &self.min_changed[0],
+                                                             initialize)
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
