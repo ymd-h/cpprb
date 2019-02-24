@@ -1,4 +1,5 @@
-from .ReplayBuffer import ReplayBuffer,PrioritizedReplayBuffer
-from .ReplayBuffer import NstepReplayBuffer,NstepPrioritizedReplayBuffer
-from .ReplayBuffer import SelectiveReplayBuffer
-from .ReplayBuffer import ProcessSharedReplayBuffer
+from .ReplayBuffer import (ReplayBuffer,PrioritizedReplayBuffer,
+                           NstepReplayBuffer,NstepPrioritizedReplayBuffer,
+                           SelectiveReplayBuffer,
+                           ProcessSharedReplayBuffer,
+                           ProcessSharedPrioritizedReplayBuffer)
