@@ -456,6 +456,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
                                                               &max_priority_view[0],
                                                               &sum_tree_view[0],
                                                               &sum_anychanged_view[0],
+                                                              &sum_changed_view[0],
                                                               &min_tree_view[0],
                                                               &min_anychanged_view[0],
                                                               &min_changed_view[0],
