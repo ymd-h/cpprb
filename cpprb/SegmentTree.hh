@@ -119,10 +119,7 @@ namespace ymd {
 
       if constexpr (MultiThread){
 	if(!any_changed){ any_changed = new std::atomic_bool{true}; }
-
-	if(!changed){
-	  changed = new std::atomic_bool[n];
-	}
+	if(!    changed){     changed = new std::atomic_bool[n]; }
       }
 
       if(initialize){
