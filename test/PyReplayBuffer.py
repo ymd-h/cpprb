@@ -333,5 +333,13 @@ class TestProcessSharedPrioritizedReplayBuffer(TestPrioritizedReplayBuffer):
         print("PER Sample {} time execution".format(cls.N_time))
         print("{} s".format(end - start))
 
+    def test_initial_state(self):
+        rb_init = ProcessSharedPrioritizedReplayBuffer(self.buffer_size,
+                                                       self.obs_dim,
+                                                       self.act_dim,
+                                                       alpha = self.alpha)
+        self.assertEqual(0,rb_init.get_next_index())
+        self.assertEqual(0,rb_init.get_stored_size())
+
 if __name__ == '__main__':
     unittest.main()
