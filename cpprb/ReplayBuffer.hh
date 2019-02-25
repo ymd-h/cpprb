@@ -50,7 +50,7 @@ namespace ymd {
       std::copy_n(v + index(shift), N*dim,access(next_index));
     }
     void get_data(std::size_t ith,std::vector<T>& v) const {
-      std::copy_n(access(ith), dim,std::back_inserter(v));
+      std::copy(access(ith), access(ith+1),std::back_inserter(v));
     }
     void get_data(std::size_t ith,std::vector<std::vector<T>>& v) const {
       v.emplace_back(access(ith),access(ith+1));
