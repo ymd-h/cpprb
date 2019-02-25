@@ -23,38 +23,25 @@ namespace ymd {
     T* buffer;
     const std::size_t buffer_size;
     const std::size_t dim;
-    const bool view;
+    std::shared_ptr<T[]> view;
   public:
     DimensionalBuffer(std::size_t size,std::size_t dim,T* pointer=nullptr)
       : buffer{pointer},
 	buffer_size(size),
 	dim{dim},
-	view(bool(pointer)) {
-	  if(!buffer){ buffer = new T[size * dim]{}; }
-	}
-    DimensionalBuffer(): DimensionalBuffer{std::size_t(1),std::size_t(1)}  {}
-    DimensionalBuffer(const DimensionalBuffer& other)
-      : buffer_size{other.get_buffer_size()},
-	dim{other.get_dim()},
-	view{true}
+	view{}
     {
-      other.get_data(0,buffer);
-    }
-    DimensionalBuffer(DimensionalBuffer&& other)
-      : buffer_size{other.get_buffer_size()},
-	dim{other.get_dim()},
-	view{other.is_view()}
-    {
-      other.get_data(0,buffer);
-      if(!other.is_view()){
-	other.release();
+      if(!buffer){
+	buffer = new T[size * dim]{};
+	view.reset(buffer);
       }
     }
-    DimensionalBuffer& operator=(const DimensionalBuffer&) = delete;
-    DimensionalBuffer& operator=(DimensionalBuffer&&) = delete;
-    virtual ~DimensionalBuffer(){
-      if(!view && buffer){ delete[] buffer; }
-    }
+    DimensionalBuffer(): DimensionalBuffer{std::size_t(1),std::size_t(1)}  {}
+    DimensionalBuffer(const DimensionalBuffer& other) = default;
+    DimensionalBuffer(DimensionalBuffer&& other) = default;
+    DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
+    DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
+    virtual ~DimensionalBuffer() = default;
     template<typename V,
 	     std::enable_if_t<std::is_convertible_v<V,T>,std::nullptr_t> = nullptr>
     void store_data(V* v,std::size_t shift,std::size_t next_index,std::size_t N){
@@ -71,12 +58,6 @@ namespace ymd {
       v = (T*)buffer + ith * dim;
     }
     std::size_t get_buffer_size() const noexcept { return buffer_size; }
-    std::size_t get_dim() const noexcept { return dim; }
-    bool is_view() const noexcept { return view; }
-    void release(){
-      view = false;
-      buffer = nullptr;
-    }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
