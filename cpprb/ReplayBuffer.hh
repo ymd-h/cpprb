@@ -180,8 +180,8 @@ namespace ymd {
   private:
     typename ThreadSafe_size_t::type *stored_size;
     typename ThreadSafe_size_t::type *next_index;
-    bool stored_view;
-    bool index_view;
+    std::shared_ptr<typename ThreadSafe_size_t::type> stored_view;
+    std::shared_ptr<typename ThreadSafe_size_t::type> index_view;
     const std::size_t mask;
   public:
     CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim,
@@ -190,18 +190,20 @@ namespace ymd {
 		       Reward* rew=nullptr,
 		       Observation* next_obs=nullptr,Done* done=nullptr)
       : Env_t{PowerOf2(size),obs_dim,act_dim,obs,act,rew,next_obs,done},
-	stored_size{nullptr},
-	next_index{nullptr},
-	stored_view{bool(size_ptr)},
-	index_view{bool(index_ptr)},
+	stored_size{(typename ThreadSafe_size_t::type*)size_ptr},
+	next_index{(typename ThreadSafe_size_t::type*)index_ptr},
+	stored_view{},
+	index_view{},
 	mask{ PowerOf2(size)-1 }
     {
-      stored_size = (index_ptr) ?
-	new(size_ptr) typename ThreadSafe_size_t::type(*size_ptr) :
-	new typename ThreadSafe_size_t::type{};
-      next_index = (size_ptr) ?
-	new(index_ptr) typename ThreadSafe_size_t::type(*index_ptr) :
-	new typename ThreadSafe_size_t::type{};
+      if(!size_ptr){
+	stored_size = new typename ThreadSafe_size_t::type{};
+	stored_view.reset(stored_size);
+      }
+      if(!index_ptr){
+	next_index = new typename ThreadSafe_size_t::type{};
+	index_view.reset(next_index);
+      }
     }
     CppRingEnvironment(): CppRingEnvironment{std::size_t(1),
 					     std::size_t(1),
@@ -210,10 +212,7 @@ namespace ymd {
     CppRingEnvironment(CppRingEnvironment&&) = default;
     CppRingEnvironment& operator=(const CppRingEnvironment&) = default;
     CppRingEnvironment& operator=(CppRingEnvironment&&) = default;
-    virtual ~CppRingEnvironment(){
-      if(!stored_view){ delete stored_size; }
-      if(!index_view){ delete next_index; }
-    };
+    virtual ~CppRingEnvironment() = default;
     template<typename Obs_t,typename Act_t,typename Rew_t,
 	     typename Next_Obs_t,typename Done_t>
     std::size_t store(Obs_t* obs, Act_t* act, Rew_t* rew,
