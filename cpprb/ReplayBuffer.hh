@@ -24,6 +24,7 @@ namespace ymd {
     const std::size_t buffer_size;
     const std::size_t dim;
     std::shared_ptr<T[]> view;
+    std::size_t index(std::size_t ith) const noexcept { return ith * dim; }
   public:
     DimensionalBuffer(std::size_t size,std::size_t dim,T* pointer=nullptr)
       : buffer{pointer},
@@ -45,17 +46,17 @@ namespace ymd {
     template<typename V,
 	     std::enable_if_t<std::is_convertible_v<V,T>,std::nullptr_t> = nullptr>
     void store_data(V* v,std::size_t shift,std::size_t next_index,std::size_t N){
-      std::copy_n(v + shift*dim, N*dim,buffer + next_index*dim);
+      std::copy_n(v + index(shift), N*dim,buffer + index(next_index));
     }
     void get_data(std::size_t ith,std::vector<T>& v) const {
-      std::copy_n(buffer + ith * dim, dim,std::back_inserter(v));
+      std::copy_n(buffer + index(ith), dim,std::back_inserter(v));
     }
     void get_data(std::size_t ith,std::vector<std::vector<T>>& v) const {
-      v.emplace_back(buffer +  ith    * dim,
-		     buffer + (ith+1) * dim);
+      v.emplace_back(buffer +  index(ith),
+		     buffer +  index(ith+1));
     }
     void get_data(std::size_t ith,T*& v) const {
-      v = (T*)buffer + ith * dim;
+      v = (T*)buffer + index(ith);
     }
     std::size_t get_buffer_size() const noexcept { return buffer_size; }
   };
