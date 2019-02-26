@@ -32,7 +32,6 @@ class TestReplayBuffer(unittest.TestCase):
 
     @classmethod
     def fill_ReplayBuffer(cls):
-        self.assertEqual(cls.get_next_index(),0)
         for i in range(cls.N_add):
             cls.rb.add(np.ones(shape=(cls.obs_dim)),
                        np.zeros(shape=(cls.act_dim)),
