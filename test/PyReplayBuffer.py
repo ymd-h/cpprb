@@ -174,9 +174,10 @@ class TestPrioritizedBase:
                                  np.intp,np.uintp,
                                  np.float32,np.float64]):
             with self.subTest(dtype=type):
-                self.rb_ui.update_priorities(np.arange(0,self.buffer_size,
+                Nmax = 128
+                self.rb_ui.update_priorities(np.arange(0,Nmax,
                                                        dtype=type),
-                                             np.ones(shape=(self.buffer_size))*0.5)
+                                             np.ones(shape=(Nmax))*0.5)
 
 
 class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
