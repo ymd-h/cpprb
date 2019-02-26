@@ -112,13 +112,21 @@ cdef class ProcessSharedRingEnvironment(Environment):
                   stored_size=None,next_index=None,
                   obs=None,act=None,rew=None,next_obs=None,done=None,
                   **kwargs):
+
+        cdef size_t bsize = size
+        cdef size_t N = 1
+        while N < bsize:
+            N *= 2
+
+        self.buffer_size = N
+
         self.stored_size_v = stored_size or RawArray(ctypes.c_size_t,1)
         self.next_index_v = next_index or RawArray(ctypes.c_size_t,1)
-        self.obs_v = obs or RawArray(ctypes.c_double,size*obs_dim)
-        self.act_v = act or RawArray(ctypes.c_double,size*act_dim)
-        self.rew_v = rew or RawArray(ctypes.c_double,size)
-        self.next_obs_v = next_obs or RawArray(ctypes.c_double,size*obs_dim)
-        self.done_v = done or RawArray(ctypes.c_double,size)
+        self.obs_v = obs or RawArray(ctypes.c_double,N*obs_dim)
+        self.act_v = act or RawArray(ctypes.c_double,N*act_dim)
+        self.rew_v = rew or RawArray(ctypes.c_double,N)
+        self.next_obs_v = next_obs or RawArray(ctypes.c_double,N*obs_dim)
+        self.done_v = done or RawArray(ctypes.c_double,N)
 
         cdef size_t [:] stored_size_view = self.stored_size_v
         cdef size_t [:] next_index_view = self.next_index_v
