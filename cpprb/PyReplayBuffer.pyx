@@ -137,7 +137,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
         self.buffer = new CppThreadSafeRingEnvironment[double,
                                                        double,
                                                        double,
-                                                       double](size,
+                                                       double](N,
                                                                obs_dim,
                                                                act_dim,
                                                                &stored_size_view[0],
