@@ -118,8 +118,6 @@ cdef class ProcessSharedRingEnvironment(Environment):
         while N < bsize:
             N *= 2
 
-        self.buffer_size = N
-
         self.stored_size_v = stored_size or RawArray(ctypes.c_size_t,1)
         self.next_index_v = next_index or RawArray(ctypes.c_size_t,1)
         self.obs_v = obs or RawArray(ctypes.c_double,N*obs_dim)
@@ -157,6 +155,8 @@ cdef class ProcessSharedRingEnvironment(Environment):
                                         self.done.ptr)
 
         self.buffer_size = self.buffer.get_buffer_size()
+        if N != self.buffer_size:
+            raise ValueError("Size mismutch")
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
