@@ -24,9 +24,9 @@ cdef class Environment:
     cdef PointerDouble rew
     cdef PointerDouble next_obs
     cdef PointerDouble done
-    cdef int buffer_size
-    cdef int obs_dim
-    cdef int act_dim
+    cdef size_t buffer_size
+    cdef size_t obs_dim
+    cdef size_t act_dim
 
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         self.obs_dim = obs_dim
