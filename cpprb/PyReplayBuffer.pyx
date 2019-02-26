@@ -428,11 +428,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
                   sum_tree = None,sum_anychanged = None,sum_changed = None,
                   min_tree = None,min_anychanged = None,min_changed = None,
                   initialize = True,**kwrags):
-        cdef size_t N = 1
-        cdef size_t b_size = size
-
-        while N < b_size:
-            N *= 2
+        cdef N = self.buffer_size
 
         self.alpha = alpha
 
