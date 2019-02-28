@@ -119,20 +119,20 @@ cdef class ProcessSharedRingEnvironment(Environment):
             N *= 2
 
         self.stored_size_v = stored_size or RawArray(ctypes.c_size_t,1)
-        self.next_index_v = next_index or RawArray(ctypes.c_size_t,1)
-        self.obs_v = obs or RawArray(ctypes.c_double,N*obs_dim)
-        self.act_v = act or RawArray(ctypes.c_double,N*act_dim)
-        self.rew_v = rew or RawArray(ctypes.c_double,N)
-        self.next_obs_v = next_obs or RawArray(ctypes.c_double,N*obs_dim)
-        self.done_v = done or RawArray(ctypes.c_double,N)
+        self.next_index_v  = next_index  or RawArray(ctypes.c_size_t,1)
+        self.obs_v         = obs         or RawArray(ctypes.c_double,N*obs_dim)
+        self.act_v         = act         or RawArray(ctypes.c_double,N*act_dim)
+        self.rew_v         = rew         or RawArray(ctypes.c_double,N)
+        self.next_obs_v    = next_obs    or RawArray(ctypes.c_double,N*obs_dim)
+        self.done_v        = done        or RawArray(ctypes.c_double,N)
 
         cdef size_t [:] stored_size_view = self.stored_size_v
-        cdef size_t [:] next_index_view = self.next_index_v
-        cdef double [:] obs_view = self.obs_v
-        cdef double [:] act_view = self.act_v
-        cdef double [:] rew_view = self.rew_v
-        cdef double [:] next_obs_view = self.next_obs_v
-        cdef double [:] done_view = self.done_v
+        cdef size_t [:] next_index_view  = self.next_index_v
+        cdef double [:] obs_view         = self.obs_v
+        cdef double [:] act_view         = self.act_v
+        cdef double [:] rew_view         = self.rew_v
+        cdef double [:] next_obs_view    = self.next_obs_v
+        cdef double [:] done_view        = self.done_v
 
         self.buffer = new CppThreadSafeRingEnvironment[double,
                                                        double,
