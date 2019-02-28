@@ -436,7 +436,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         self.sum_tree       = sum_tree       or RawArray(ctypes.c_double,2*N-1)
         self.sum_anychanged = sum_anychanged or RawArray(ctypes.c_char  ,1)
         self.sum_changed    = sum_changed    or RawArray(ctypes.c_char  ,N)
-        self.min_tree       = sum_tree       or RawArray(ctypes.c_double,2*N-1)
+        self.min_tree       = min_tree       or RawArray(ctypes.c_double,2*N-1)
         self.min_anychanged = min_anychanged or RawArray(ctypes.c_char  ,1)
         self.min_changed    = min_changed    or RawArray(ctypes.c_char  ,N)
 
