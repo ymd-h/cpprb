@@ -24,9 +24,9 @@ cdef class Environment:
     cdef PointerDouble rew
     cdef PointerDouble next_obs
     cdef PointerDouble done
-    cdef int buffer_size
-    cdef int obs_dim
-    cdef int act_dim
+    cdef size_t buffer_size
+    cdef size_t obs_dim
+    cdef size_t act_dim
 
     def __cinit__(self,size,obs_dim,act_dim,**kwargs):
         self.obs_dim = obs_dim
@@ -77,7 +77,8 @@ cdef class RingEnvironment(Environment):
                np.ndarray[Next_Obs,ndim = 2, mode="c"] next_obs not None,
                np.ndarray[Done    ,ndim = 1, mode="c"] done not None,
                size_t N=1):
-        self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+        return self.buffer.store(&obs[0,0],&act[0,0],&rew[0],
+                                 &next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -87,7 +88,7 @@ cdef class RingEnvironment(Environment):
                Rew rew,
                np.ndarray[Next_Obs,ndim = 1, mode="c"] next_obs not None,
                double done):
-        self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
+        return self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
         return self.buffer.clear()
@@ -111,26 +112,32 @@ cdef class ProcessSharedRingEnvironment(Environment):
                   stored_size=None,next_index=None,
                   obs=None,act=None,rew=None,next_obs=None,done=None,
                   **kwargs):
+
+        cdef size_t bsize = size
+        cdef size_t N = 1
+        while N < bsize:
+            N *= 2
+
         self.stored_size_v = stored_size or RawArray(ctypes.c_size_t,1)
-        self.next_index_v = next_index or RawArray(ctypes.c_size_t,1)
-        self.obs_v = obs or RawArray(ctypes.c_double,size*obs_dim)
-        self.act_v = act or RawArray(ctypes.c_double,size*act_dim)
-        self.rew_v = rew or RawArray(ctypes.c_double,size)
-        self.next_obs_v = next_obs or RawArray(ctypes.c_double,size*obs_dim)
-        self.done_v = done or RawArray(ctypes.c_double,size)
+        self.next_index_v  = next_index  or RawArray(ctypes.c_size_t,1)
+        self.obs_v         = obs         or RawArray(ctypes.c_double,N*obs_dim)
+        self.act_v         = act         or RawArray(ctypes.c_double,N*act_dim)
+        self.rew_v         = rew         or RawArray(ctypes.c_double,N)
+        self.next_obs_v    = next_obs    or RawArray(ctypes.c_double,N*obs_dim)
+        self.done_v        = done        or RawArray(ctypes.c_double,N)
 
         cdef size_t [:] stored_size_view = self.stored_size_v
-        cdef size_t [:] next_index_view = self.next_index_v
-        cdef double [:] obs_view = self.obs_v
-        cdef double [:] act_view = self.act_v
-        cdef double [:] rew_view = self.rew_v
-        cdef double [:] next_obs_view = self.next_obs_v
-        cdef double [:] done_view = self.done_v
+        cdef size_t [:] next_index_view  = self.next_index_v
+        cdef double [:] obs_view         = self.obs_v
+        cdef double [:] act_view         = self.act_v
+        cdef double [:] rew_view         = self.rew_v
+        cdef double [:] next_obs_view    = self.next_obs_v
+        cdef double [:] done_view        = self.done_v
 
         self.buffer = new CppThreadSafeRingEnvironment[double,
                                                        double,
                                                        double,
-                                                       double](size,
+                                                       double](N,
                                                                obs_dim,
                                                                act_dim,
                                                                &stored_size_view[0],
@@ -148,6 +155,8 @@ cdef class ProcessSharedRingEnvironment(Environment):
                                         self.done.ptr)
 
         self.buffer_size = self.buffer.get_buffer_size()
+        if N != self.buffer_size:
+            raise ValueError("Size mismutch")
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -158,7 +167,8 @@ cdef class ProcessSharedRingEnvironment(Environment):
                np.ndarray[Next_Obs,ndim = 2, mode="c"] next_obs not None,
                np.ndarray[Done    ,ndim = 1, mode="c"] done not None,
                size_t N=1):
-        self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+        return self.buffer.store(&obs[0,0],&act[0,0],&rew[0],
+                                 &next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -168,7 +178,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
                Rew rew,
                np.ndarray[Next_Obs,ndim = 1, mode="c"] next_obs not None,
                double done):
-        self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
+        return self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
         return self.buffer.clear()
@@ -205,7 +215,8 @@ cdef class SelectiveEnvironment(Environment):
                np.ndarray[Next_Obs,ndim = 2, mode="c"] next_obs not None,
                np.ndarray[Done    ,ndim = 1, mode="c"] done not None,
                size_t N=1):
-        self.buffer.store(&obs[0,0],&act[0,0],&rew[0],&next_obs[0,0],&done[0],N)
+        return self.buffer.store(&obs[0,0],&act[0,0],&rew[0],
+                                 &next_obs[0,0],&done[0],N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -217,7 +228,7 @@ cdef class SelectiveEnvironment(Environment):
                Rew rew,
                np.ndarray[Next_Obs,ndim = 1, mode="c"] next_obs not None,
                double done):
-        self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
+        return self.buffer.store(&obs[0],&act[0],&rew,&next_obs[0],&done,1)
 
     def clear(self):
         return self.buffer.clear()
@@ -340,27 +351,27 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _add(self,obs,act,rew,next_obs,done):
-        cdef size_t next_index = self.get_next_index()
+        cdef size_t next_index
         cdef size_t N
         if obs.ndim == 1:
-            self._add_1(obs,act,rew,next_obs,done)
+            next_index = self._add_1(obs,act,rew,next_obs,done)
             self._update_1(next_index)
         else:
             N = obs.shape[0]
-            self._add_N(obs,act,rew,next_obs,done,N)
+            next_index = self._add_N(obs,act,rew,next_obs,done,N)
             self._update_N(next_index,N)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def _add_p(self,obs,act,rew,next_obs,done,priorities):
-        cdef size_t next_index = self.get_next_index()
+        cdef size_t next_index
         cdef size_t N
         if obs.ndim == 1:
-            self._add_1(obs,act,rew,next_obs,done)
+            next_index = self._add_1(obs,act,rew,next_obs,done)
             self._update_1p(next_index,priorities)
         else:
             N = obs.shape[0]
-            self._add_N(obs,act,rew,next_obs,done,N)
+            next_index = self._add_N(obs,act,rew,next_obs,done,N)
             self._update_Np(next_index,priorities,N)
 
     def add(self,obs,act,rew,next_obs,done,priorities = None):
@@ -388,6 +399,128 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
+        cdef idx = np.asarray(np.ravel(indexes),dtype=np.uint64)
+        cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
+        cdef size_t N = idx.shape[0]
+        self._update_priorities(idx,priorities,N)
+
+    def clear(self):
+        super().clear()
+        self.per.clear()
+
+    def get_max_priority(self):
+        return self.per.get_max_priority()
+
+cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
+    cdef VectorDouble weights
+    cdef VectorSize_t indexes
+    cdef double alpha
+    cdef CppThreadSafePrioritizedSampler[double]* per
+    cdef max_priority
+    cdef sum_tree
+    cdef sum_anychanged
+    cdef sum_changed
+    cdef min_tree
+    cdef min_anychanged
+    cdef min_changed
+    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,
+                  max_priority = None,
+                  sum_tree = None,sum_anychanged = None,sum_changed = None,
+                  min_tree = None,min_anychanged = None,min_changed = None,
+                  initialize = True,**kwrags):
+        cdef N = self.buffer_size
+
+        self.alpha = alpha
+
+        self.max_priority   = max_priority   or RawArray(ctypes.c_double,1)
+        self.sum_tree       = sum_tree       or RawArray(ctypes.c_double,2*N-1)
+        self.sum_anychanged = sum_anychanged or RawArray(ctypes.c_char  ,1)
+        self.sum_changed    = sum_changed    or RawArray(ctypes.c_char  ,N)
+        self.min_tree       = min_tree       or RawArray(ctypes.c_double,2*N-1)
+        self.min_anychanged = min_anychanged or RawArray(ctypes.c_char  ,1)
+        self.min_changed    = min_changed    or RawArray(ctypes.c_char  ,N)
+
+        cdef double [:] max_priority_view = self.max_priority
+        cdef double [:] sum_tree_view = self.sum_tree
+        cdef bool [:] sum_anychanged_view = self.sum_anychanged
+        cdef bool [:] sum_changed_view = self.sum_changed
+        cdef double [:] min_tree_view = self.min_tree
+        cdef bool [:] min_anychanged_view = self.min_anychanged
+        cdef bool [:] min_changed_view = self.min_changed
+
+        self.per= new CppThreadSafePrioritizedSampler[double](N,alpha,
+                                                              &max_priority_view[0],
+                                                              &sum_tree_view[0],
+                                                              &sum_anychanged_view[0],
+                                                              &sum_changed_view[0],
+                                                              &min_tree_view[0],
+                                                              &min_anychanged_view[0],
+                                                              &min_changed_view[0],
+                                                              initialize)
+        self.weights = VectorDouble()
+        self.indexes = VectorSize_t()
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_1(self,size_t next_index):
+        self.per.set_priorities(next_index)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_1p(self,size_t next_index,Prio p):
+        self.per.set_priorities(next_index,p)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_N(self,size_t next_index,size_t N=1):
+        self.per.set_priorities(next_index,N,self.get_buffer_size())
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_Np(self,size_t next_index,Prio [:] p,size_t N=1):
+        self.per.set_priorities(next_index,&p[0],N,self.get_buffer_size())
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add(self,obs,act,rew,next_obs,done):
+        cdef size_t next_index
+        cdef size_t N
+        if obs.ndim == 1:
+            next_index = self._add_1(obs,act,rew,next_obs,done)
+            self._update_1(next_index)
+        else:
+            N = obs.shape[0]
+            next_index = self._add_N(obs,act,rew,next_obs,done,N)
+            self._update_N(next_index,N)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _add_p(self,obs,act,rew,next_obs,done,priorities):
+        cdef size_t next_index
+        cdef size_t N
+        if obs.ndim == 1:
+            next_index = self._add_1(obs,act,rew,next_obs,done)
+            self._update_1p(next_index,priorities)
+        else:
+            N = obs.shape[0]
+            next_index = self._add_N(obs,act,rew,next_obs,done,N)
+            self._update_Np(next_index,priorities,N)
+
+    def add(self,obs,act,rew,next_obs,done,priorities = None):
+        if priorities is not None:
+            self._add_p(obs,act,rew,next_obs,done,priorities)
+        else:
+            self._add(obs,act,rew,next_obs,done)
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    def _update_priorities(self,
+                           np.ndarray[size_t,ndim = 1, mode="c"] indexes    not None,
+                           np.ndarray[Prio  ,ndim = 1, mode="c"] priorities not None,
+                           size_t N=1):
+        self.per.update_priorities(&indexes[0],&priorities[0],N)
+
+    def update_priorities(self,indexes,priorities):
         cdef idx = np.asarray(np.ravel(indexes),dtype=ctypes.c_size_t)
         cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
         cdef size_t N = idx.shape[0]
@@ -399,6 +532,38 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     def get_max_priority(self):
         return self.per.get_max_priority()
+
+cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
+    def sample(self,batch_size,beta = 0.4):
+        self.per.sample(batch_size,beta,
+                        self.weights.vec,self.indexes.vec,
+                        self.get_stored_size())
+        idx = np.asarray(self.indexes)
+        samples = self._encode_sample(idx)
+        samples['weights'] = np.asarray(self.weights)
+        samples['indexes'] = idx
+        return samples
+
+    def init_worker(self):
+        return ProcessSharedPrioritizedWorker(self.buffer_size,
+                                              self.obs_dim,self.act_dim,
+                                              alpha = self.alpha,
+                                              stored_size = self.stored_size_v,
+                                              next_index = self.next_index_v,
+                                              obs = self.obs_v,
+                                              act = self.act_v,
+                                              rew = self.rew_v,
+                                              next_obs = self.next_obs_v,
+                                              done = self.done_v,
+                                              max_priority = self.max_priority,
+                                              sum_tree = self.sum_tree,
+                                              sum_anychanged = self.sum_anychanged,
+                                              sum_changed = self.sum_changed,
+                                              min_tree = self.min_tree,
+                                              min_anychanged = self.min_anychanged,
+                                              min_changed = self.min_changed,
+                                              initialize = False)
+
 
 cdef class NstepReplayBuffer(ReplayBuffer):
     cdef CppNstepRewardBuffer[double,double]* nrb

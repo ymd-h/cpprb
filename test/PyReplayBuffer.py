@@ -3,12 +3,12 @@ import unittest, time
 from cpprb import *
 
 def timer(f,N_times,name,*args,**kwargs):
-        start = time.perf_counter()
-        for _ in range(N_times):
-            f(*args,**kwargs)
-        end = time.perf_counter()
-        print("{}: {} time execution".format(name,N_times))
-        print("{} s".format(end - start))
+    start = time.perf_counter()
+    for _ in range(N_times):
+        f(*args,**kwargs)
+    end = time.perf_counter()
+    print("{}: {} time execution".format(name,N_times))
+    print("{} s".format(end - start))
 
 class TestReplayBuffer(unittest.TestCase):
     """=== ReplayBuffer.py ==="""
@@ -75,25 +75,25 @@ class TestReplayBuffer(unittest.TestCase):
         self.assertEqual(shape,array.shape)
         print(self.class_name + ": " + name + " {}".format(array))
 
-    def test_obs(self):
+    def test_1_obs(self):
         self._check_ndarray(self.s['obs'],2,
                             (self.batch_size, self.obs_dim),
                             "obs")
 
-    def test_act(self):
+    def test_2_act(self):
         self._check_ndarray(self.s['act'],2,
                             (self.batch_size, self.act_dim),
                             "act")
 
-    def test_rew(self):
+    def test_3_rew(self):
         self._check_ndarray(self.s['rew'],2,(self.batch_size,1),"rew")
 
-    def test_next_obs(self):
+    def test_4_next_obs(self):
         self._check_ndarray(self.s['next_obs'],2,
                             (self.batch_size, self.obs_dim),
                             "next_obs")
 
-    def test_done(self):
+    def test_5_done(self):
         self._check_ndarray(self.s['done'],2,(self.batch_size,1),"done")
         for d in self.s['done']:
             self.assertIn(d,[0,1])
@@ -174,9 +174,10 @@ class TestPrioritizedBase:
                                  np.intp,np.uintp,
                                  np.float32,np.float64]):
             with self.subTest(dtype=type):
-                self.rb_ui.update_priorities(np.arange(0,self.buffer_size,
+                Nmax = 128
+                self.rb_ui.update_priorities(np.arange(0,Nmax,
                                                        dtype=type),
-                                             np.ones(shape=(self.buffer_size))*0.5)
+                                             np.ones(shape=(Nmax))*0.5)
 
 
 class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
@@ -222,10 +223,10 @@ class TestNstepReplayBuffer(TestReplayBuffer,TestNstepBase):
     @classmethod
     def setUpClass(cls):
         cls.rb = NstepReplayBuffer(cls.buffer_size,
-                                                cls.obs_dim,
-                                                cls.act_dim,
-                                                nstep = cls.nstep,
-                                                discount = cls.discount)
+                                   cls.obs_dim,
+                                   cls.act_dim,
+                                   nstep = cls.nstep,
+                                   discount = cls.discount)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
 
@@ -291,6 +292,54 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
         s = self.srb.get_episode(2)
         delete_len = self.srb.delete_episode(2)
         self.assertEqual(self.srb.get_next_index(), old_index - delete_len)
+
+class TestProcessSharedReplayBuffer(TestReplayBuffer):
+    """=== ProcessSharedReplayBuffer ==="""
+    class_name = "PS-ER"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rb = ProcessSharedReplayBuffer(cls.buffer_size,
+                                           cls.obs_dim,
+                                           cls.act_dim)
+        cls.fill_ReplayBuffer()
+        cls.s = cls.rb.sample(cls.batch_size)
+
+class TestProcessSharedPrioritizedReplayBuffer(TestPrioritizedReplayBuffer):
+    """=== ProcessSharedPrioritizedReplayBuffer.py ==="""
+    class_name = "PS-PER"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rb = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
+                                                      cls.obs_dim,
+                                                      cls.act_dim,
+                                                      alpha=cls.alpha)
+        cls.rb2 = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
+                                                       cls.obs_dim,
+                                                       cls.act_dim,
+                                                       alpha=cls.alpha)
+        cls.rb_ui = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
+                                                         cls.obs_dim,
+                                                         cls.act_dim,
+                                                         alpha=cls.alpha)
+        cls.fill_ReplayBuffer()
+        cls.s = cls.rb.sample(cls.batch_size,cls.beta)
+
+        start = time.perf_counter()
+        for _ in range(cls.N_time):
+            cls.rb.sample(cls.batch_size,cls.beta)
+        end = time.perf_counter()
+        print("PER Sample {} time execution".format(cls.N_time))
+        print("{} s".format(end - start))
+
+    def test_initial_state(self):
+        rb_init = ProcessSharedPrioritizedReplayBuffer(self.buffer_size,
+                                                       self.obs_dim,
+                                                       self.act_dim,
+                                                       alpha = self.alpha)
+        self.assertEqual(0,rb_init.get_next_index())
+        self.assertEqual(0,rb_init.get_stored_size())
 
 if __name__ == '__main__':
     unittest.main()

@@ -23,60 +23,42 @@ namespace ymd {
     T* buffer;
     const std::size_t buffer_size;
     const std::size_t dim;
-    const bool view;
+    std::shared_ptr<T[]> view;
+    std::size_t index(std::size_t ith) const noexcept { return ith * dim; }
+    T* access(std::size_t ith) const noexcept { return buffer + index(ith); }
   public:
     DimensionalBuffer(std::size_t size,std::size_t dim,T* pointer=nullptr)
       : buffer{pointer},
 	buffer_size(size),
 	dim{dim},
-	view(bool(pointer)) {
-	  if(!buffer){ buffer = new T[size * dim]{}; }
-	}
-    DimensionalBuffer(): DimensionalBuffer{std::size_t(1),std::size_t(1)}  {}
-    DimensionalBuffer(const DimensionalBuffer& other)
-      : buffer_size{other.get_buffer_size()},
-	dim{other.get_dim()},
-	view{true}
+	view{}
     {
-      other.get_data(0,buffer);
-    }
-    DimensionalBuffer(DimensionalBuffer&& other)
-      : buffer_size{other.get_buffer_size()},
-	dim{other.get_dim()},
-	view{other.is_view()}
-    {
-      other.get_data(0,buffer);
-      if(!other.is_view()){
-	other.release();
+      if(!buffer){
+	buffer = new T[size * dim]{};
+	view.reset(buffer);
       }
     }
-    DimensionalBuffer& operator=(const DimensionalBuffer&) = delete;
-    DimensionalBuffer& operator=(DimensionalBuffer&&) = delete;
-    virtual ~DimensionalBuffer(){
-      if(!view && buffer){ delete[] buffer; }
-    }
+    DimensionalBuffer(): DimensionalBuffer{std::size_t(1),std::size_t(1)}  {}
+    DimensionalBuffer(const DimensionalBuffer& other) = default;
+    DimensionalBuffer(DimensionalBuffer&& other) = default;
+    DimensionalBuffer& operator=(const DimensionalBuffer&) = default;
+    DimensionalBuffer& operator=(DimensionalBuffer&&) = default;
+    virtual ~DimensionalBuffer() = default;
     template<typename V,
 	     std::enable_if_t<std::is_convertible_v<V,T>,std::nullptr_t> = nullptr>
     void store_data(V* v,std::size_t shift,std::size_t next_index,std::size_t N){
-      std::copy_n(v + shift*dim, N*dim,buffer + next_index*dim);
+      std::copy_n(v + index(shift), N*dim,access(next_index));
     }
     void get_data(std::size_t ith,std::vector<T>& v) const {
-      std::copy_n(buffer + ith * dim, dim,std::back_inserter(v));
+      std::copy(access(ith), access(ith+1),std::back_inserter(v));
     }
     void get_data(std::size_t ith,std::vector<std::vector<T>>& v) const {
-      v.emplace_back(buffer +  ith    * dim,
-		     buffer + (ith+1) * dim);
+      v.emplace_back(access(ith),access(ith+1));
     }
     void get_data(std::size_t ith,T*& v) const {
-      v = (T*)buffer + ith * dim;
+      v = access(ith);
     }
     std::size_t get_buffer_size() const noexcept { return buffer_size; }
-    std::size_t get_dim() const noexcept { return dim; }
-    bool is_view() const noexcept { return view; }
-    void release(){
-      view = false;
-      buffer = nullptr;
-    }
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
@@ -142,12 +124,31 @@ namespace ymd {
     static inline auto fetch_add(volatile type* v,T N,const std::memory_order& order){
       return v->fetch_add(N,order);
     }
+    static inline auto store(volatile type* v,T N,const std::memory_order& order){
+      v->store(N,order);
+    }
+    static inline auto load(const volatile type* v,const std::memory_order& order){
+      return v->load(order);
+    }
+    static inline auto store_max(volatile type* v,T N){
+      auto tmp = v->load(std::memory_order_acquire);
+      while(tmp < N &&  !v->compare_exchange_weak(tmp,N)){}
+    }
   };
 
   template<typename T> struct ThreadSafe<false,T>{
     using type = T;
     static inline auto fetch_add(T* v,T N,const std::memory_order){
       return std::exchange(*v,(*v + N));
+    }
+    static inline auto store(T* v,T N,const std::memory_order&){
+      *v = N;
+    }
+    static inline auto load(const T* v,const std::memory_order&){
+      return *v;
+    }
+    static inline auto store_max(T* v,T N){
+      if(*v < N){ *v = N; }
     }
   };
 
@@ -161,8 +162,8 @@ namespace ymd {
   private:
     typename ThreadSafe_size_t::type *stored_size;
     typename ThreadSafe_size_t::type *next_index;
-    bool stored_view;
-    bool index_view;
+    std::shared_ptr<typename ThreadSafe_size_t::type> stored_view;
+    std::shared_ptr<typename ThreadSafe_size_t::type> index_view;
     const std::size_t mask;
   public:
     CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim,
@@ -171,18 +172,20 @@ namespace ymd {
 		       Reward* rew=nullptr,
 		       Observation* next_obs=nullptr,Done* done=nullptr)
       : Env_t{PowerOf2(size),obs_dim,act_dim,obs,act,rew,next_obs,done},
-	stored_size{nullptr},
-	next_index{nullptr},
-	stored_view{bool(size_ptr)},
-	index_view{bool(index_ptr)},
+	stored_size{(typename ThreadSafe_size_t::type*)size_ptr},
+	next_index{(typename ThreadSafe_size_t::type*)index_ptr},
+	stored_view{},
+	index_view{},
 	mask{ PowerOf2(size)-1 }
     {
-      stored_size = (index_ptr) ?
-	new(size_ptr) typename ThreadSafe_size_t::type(*size_ptr) :
-	new typename ThreadSafe_size_t::type{};
-      next_index = (size_ptr) ?
-	new(index_ptr) typename ThreadSafe_size_t::type(*index_ptr) :
-	new typename ThreadSafe_size_t::type{};
+      if(!size_ptr){
+	stored_size = new typename ThreadSafe_size_t::type{};
+	stored_view.reset(stored_size);
+      }
+      if(!index_ptr){
+	next_index = new typename ThreadSafe_size_t::type{};
+	index_view.reset(next_index);
+      }
     }
     CppRingEnvironment(): CppRingEnvironment{std::size_t(1),
 					     std::size_t(1),
@@ -191,15 +194,12 @@ namespace ymd {
     CppRingEnvironment(CppRingEnvironment&&) = default;
     CppRingEnvironment& operator=(const CppRingEnvironment&) = default;
     CppRingEnvironment& operator=(CppRingEnvironment&&) = default;
-    virtual ~CppRingEnvironment(){
-      if(!stored_view){ delete stored_size; }
-      if(!index_view){ delete next_index; }
-    };
+    virtual ~CppRingEnvironment() = default;
     template<typename Obs_t,typename Act_t,typename Rew_t,
 	     typename Next_Obs_t,typename Done_t>
-    void store(Obs_t* obs, Act_t* act, Rew_t* rew,
-	       Next_Obs_t* next_obs, Done_t* done,
-	       std::size_t N = std::size_t(1)){
+    std::size_t store(Obs_t* obs, Act_t* act, Rew_t* rew,
+		      Next_Obs_t* next_obs, Done_t* done,
+		      std::size_t N = std::size_t(1)){
       constexpr const std::size_t zero = 0;
       constexpr const auto order
 	= MultiThread ? std::memory_order_acquire : std::memory_order_relaxed;
@@ -211,6 +211,7 @@ namespace ymd {
       std::size_t shift = zero;
       std::size_t tmp_next_index{ThreadSafe_size_t::fetch_add(next_index,N,order) &
 				 mask};
+      auto stored_index = tmp_next_index;
       while(N){
 	auto copy_N = std::min(N,buffer_size - tmp_next_index);
 
@@ -220,24 +221,16 @@ namespace ymd {
 	shift += copy_N;
 	tmp_next_index = zero;
       }
+      return stored_index;
     }
 
     std::size_t get_stored_size(){
-      std::size_t size;
-      if constexpr (MultiThread){
-	size = stored_size->load(std::memory_order_acquire);
-      }else{
-	size = *stored_size;
-      }
+      auto size = ThreadSafe_size_t::load(stored_size,std::memory_order_acquire);
       const auto buffer_size = this->get_buffer_size();
 
       if(size < buffer_size){ return size; }
 
-      if constexpr (MultiThread){
-        stored_size->store(size,std::memory_order_release);
-      }else{
-	*stored_size = size;
-      }
+      ThreadSafe_size_t::store(stored_size,buffer_size,std::memory_order_release);
       return buffer_size;
     }
     std::size_t get_next_index() const {
@@ -296,9 +289,9 @@ namespace ymd {
 
     template<typename Obs_t,typename Act_t,typename Rew_t,
 	     typename Next_Obs_t,typename Done_t>
-    void store(Obs_t* obs,Act_t* act,Rew_t* rew,
-	       Next_Obs_t* next_obs, Done_t* done,
-	       std::size_t N = std::size_t(1)){
+    std::size_t store(Obs_t* obs,Act_t* act,Rew_t* rew,
+		      Next_Obs_t* next_obs, Done_t* done,
+		      std::size_t N = std::size_t(1)){
       const auto buffer_size = this->get_buffer_size();
       auto shift = std::size_t(0);
       auto copy_N = std::min(N,buffer_size - next_index);
@@ -311,7 +304,7 @@ namespace ymd {
 				    + std::size_t(1));
       }
 
-      next_index += copy_N;
+      return std::exchange(next_index,next_index + copy_N);
     }
 
     void get_episode(std::size_t i,std::size_t& ep_len,
@@ -463,13 +456,13 @@ namespace ymd {
     CppReplayBuffer& operator=(CppReplayBuffer&&) = default;
     virtual ~CppReplayBuffer() = default;
 
-    virtual void add(Observation* obs,
-		     Action* act,
-		     Reward* rew,
-		     Observation* next_obs,
-		     Done* done,
-		     std::size_t N = std::size_t(1)){
-      this->Buffer_t::store(obs,act,rew,next_obs,done,N);
+    virtual std::size_t add(Observation* obs,
+			    Action* act,
+			    Reward* rew,
+			    Observation* next_obs,
+			    Done* done,
+			    std::size_t N = std::size_t(1)){
+      return this->Buffer_t::store(obs,act,rew,next_obs,done,N);
     }
 
     template<typename Obs_t,typename Act_t,typename  Rew_t,typename Done_t>
@@ -504,14 +497,16 @@ namespace ymd {
     }
   };
 
-  template<typename Priority>
+  template<typename Priority,bool MultiThread = false>
   class CppPrioritizedSampler {
   private:
+    using ThreadSafePriority_t = ThreadSafe<MultiThread,Priority>;
     Priority alpha;
-    Priority max_priority;
+    typename ThreadSafePriority_t::type* max_priority;
+    std::shared_ptr<typename ThreadSafePriority_t::type> max_priority_view;
     const Priority default_max_priority;
-    SegmentTree<Priority> sum;
-    SegmentTree<Priority> min;
+    SegmentTree<Priority,MultiThread> sum;
+    SegmentTree<Priority,MultiThread> min;
     std::mt19937 g;
 
     void sample_proportional(std::size_t batch_size,
@@ -534,7 +529,7 @@ namespace ymd {
     }
 
     void set_weights(const std::vector<std::size_t>& indexes,Priority beta,
-		     std::vector<Priority>& weights,std::size_t stored_size) const {
+		     std::vector<Priority>& weights,std::size_t stored_size) {
       weights.resize(0);
       weights.reserve(indexes.size());
 
@@ -557,16 +552,41 @@ namespace ymd {
       min.set(next_index,std::forward<F>(f),N,buffer_size);
     }
 
+    void set_priority(std::size_t next_index,Priority p){
+      auto v = std::pow(p,alpha);
+      sum.set(next_index,v);
+      min.set(next_index,v);
+    }
+
   public:
-    CppPrioritizedSampler(std::size_t buffer_size,Priority alpha)
+    CppPrioritizedSampler(std::size_t buffer_size,Priority alpha,
+			  Priority* max_p = nullptr,
+			  Priority* sum_ptr = nullptr,
+			  bool* sum_anychanged = nullptr,bool* sum_changed = nullptr,
+			  Priority* min_ptr = nullptr,
+			  bool* min_anychanged = nullptr,bool* min_changed = nullptr,
+			  bool initialize = true)
       : alpha{alpha},
-	max_priority{1.0},
+	max_priority{(typename ThreadSafePriority_t::type*)max_p},
+	max_priority_view{},
 	default_max_priority{1.0},
-	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; }},
-	min{PowerOf2(buffer_size),
-	    [](Priority a,Priority b){ return  std::min(a,b); },
-	    std::numeric_limits<Priority>::max()},
-	g{std::random_device{}()} {}
+	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; },
+	    Priority{0},
+	    sum_ptr,sum_anychanged,sum_changed,initialize},
+	min{PowerOf2(buffer_size),[](Priority a,Priority b){ return  std::min(a,b); },
+	    std::numeric_limits<Priority>::max(),
+	    min_ptr,min_anychanged,min_changed,initialize},
+	g{std::random_device{}()}
+    {
+      if(!max_priority){
+	max_priority = new typename ThreadSafePriority_t::type{};
+	max_priority_view.reset(max_priority);
+      }
+      if(initialize){
+	ThreadSafePriority_t::store(max_priority,default_max_priority,
+				    std::memory_order_release);
+      }
+    }
     CppPrioritizedSampler(): CppPrioritizedSampler{1,0.5} {}
     CppPrioritizedSampler(const CppPrioritizedSampler&) = default;
     CppPrioritizedSampler(CppPrioritizedSampler&&) = default;
@@ -581,27 +601,27 @@ namespace ymd {
       set_weights(indexes,beta,weights,stored_size);
     }
     virtual void clear(){
-      max_priority = default_max_priority;
+      ThreadSafePriority_t::store(max_priority,default_max_priority,
+				  std::memory_order_release);
       sum.clear();
       min.clear(std::numeric_limits<Priority>::max());
     }
 
     Priority get_max_priority() const {
-      return max_priority;
+      return ThreadSafePriority_t::load(max_priority,std::memory_order_acquire);
     }
 
     template<typename P,
 	     std::enable_if_t<std::is_convertible_v<P,Priority>,
 			      std::nullptr_t> = nullptr>
     void set_priorities(std::size_t next_index,P p){
-      if(p > max_priority){ max_priority = p; }
-      auto v = std::pow(p,alpha);
-      sum.set(next_index,v);
-      min.set(next_index,v);
+      ThreadSafePriority_t::store_max(max_priority,p);
+      set_priority(next_index,p);
     }
 
     void set_priorities(std::size_t next_index){
-      set_priorities(next_index,max_priority);
+      auto p = ThreadSafePriority_t::load(max_priority,std::memory_order_acquire);
+      set_priority(next_index,p);
     }
 
     template<typename P,
@@ -609,17 +629,40 @@ namespace ymd {
 			      std::nullptr_t> = nullptr>
     void set_priorities(std::size_t next_index,P* p,
 			std::size_t N,std::size_t buffer_size){
-      if(auto p_max = *std::max_element(p,p+N); p_max > max_priority){
-	max_priority = p_max;
-      }
+      ThreadSafePriority_t::store_max(max_priority, *std::max_element(p,p+N));
+
       set_priorities(next_index,[=]() mutable { return std::pow(*(p++),alpha); },
 		     N,buffer_size);
     }
 
     void set_priorities(std::size_t next_index,
 			std::size_t N,std::size_t buffer_size){
-      set_priorities(next_index,[v=std::pow(max_priority,alpha)](){ return v; },
-		     N,buffer_size);
+      const auto v = std::pow(ThreadSafePriority_t::load(max_priority,
+							 std::memory_order_acquire),
+			      alpha);
+      set_priorities(next_index,[=](){ return v; },N,buffer_size);
+    }
+
+    template<typename I,typename P,
+	     std::enable_if_t<std::is_convertible_v<I,std::size_t>,
+			      std::nullptr_t> = nullptr,
+	     std::enable_if_t<std::is_convertible_v<P,Priority>,
+			      std::nullptr_t> = nullptr>
+    void update_priorities(I* indexes, P* priorities,std::size_t N =1){
+
+      const auto max_p =
+	std::accumulate(indexes,indexes+N,
+			ThreadSafePriority_t::load(max_priority,
+						   std::memory_order_acquire),
+			[=,p=priorities]
+			(auto max_p, auto index) mutable {
+			  Priority v = std::pow(*p,this->alpha);
+			  this->sum.set(index,v);
+			  this->min.set(index,v);
+
+			  return std::max<Priority>(max_p,*(p++));
+			});
+      ThreadSafePriority_t::store_max(max_priority,max_p);
     }
 
     template<typename I,typename P,
@@ -630,34 +673,13 @@ namespace ymd {
     void update_priorities(std::vector<I>& indexes,
 			   std::vector<P>& priorities){
 
-      max_priority = std::accumulate(indexes.begin(),indexes.end(),max_priority,
-				     [=,p=priorities.begin()]
-				     (auto max_p, auto index) mutable {
-				       Priority v = std::pow(*p,this->alpha);
-				       this->sum.set(index,v);
-				       this->min.set(index,v);
-
-				       return std::max<Priority>(max_p,*(p++));
-				     });
-    }
-    template<typename I,typename P,
-	     std::enable_if_t<std::is_convertible_v<I,std::size_t>,
-			      std::nullptr_t> = nullptr,
-	     std::enable_if_t<std::is_convertible_v<P,Priority>,
-			      std::nullptr_t> = nullptr>
-    void update_priorities(I* indexes, P* priorities,std::size_t N =1){
-
-      max_priority = std::accumulate(indexes,indexes+N,max_priority,
-				     [=,p=priorities]
-				     (auto max_p, auto index) mutable {
-				       Priority v = std::pow(*p,this->alpha);
-				       this->sum.set(index,v);
-				       this->min.set(index,v);
-
-				       return std::max<Priority>(max_p,*(p++));
-				     });
+      update_priorities(indexes.data(),priorities.data(),
+			std::min(indexes.size(),priorities.size()));
     }
   };
+
+  template<typename Priority>
+  using CppThreadSafePrioritizedSampler = CppPrioritizedSampler<Priority,true>;
 
   template<typename Observation,typename Action,typename Reward,typename Done,
 	   typename Priority>
@@ -669,7 +691,7 @@ namespace ymd {
     using Sampler = CppPrioritizedSampler<Priority>;
   public:
     CppPrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
-			    Priority alpha)
+			       Priority alpha)
       : BaseClass{n,obs_dim,act_dim},
 	Sampler{n,alpha} {}
     CppPrioritizedReplayBuffer() : CppPrioritizedReplayBuffer{1,1,1,0.0} {}
@@ -679,33 +701,33 @@ namespace ymd {
     CppPrioritizedReplayBuffer& operator=(CppPrioritizedReplayBuffer&&) = default;
     virtual ~CppPrioritizedReplayBuffer() override = default;
 
-    virtual void add(Observation* obs,Action* act,Reward* rew,
-		     Observation* next_obs,Done* done,std::size_t N) override {
-      auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,N);
+    virtual std::size_t add(Observation* obs,Action* act,Reward* rew,
+			    Observation* next_obs,Done* done,std::size_t N) override {
+      auto next_index = this->BaseClass::add(obs,act,rew,next_obs,done,N);
       this->set_priorities(next_index,N,this->get_buffer_size());
+      return next_index;
     }
 
-    virtual void add(Observation* obs,Action* act,Reward* rew,
-		     Observation* next_obs,Done* done,
-		     Priority* priority,std::size_t N){
-      auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,N);
+    virtual std::size_t add(Observation* obs,Action* act,Reward* rew,
+			    Observation* next_obs,Done* done,
+			    Priority* priority,std::size_t N){
+      auto next_index = this->BaseClass::add(obs,act,rew,next_obs,done,N);
       this->set_priorities(next_index,priority,N,this->get_buffer_size());
+      return next_index;
     }
 
-    virtual void add(Observation* obs,Action* act,Reward* rew,
-		     Observation* next_obs,Done* done,Priority p){
-      auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
+    virtual std::size_t add(Observation* obs,Action* act,Reward* rew,
+			    Observation* next_obs,Done* done,Priority p){
+      auto next_index= this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
       this->set_priorities(next_index,p);
+      return next_index;
     }
 
-    virtual void add(Observation* obs,Action* act,Reward* rew,
-		     Observation* next_obs,Done* done){
-      auto next_index = this->get_next_index();
-      this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
+    virtual std::size_t add(Observation* obs,Action* act,Reward* rew,
+			    Observation* next_obs,Done* done){
+      auto next_index= this->BaseClass::add(obs,act,rew,next_obs,done,std::size_t(1));
       this->set_priorities(next_index);
+      return next_index;
     }
 
     template<typename Obs_t,typename Act_t,typename Rew_t,typename Done_t>

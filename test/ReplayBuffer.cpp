@@ -10,6 +10,8 @@
 
 #include <ReplayBuffer.hh>
 
+#include "unittest.hh"
+
 using namespace std::literals;
 
 using Observation = double;
@@ -18,47 +20,27 @@ using Reward = double;
 using Done = double;
 using Priority = double;
 
-auto timer = [](auto&& f,std::size_t N){
-	       auto start = std::chrono::high_resolution_clock::now();
+const auto cores = std::thread::hardware_concurrency();
+using cores_t = std::remove_const_t<decltype(cores)>;
 
-	       for(std::size_t i = 0ul; i < N; ++i){ f(); }
+template<typename F>
+inline auto timer(F&& f,std::size_t N){
+  auto start = std::chrono::high_resolution_clock::now();
 
-	       auto end = std::chrono::high_resolution_clock::now();
-	       auto elapsed = end - start;
+  for(std::size_t i = 0ul; i < N; ++i){ f(); }
 
-	       auto s = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
-	       auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
-	       auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-	       auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed);
-	       std::cout << s.count() << "s "
-			 << ms.count() - s.count() * 1000 << "ms "
-			 << us.count() - ms.count() * 1000 << "us "
-			 << ns.count() - us.count() * 1000 << "ns"
-			 << std::endl;
-	     };
+  auto end = std::chrono::high_resolution_clock::now();
+  auto elapsed = end - start;
 
-template<typename T>
-void show_vector(T v,std::string name){
-  std::cout << name << ": ";
-  for(auto ve: v){ std::cout << ve << " "; }
-  std::cout << std::endl;
-}
-
-template<typename T>
-void show_vector_of_vector(T v,std::string name){
-  std::cout << name << ": " << std::endl;
-  for(auto ve: v){
-    std::cout << " ";
-    for(auto vee: ve){ std::cout << vee << " "; }
-    std::cout << std::endl;
-  }
-  std::cout << std::endl;
-}
-
-template<typename T>
-void show_pointer(T ptr,std::size_t N,std::string name){
-  auto v = std::vector<std::remove_pointer_t<T>>(ptr,ptr+N);
-  show_vector(v,name);
+  auto s = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
+  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
+  auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
+  auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed);
+  std::cout << s.count() << "s "
+	    << ms.count() - s.count() * 1000 << "ms "
+	    << us.count() - ms.count() * 1000 << "us "
+	    << ns.count() - us.count() * 1000 << "ns"
+	    << std::endl;
 }
 
 void test_NstepReward(){
@@ -95,14 +77,14 @@ void test_NstepReward(){
 	    << ")" << std::endl;
 
   std::cout << "[Input]" << std::endl;
-  show_vector(rew,"rew");
-  show_vector(next_obs,"next_obs (obs_dim="s + std::to_string(obs_dim) + ")");
-  show_vector(done,"done");
+  ymd::show_vector(rew,"rew");
+  ymd::show_vector(next_obs,"next_obs (obs_dim="s + std::to_string(obs_dim) + ")");
+  ymd::show_vector(done,"done");
 
   std::cout << "[Output]" << std::endl;
-  show_pointer(discounts,buffer_size,"discounts");
-  show_pointer(ret,buffer_size,"ret");
-  show_pointer(nstep_next_obs,buffer_size*obs_dim,"nstep_next_obs");
+  ymd::show_pointer(discounts,buffer_size,"discounts");
+  ymd::show_pointer(ret,buffer_size,"ret");
+  ymd::show_pointer(nstep_next_obs,buffer_size*obs_dim,"nstep_next_obs");
 
   auto r =std::vector<Reward>{};
   std::generate_n(std::back_inserter(r),nstep,
@@ -155,11 +137,11 @@ void test_SelectiveEnvironment(){
   // Add 1-step
   se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),1ul);
   auto [obs_,act_,rew_,next_obs_,done_,ep_len] = se.get_episode(0);
-  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
-  show_pointer(act_,se.get_stored_size()*act_dim,"act");
-  show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
-  show_pointer(done_,se.get_stored_size(),"done");
+  ymd::show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  ymd::show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  ymd::show_pointer(rew_,se.get_stored_size(),"rew");
+  ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  ymd::show_pointer(done_,se.get_stored_size(),"done");
 
   assert(1ul == ep_len);
   assert(1ul == se.get_next_index());
@@ -170,11 +152,11 @@ void test_SelectiveEnvironment(){
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
 	   episode_len - 1ul);
   se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
-  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
-  show_pointer(act_,se.get_stored_size()*act_dim,"act");
-  show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
-  show_pointer(done_,se.get_stored_size(),"done");
+  ymd::show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  ymd::show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  ymd::show_pointer(rew_,se.get_stored_size(),"rew");
+  ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  ymd::show_pointer(done_,se.get_stored_size(),"done");
 
   assert(episode_len == ep_len);
   assert(episode_len == se.get_next_index());
@@ -189,11 +171,11 @@ void test_SelectiveEnvironment(){
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
 	   episode_len - 1ul);
   se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
-  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
-  show_pointer(act_,se.get_stored_size()*act_dim,"act");
-  show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
-  show_pointer(done_,se.get_stored_size(),"done");
+  ymd::show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  ymd::show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  ymd::show_pointer(rew_,se.get_stored_size(),"rew");
+  ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  ymd::show_pointer(done_,se.get_stored_size(),"done");
 
   assert(2*episode_len - 1ul == se.get_next_index());
   assert(2*episode_len - 1ul == se.get_stored_size());
@@ -211,11 +193,11 @@ void test_SelectiveEnvironment(){
   // Delete 0
   se.delete_episode(0);
   se.get_episode(0,ep_len,obs_,act_,rew_,next_obs_,done_);
-  show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
-  show_pointer(act_,se.get_stored_size()*act_dim,"act");
-  show_pointer(rew_,se.get_stored_size(),"rew");
-  show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
-  show_pointer(done_,se.get_stored_size(),"done");
+  ymd::show_pointer(obs_,se.get_stored_size()*obs_dim,"obs");
+  ymd::show_pointer(act_,se.get_stored_size()*act_dim,"act");
+  ymd::show_pointer(rew_,se.get_stored_size(),"rew");
+  ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
+  ymd::show_pointer(done_,se.get_stored_size(),"done");
   assert(episode_len - 1ul == se.get_next_index());
   assert(episode_len - 1ul == se.get_stored_size());
   assert(1ul == se.get_stored_episode_size());
@@ -321,7 +303,7 @@ void test_MultiThreadRingEnvironment(){
 
       std::cout << "Adding " << N_add << " time-points at once" << std::endl;
       timer([&]() mutable {
-	      for(std::remove_const_t<decltype(cores)> i = 0; i < cores-1; ++i){
+	      for(cores_t i = 0; i < cores-1; ++i){
 		v.push_back(std::async(std::launch::async,
 				       [&](){ f_core(b,N_add,n*i,n*(i+1)); }));
 	      }
@@ -346,7 +328,6 @@ void test_MultiThreadRingEnvironment(){
   std::cout << std::endl;
 
   std::cout << "Multi-thread with lock" << std::endl;
-  const auto cores = std::thread::hardware_concurrency();
   std::cout << cores << " cores execution." << std::endl;
 
   multi_f(multi2,1,cores);
@@ -355,6 +336,77 @@ void test_MultiThreadRingEnvironment(){
   multi_f(multi2,add_dim,cores);
   std::cout << std::endl;
 
+}
+
+void test_MultiThreadPrioritizedSampler(){
+  constexpr const auto buffer_size = 1024ul;
+  constexpr const auto alpha = 0.5;
+  constexpr const auto beta = 0.4;
+  constexpr const auto batch_size = 16ul;
+  std::cout << "Multi-Thread PrioritizedSampler" << std::endl;
+
+  auto per = ymd::CppThreadSafePrioritizedSampler<Priority>(buffer_size,alpha);
+
+
+  std::cout << "Single Thread set_prioriries(index)" << std::endl;
+  for(auto i = 0ul; i < 20ul; ++i){
+    per.set_priorities(i % buffer_size);
+  }
+
+  std::cout << "Single Thread set_prioriries(index,p)" << std::endl;
+  for(auto i = 0ul; i < 20ul; ++i){
+    per.set_priorities((i+20) % buffer_size,0.3*i);
+  }
+
+  std::cout << "cores: " << cores << std::endl;
+  const auto N = buffer_size / std::max((cores - 1),cores_t(1));
+  auto ps = std::vector<Priority>(N,0.5);
+
+  std::cout << "Single Thread set_prioriries(index,p_ptr,N,buffer_size)" << std::endl;
+  for(auto i = 0ul; i < 20ul; ++i){
+    per.set_priorities((i+40) % buffer_size,ps.data(),N,buffer_size);
+  }
+
+  std::cout << "Single Thread set_prioriries(index,N,buffer_size)" << std::endl;
+  for(auto i = 0ul; i < 20ul; ++i){
+    per.set_priorities((i+40) % buffer_size,N,buffer_size);
+  }
+
+  std::vector<std::future<void>> futures{};
+  futures.reserve(cores);
+
+  std::cout << "Multi Thread set_prioriries(index,N,buffer_size)" << std::endl;
+  std::generate_n(std::back_inserter(futures),cores,
+		  [&,index = -N] () mutable {
+		    index += N;
+		    return std::async(std::launch::async,
+				      [&](){
+					per.set_priorities(index,N,buffer_size);
+				      });
+		  });
+  for(auto& f : futures){ f.wait(); }
+  per.clear();
+
+  std::cout << "Multi Thread set_prioriries(index,p_ptr,N,buffer_size)" << std::endl;
+  std::generate_n(std::back_inserter(futures),cores,
+		  [&,index = -N] () mutable {
+		    index += N;
+		    return std::async(std::launch::async,
+				      [&](){
+					per.set_priorities(index,ps.data(),
+							   N,buffer_size);
+				      });
+		  });
+  for(auto& f : futures){ f.wait(); }
+
+  std::vector<std::size_t> indexes{};
+  std::vector<Priority> weights{};
+
+  std::cout << "sample(batch_size,beta,weights,indexes,buffer_size)" << std::endl;
+  per.sample(batch_size,beta,weights,indexes,buffer_size);
+
+  std::cout << "get_max_priority" << std::endl;
+  ymd::AlmostEqual(per.get_max_priority(),1.0);
 }
 
 int main(){
@@ -434,22 +486,22 @@ int main(){
   auto [per_o,per_a,per_r,per_no,per_d,per_w,per_i] = per.sample(N_batch_size,beta);
 
   std::cout << "ReplayBuffer" << std::endl;
-  show_vector_of_vector(rb_o,"obs");
-  show_vector_of_vector(rb_a,"act");
-  show_vector(rb_r,"rew");
-  show_vector_of_vector(rb_no,"next_obs");
-  show_vector(rb_d,"done");
+  ymd::show_vector_of_vector(rb_o,"obs");
+  ymd::show_vector_of_vector(rb_a,"act");
+  ymd::show_vector(rb_r,"rew");
+  ymd::show_vector_of_vector(rb_no,"next_obs");
+  ymd::show_vector(rb_d,"done");
 
   std::cout << std::endl;
 
   std::cout << "PrioritizedReplayBuffer" << std::endl;
-  show_vector_of_vector(per_o,"obs");
-  show_vector_of_vector(per_a,"act");
-  show_vector(per_r,"rew");
-  show_vector_of_vector(per_no,"next_obs");
-  show_vector(per_d,"done");
-  show_vector(per_w,"weights");
-  show_vector(per_i,"indexes");
+  ymd::show_vector_of_vector(per_o,"obs");
+  ymd::show_vector_of_vector(per_a,"act");
+  ymd::show_vector(per_r,"rew");
+  ymd::show_vector_of_vector(per_no,"next_obs");
+  ymd::show_vector(per_d,"done");
+  ymd::show_vector(per_w,"weights");
+  ymd::show_vector(per_i,"indexes");
 
   per.update_priorities(per_i,per_w);
 
@@ -475,19 +527,21 @@ int main(){
 
   ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
 
-  show_vector(ps_w,"weights [0.5,...,0.5]");
-  show_vector(ps_i,"indexes [0.5,...,0.5]");
+  ymd::show_vector(ps_w,"weights [0.5,...,0.5]");
+  ymd::show_vector(ps_i,"indexes [0.5,...,0.5]");
 
   ps_w[0] = 1e+10;
   ps.update_priorities(ps_i,ps_w);
   ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
-  show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
-  show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
+  ymd::show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
+  ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
 
   test_NstepReward();
   test_SelectiveEnvironment();
 
   test_MultiThreadRingEnvironment();
+
+  test_MultiThreadPrioritizedSampler();
 
   return 0;
 }

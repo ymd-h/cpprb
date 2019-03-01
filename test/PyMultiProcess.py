@@ -25,6 +25,7 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        print(f"{cls.class_name}")
         cls.rb = ProcessSharedReplayBuffer(cls.buffer_size, cls.obs_dim, cls.act_dim)
 
     def test_write_address(self):
@@ -101,6 +102,18 @@ class TestMultiProcessReplayBuffer(unittest.TestCase):
         print("Test for multi process with 100 point")
         timer(lambda: Multi_(g)(self.rb,self.N_add),self.N_time,
               "Multi process adding {} time-point".format(self.add_dim))
+
+class TestMultiProcessPrioritizedReplayBuffer(TestMultiProcessReplayBuffer):
+    class_name = "MultiProcessPrioritizedReplayBuffer"
+    alpha = 0.5
+
+    @classmethod
+    def setUpClass(cls):
+        print(f"{cls.class_name}")
+        cls.rb = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
+                                                      cls.obs_dim,
+                                                      cls.act_dim,
+                                                      alpha = cls.alpha)
 
 if __name__ == '__main__':
     unittest.main()
