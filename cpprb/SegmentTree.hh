@@ -159,7 +159,7 @@ namespace ymd {
 
       if constexpr (MultiThread){
 	any_changed->store(true,std::memory_order_release);
-	changed[n].store(true,std::memory_order_release);
+	changed[i].store(true,std::memory_order_release);
       }else{
 	constexpr const std::size_t zero = 0;
 	do {
