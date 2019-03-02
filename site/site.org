@@ -134,8 +134,8 @@ then create [[https://cython.readthedocs.io/en/latest/src/userguide/memoryviews.
 C++.
 
 The (virtual) addresses of the shared memories can be different in
-each process, so that we recreate replay buffer (interface of shared
-memories) in ~init_worker~.
+each process, so that we recreate replay buffer (thin interface of
+shared memories) in ~init_worker~.
 
 **** Lockless Access Contorol
 Some values such as ~next_index~ require access control to avoid data
