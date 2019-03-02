@@ -74,7 +74,7 @@ CLOSED: [2019-03-02 Sat 12:16]
 :END:
 
 #+begin_example
-WARNING: Multi-Processing is beta feature. This might be buggy, and its API can be change without notice.
+WARNING: Multi-Processing is beta feature. This might be buggy, and its API can be changed without notice.
 #+end_example
 
 *** Overview
