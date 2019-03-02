@@ -78,7 +78,7 @@ WARNING: Multi-Processing is beta feature. This might be buggy, and its API can 
 #+end_example
 
 *** Overview
-To speed up your explorarion task, you might want to run multiple
+To speed up your exploration task, you might want to run multiple
 workers for a single replay buffer simultanaously. ~cpprb~ has special
 classes named ~ProcessSharedReplayBuffer~ and
 ~ProcessSharedPrioritizedReplayBuffer~ to manage such parallel execution.
