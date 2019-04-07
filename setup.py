@@ -51,4 +51,12 @@ setup(name = "cpprb",
                      "Intended Audience :: Science/Research",
                      "Topic :: Scientific/Engineering",
                      "Topic :: Scientific/Engineering :: Artificial Intelligence",
-                     "Topic :: Software Development :: Libraries"])
+                     "Topic :: Software Development :: Libraries"],
+      long_descriiption = "cpprb is a python package written by C++.
+The package provides replay buffer classes for reinforcement learning.
+
+Complicated calculation (e.g. Segment Tree) are offloaded onto C++ which must be much faster than Python.
+
+Internal C++ classes and corresponding Python wrapper classes share memory by implementing buffer protocol on cython to avoid overhead of copying large data.
+
+This package requires C++17 compatible compiler to build")
