@@ -47,4 +47,5 @@ setup(name = "cpprb",
                      "Operating System :: OS Independent",
                      "Development Status :: 4 - Beta",
                      "Topic :: Scientific/Engineering",
-                     "Topic :: Scientific/Engineering :: Artificial Intelligence"])
+                     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+                     "Topic :: Software Development :: Libraries"])
