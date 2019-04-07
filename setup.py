@@ -46,6 +46,8 @@ setup(name = "cpprb",
                      "License :: OSI Approved :: MIT License",
                      "Operating System :: OS Independent",
                      "Development Status :: 4 - Beta",
+                     "Intended Audience :: Developers",
+                     "Intended Audience :: Science/Research",
                      "Topic :: Scientific/Engineering",
                      "Topic :: Scientific/Engineering :: Artificial Intelligence",
                      "Topic :: Software Development :: Libraries"])
