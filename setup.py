@@ -42,4 +42,5 @@ setup(name = "cpprb",
       include_dirs=["cpprb",np.get_include()],
       packages=["cpprb"],
       classifiers = ["Programming Language :: Python",
-                     "Programming Language :: Python :: 3"])
+                     "Programming Language :: Python :: 3",
+                     "Operating System :: OS Independent"])
