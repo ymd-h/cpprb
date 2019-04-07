@@ -52,7 +52,7 @@ setup(name = "cpprb",
                      "Topic :: Scientific/Engineering",
                      "Topic :: Scientific/Engineering :: Artificial Intelligence",
                      "Topic :: Software Development :: Libraries"],
-      long_descriiption = """cpprb is a python package written by C++.
+      long_description = """cpprb is a python package written by C++.
 The package provides replay buffer classes for reinforcement learning.
 
 Complicated calculation (e.g. Segment Tree) are offloaded onto C++ which must be much faster than Python.
