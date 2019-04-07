@@ -45,4 +45,6 @@ setup(name = "cpprb",
                      "Programming Language :: Python :: 3",
                      "License :: OSI Approved :: MIT License",
                      "Operating System :: OS Independent",
-                     "Development Status :: 4 - Beta"])
+                     "Development Status :: 4 - Beta",
+                     "Topic :: Scientific/Engineering",
+                     "Topic :: Scientific/Engineering :: Artificial Intelligence"])
