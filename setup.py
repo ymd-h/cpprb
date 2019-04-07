@@ -43,5 +43,6 @@ setup(name = "cpprb",
       packages=["cpprb"],
       classifiers = ["Programming Language :: Python",
                      "Programming Language :: Python :: 3",
+                     "License :: OSI Approved :: MIT License",
                      "Operating System :: OS Independent",
                      "Development Status :: 4 - Beta"])
