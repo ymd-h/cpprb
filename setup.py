@@ -17,7 +17,8 @@ if os.path.exists("cpprb/PyReplayBuffer.pyx"):
                                        extra_link_args=["-std=c++17","-pthread"],
                                        language="c++")],
                             compiler_directives={'language_level':"3"},
-                            include_path=["."])
+                            include_path=["."],
+                            annotate = True)
 else:
     ext_modules = [Extension("cpprb.ReplayBuffer",
                              sources=["cpprb/PyReplayBuffer.cpp"],
