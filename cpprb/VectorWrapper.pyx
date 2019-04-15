@@ -12,17 +12,18 @@ cdef class VectorWrapper:
         self.shape   = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * self.ndim)
         self.strides = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * self.ndim)
 
-        self.strides[self.ndim -1] = <Py_ssize_t> self.itemsize
-
-        if self.ndim is 2:
-            self.shape[1] = <Py_ssize_t> (self.value_dim)
-            self.strides[0] = self.value_dim * <Py_ssize_t> self.itemsize
-
     cdef void update_size(self):
         self.shape[0] = <Py_ssize_t>(self.vec_size()//self.value_dim)
 
-    cdef void set_buffer(self,Py_buffer *buffer):
+    cdef void set_buffer(self,Py_buffer* buffer):
         raise NotImplementedError()
+
+    cdef void set_shape_strides(self):
+        self.strides[self.ndim -1] = self.itemsize
+
+        if self.ndim is 2:
+            self.shape[1] = <Py_ssize_t> (self.value_dim)
+            self.strides[0] = self.value_dim * self.itemsize
 
     def __dealloc__(self):
         free(self.shape)
@@ -49,6 +50,7 @@ cdef class VectorInt(VectorWrapper):
     def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[int]()
         self.itemsize = sizeof(int)
+        self.set_shape_strides()
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*>(self.vec.data())
@@ -61,6 +63,7 @@ cdef class VectorDouble(VectorWrapper):
     def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[double]()
         self.itemsize = sizeof(double)
+        self.set_shape_strides()
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*>(self.vec.data())
@@ -73,6 +76,7 @@ cdef class VectorSize_t(VectorWrapper):
     def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[size_t]()
         self.itemsize = sizeof(size_t)
+        self.set_shape_strides()
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*>(self.vec.data())
@@ -92,8 +96,9 @@ cdef class VectorSize_t(VectorWrapper):
 
 cdef class PointerDouble(VectorWrapper):
     def __cinit__(self,*,ndim=1,value_dim=1,size=1,**kwargs):
-        self.itemsize = sizeof(double)
         self._vec_size = value_dim * size
+        self.itemsize = sizeof(double)
+        self.set_shape_strides()
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*> self.ptr
