@@ -9,7 +9,7 @@ import cython
 from cpprb cimport ReplayBuffer
 
 from .VectorWrapper cimport *
-from .VectorWrapper import (VectorInt,VectorDouble,VectorSize_t,PointerDouble)
+from .VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorDouble,PointerDouble)
 
 Obs      = cython.fused_type(cython.float, cython.double)
 Act      = cython.fused_type(cython.float, cython.double)
