@@ -309,17 +309,13 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _update_priorities(self,
-                           np.ndarray[size_t,ndim = 1, mode="c"] indexes    not None,
-                           np.ndarray[Prio  ,ndim = 1, mode="c"] priorities not None,
-                           size_t N=1):
+    def _update_priorities(self, size_t [::1] indexes, Prio [::1] priorities):
+        cdef N = indexes.shape[0]
         self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
-        cdef idx = np.asarray(np.ravel(indexes),dtype=np.uint64)
-        cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
-        cdef size_t N = idx.shape[0]
-        self._update_priorities(idx,ps,N)
+        self._update_priorities(np.ravel(np.asarray(indexes   ,dtype=np.uint64)),
+                                np.ravel(np.asarray(priorities,dtype=np.float64)))
 
     def clear(self):
         super().clear()
@@ -398,17 +394,13 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _update_priorities(self,
-                           np.ndarray[size_t,ndim = 1, mode="c"] indexes    not None,
-                           np.ndarray[Prio  ,ndim = 1, mode="c"] priorities not None,
-                           size_t N=1):
+    def _update_priorities(self, size_t [::1] indexes, Prio [::1] priorities):
+        cdef N = indexes.shape[0]
         self.per.update_priorities(&indexes[0],&priorities[0],N)
 
     def update_priorities(self,indexes,priorities):
-        cdef idx = np.asarray(np.ravel(indexes),dtype=ctypes.c_size_t)
-        cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
-        cdef size_t N = idx.shape[0]
-        self._update_priorities(idx,ps,N)
+        self._update_priorities(np.ravel(np.asarray(indexes   ,dtype=np.uint64)),
+                                np.ravel(np.asarray(priorities,dtype=np.float64)))
 
     def clear(self):
         super().clear()
