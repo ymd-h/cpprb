@@ -404,7 +404,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         cdef idx = np.asarray(np.ravel(indexes),dtype=np.uint64)
         cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
         cdef size_t N = idx.shape[0]
-        self._update_priorities(idx,priorities,N)
+        self._update_priorities(idx,ps,N)
 
     def clear(self):
         super().clear()
@@ -526,7 +526,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         cdef idx = np.asarray(np.ravel(indexes),dtype=ctypes.c_size_t)
         cdef ps = np.asarray(np.ravel(priorities),dtype=np.float64)
         cdef size_t N = idx.shape[0]
-        self._update_priorities(idx,priorities,N)
+        self._update_priorities(idx,ps,N)
 
     def clear(self):
         super().clear()
