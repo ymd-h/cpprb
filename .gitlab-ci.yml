@@ -59,6 +59,15 @@ issue39:
     - python3 setup.py install
     - cd test
     - python3 issue39.py
+
+issue40:
+  image: registry.gitlab.com/ymd_h/cpprb/build:latest
+  stage: py_test
+  script:
+    - g++ --version
+    - python3 --version
+    - python3 setup.py install
+    - cd test
     - python3 issue40.py
 
 emacs:
