@@ -59,6 +59,7 @@ issue39:
     - python3 setup.py install
     - cd test
     - python3 issue39.py
+    - python3 issue40.py
 
 emacs:
   image: iquiw/alpine-emacs
