@@ -2,10 +2,10 @@ from libcpp.vector cimport vector
 from libcpp cimport bool
 
 cdef extern from "ReplayBuffer.hh" namespace "ymd":
-    void clear[B](B&)
-    size_t get_buffer_size[B](B&)
-    size_t get_stored_size[B](B&)
-    size_t get_next_index[B](B&)
+    void clear[B](B*)
+    size_t get_buffer_size[B](B*)
+    size_t get_stored_size[B](B*)
+    size_t get_next_index[B](B*)
 
     cdef cppclass CppRingEnvironment[Obs,Act,Rew,Done]:
         CppRingEnvironment(size_t,size_t,size_t,size_t) except +
