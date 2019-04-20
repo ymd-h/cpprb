@@ -301,15 +301,12 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         samples['indexes'] = idx
         return samples
 
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    def _update_priorities(self, size_t [::1] indexes, Prio [::1] priorities):
-        cdef N = indexes.shape[0]
-        self.per.update_priorities(&indexes[0],&priorities[0],N)
-
     def update_priorities(self,indexes,priorities):
-        self._update_priorities(np.ravel(np.asarray(indexes   ,dtype=np.uint64)),
-                                np.ravel(np.asarray(priorities,dtype=np.float64)))
+        cdef size_t [:] idx = np.ravel(np.array(indexes,dtype=np.uint64,
+                                                copy=False,ndmin=1))
+        cdef double [:] ps = self.Cview(priorities)
+        cdef N = idx.shape[0]
+        self.per.update_priorities(&idx[0],&ps[0],N)
 
     def clear(self):
         super().clear()
@@ -378,15 +375,12 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         else:
             self._update(next_index,N,self.get_buffer_size())
 
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    def _update_priorities(self, size_t [::1] indexes, Prio [::1] priorities):
-        cdef N = indexes.shape[0]
-        self.per.update_priorities(&indexes[0],&priorities[0],N)
-
     def update_priorities(self,indexes,priorities):
-        self._update_priorities(np.ravel(np.asarray(indexes   ,dtype=np.uint64)),
-                                np.ravel(np.asarray(priorities,dtype=np.float64)))
+        cdef size_t [:] idx = np.ravel(np.array(indexes,dtype=np.uint64,
+                                                copy=False,ndmin=1))
+        cdef double [:] ps = self.Cview(priorities)
+        cdef N = idx.shape[0]
+        self.per.update_priorities(&idx[0],&ps[0],N)
 
     def clear(self):
         super().clear()
