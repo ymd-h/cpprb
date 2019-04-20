@@ -30,7 +30,6 @@ ReplayBuffer.cpp:
   script:
     - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
     - test/ReplayBuffer
-  when: always
 
 SegmentTree.cpp:
   <<: *setup
@@ -38,7 +37,6 @@ SegmentTree.cpp:
   script:
     - $CXX -o test/SegmentTree test/SegmentTree.cpp
     - test/SegmentTree
-  when: always
 
 py_build:
   <<: *setup
