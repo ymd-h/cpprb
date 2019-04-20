@@ -33,12 +33,12 @@ cdef class Environment:
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
-    cdef _add(self,double [::1] o,double [::1] a,double [::1] r,
+    cdef size_t _add(self,double [::1] o,double [::1] a,double [::1] r,
               double [::1] no,double [::1] d):
         raise NotImplementedError
 
     def add(self,obs,act,rew,next_obs,done):
-        self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
+        return self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
 
     def _encode_sample(self,idx):
         return {'obs': np.asarray(self.obs)[idx],
@@ -65,7 +65,7 @@ cdef class RingEnvironment(Environment):
 
         self.buffer_size = self.buffer.get_buffer_size()
 
-    cdef _add(self,double [::1] obs, double [::1] act, double [::1] rew,
+    cdef size_t _add(self,double [::1] obs, double [::1] act, double [::1] rew,
               double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
@@ -138,7 +138,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
         if N != self.buffer_size:
             raise ValueError("Size mismutch")
 
-    cdef _add(self,double [::1] obs,double [::1] act, double [::1] rew,
+    cdef size_t _add(self,double [::1] obs,double [::1] act, double [::1] rew,
               double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
@@ -169,7 +169,7 @@ cdef class SelectiveEnvironment(Environment):
                                         self.next_obs.ptr,
                                         self.done.ptr)
 
-    cdef _add(self,double [::1] obs,double [::1] act, double [::1] rew,
+    cdef size_t _add(self,double [::1] obs,double [::1] act, double [::1] rew,
               double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
@@ -282,6 +282,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
             self.per.set_priorities(next_index,&ps[0],N,self.get_buffer_size())
         else:
             self._update(next_index,N,self.get_buffer_size())
+        return next_index
 
     def sample(self,batch_size,beta = 0.4):
         self.per.sample(batch_size,beta,
@@ -366,6 +367,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
             self.per.set_priorities(next_index,&ps[0],N,self.get_buffer_size())
         else:
             self._update(next_index,N,self.get_buffer_size())
+        return next_index
 
     def update_priorities(self,indexes,priorities):
         cdef size_t [:] idx = np.ravel(np.array(indexes,dtype=np.uint64,
