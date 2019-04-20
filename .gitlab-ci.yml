@@ -64,6 +64,14 @@ issue40:
     - cd test
     - python3 issue40.py
 
+multi_rew:
+  <<: *setup
+  stage: py_test
+  script:
+    - pip install dist/cpprb-*
+    - cd test
+    -python3 multi_rew
+
 emacs:
   image: iquiw/alpine-emacs
   stage: page_export
