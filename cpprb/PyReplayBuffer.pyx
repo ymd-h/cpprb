@@ -11,13 +11,6 @@ from cpprb cimport ReplayBuffer
 from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorDouble,PointerDouble)
 
-Obs      = cython.fused_type(cython.float, cython.double)
-Act      = cython.fused_type(cython.float, cython.double)
-Rew      = cython.fused_type(cython.float, cython.double)
-Next_Obs = cython.fused_type(cython.float, cython.double)
-Done     = cython.fused_type(cython.float, cython.double)
-Prio     = cython.fused_type(cython.float, cython.double)
-
 cdef class Environment:
     cdef PointerDouble obs
     cdef PointerDouble act
