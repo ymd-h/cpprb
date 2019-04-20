@@ -25,7 +25,7 @@ stages:
     - cd test
 
 ReplayBuffer.cpp:
-  <<: *py_setup
+  <<: *setup
   stage: cpp_test
   script:
     - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
