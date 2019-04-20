@@ -2,6 +2,12 @@ variables:
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
   GIT_SUBMODULE_STRATEGY: recursive
 
+.job_template: &setup
+  image: registry.gitlab.com/ymd_h/cpprb/build:latest
+  before_script:
+    - g++ --version
+    - python3 --version
+
 stages:
   - page_export
   - page_deploy
@@ -10,63 +16,51 @@ stages:
   - py_test
 
 ReplayBuffer.cpp:
-  image: registry.gitlab.com/ymd_h/cpprb/build:latest
+  <<: *setup
   stage: cpp_test
   script:
-    - g++ --version
-    - python3 --version
     - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
     - test/ReplayBuffer
   when: always
 
 SegmentTree.cpp:
-  image: registry.gitlab.com/ymd_h/cpprb/build:latest
+  <<: *setup
   stage: cpp_test
   script:
-    - g++ --version
-    - python3 --version
     - $CXX -o test/SegmentTree test/SegmentTree.cpp
     - test/SegmentTree
   when: always
 
 py_build:
-  image: registry.gitlab.com/ymd_h/cpprb/build:latest
+  <<: *setup
   stage: py_build
   script:
-    - g++ --version
-    - python3 --version
-    - CC=g++ python3 setup.py build_ext
+    - CC=g++ python3 setup.py bdist_wheel
   artifacts:
     paths:
-      - build
+      - dist
 
 ReplayBuffer:
-  image: registry.gitlab.com/ymd_h/cpprb/build:latest
+  <<: *setup
   stage: py_test
   script:
-    - g++ --version
-    - python3 --version
-    - python3 setup.py install
+    - pip install dist/cpprb-*
     - cd test
     - python3 PyReplayBuffer.py
 
 issue39:
-  image: registry.gitlab.com/ymd_h/cpprb/build:latest
+  <<: *setup
   stage: py_test
   script:
-    - g++ --version
-    - python3 --version
-    - python3 setup.py install
+    - pip install dist/cpprb-*
     - cd test
     - python3 issue39.py
 
 issue40:
-  image: registry.gitlab.com/ymd_h/cpprb/build:latest
+  <<: *setup
   stage: py_test
   script:
-    - g++ --version
-    - python3 --version
-    - python3 setup.py install
+    - pip install dist/cpprb-*
     - cd test
     - python3 issue40.py
 
@@ -100,4 +94,3 @@ pages:
       - public
   only:
     - master
-
