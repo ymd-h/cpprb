@@ -35,16 +35,16 @@ py_build:
   <<: *setup
   stage: py_build
   script:
-    - CC=g++ python3 setup.py build_ext
+    - CC=g++ python3 setup.py bdist_wheel
   artifacts:
     paths:
-      - build
+      - dist
 
 ReplayBuffer:
   <<: *setup
   stage: py_test
   script:
-    - python3 setup.py install
+    - pip install dist/cpprb-*
     - cd test
     - python3 PyReplayBuffer.py
 
@@ -52,7 +52,7 @@ issue39:
   <<: *setup
   stage: py_test
   script:
-    - python3 setup.py install
+    - pip install dist/cpprb-*
     - cd test
     - python3 issue39.py
 
@@ -60,7 +60,7 @@ issue40:
   <<: *setup
   stage: py_test
   script:
-    - python3 setup.py install
+    - pip install dist/cpprb-*
     - cd test
     - python3 issue40.py
 
