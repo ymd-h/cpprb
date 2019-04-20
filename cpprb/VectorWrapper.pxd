@@ -9,6 +9,7 @@ cdef class VectorWrapper:
     cdef void update_size(self)
     cdef void set_buffer(self,Py_buffer*)
     cdef void set_shape_strides(self)
+    cpdef size_t vec_size(self)
 
 cdef class VectorInt(VectorWrapper):
     cdef vector[int] vec
