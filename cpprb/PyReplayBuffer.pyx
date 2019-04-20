@@ -11,6 +11,9 @@ from cpprb cimport ReplayBuffer
 from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorDouble,PointerDouble)
 
+cdef double [::1] Cview(array):
+    return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
+
 cdef class Environment:
     cdef PointerDouble obs
     cdef PointerDouble act
@@ -30,16 +33,12 @@ cdef class Environment:
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
-    cdef double [::1] Cview(self,array):
-        return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
-
     cdef _add(self,double [::1] o,double [::1] a,double [::1] r,
               double [::1] no,double [::1] d):
         raise NotImplementedError
 
     def add(self,obs,act,rew,next_obs,done):
-        self._add(self.Cview(obs),self.Cview(act),self.Cview(rew),
-                  self.Cview(next_obs),self.Cview(done))
+        self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
 
     def _encode_sample(self,idx):
         return {'obs': np.asarray(self.obs)[idx],
@@ -297,7 +296,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     def update_priorities(self,indexes,priorities):
         cdef size_t [:] idx = np.ravel(np.array(indexes,dtype=np.uint64,
                                                 copy=False,ndmin=1))
-        cdef double [:] ps = self.Cview(priorities)
+        cdef double [:] ps = Cview(priorities)
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
@@ -371,7 +370,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
     def update_priorities(self,indexes,priorities):
         cdef size_t [:] idx = np.ravel(np.array(indexes,dtype=np.uint64,
                                                 copy=False,ndmin=1))
-        cdef double [:] ps = self.Cview(priorities)
+        cdef double [:] ps = Cview(priorities)
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
