@@ -70,7 +70,7 @@ cdef class RingEnvironment(Environment):
                                         self.next_obs.ptr,
                                         self.done.ptr)
 
-        self.buffer_size = self.buffer.get_buffer_size()
+        self.buffer_size = get_buffer_size(self.buffer)
 
     cdef size_t _add(self,double [::1] obs, double [::1] act, double [::1] rew,
                      double [::1] next_obs, double [::1] done):
@@ -78,13 +78,13 @@ cdef class RingEnvironment(Environment):
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
-        self.buffer.clear()
+        clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
-        return self.buffer.get_stored_size()
+        return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
-        return self.buffer.get_next_index()
+        return get_next_index(self.buffer)
 
 cdef class ProcessSharedRingEnvironment(Environment):
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
@@ -143,7 +143,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
                                         self.next_obs.ptr,
                                         self.done.ptr)
 
-        self.buffer_size = self.buffer.get_buffer_size()
+        self.buffer_size = get_buffer_size(self.buffer)
         if N != self.buffer_size:
             raise ValueError("Size mismutch")
 
@@ -153,13 +153,13 @@ cdef class ProcessSharedRingEnvironment(Environment):
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
-        self.buffer.clear()
+        clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
-        return self.buffer.get_stored_size()
+        return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
-        return self.buffer.get_next_index()
+        return get_next_index(self.buffer)
 
 cdef class SelectiveEnvironment(Environment):
     cdef CppSelectiveEnvironment[double,double,double,double] *buffer
@@ -185,13 +185,13 @@ cdef class SelectiveEnvironment(Environment):
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
-        self.buffer.clear()
+        clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
-        return self.buffer.get_stored_size()
+        return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
-        return self.buffer.get_next_index()
+        return get_next_index(self.buffer)
 
     cpdef size_t get_stored_episode_size(self):
         return self.buffer.get_stored_episode_size()
@@ -313,7 +313,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     cpdef void clear(self):
         super().clear()
-        self.per.clear()
+        clear(self.per)
 
     cpdef double get_max_priority(self):
         return self.per.get_max_priority()
@@ -387,7 +387,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
 
     cpdef void clear(self):
         super().clear()
-        self.per.clear()
+        clear(self.per)
 
     cpdef double get_max_priority(self):
         return self.per.get_max_priority()
