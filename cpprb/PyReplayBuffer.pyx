@@ -14,6 +14,9 @@ from .VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorDouble,Po
 cdef double [::1] Cview(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
 
+cdef size_t [::1] Csize(array):
+    return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
+
 cdef class Environment:
     cdef PointerDouble obs
     cdef PointerDouble act
@@ -295,8 +298,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         return samples
 
     def update_priorities(self,indexes,priorities):
-        cdef size_t [:] idx = np.ravel(np.array(indexes,dtype=np.uint64,
-                                                copy=False,ndmin=1))
+        cdef size_t [:] idx = Csize(indexes)
         cdef double [:] ps = Cview(priorities)
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
@@ -370,8 +372,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         return next_index
 
     def update_priorities(self,indexes,priorities):
-        cdef size_t [:] idx = np.ravel(np.array(indexes,dtype=np.uint64,
-                                                copy=False,ndmin=1))
+        cdef size_t [:] idx = Csize(indexes)
         cdef double [:] ps = Cview(priorities)
         cdef size_t N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
