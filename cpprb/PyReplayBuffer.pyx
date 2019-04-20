@@ -276,7 +276,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     @cython.wraparound(False)
     def add(self,obs,act,rew,next_obs,done,priorities = None):
         cdef size_t next_index = super().add(obs,act,rew,next_obs,done)
-        cdef size_t N = np.array(rew,copy=False,ndim=1).shape[0]
+        cdef size_t N = np.array(done,copy=False,ndmin=1).shape[0]
         cdef double [:] ps = np.array(priorities,copy=False,ndmin=1,dtype=np.double)
         if priorities is not None:
             self.per.set_priorities(next_index,&ps[0],N,self.get_buffer_size())
@@ -360,7 +360,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
     @cython.wraparound(False)
     def add(self,obs,act,rew,next_obs,done,priorities = None):
         cdef size_t next_index = super().add(obs,act,rew,next_obs,done)
-        cdef size_t N = np.array(rew,copy=False,ndim=1).shape[0]
+        cdef size_t N = np.array(done,copy=False,ndmin=1).shape[0]
         cdef double [:] ps = np.array(priorities,copy=False,ndim=1,dtype=np.double)
         if priorities is not None:
             self.per.set_priorities(next_index,&ps[0],N,self.get_buffer_size())
