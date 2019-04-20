@@ -37,11 +37,16 @@ cdef class Environment:
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
-    cdef double [:] Cview(ndarray):
-        return np.ravel(np.array(ndarray,copy=False,dtype=np.double,ndim=1,order='C'))
+    cdef double [::1] Cview(self,array):
+        return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
+
+    cdef _add(self,double [::1] o,double [::1] a,double [::1] r,
+              double [::1] no,double [::1] d):
+        raise NotImplementedError
 
     def add(self,obs,act,rew,next_obs,done):
-        self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
+        self._add(self.Cview(obs),self.Cview(act),self.Cview(rew),
+                  self.Cview(next_obs),self.Cview(done))
 
     def _encode_sample(self,idx):
         return {'obs': np.asarray(self.obs)[idx],
@@ -68,8 +73,8 @@ cdef class RingEnvironment(Environment):
 
         self.buffer_size = self.buffer.get_buffer_size()
 
-    def _add(self,Obs [::1] obs,Act [::1] act, Rew [::1] rew,
-             Next_Obs [::1] next_obs, Done [::1] done):
+    cdef _add(self,double [::1] obs, double [::1] act, double [::1] rew,
+              double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],rew.shape[0])
 
@@ -141,8 +146,8 @@ cdef class ProcessSharedRingEnvironment(Environment):
         if N != self.buffer_size:
             raise ValueError("Size mismutch")
 
-    def _add(self,Obs [::1] obs,Act [::1] act, Rew [::1] rew,
-             Next_Obs [::1] next_obs, Done [::1] done):
+    cdef _add(self,double [::1] obs,double [::1] act, double [::1] rew,
+              double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],len(rew))
 
@@ -172,8 +177,8 @@ cdef class SelectiveEnvironment(Environment):
                                         self.next_obs.ptr,
                                         self.done.ptr)
 
-    def _add(self,Obs [::1] obs,Act [::1] act, Rew [::1] rew,
-             Next_Obs [::1] next_obs, Done [::1] done):
+    cdef _add(self,double [::1] obs,double [::1] act, double [::1] rew,
+              double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],len(rew))
 
@@ -277,22 +282,14 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _update(self,size_t next_index,size_t N):
-        self.per.set_priorities(next_index,N,self.get_buffer_size())
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    def _update_p(self,size_t next_index,size_t N,Prio [:] p):
-        self.per.set_priorities(next_index,&p[0],N,self.get_buffer_size())
-
-
     def add(self,obs,act,rew,next_obs,done,priorities = None):
         cdef size_t next_index = super().add(obs,act,rew,next_obs,done)
-        cdef size_t N = np.asarray(rew).reshape(-1).shape[0]
+        cdef size_t N = np.array(rew,copy=False,ndim=1).shape[0]
+        cdef double [:] ps = np.array(priorities,copy=False,ndmin=1,dtype=np.double)
         if priorities is not None:
-            self._update_p(next_index,N,np.asarray(priorities).reshape(-1))
+            self.per.set_priorities(next_index,&ps[0],N,self.get_buffer_size())
         else:
-            self._update(next_index,N)
+            self._update(next_index,N,self.get_buffer_size())
 
     def sample(self,batch_size,beta = 0.4):
         self.per.sample(batch_size,beta,
@@ -372,22 +369,14 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def _update(self,size_t next_index,size_t N):
-        self.per.set_priorities(next_index,N,self.get_buffer_size())
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    def _update_p(self,size_t next_index,size_t N,Prio [:] p):
-        self.per.set_priorities(next_index,&p[0],N,self.get_buffer_size())
-
-
     def add(self,obs,act,rew,next_obs,done,priorities = None):
         cdef size_t next_index = super().add(obs,act,rew,next_obs,done)
-        cdef size_t N = np.asarray(rew).reshape(-1).shape[0]
+        cdef size_t N = np.array(rew,copy=False,ndim=1).shape[0]
+        cdef double [:] ps = np.array(priorities,copy=False,ndim=1,dtype=np.double)
         if priorities is not None:
-            self._update_p(next_index,N,np.asarray(priorities).reshape(-1))
+            self.per.set_priorities(next_index,&ps[0],N,self.get_buffer_size())
         else:
-            self._update(next_index,N)
+            self._update(next_index,N,self.get_buffer_size())
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
