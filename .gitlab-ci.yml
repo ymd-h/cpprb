@@ -65,7 +65,7 @@ issue40:
 multi_rew:
   <<: *py_setup
   script:
-    -python3 multi_rew
+    - python3 multi_rew.py
 
 emacs:
   image: iquiw/alpine-emacs
