@@ -3,7 +3,7 @@ from libcpp cimport bool
 
 cdef extern from "ReplayBuffer.hh" namespace "ymd":
     cdef cppclass CppRingEnvironment[Obs,Act,Rew,Done]:
-        CppRingEnvironment(size_t,size_t,size_t) except +
+        CppRingEnvironment(size_t,size_t,size_t,size_t) except +
         size_t store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
         size_t get_stored_size()
@@ -11,7 +11,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_next_index()
         size_t get_buffer_size()
     cdef cppclass CppThreadSafeRingEnvironment[Obs,Act,Rew,Done]:
-        CppThreadSafeRingEnvironment(size_t,size_t,size_t,size_t*,size_t*,
+        CppThreadSafeRingEnvironment(size_t,size_t,size_t,size_t,size_t*,size_t*,
                                      Obs*,Act*,Rew*,Obs*,Done*) except +
         size_t store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
@@ -20,7 +20,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_next_index()
         size_t get_buffer_size()
     cdef cppclass CppSelectiveEnvironment[Obs,Act,Rew,Done]:
-        CppSelectiveEnvironment(size_t,size_t,size_t,size_t) except +
+        CppSelectiveEnvironment(size_t,size_t,size_t,size_t,size_t) except +
         size_t store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
         void get_episode(size_t,size_t&,

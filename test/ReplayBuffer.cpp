@@ -413,6 +413,7 @@ int main(){
 
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
+  constexpr const auto rew_dim = 1ul;
 
   constexpr const auto N_buffer_size = 1024ul;
   constexpr const auto N_step = 3 * N_buffer_size;
@@ -453,6 +454,7 @@ int main(){
 					     Reward,Done,Priority>{N_buffer_size,
 								   obs_dim,
 								   act_dim,
+								   rew_dim,
 								   alpha};
 
 

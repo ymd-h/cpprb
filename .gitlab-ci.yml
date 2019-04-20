@@ -2,12 +2,6 @@ variables:
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
   GIT_SUBMODULE_STRATEGY: recursive
 
-.job_template: &setup
-  image: registry.gitlab.com/ymd_h/cpprb/build:latest
-  before_script:
-    - g++ --version
-    - python3 --version
-
 stages:
   - page_export
   - page_deploy
@@ -15,13 +9,27 @@ stages:
   - py_build
   - py_test
 
+.job_template: &setup
+  image: &dev_image registry.gitlab.com/ymd_h/cpprb/build:latest
+  before_script:
+    - g++ --version
+    - python3 --version
+
+.test_template: &py_setup
+  image: *dev_image
+  stage: py_test
+  before_script:
+    - g++ --version
+    - python3 --version
+    - pip install dist/cpprb-*
+    - cd test
+
 ReplayBuffer.cpp:
   <<: *setup
   stage: cpp_test
   script:
     - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
     - test/ReplayBuffer
-  when: always
 
 SegmentTree.cpp:
   <<: *setup
@@ -29,7 +37,6 @@ SegmentTree.cpp:
   script:
     - $CXX -o test/SegmentTree test/SegmentTree.cpp
     - test/SegmentTree
-  when: always
 
 py_build:
   <<: *setup
@@ -41,28 +48,24 @@ py_build:
       - dist
 
 ReplayBuffer:
-  <<: *setup
-  stage: py_test
+  <<: *py_setup
   script:
-    - pip install dist/cpprb-*
-    - cd test
     - python3 PyReplayBuffer.py
 
 issue39:
-  <<: *setup
-  stage: py_test
+  <<: *py_setup
   script:
-    - pip install dist/cpprb-*
-    - cd test
     - python3 issue39.py
 
 issue40:
-  <<: *setup
-  stage: py_test
+  <<: *py_setup
   script:
-    - pip install dist/cpprb-*
-    - cd test
     - python3 issue40.py
+
+multi_rew:
+  <<: *py_setup
+  script:
+    - python3 multi_rew.py
 
 emacs:
   image: iquiw/alpine-emacs

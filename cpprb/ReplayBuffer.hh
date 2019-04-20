@@ -73,7 +73,8 @@ namespace ymd {
     DimensionalBuffer<Observation> next_obs_buffer;
     DimensionalBuffer<Done> done_buffer;
   public:
-    Environment(std::size_t size,std::size_t obs_dim,std::size_t act_dim,
+    Environment(std::size_t size,
+		std::size_t obs_dim,std::size_t act_dim,std::size_t rew_dim = 1,
 		Observation* obs=nullptr,Action* act=nullptr,Reward* rew=nullptr,
 		Observation* next_obs=nullptr,Done* done=nullptr)
       : buffer_size{size},
@@ -81,7 +82,7 @@ namespace ymd {
 	act_dim{act_dim},
 	obs_buffer{size,obs_dim,obs},
 	act_buffer{size,act_dim,act},
-	rew_buffer{size,std::size_t(1),rew},
+	rew_buffer{size,rew_dim,rew},
 	next_obs_buffer{size,obs_dim,next_obs},
 	done_buffer{size,std::size_t(1),done} {}
     Environment(): Environment{std::size_t(1),std::size_t(1),std::size_t(1)} {}
@@ -166,12 +167,13 @@ namespace ymd {
     std::shared_ptr<typename ThreadSafe_size_t::type> index_view;
     const std::size_t mask;
   public:
-    CppRingEnvironment(std::size_t size,std::size_t obs_dim,std::size_t act_dim,
+    CppRingEnvironment(std::size_t size,
+		       std::size_t obs_dim,std::size_t act_dim,std::size_t rew_dim=1,
 		       std::size_t* size_ptr=nullptr,std::size_t* index_ptr=nullptr,
 		       Observation* obs=nullptr,Action* act=nullptr,
 		       Reward* rew=nullptr,
 		       Observation* next_obs=nullptr,Done* done=nullptr)
-      : Env_t{PowerOf2(size),obs_dim,act_dim,obs,act,rew,next_obs,done},
+      : Env_t{PowerOf2(size),obs_dim,act_dim,rew_dim,obs,act,rew,next_obs,done},
 	stored_size{(typename ThreadSafe_size_t::type*)size_ptr},
 	next_index{(typename ThreadSafe_size_t::type*)index_ptr},
 	stored_view{},
@@ -269,8 +271,9 @@ namespace ymd {
 
   public:
     CppSelectiveEnvironment(std::size_t episode_len,std::size_t Nepisodes,
-			 std::size_t obs_dim,std::size_t act_dim)
-      : Env_t{episode_len * Nepisodes,obs_dim,act_dim},
+			    std::size_t obs_dim,std::size_t act_dim,
+			    std::size_t rew_dim=1)
+      : Env_t{episode_len * Nepisodes,obs_dim,act_dim,rew_dim},
 	next_index{std::size_t(0)},
 	episode_len{episode_len},
 	Nepisodes{Nepisodes},
@@ -441,8 +444,9 @@ namespace ymd {
     }
 
   public:
-    CppReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim)
-      : Buffer_t{n,obs_dim,act_dim},
+    CppReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
+		    std::size_t rew_dim = 1)
+      : Buffer_t{n,obs_dim,act_dim,rew_dim},
 	index_buffer{},
 	g{std::random_device{}()} {}
     CppReplayBuffer(Buffer_t&& buffer)
@@ -691,8 +695,8 @@ namespace ymd {
     using Sampler = CppPrioritizedSampler<Priority>;
   public:
     CppPrioritizedReplayBuffer(std::size_t n,std::size_t obs_dim,std::size_t act_dim,
-			       Priority alpha)
-      : BaseClass{n,obs_dim,act_dim},
+			       std::size_t rew_dim, Priority alpha)
+      : BaseClass{n,obs_dim,act_dim,rew_dim},
 	Sampler{n,alpha} {}
     CppPrioritizedReplayBuffer() : CppPrioritizedReplayBuffer{1,1,1,0.0} {}
     CppPrioritizedReplayBuffer(const CppPrioritizedReplayBuffer&) = default;
@@ -811,7 +815,7 @@ namespace ymd {
     }
   public:
     CppNstepRewardBuffer(std::size_t size,std::size_t obs_dim,
-		      std::size_t nstep,Reward gamma)
+			 std::size_t nstep,Reward gamma)
       : buffer_size{size},
 	obs_dim{obs_dim},
 	nstep{nstep},
