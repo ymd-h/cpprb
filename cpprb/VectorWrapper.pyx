@@ -25,6 +25,9 @@ cdef class VectorWrapper:
             self.shape[1] = <Py_ssize_t> (self.value_dim)
             self.strides[0] = self.value_dim * self.itemsize
 
+    cpdef size_t vec_size(self):
+        raise NotImplementedError()
+
     def __dealloc__(self):
         free(self.shape)
         free(self.strides)
@@ -56,7 +59,7 @@ cdef class VectorInt(VectorWrapper):
         buffer.buf = <void*>(self.vec.data())
         buffer.format = 'i'
 
-    def vec_size(self):
+    cpdef size_t vec_size(self):
         return self.vec.size()
 
 cdef class VectorDouble(VectorWrapper):
@@ -69,7 +72,7 @@ cdef class VectorDouble(VectorWrapper):
         buffer.buf = <void*>(self.vec.data())
         buffer.format = 'd'
 
-    def vec_size(self):
+    cpdef size_t vec_size(self):
         return self.vec.size()
 
 cdef class VectorSize_t(VectorWrapper):
@@ -91,7 +94,7 @@ cdef class VectorSize_t(VectorWrapper):
         else:
             raise BufferError("Unknown size_t implementation!")
 
-    def vec_size(self):
+    cpdef size_t vec_size(self):
         return self.vec.size()
 
 cdef class PointerDouble(VectorWrapper):
@@ -107,5 +110,5 @@ cdef class PointerDouble(VectorWrapper):
     cdef void update_vec_size(self,size_t size):
         self._vec_size = self.value_dim * size
 
-    def vec_size(self):
+    cpdef size_t vec_size(self):
         return self._vec_size

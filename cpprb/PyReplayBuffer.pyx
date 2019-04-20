@@ -9,7 +9,8 @@ import cython
 from cpprb cimport ReplayBuffer
 
 from .VectorWrapper cimport *
-from .VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorDouble,PointerDouble)
+from .VectorWrapper import (VectorWrapper,
+                            VectorInt,VectorSize_t,VectorDouble,PointerDouble)
 
 cdef double [::1] Cview(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
@@ -52,7 +53,7 @@ cdef class Environment:
                 'next_obs': np.asarray(self.next_obs)[idx],
                 'done': np.asarray(self.done)[idx]}
 
-    def get_buffer_size(self):
+    cpdef size_t get_buffer_size(self):
         return self.buffer_size
 
 cdef class RingEnvironment(Environment):
@@ -76,13 +77,13 @@ cdef class RingEnvironment(Environment):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
-    def clear(self):
-        return self.buffer.clear()
+    cpdef void clear(self):
+        self.buffer.clear()
 
-    def get_stored_size(self):
+    cpdef size_t get_stored_size(self):
         return self.buffer.get_stored_size()
 
-    def get_next_index(self):
+    cpdef size_t get_next_index(self):
         return self.buffer.get_next_index()
 
 cdef class ProcessSharedRingEnvironment(Environment):
@@ -151,13 +152,13 @@ cdef class ProcessSharedRingEnvironment(Environment):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
-    def clear(self):
-        return self.buffer.clear()
+    cpdef void clear(self):
+        self.buffer.clear()
 
-    def get_stored_size(self):
+    cpdef size_t get_stored_size(self):
         return self.buffer.get_stored_size()
 
-    def get_next_index(self):
+    cpdef size_t get_next_index(self):
         return self.buffer.get_next_index()
 
 cdef class SelectiveEnvironment(Environment):
@@ -183,19 +184,19 @@ cdef class SelectiveEnvironment(Environment):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
-    def clear(self):
-        return self.buffer.clear()
+    cpdef void clear(self):
+        self.buffer.clear()
 
-    def get_stored_size(self):
+    cpdef size_t get_stored_size(self):
         return self.buffer.get_stored_size()
 
-    def get_next_index(self):
+    cpdef size_t get_next_index(self):
         return self.buffer.get_next_index()
 
-    def get_stored_episode_size(self):
+    cpdef size_t get_stored_episode_size(self):
         return self.buffer.get_stored_episode_size()
 
-    def delete_episode(self,i):
+    cpdef size_t delete_episode(self,i):
         return self.buffer.delete_episode(i)
 
     def get_episode(self,i):
@@ -310,11 +311,11 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
-    def clear(self):
+    cpdef void clear(self):
         super().clear()
         self.per.clear()
 
-    def get_max_priority(self):
+    cpdef double get_max_priority(self):
         return self.per.get_max_priority()
 
 cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
@@ -384,11 +385,11 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         cdef size_t N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
-    def clear(self):
+    cpdef void clear(self):
         super().clear()
         self.per.clear()
 
-    def get_max_priority(self):
+    cpdef double get_max_priority(self):
         return self.per.get_max_priority()
 
 cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
