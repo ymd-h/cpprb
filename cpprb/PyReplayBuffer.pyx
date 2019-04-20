@@ -72,7 +72,7 @@ cdef class RingEnvironment(Environment):
         self.buffer_size = self.buffer.get_buffer_size()
 
     cdef size_t _add(self,double [::1] obs, double [::1] act, double [::1] rew,
-              double [::1] next_obs, double [::1] done):
+                     double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
@@ -179,7 +179,7 @@ cdef class SelectiveEnvironment(Environment):
                                         self.done.ptr)
 
     cdef size_t _add(self,double [::1] obs,double [::1] act, double [::1] rew,
-              double [::1] next_obs, double [::1] done):
+                     double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
