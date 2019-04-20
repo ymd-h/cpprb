@@ -37,12 +37,11 @@ cdef class Environment:
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
+    cdef double [:] Cview(ndarray):
+        return np.ravel(np.array(ndarray,copy=False,dtype=np.double,ndim=1,order='C'))
+
     def add(self,obs,act,rew,next_obs,done):
-        self._add(np.ravel(np.asarray(obs)),
-                  np.ravel(np.asarray(act)),
-                  np.asarray(rew).reshape(-1),
-                  np.ravel(np.asarray(next_obs)),
-                  np.asarray(done).reshape(-1))
+        self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
 
     def _encode_sample(self,idx):
         return {'obs': np.asarray(self.obs)[idx],
