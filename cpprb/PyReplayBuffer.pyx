@@ -281,7 +281,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         if priorities is not None:
             self.per.set_priorities(next_index,&ps[0],N,self.get_buffer_size())
         else:
-            self._update(next_index,N,self.get_buffer_size())
+            self.per.set_priorities(next_index,N,self.get_buffer_size())
         return next_index
 
     def sample(self,batch_size,beta = 0.4):
@@ -366,7 +366,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         if priorities is not None:
             self.per.set_priorities(next_index,&ps[0],N,self.get_buffer_size())
         else:
-            self._update(next_index,N,self.get_buffer_size())
+            self.per.set_priorities(next_index,N,self.get_buffer_size())
         return next_index
 
     def update_priorities(self,indexes,priorities):
