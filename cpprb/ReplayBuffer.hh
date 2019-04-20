@@ -815,7 +815,7 @@ namespace ymd {
     }
   public:
     CppNstepRewardBuffer(std::size_t size,std::size_t obs_dim,
-		      std::size_t nstep,Reward gamma)
+			 std::size_t nstep,Reward gamma)
       : buffer_size{size},
 	obs_dim{obs_dim},
 	nstep{nstep},
