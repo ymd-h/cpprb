@@ -68,7 +68,7 @@ cdef class RingEnvironment(Environment):
     cdef _add(self,double [::1] obs, double [::1] act, double [::1] rew,
               double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
-                                 &next_obs[0],&done[0],rew.shape[0])
+                                 &next_obs[0],&done[0],done.shape[0])
 
     def clear(self):
         return self.buffer.clear()
@@ -141,7 +141,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
     cdef _add(self,double [::1] obs,double [::1] act, double [::1] rew,
               double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
-                                 &next_obs[0],&done[0],len(rew))
+                                 &next_obs[0],&done[0],done.shape[0])
 
     def clear(self):
         return self.buffer.clear()
@@ -172,7 +172,7 @@ cdef class SelectiveEnvironment(Environment):
     cdef _add(self,double [::1] obs,double [::1] act, double [::1] rew,
               double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
-                                 &next_obs[0],&done[0],len(rew))
+                                 &next_obs[0],&done[0],done.shape[0])
 
     def clear(self):
         return self.buffer.clear()
