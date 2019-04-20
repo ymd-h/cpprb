@@ -373,7 +373,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         cdef size_t [:] idx = np.ravel(np.array(indexes,dtype=np.uint64,
                                                 copy=False,ndmin=1))
         cdef double [:] ps = Cview(priorities)
-        cdef N = idx.shape[0]
+        cdef size_t N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
     def clear(self):
