@@ -21,7 +21,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         size_t get_buffer_size()
     cdef cppclass CppSelectiveEnvironment[Obs,Act,Rew,Done]:
         CppSelectiveEnvironment(size_t,size_t,size_t,size_t) except +
-        void store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
+        size_t store[O,A,R,NO,D](O*,A*,R*,NO*,D*,size_t)
         void clear()
         void get_episode(size_t,size_t&,
                          Obs*&,Act*&,Rew*&,Obs*&,Done*&)
