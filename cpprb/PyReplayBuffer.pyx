@@ -364,7 +364,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
     def add(self,obs,act,rew,next_obs,done,priorities = None):
         cdef size_t next_index = super().add(obs,act,rew,next_obs,done)
         cdef size_t N = np.array(done,copy=False,ndmin=1).shape[0]
-        cdef double [:] ps = Ciew(priorities)
+        cdef double [:] ps = Cview(priorities)
         if priorities is not None:
             self.per.set_priorities(next_index,&ps[0],N,self.get_buffer_size())
         else:
