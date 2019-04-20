@@ -78,7 +78,7 @@ cdef class RingEnvironment(Environment):
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
-        return self.buffer.clear()
+        self.buffer.clear()
 
     cpdef size_t get_stored_size(self):
         return self.buffer.get_stored_size()
@@ -153,7 +153,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
-        return self.buffer.clear()
+        self.buffer.clear()
 
     cpdef size_t get_stored_size(self):
         return self.buffer.get_stored_size()
@@ -185,7 +185,7 @@ cdef class SelectiveEnvironment(Environment):
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
-        return self.buffer.clear()
+        self.buffer.clear()
 
     cpdef size_t get_stored_size(self):
         return self.buffer.get_stored_size()
