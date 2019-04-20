@@ -17,6 +17,15 @@
 #include "SegmentTree.hh"
 
 namespace ymd {
+
+  template<typename Buffer> inline void clear(Buffer* b){ b->clear(); }
+  template<typename Buffer>
+  inline std::size_t get_next_index(Buffer* b){ return b->get_next_index(); }
+  template<typename Buffer>
+  inline std::size_t get_buffer_size(Buffer* b){ return b->get_buffer_size(); }
+  template<typename Buffer>
+  inline std::size_t get_stored_size(Buffer* b){ return b->get_stored_size(); }
+
   template<typename T>
   class DimensionalBuffer {
   private:
