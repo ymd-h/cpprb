@@ -13,11 +13,9 @@ from .VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorDouble,Po
 
 Obs      = cython.fused_type(cython.float, cython.double)
 Act      = cython.fused_type(cython.float, cython.double)
-Rew      = cython.fused_type(cython.float, cython.double,
-                             cython.short, cython.long)
+Rew      = cython.fused_type(cython.float, cython.double, cython.long)
 Next_Obs = cython.fused_type(cython.float, cython.double)
-Done     = cython.fused_type(cython.float, cython.double,
-                             cython.short, cython.long)
+Done     = cython.fused_type(cython.float, cython.double, cython.long)
 Prio     = cython.fused_type(cython.float, cython.double)
 
 cdef class Environment:
