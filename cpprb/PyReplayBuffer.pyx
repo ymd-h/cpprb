@@ -673,6 +673,10 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
 
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(RingEnvironment):
+    """
+    Prioritized replay buffer class to store environments with priorities.
+    In this class, these environments are sampled with corresponding priorities.
+    """
     cdef VectorDouble weights
     cdef VectorSize_t indexes
     cdef double alpha
@@ -686,6 +690,30 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def add(self,obs,act,rew,next_obs,done,priorities = None):
+        """
+        Add environment(s) into replay buffer.
+        Multiple step environments can be added.
+
+        Parameters
+        ----------
+        obs : array_like or float or int
+            observation(s)
+        act : array_like or float or int
+            action(s)
+        rew : array_like or float or int
+            reward(s)
+        next_obs : array_like or float or int
+            next observation(s)
+        done : array_like or float or int
+            done(s)
+        priorities : array_like or float or int
+            priorities of each environment
+
+        Returns
+        -------
+        int
+            the stored first index
+        """
         cdef size_t next_index = super().add(obs,act,rew,next_obs,done)
         cdef size_t N = np.array(done,copy=False,ndmin=1).shape[0]
         cdef double [:] ps = np.array(priorities,copy=False,ndmin=1,dtype=np.double)
