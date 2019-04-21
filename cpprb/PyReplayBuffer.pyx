@@ -217,12 +217,43 @@ cdef class ProcessSharedRingEnvironment(Environment):
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
+        """
+        Clear replay buffer.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
+        """
+        Get stored size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            stored size
+        """
         return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
+        """
+        Get the next index to store
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            the next index to store
+        """
         return get_next_index(self.buffer)
 
 cdef class SelectiveEnvironment(Environment):
@@ -249,12 +280,43 @@ cdef class SelectiveEnvironment(Environment):
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
+        """
+        Clear replay buffer.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
+        """
+        Get stored size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            stored size
+        """
         return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
+        """
+        Get the next index to store
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            the next index to store
+        """
         return get_next_index(self.buffer)
 
     cpdef size_t get_stored_episode_size(self):
