@@ -123,6 +123,17 @@ cdef class RingEnvironment(Environment):
         clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
+        """
+        Get stored size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            stored size
+        """
         return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
