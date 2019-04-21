@@ -462,6 +462,21 @@ cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
     def __cinit__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
         pass
 
+    def __init__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs and next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        rew_dim : int, optional, keyword only
+            reward (rew) dimension, whose default value is 1
+        """
+        pass
+
     def sample(self,batch_size):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
