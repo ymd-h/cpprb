@@ -533,6 +533,23 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
         pass
 
+    def __init__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
+        """
+        Parameters
+        ----------
+        episode_len : int
+            the max size of a single episode
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        Nepisodes : int, optional
+            the max size of stored episodes whose default value is 10
+        rew_dim : int, optional
+            reward (rew) dimension whose dimension is 1
+        """
+        pass
+
     def sample(self,batch_size):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
