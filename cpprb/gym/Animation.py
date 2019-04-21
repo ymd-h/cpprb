@@ -5,7 +5,7 @@ class Animation:
     def clear(self):
         raise NotImplementedError()
 
-    def display(self,*,**kwargs):
+    def display(self,**kwargs):
         raise NotImplementedError()
 
 class NotebookAnimation(Animation):
