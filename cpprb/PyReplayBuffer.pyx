@@ -254,14 +254,14 @@ cdef class ReplayBuffer(RingEnvironment):
         """
         Parameters
         ----------
-        size : int (-> size_t)
+        size : int
             buffer size
-        obs_dim : int (-> size_t)
+        obs_dim : int
             observation (obs and next_obs) dimension
-        act_dim : int (-> size_t)
+        act_dim : int
             action (act) dimension
-        rew_dim : int (-> size_t)
-            reward (rew) dimension (default = 1: keward only)
+        rew_dim : int, optional, keyword only
+            reward (rew) dimension, whose default value is 1
         """
         pass
 
