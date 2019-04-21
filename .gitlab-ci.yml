@@ -52,15 +52,10 @@ ReplayBuffer:
   script:
     - python3 PyReplayBuffer.py
 
-issue39:
+issue:
   <<: *py_setup
   script:
-    - python3 issue39.py
-
-issue40:
-  <<: *py_setup
-  script:
-    - python3 issue40.py
+    - python3 issue.py
 
 multi_rew:
   <<: *py_setup
