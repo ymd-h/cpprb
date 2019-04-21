@@ -111,6 +111,15 @@ cdef class RingEnvironment(Environment):
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
+        """
+        Clear replay buffer.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
