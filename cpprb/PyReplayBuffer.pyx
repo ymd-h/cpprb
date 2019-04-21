@@ -1076,6 +1076,9 @@ cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
 
 @cython.embedsignature(True)
 cdef class NstepReplayBuffer(ReplayBuffer):
+    """
+    Replay buffer using N-step reward
+    """
     cdef CppNstepRewardBuffer[double,double]* nrb
     cdef PointerDouble gamma
     cdef PointerDouble nstep_rew
