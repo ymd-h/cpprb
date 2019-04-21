@@ -741,6 +741,30 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         return next_index
 
     def sample(self,batch_size,beta = 0.4):
+        """
+        Sample the stored environment depending on correspoinding priorities
+        with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+        beta : float, optional
+            the exponent for discount priority effect whose default value is 0.4
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples which also includes 'weights' and 'indexes'
+
+
+        Notes
+        -----
+        When 'beta' is 0, priorities are ignored.
+        The greater 'beta', the bigger effect of priories.
+
+        The sampling probabilities are propotional to :math:`priorities ^ {-'beta'}`
+        """
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
                         self.get_stored_size())
