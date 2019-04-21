@@ -1035,6 +1035,24 @@ cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
         return samples
 
     def init_worker(self):
+        """
+        Init worker class for multiprocessing.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        ProcessSharedPrioritizedWorker
+            worker class for multiprocessing.
+
+
+        Notes
+        -----
+        This method must call in the child process.
+        The replay buffer is allocated on shared memory between multi process.
+        This function ensure the shared memory address in these pointers.
+        """
         return ProcessSharedPrioritizedWorker(self.buffer_size,
                                               self.obs_dim,self.act_dim,
                                               rew_dim = self.rew_dim,
