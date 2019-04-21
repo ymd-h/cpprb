@@ -551,6 +551,19 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
         pass
 
     def sample(self,batch_size):
+        """
+        Sample the stored environment randomly with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples, which might contains the same event multiple times.
+        """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
