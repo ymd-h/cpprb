@@ -994,6 +994,12 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
 
 @cython.embedsignature(True)
 cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
+    """
+    Prioritized replay buffer class to store environments with priorities.
+    In this class, these environments are sampled with corresponding priorities.
+
+    This class can be added from multiprocessing without explicit lock.
+    """
     def sample(self,batch_size,beta = 0.4):
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
