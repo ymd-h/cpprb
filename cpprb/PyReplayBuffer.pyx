@@ -18,7 +18,11 @@ cdef double [::1] Cview(array):
 cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
+@cython.embedsignature(True)
 cdef class Environment:
+    """
+    Base class to store environment
+    """
     cdef PointerDouble obs
     cdef PointerDouble act
     cdef PointerDouble rew
@@ -39,11 +43,48 @@ cdef class Environment:
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
+    def __init__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs) dimension
+        act_dim : int
+            action (act) dimension
+        rew_dim : int, optional
+            reward (rew) dimension whose default value is 1
+        """
+        pass
+
     cdef size_t _add(self,double [::1] o,double [::1] a,double [::1] r,
                      double [::1] no,double [::1] d):
         raise NotImplementedError
 
     def add(self,obs,act,rew,next_obs,done):
+        """
+        Add environment(s) into replay buffer.
+        Multiple step environments can be added.
+
+        Parameters
+        ----------
+        obs : array_like or float or int
+            observation(s)
+        act : array_like or float or int
+            action(s)
+        rew : array_like or float or int
+            reward(s)
+        next_obs : array_like or float or int
+            next observation(s)
+        done : array_like or float or int
+            done(s)
+
+        Returns
+        -------
+        int
+            the stored first index
+        """
         return self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
 
     def _encode_sample(self,idx):
@@ -54,9 +95,24 @@ cdef class Environment:
                 'done': np.asarray(self.done)[idx]}
 
     cpdef size_t get_buffer_size(self):
+        """
+        Get buffer size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            buffer size
+        """
         return self.buffer_size
 
+@cython.embedsignature(True)
 cdef class RingEnvironment(Environment):
+    """
+    Ring buffer class to store environment
+    """
     cdef CppRingEnvironment[double,double,double,double] *buffer
     def __cinit__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
         self.buffer = new CppRingEnvironment[double,double,double,double](size,
@@ -72,21 +128,72 @@ cdef class RingEnvironment(Environment):
 
         self.buffer_size = get_buffer_size(self.buffer)
 
+    def __init__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        rew_dim : int, optional
+            reward (rew) dimension whose default value is 1
+        """
+        pass
+
     cdef size_t _add(self,double [::1] obs, double [::1] act, double [::1] rew,
                      double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
+        """
+        Clear replay buffer.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
+        """
+        Get stored size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            stored size
+        """
         return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
+        """
+        Get the next index to store
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            the next index to store
+        """
         return get_next_index(self.buffer)
 
+@cython.embedsignature(True)
 cdef class ProcessSharedRingEnvironment(Environment):
+    """
+    Ring buffer class for environment.
+    This class can be added from multiprocessing without explicit lock.
+    """
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
     cdef stored_size_v
     cdef next_index_v
@@ -147,21 +254,94 @@ cdef class ProcessSharedRingEnvironment(Environment):
         if N != self.buffer_size:
             raise ValueError("Size mismutch")
 
+    def __init__(self,size,obs_dim,act_dim,*,
+                 rew_dim = 1,
+                 stored_size=None,next_index=None,
+                 obs=None,act=None,rew=None,next_obs=None,done=None,
+                 **kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        rew_dim : int, optional
+            reward (rew) dimension
+        stored_size : multiprocessing.RawArray of ctypes.c_size_t, optional
+            shared memory for stored_size. If None, new memory is allocated.
+        next_index : multiprocessing.RawArray of ctypes.c_size_t, optional
+            shared memory for next_index. If None, new memory is allocated.
+        obs : multiprocessing.RawArray of ctypes.c_double
+            shared memory for obs. If None, new memory is allocated.
+        act : multiprocessing.RawArray of ctypes.c_double
+            shared memory for act. If None, new memory is allocated.
+        rew : multiprocessing.RawArray of ctypes.c_double
+            shared memory for rew. If None, new memory is allocated.
+        next_obs : multiprocessing.RawArray of ctypes.c_double
+            shared memory for next_obs. If None, new memory is allocated.
+        done : multiprocessing.RawArray of ctypes.c_double
+            shared memory for done. If None, new memory is allocated.
+
+        Notes
+        -----
+        Shared memory arguments are designed to use in init_worker method.
+        Usually, you don't need to specify manually.
+        """
+        pass
+
     cdef size_t _add(self,double [::1] obs,double [::1] act, double [::1] rew,
               double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
+        """
+        Clear replay buffer.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
+        """
+        Get stored size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            stored size
+        """
         return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
+        """
+        Get the next index to store
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            the next index to store
+        """
         return get_next_index(self.buffer)
 
+@cython.embedsignature(True)
 cdef class SelectiveEnvironment(Environment):
+    """
+    Base class for episode level management envirionment
+    """
     cdef CppSelectiveEnvironment[double,double,double,double] *buffer
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
         self.buffer_size = episode_len * Nepisodes
@@ -179,27 +359,114 @@ cdef class SelectiveEnvironment(Environment):
                                         self.next_obs.ptr,
                                         self.done.ptr)
 
+    def __init__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
+        """
+        Parameters
+        ----------
+        episode_len : int
+            the mex size of environments in a single episode
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        Nepisodes : int, optional
+            the max size of stored episodes
+        rew_dim : int, optional
+            reward (rew) dimension
+        """
+        pass
+
     cdef size_t _add(self,double [::1] obs,double [::1] act, double [::1] rew,
                      double [::1] next_obs, double [::1] done):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
     cpdef void clear(self):
+        """
+        Clear replay buffer.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         clear(self.buffer)
 
     cpdef size_t get_stored_size(self):
+        """
+        Get stored size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            stored size
+        """
         return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
+        """
+        Get the next index to store
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            the next index to store
+        """
         return get_next_index(self.buffer)
 
     cpdef size_t get_stored_episode_size(self):
+        """
+        Get the size of stored episodes
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            the size of stored episodes
+        """
         return self.buffer.get_stored_episode_size()
 
     cpdef size_t delete_episode(self,i):
+        """
+        Delete specified episode
+
+        The stored environment after specified episode are moved to backward.
+
+        Parameters
+        ----------
+        i : int
+            the index of delete episode
+
+        Returns
+        -------
+        size_t
+            the size of environments in the deleted episodes
+        """
         return self.buffer.delete_episode(i)
 
     def get_episode(self,i):
+        """
+        Get specified episode
+
+        Parameters
+        ----------
+        i : int
+            the index of extracted episode
+
+        Returns
+        -------
+        dict of ndarray
+            the set environment in i-th episode
+        """
         cdef size_t len = 0
         self.buffer.get_episode(i,len,
                                 self.obs.ptr,self.act.ptr,self.rew.ptr,
@@ -236,23 +503,119 @@ cdef class SelectiveEnvironment(Environment):
         self.done.update_vec_size(buffer_size)
         return super()._encode_sample(indexes)
 
+@cython.embedsignature(True)
 cdef class ReplayBuffer(RingEnvironment):
+    """
+    Replay Buffer class to store environments and to sample them randomly.
+
+    The envitonment contains observation (obs), action (act), reward (rew),
+    the next observation (next_obs), and done (done).
+
+    In this class, sampling is random sampling and the same environment can be
+    chosen multiple times.
+    """
     def __cinit__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
         pass
 
-    def sample(self,batch_size):
-        cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
-        return self._encode_sample(idx)
-
-cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
-    def __cinit__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+    def __init__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs and next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        rew_dim : int, optional, keyword only
+            reward (rew) dimension, whose default value is 1
+        """
         pass
 
     def sample(self,batch_size):
+        """
+        Sample the stored environment randomly with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples, which might contains the same event multiple times.
+        """
+        cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
+        return self._encode_sample(idx)
+
+@cython.embedsignature(True)
+cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
+    """
+    Replay Buffer class to store environments and to sample them randomly.
+
+    The envitonment contains observation (obs), action (act), reward (rew),
+    the next observation (next_obs), and done (done).
+
+    In this class, sampling is random sampling and the same environment can be
+    chosen multiple times.
+
+    This class can be add-ed from 'multiprocessing' without explicit lock.
+    """
+    def __cinit__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+        pass
+
+    def __init__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs and next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        rew_dim : int, optional, keyword only
+            reward (rew) dimension, whose default value is 1
+        """
+        pass
+
+    def sample(self,batch_size):
+        """
+        Sample the stored environment randomly with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples, which might contains the same event multiple times.
+        """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
     def init_worker(self):
+        """
+        Init worker class for multiprocessing.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        ProcessSharedRingEnvironment
+            worker class for multiprocessing.
+
+
+        Notes
+        -----
+        This method must call in the child process.
+        The replay buffer is allocated on shared memory between multi process.
+        This function ensure the shared memory address in these pointers.
+        """
         return ProcessSharedRingEnvironment(self.buffer_size,
                                             self.obs_dim,self.act_dim,
                                             rew_dim = self.rew_dim,
@@ -264,15 +627,56 @@ cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
                                             next_obs = self.next_obs_v,
                                             done = self.done_v)
 
+@cython.embedsignature(True)
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
+    """
+    Replay buffer to store episodes of environment.
+
+    This class can get and delete a episode.
+    """
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
         pass
 
+    def __init__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
+        """
+        Parameters
+        ----------
+        episode_len : int
+            the max size of a single episode
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        Nepisodes : int, optional
+            the max size of stored episodes whose default value is 10
+        rew_dim : int, optional
+            reward (rew) dimension whose dimension is 1
+        """
+        pass
+
     def sample(self,batch_size):
+        """
+        Sample the stored environment randomly with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples, which might contains the same event multiple times.
+        """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
+@cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(RingEnvironment):
+    """
+    Prioritized replay buffer class to store environments with priorities.
+    In this class, these environments are sampled with corresponding priorities.
+    """
     cdef VectorDouble weights
     cdef VectorSize_t indexes
     cdef double alpha
@@ -283,9 +687,50 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
+    def __init__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,**kwrags):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        alpha : float, optional
+            the exponent of the priorities in stored whose default value is 0.6
+        rew_dim : int, optional
+            reward (rew) dimension whose default value is 1
+        """
+        pass
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def add(self,obs,act,rew,next_obs,done,priorities = None):
+        """
+        Add environment(s) into replay buffer.
+        Multiple step environments can be added.
+
+        Parameters
+        ----------
+        obs : array_like or float or int
+            observation(s)
+        act : array_like or float or int
+            action(s)
+        rew : array_like or float or int
+            reward(s)
+        next_obs : array_like or float or int
+            next observation(s)
+        done : array_like or float or int
+            done(s)
+        priorities : array_like or float or int
+            priorities of each environment
+
+        Returns
+        -------
+        int
+            the stored first index
+        """
         cdef size_t next_index = super().add(obs,act,rew,next_obs,done)
         cdef size_t N = np.array(done,copy=False,ndmin=1).shape[0]
         cdef double [:] ps = np.array(priorities,copy=False,ndmin=1,dtype=np.double)
@@ -296,6 +741,30 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         return next_index
 
     def sample(self,batch_size,beta = 0.4):
+        """
+        Sample the stored environment depending on correspoinding priorities
+        with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+        beta : float, optional
+            the exponent for discount priority effect whose default value is 0.4
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples which also includes 'weights' and 'indexes'
+
+
+        Notes
+        -----
+        When 'beta' is 0, priorities are ignored.
+        The greater 'beta', the bigger effect of priories.
+
+        The sampling probabilities are propotional to :math:`priorities ^ {-'beta'}`
+        """
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
                         self.get_stored_size())
@@ -306,19 +775,56 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         return samples
 
     def update_priorities(self,indexes,priorities):
+        """
+        Update priorities
+
+        Parameters
+        ----------
+        indexes : array_like
+            indexes to update priorities
+        priorities : array_like
+            priorities to update
+
+        Returns
+        -------
+        """
         cdef size_t [:] idx = Csize(indexes)
         cdef double [:] ps = Cview(priorities)
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
     cpdef void clear(self):
+        """
+        Clear replay buffer
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         super().clear()
         clear(self.per)
 
     cpdef double get_max_priority(self):
+        """
+        Get the max priority of stored priorities
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        max_priority : double
+            the max priority of stored priorities
+        """
         return self.per.get_max_priority()
 
+@cython.embedsignature(True)
 cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
+    """
+    Worker class for PrioritizedReplayBuffer
+    """
     cdef VectorDouble weights
     cdef VectorSize_t indexes
     cdef double alpha
@@ -367,9 +873,70 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
+    def __init__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,
+                  max_priority = None,
+                  sum_tree = None,sum_anychanged = None,sum_changed = None,
+                  min_tree = None,min_anychanged = None,min_changed = None,
+                  initialize = True,**kwrags):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        alpha : float, optional
+            the exponent of the stored priorities whose default value is 0.6
+        rew_dim : int, optional
+            reward (rew) dimension whose default value is 1
+        max_priority : multiprocessing.RawArray of ctypes.c_double
+            shared memory for max_priority. If None, new memory is allocated.
+        sum_tree : multiprocessing.RawArray of ctypes.c_double
+            shared memory for sum_tree. If None, new memory is allocated.
+        sum_anychanged : multiprocessing.RawArray of ctypes.c_char
+            shared memory for sum_anychanged. If None, new memory is allocated.
+        sum_changed : multiprocessing.RawArray of ctypes.c_char
+            shared memory for sum_changed. If None, new memory is allocated.
+        min_tree : multiprocessing.RawArray of ctypes.c_double
+            shared memory for min_tree. If None, new memory is allocated.
+        min_anychanged : multiprocessing.RawArray of ctypes.c_char
+            shared memory for min_anychanged. If None, new memory is allocated.
+        min_changed : multiprocessing.RawArray of ctypes.c_char
+            shared memory for min_changed. If None, new memory is allocated.
+        initialize : bool
+            flag for initialization whose default value is True. If True, initialize.
+        """
+        pass
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def add(self,obs,act,rew,next_obs,done,priorities = None):
+        """
+        Add environment(s) into replay buffer.
+        Multiple step environments can be added.
+
+        Parameters
+        ----------
+        obs : array_like or float or int
+            observation(s)
+        act : array_like or float or int
+            action(s)
+        rew : array_like or float or int
+            reward(s)
+        next_obs : array_like or float or int
+            next observation(s)
+        done : array_like or float or int
+            done(s)
+        priorities : array_like or float or int
+            priorities of each environment
+
+        Returns
+        -------
+        int
+            the stored first index
+        """
         cdef size_t next_index = super().add(obs,act,rew,next_obs,done)
         cdef size_t N = np.array(done,copy=False,ndmin=1).shape[0]
         cdef double [:] ps = Cview(priorities)
@@ -380,20 +947,84 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         return next_index
 
     def update_priorities(self,indexes,priorities):
+        """
+        Update priorities
+
+        Parameters
+        ----------
+        indexes : array_like
+            indexes to update priorities
+        priorities : array_like
+            priorities to update
+
+        Returns
+        -------
+        """
         cdef size_t [:] idx = Csize(indexes)
         cdef double [:] ps = Cview(priorities)
         cdef size_t N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
     cpdef void clear(self):
+        """
+        Clear replay buffer
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         super().clear()
         clear(self.per)
 
     cpdef double get_max_priority(self):
+        """
+        Get the max priority of stored priorities
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        max_priority : double
+            the max priority of stored priorities
+        """
         return self.per.get_max_priority()
 
+@cython.embedsignature(True)
 cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
+    """
+    Prioritized replay buffer class to store environments with priorities.
+    In this class, these environments are sampled with corresponding priorities.
+
+    This class can be added from multiprocessing without explicit lock.
+    """
     def sample(self,batch_size,beta = 0.4):
+        """
+        Sample the stored environment depending on correspoinding priorities
+        with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+        beta : float, optional
+            the exponent for discount priority effect whose default value is 0.4
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples which also includes 'weights' and 'indexes'
+
+
+        Notes
+        -----
+        When 'beta' is 0, priorities are ignored.
+        The greater 'beta', the bigger effect of priories.
+
+        The sampling probabilities are propotional to :math:`priorities ^ {-'beta'}`
+        """
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
                         self.get_stored_size())
@@ -404,6 +1035,24 @@ cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
         return samples
 
     def init_worker(self):
+        """
+        Init worker class for multiprocessing.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        ProcessSharedPrioritizedWorker
+            worker class for multiprocessing.
+
+
+        Notes
+        -----
+        This method must call in the child process.
+        The replay buffer is allocated on shared memory between multi process.
+        This function ensure the shared memory address in these pointers.
+        """
         return ProcessSharedPrioritizedWorker(self.buffer_size,
                                               self.obs_dim,self.act_dim,
                                               rew_dim = self.rew_dim,
@@ -425,7 +1074,11 @@ cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
                                               initialize = False)
 
 
+@cython.embedsignature(True)
 cdef class NstepReplayBuffer(ReplayBuffer):
+    """
+    Replay buffer using N-step reward
+    """
     cdef CppNstepRewardBuffer[double,double]* nrb
     cdef PointerDouble gamma
     cdef PointerDouble nstep_rew
@@ -436,6 +1089,23 @@ cdef class NstepReplayBuffer(ReplayBuffer):
         self.gamma = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
+
+    def __init__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        n_step : int, optional
+            the number of n-step reward whose default value is 4
+        discount : float, optional
+            discount factor for reward
+        """
+        pass
 
     def _encode_sample(self,indexes):
         samples = super()._encode_sample(indexes)
@@ -453,7 +1123,11 @@ cdef class NstepReplayBuffer(ReplayBuffer):
         samples['next_obs'] = np.asarray(self.nstep_next_obs)
         return samples
 
+@cython.embedsignature(True)
 cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
+    """
+    Prioritiezed replay buffer using N-step reward
+    """
     cdef CppNstepRewardBuffer[double,double]* nrb
     cdef PointerDouble gamma
     cdef PointerDouble nstep_rew
@@ -466,6 +1140,23 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
         self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
+    def __init__(self,size,obs_dim,act_dim,*,
+                 alpha = 0.6,n_step = 4, discount = 0.99,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        alpha : float, optional
+            the exponent of stored priorities whose default value is 0.6
+        discount : float
+            discount factor for N-step reward whose default value is 0.99
+        """
+        pass
     def _encode_sample(self,indexes):
         samples = super()._encode_sample(indexes)
         cdef size_t batch_size = indexes.shape[0]
