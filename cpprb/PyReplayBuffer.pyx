@@ -20,6 +20,9 @@ cdef size_t [::1] Csize(array):
 
 @cython.embedsignature(True)
 cdef class Environment:
+    """
+    Base class to store environment
+    """
     cdef PointerDouble obs
     cdef PointerDouble act
     cdef PointerDouble rew
@@ -39,6 +42,21 @@ cdef class Environment:
         self.rew = PointerDouble(ndim=2,value_dim=rew_dim,size=size)
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
+
+    def __init__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs) dimension
+        act_dim : int
+            action (act) dimension
+        rew_dim : int, optional
+            reward (rew) dimension whose default value is 1
+        """
+        pass
 
     cdef size_t _add(self,double [::1] o,double [::1] a,double [::1] r,
                      double [::1] no,double [::1] d):
