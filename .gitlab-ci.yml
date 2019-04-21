@@ -21,7 +21,7 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - pip install dist/cpprb-*
+    - pip install $(echo dist/cpprb-*)['all']
     - cd test
 
 ReplayBuffer.cpp:
@@ -52,20 +52,20 @@ ReplayBuffer:
   script:
     - python3 PyReplayBuffer.py
 
-issue39:
+issue:
   <<: *py_setup
   script:
-    - python3 issue39.py
-
-issue40:
-  <<: *py_setup
-  script:
-    - python3 issue40.py
+    - python3 issue.py
 
 multi_rew:
   <<: *py_setup
   script:
     - python3 multi_rew.py
+
+gym:
+  <<: *py_setup
+  script:
+    - python3 gym.py
 
 emacs:
   image: iquiw/alpine-emacs
