@@ -822,6 +822,9 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
 
 @cython.embedsignature(True)
 cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
+    """
+    Worker class for PrioritizedReplayBuffer
+    """
     cdef VectorDouble weights
     cdef VectorSize_t indexes
     cdef double alpha
@@ -869,6 +872,43 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
                                                               initialize)
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
+
+    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,
+                  max_priority = None,
+                  sum_tree = None,sum_anychanged = None,sum_changed = None,
+                  min_tree = None,min_anychanged = None,min_changed = None,
+                  initialize = True,**kwrags):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        alpha : float, optional
+            the exponent of the stored priorities whose default value is 0.6
+        rew_dim : int, optional
+            reward (rew) dimension whose default value is 1
+        max_priority : multiprocessing.RawArray of ctypes.c_double
+            shared memory for max_priority. If None, new memory is allocated.
+        sum_tree : multiprocessing.RawArray of ctypes.c_double
+            shared memory for sum_tree. If None, new memory is allocated.
+        sum_anychanged : multiprocessing.RawArray of ctypes.c_char
+            shared memory for sum_anychanged. If None, new memory is allocated.
+        sum_changed : multiprocessing.RawArray of ctypes.c_char
+            shared memory for sum_changed. If None, new memory is allocated.
+        min_tree : multiprocessing.RawArray of ctypes.c_double
+            shared memory for min_tree. If None, new memory is allocated.
+        min_anychanged : multiprocessing.RawArray of ctypes.c_char
+            shared memory for min_anychanged. If None, new memory is allocated.
+        min_changed : multiprocessing.RawArray of ctypes.c_char
+            shared memory for min_changed. If None, new memory is allocated.
+        initialize : bool
+            flag for initialization whose default value is True. If True, initialize. 
+        """
+        pass
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
