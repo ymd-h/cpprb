@@ -44,6 +44,28 @@ cdef class Environment:
         raise NotImplementedError
 
     def add(self,obs,act,rew,next_obs,done):
+        """
+        Add environment(s) into replay buffer.
+        Multiple step environments can be added.
+
+        Parameters
+        ----------
+        obs : array_like or float or int
+            observation(s)
+        act : array_like or float or int
+            action(s)
+        rew : array_like or float or int
+            reward(s)
+        next_obs : array_like or float or int
+            next observation(s)
+        done : array_like or float or int
+            done(s)
+
+        Returns
+        -------
+        int
+            the stored first index
+        """
         return self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
 
     def _encode_sample(self,idx):
