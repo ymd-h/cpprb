@@ -76,6 +76,17 @@ cdef class Environment:
                 'done': np.asarray(self.done)[idx]}
 
     cpdef size_t get_buffer_size(self):
+        """
+        Get buffer size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            buffer size
+        """
         return self.buffer_size
 
 cdef class RingEnvironment(Environment):
