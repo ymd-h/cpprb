@@ -239,7 +239,13 @@ cdef class SelectiveEnvironment(Environment):
 @cython.embedsignature(True)
 cdef class ReplayBuffer(RingEnvironment):
     """
-    Replay Buffer class to store environments and to sample them
+    Replay Buffer class to store environments and to sample them randomly.
+
+    The envitonment contains observation (obs), action (act), reward (rew),
+    the next observation (next_obs), and done (done).
+
+    In this class, sampling is random sampling and the same environment can be
+    chosen multiple times.
     """
     def __cinit__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
         pass
