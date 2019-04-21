@@ -1090,6 +1090,23 @@ cdef class NstepReplayBuffer(ReplayBuffer):
         self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
+    def __init__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        n_step : int, optional
+            the number of n-step reward whose default value is 4
+        discount : float, optional
+            discount factor for reward
+        """
+        pass
+
     def _encode_sample(self,indexes):
         samples = super()._encode_sample(indexes)
         cdef size_t batch_size = indexes.shape[0]
