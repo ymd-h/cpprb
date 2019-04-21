@@ -339,6 +339,9 @@ cdef class ProcessSharedRingEnvironment(Environment):
 
 @cython.embedsignature(True)
 cdef class SelectiveEnvironment(Environment):
+    """
+    Base class for episode level management envirionment
+    """
     cdef CppSelectiveEnvironment[double,double,double,double] *buffer
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
         self.buffer_size = episode_len * Nepisodes
@@ -355,6 +358,23 @@ cdef class SelectiveEnvironment(Environment):
                                         self.rew.ptr,
                                         self.next_obs.ptr,
                                         self.done.ptr)
+
+    def __init__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
+        """
+        Parameters
+        ----------
+        episode_len : int
+            the mex size of environments in a single episode
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        Nepisodes : int, optional
+            the max size of stored episodes
+        rew_dim : int, optional
+            reward (rew) dimension
+        """
+        pass
 
     cdef size_t _add(self,double [::1] obs,double [::1] act, double [::1] rew,
                      double [::1] next_obs, double [::1] done):
