@@ -110,6 +110,9 @@ cdef class Environment:
 
 @cython.embedsignature(True)
 cdef class RingEnvironment(Environment):
+    """
+    Ring buffer class to store environment
+    """
     cdef CppRingEnvironment[double,double,double,double] *buffer
     def __cinit__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
         self.buffer = new CppRingEnvironment[double,double,double,double](size,
@@ -124,6 +127,21 @@ cdef class RingEnvironment(Environment):
                                         self.done.ptr)
 
         self.buffer_size = get_buffer_size(self.buffer)
+
+    def __init__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        rew_dim : int, optional
+            reward (rew) dimension whose default value is 1
+        """
+        pass
 
     cdef size_t _add(self,double [::1] obs, double [::1] act, double [::1] rew,
                      double [::1] next_obs, double [::1] done):
