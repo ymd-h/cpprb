@@ -18,6 +18,7 @@ cdef double [::1] Cview(array):
 cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
+@cython.embedsignature(True)
 cdef class Environment:
     cdef PointerDouble obs
     cdef PointerDouble act
@@ -89,6 +90,7 @@ cdef class Environment:
         """
         return self.buffer_size
 
+@cython.embedsignature(True)
 cdef class RingEnvironment(Environment):
     cdef CppRingEnvironment[double,double,double,double] *buffer
     def __cinit__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
@@ -150,6 +152,7 @@ cdef class RingEnvironment(Environment):
         """
         return get_next_index(self.buffer)
 
+@cython.embedsignature(True)
 cdef class ProcessSharedRingEnvironment(Environment):
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
     cdef stored_size_v
@@ -256,6 +259,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
         """
         return get_next_index(self.buffer)
 
+@cython.embedsignature(True)
 cdef class SelectiveEnvironment(Environment):
     cdef CppSelectiveEnvironment[double,double,double,double] *buffer
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
@@ -447,6 +451,7 @@ cdef class ReplayBuffer(RingEnvironment):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
+@cython.embedsignature(True)
 cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
     """
     Replay Buffer class to store environments and to sample them randomly.
@@ -524,6 +529,7 @@ cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
                                             next_obs = self.next_obs_v,
                                             done = self.done_v)
 
+@cython.embedsignature(True)
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
     """
     Replay buffer to store episodes of environment.
@@ -567,6 +573,7 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
+@cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(RingEnvironment):
     cdef VectorDouble weights
     cdef VectorSize_t indexes
@@ -613,6 +620,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     cpdef double get_max_priority(self):
         return self.per.get_max_priority()
 
+@cython.embedsignature(True)
 cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
     cdef VectorDouble weights
     cdef VectorSize_t indexes
@@ -687,6 +695,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
     cpdef double get_max_priority(self):
         return self.per.get_max_priority()
 
+@cython.embedsignature(True)
 cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
     def sample(self,batch_size,beta = 0.4):
         self.per.sample(batch_size,beta,
@@ -720,6 +729,7 @@ cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
                                               initialize = False)
 
 
+@cython.embedsignature(True)
 cdef class NstepReplayBuffer(ReplayBuffer):
     cdef CppNstepRewardBuffer[double,double]* nrb
     cdef PointerDouble gamma
@@ -748,6 +758,7 @@ cdef class NstepReplayBuffer(ReplayBuffer):
         samples['next_obs'] = np.asarray(self.nstep_next_obs)
         return samples
 
+@cython.embedsignature(True)
 cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
     cdef CppNstepRewardBuffer[double,double]* nrb
     cdef PointerDouble gamma
