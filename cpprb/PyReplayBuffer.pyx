@@ -137,6 +137,17 @@ cdef class RingEnvironment(Environment):
         return get_stored_size(self.buffer)
 
     cpdef size_t get_next_index(self):
+        """
+        Get the next index to store
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            the next index to store
+        """
         return get_next_index(self.buffer)
 
 cdef class ProcessSharedRingEnvironment(Environment):
