@@ -525,6 +525,11 @@ cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
                                             done = self.done_v)
 
 cdef class SelectiveReplayBuffer(SelectiveEnvironment):
+    """
+    Replay buffer to store episodes of environment.
+
+    This class can get and delete a episode.
+    """
     def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
         pass
 
