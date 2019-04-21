@@ -352,6 +352,19 @@ cdef class SelectiveEnvironment(Environment):
         return self.buffer.delete_episode(i)
 
     def get_episode(self,i):
+        """
+        Get specified episode
+
+        Parameters
+        ----------
+        i : int
+            the index of extracted episode
+
+        Returns
+        -------
+        dict of ndarray
+            the set environment in i-th episode
+        """
         cdef size_t len = 0
         self.buffer.get_episode(i,len,
                                 self.obs.ptr,self.act.ptr,self.rew.ptr,
