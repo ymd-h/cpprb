@@ -334,6 +334,21 @@ cdef class SelectiveEnvironment(Environment):
         return self.buffer.get_stored_episode_size()
 
     cpdef size_t delete_episode(self,i):
+        """
+        Delete specified episode
+
+        The stored environment after specified episode are moved to backward.
+
+        Parameters
+        ----------
+        i : int
+            the index of delete episode
+
+        Returns
+        -------
+        size_t
+            the size of environments in the deleted episodes
+        """
         return self.buffer.delete_episode(i)
 
     def get_episode(self,i):
