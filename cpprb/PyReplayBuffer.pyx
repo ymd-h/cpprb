@@ -320,6 +320,17 @@ cdef class SelectiveEnvironment(Environment):
         return get_next_index(self.buffer)
 
     cpdef size_t get_stored_episode_size(self):
+        """
+        Get the size of stored episodes
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            the size of stored episodes
+        """
         return self.buffer.get_stored_episode_size()
 
     cpdef size_t delete_episode(self,i):
