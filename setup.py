@@ -33,12 +33,22 @@ else:
                              extra_link_args=["-std=c++17","-pthread"],
                              language="c++")]
 
+extras = {
+    'gym' : ["matplotlib"]
+}
+
+all_deps = []
+for group_name in extras:
+    all_deps += extras[group_name]
+extras['all'] = all_deps
+
 setup(name = "cpprb",
       author="Yamada Hiroyuki",
       author_email="incoming+ymd-h-cpprb-10328285-issue-@incoming.gitlab.com",
       description = "ReplayBuffer for Reinforcement Learning written by C++",
       version="7.6.0",
       install_requires=["cython>=0.29","numpy"],
+      extras_require=extras,
       url="https://ymd_h.gitlab.io/cpprb/",
       ext_modules = ext_modules,
       include_dirs=["cpprb",np.get_include()],
