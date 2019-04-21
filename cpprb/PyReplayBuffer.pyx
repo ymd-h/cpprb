@@ -190,6 +190,10 @@ cdef class RingEnvironment(Environment):
 
 @cython.embedsignature(True)
 cdef class ProcessSharedRingEnvironment(Environment):
+    """
+    Ring buffer class for environment.
+    This class can be added from multiprocessing without explicit lock.
+    """
     cdef CppThreadSafeRingEnvironment[double,double,double,double] *buffer
     cdef stored_size_v
     cdef next_index_v
@@ -249,6 +253,44 @@ cdef class ProcessSharedRingEnvironment(Environment):
         self.buffer_size = get_buffer_size(self.buffer)
         if N != self.buffer_size:
             raise ValueError("Size mismutch")
+
+    def __init__(self,size,obs_dim,act_dim,*,
+                 rew_dim = 1,
+                 stored_size=None,next_index=None,
+                 obs=None,act=None,rew=None,next_obs=None,done=None,
+                 **kwargs):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        rew_dim : int, optional
+            reward (rew) dimension
+        stored_size : multiprocessing.RawArray of ctypes.c_size_t, optional
+            shared memory for stored_size. If None, new memory is allocated.
+        next_index : multiprocessing.RawArray of ctypes.c_size_t, optional
+            shared memory for next_index. If None, new memory is allocated.
+        obs : multiprocessing.RawArray of ctypes.c_double
+            shared memory for obs. If None, new memory is allocated.
+        act : multiprocessing.RawArray of ctypes.c_double
+            shared memory for act. If None, new memory is allocated.
+        rew : multiprocessing.RawArray of ctypes.c_double
+            shared memory for rew. If None, new memory is allocated.
+        next_obs : multiprocessing.RawArray of ctypes.c_double
+            shared memory for next_obs. If None, new memory is allocated.
+        done : multiprocessing.RawArray of ctypes.c_double
+            shared memory for done. If None, new memory is allocated.
+
+        Notes
+        -----
+        Shared memory arguments are designed to use in init_worker method.
+        Usually, you don't need to specify manually.
+        """
+        pass
 
     cdef size_t _add(self,double [::1] obs,double [::1] act, double [::1] rew,
               double [::1] next_obs, double [::1] done):
