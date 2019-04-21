@@ -687,6 +687,23 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
+    def __init__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,**kwrags):
+        """
+        Parameters
+        ----------
+        size : int
+            buffer size
+        obs_dim : int
+            observation (obs, next_obs) dimension
+        act_dim : int
+            action (act) dimension
+        alpha : float, optional
+            the exponent of the priorities in stored whose default value is 0.6
+        rew_dim : int, optional
+            reward (rew) dimension whose default value is 1
+        """
+        pass
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def add(self,obs,act,rew,next_obs,done,priorities = None):
