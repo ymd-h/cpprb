@@ -236,8 +236,27 @@ cdef class SelectiveEnvironment(Environment):
         self.done.update_vec_size(buffer_size)
         return super()._encode_sample(indexes)
 
+@cython.embedsignature(True)
 cdef class ReplayBuffer(RingEnvironment):
+    """
+    Replay Buffer class to store environments and to sample them
+    """
     def __cinit__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
+        pass
+
+    def __init__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
+        """
+        Parameters
+        ----------
+        size : int (-> size_t)
+            buffer size
+        obs_dim : int (-> size_t)
+            observation (obs and next_obs) dimension
+        act_dim : int (-> size_t)
+            action (act) dimension
+        rew_dim : int (-> size_t)
+            reward (rew) dimension (default = 1: keward only)
+        """
         pass
 
     def sample(self,batch_size):
