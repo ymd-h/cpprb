@@ -906,7 +906,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         min_changed : multiprocessing.RawArray of ctypes.c_char
             shared memory for min_changed. If None, new memory is allocated.
         initialize : bool
-            flag for initialization whose default value is True. If True, initialize. 
+            flag for initialization whose default value is True. If True, initialize.
         """
         pass
 
