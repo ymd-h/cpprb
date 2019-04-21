@@ -1,10 +1,16 @@
-class Animation:
+from abc import ABCMeta, abstractmethod
+
+class Animation(metaclass = ABCMeta):
+
+    @abstractmethod
     def add(self,env):
         raise NotImplementedError()
 
+    @abstractmethod
     def clear(self):
         raise NotImplementedError()
 
+    @abstractmethod
     def display(self,**kwargs):
         raise NotImplementedError()
 
