@@ -775,6 +775,19 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         return samples
 
     def update_priorities(self,indexes,priorities):
+        """
+        Update priorities
+
+        Parameters
+        ----------
+        indexes : array_like
+            indexes to update priorities
+        priorities : array_like
+            priorities to update
+
+        Returns
+        -------
+        """
         cdef size_t [:] idx = Csize(indexes)
         cdef double [:] ps = Cview(priorities)
         cdef N = idx.shape[0]
