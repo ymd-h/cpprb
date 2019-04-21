@@ -873,7 +873,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
-    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,
+    def __init__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,
                   max_priority = None,
                   sum_tree = None,sum_anychanged = None,sum_changed = None,
                   min_tree = None,min_anychanged = None,min_changed = None,
