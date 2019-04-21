@@ -966,6 +966,15 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         self.per.update_priorities(&idx[0],&ps[0],N)
 
     cpdef void clear(self):
+        """
+        Clear replay buffer
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         super().clear()
         clear(self.per)
 
