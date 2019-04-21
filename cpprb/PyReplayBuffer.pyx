@@ -979,6 +979,17 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         clear(self.per)
 
     cpdef double get_max_priority(self):
+        """
+        Get the max priority of stored priorities
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        max_priority : double
+            the max priority of stored priorities
+        """
         return self.per.get_max_priority()
 
 @cython.embedsignature(True)
