@@ -104,7 +104,7 @@ sphinx:
   environment: test
   script:
     - apk --no-cache add python3-dev
-    - pip3 --upgrade pip
+    - pip3 install --upgrade pip
     - pip3 install -U sphinx
     - apk --no-cache add make
     - make html
