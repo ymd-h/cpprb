@@ -97,3 +97,19 @@ pages:
       - public
   only:
     - master
+
+sphinx:
+  image: alpine
+  environment: test
+  script:
+    - apk --no-cache add python3-dev
+    - pip3 --upgrade pip
+    - pip3 install -U sphinx
+    - apk --no-cache add make
+    - make html
+    - mkdir test
+    - mv _build/html/ test/
+  artifacts:
+    paths:
+      - test
+
