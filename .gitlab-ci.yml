@@ -107,8 +107,8 @@ sphinx:
     - pip3 install --upgrade pip
     - pip3 install -U sphinx
     - apk --no-cache add make
-    - make html
     - mkdir test
+    - sphinx-build -b html contents test
     - mv _build/html/ test/
   artifacts:
     paths:
