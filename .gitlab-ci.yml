@@ -105,7 +105,7 @@ sphinx:
   script:
     - pip install $(echo dist/cpprb-*)['all']
     - mkdir test
-    - sphinx-build -b html contents test
+    - sphinx-apidoc -o test cpprb
     - mv _build/html/ test/
   artifacts:
     paths:
