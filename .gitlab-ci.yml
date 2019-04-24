@@ -4,9 +4,9 @@ variables:
 
 stages:
   - page_export
-  - page_deploy
   - cpp_test
   - py_build
+  - page_deploy
   - py_test
 
 .job_template: &setup
