@@ -106,6 +106,7 @@ sphinx:
     - pip install $(echo dist/cpprb-*)['all']
     - mkdir sphinx
     - sphinx-apidoc -o sphinx cpprb
+    - sphinx-build -b html sphinx sphinx_test
   artifacts:
     paths:
       - sphinx_test
