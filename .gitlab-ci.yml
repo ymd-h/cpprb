@@ -99,14 +99,11 @@ pages:
     - master
 
 sphinx:
-  image: alpine
+  image: *dev_image
   stage: page_deploy
   environment: test
   script:
-    - apk --no-cache add python3-dev
-    - pip3 install --upgrade pip
-    - pip3 install -U sphinx
-    - apk --no-cache add make
+    - pip install $(echo dist/cpprb-*)['all']
     - mkdir test
     - sphinx-build -b html contents test
     - mv _build/html/ test/
