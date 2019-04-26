@@ -104,7 +104,7 @@ sphinx:
   environment: test
   script:
     - pip install $(echo dist/cpprb-*)['all']
-    - sphinx-apidoc -o sphinx cpprb
+    - sphinx-apidoc -F -o sphinx cpprb
     - sphinx-build -b html sphinx sphinx_test
   artifacts:
     paths:
