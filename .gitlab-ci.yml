@@ -110,4 +110,3 @@ sphinx:
   artifacts:
     paths:
       - public
-
