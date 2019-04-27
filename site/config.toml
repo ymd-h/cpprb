@@ -31,3 +31,4 @@ weight = 10
 name = "<i class='fas fa-bookmark'></i> Class Reference"
 identifier = "api"
 url = "https://ymd.gitlab.io/cpprb/api/"
+weight = 20
