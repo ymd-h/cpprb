@@ -144,6 +144,7 @@ cdef class RingEnvironment(Environment):
                                         self.done.ptr)
 
         self.buffer_size = get_buffer_size(self.buffer)
+        self._update_size(self.buffer_size)
 
     def __init__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
         """
@@ -268,6 +269,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
                                         self.done.ptr)
 
         self.buffer_size = get_buffer_size(self.buffer)
+        self._update_size(self.buffer_size)
         if N != self.buffer_size:
             raise ValueError("Size mismutch")
 
