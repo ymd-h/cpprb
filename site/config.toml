@@ -32,3 +32,8 @@ name = "<i class='fab fa-fw fa-gitlab'></i> Gitlab repo"
 identifier = "ds"
 url = "https://gitlab.com/ymd_h/cpprb"
 weight = 10
+
+[[Languages.en.menu.shortcuts]]
+name = "<i class='fas fa-bookmark'></i> Class References"
+identifier = "api"
+url = "https://ymd.gitlab.io/cpprb/api/"
