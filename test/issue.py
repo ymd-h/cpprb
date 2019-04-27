@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-from cpprb import ReplayBuffer
+from cpprb import ReplayBuffer,PrioritizedReplayBuffer
 
 
 class TestIssue39(unittest.TestCase):
@@ -78,6 +78,18 @@ class TestIssue40(unittest.TestCase):
 
         batch_size = 32
         sample = rb.sample(batch_size)
+
+class TestIssue(unittest.TestCase):
+    def test_buffer_size(self):
+        buffer_size = 1000
+        obs_dim = 3
+        act_dim = 1
+
+        rb = ReplayBuffer(buffer_size,obs_dim,act_dim)
+        prb = PrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
+
+        self.assertEqual(1024,rb.get_buffer_size())
+        self.assertEqual(1024,prb.get_buffer_size())
 
 if __name__ == '__main__':
     unittest.main()
