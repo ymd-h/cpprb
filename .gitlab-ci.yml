@@ -103,7 +103,7 @@ sphinx:
   environment: production
   script:
     - pip install $(echo dist/cpprb-*)['all']
-    - sphinx-apidoc -F -E -o sphinx cpprb
+    - sphinx-apidoc -F -E -M -o sphinx cpprb
     - sphinx-build -b html sphinx public/api
   artifacts:
     paths:
