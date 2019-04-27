@@ -108,6 +108,23 @@ cdef class Environment:
         """
         return self.buffer_size
 
+    cdef void _update_size(self,size_t new_size):
+        """ Update environment size
+
+        Parameters
+        ----------
+        new_size : size_t
+            new size to set as environment (obs,act,rew,next_obs,done)
+
+        Returns
+        -------
+        """
+        self.obs.update_vec_size(new_size)
+        self.act.update_vec_size(new_size)
+        self.rew.update_vec_size(new_size)
+        self.next_obs.update_vec_size(new_size)
+        self.done.update_vec_size(new_size)
+
 @cython.embedsignature(True)
 cdef class RingEnvironment(Environment):
     """
