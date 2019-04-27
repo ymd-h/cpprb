@@ -79,7 +79,7 @@ class TestIssue40(unittest.TestCase):
         batch_size = 32
         sample = rb.sample(batch_size)
 
-class TestIssue(unittest.TestCase):
+class TestIssue43(unittest.TestCase):
     def test_buffer_size(self):
         buffer_size = 1000
         obs_dim = 3
@@ -90,6 +90,8 @@ class TestIssue(unittest.TestCase):
 
         self.assertEqual(1024,rb.get_buffer_size())
         self.assertEqual(1024,prb.get_buffer_size())
+
+        rb._encode_sample([i for i in range(1024)])
 
 if __name__ == '__main__':
     unittest.main()
