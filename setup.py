@@ -21,7 +21,7 @@ if os.path.exists("cpprb/PyReplayBuffer.pyx"):
                             annotate = True)
     requires = ["cython>=0.29","numpy"]
 else:
-    ext_modules = [Extension("cpprb.ReplayBuffer",
+    ext_modules = [Extension("cpprb.PyReplayBuffer",
                              sources=["cpprb/PyReplayBuffer.cpp"],
                              extra_compile_args=["-std=c++17",
                                                  "-march=native"],
