@@ -90,9 +90,7 @@ pages:
   script:
     - hugo version
     - cd site
-    - ls -lR content
     - hugo -c content -v
-    - ls -l ../public
   artifacts:
     paths:
       - public
