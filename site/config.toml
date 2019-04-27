@@ -30,5 +30,5 @@ weight = 10
 [[menu.shortcuts]]
 name = "<i class='fas fa-bookmark'></i> Class Reference"
 identifier = "api"
-url = "https://ymd.gitlab.io/cpprb/api/"
+url = "https://ymd_h.gitlab.io/cpprb/api/"
 weight = 20
