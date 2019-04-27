@@ -4,7 +4,7 @@ from Cython.Build import cythonize
 import numpy as np
 
 if os.path.exists("cpprb/PyReplayBuffer.pyx"):
-    ext_modules = cythonize([Extension("cpprb.ReplayBuffer",
+    ext_modules = cythonize([Extension("cpprb.PyReplayBuffer",
                                        sources=["cpprb/PyReplayBuffer.pyx"],
                                        extra_compile_args=["-std=c++17",
                                                            "-march=native"],

@@ -6,7 +6,7 @@ cimport numpy as np
 import numpy as np
 import cython
 
-from cpprb cimport ReplayBuffer
+from cpprb.ReplayBuffer cimport *
 
 from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,

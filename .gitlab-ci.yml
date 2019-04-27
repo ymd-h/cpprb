@@ -4,9 +4,10 @@ variables:
 
 stages:
   - page_export
-  - page_deploy
   - cpp_test
   - py_build
+  - page_build
+  - page_deploy
   - py_test
 
 .job_template: &setup
@@ -89,11 +90,21 @@ pages:
   script:
     - hugo version
     - cd site
-    - ls -lR content
     - hugo -c content -v
-    - ls -l ../public
   artifacts:
     paths:
       - public
   only:
     - master
+
+sphinx:
+  image: *dev_image
+  stage: page_build
+  environment: production
+  script:
+    - pip install $(echo dist/cpprb-*)['all']
+    - sphinx-apidoc -F -o sphinx cpprb
+    - sphinx-build -b html sphinx public/api
+  artifacts:
+    paths:
+      - public
