@@ -1,9 +1,9 @@
 import os
 from setuptools import setup,Extension,find_packages
-from Cython.Build import cythonize
 import numpy as np
 
 if os.path.exists("cpprb/PyReplayBuffer.pyx"):
+    from Cython.Build import cythonize
     ext_modules = cythonize([Extension("cpprb.PyReplayBuffer",
                                        sources=["cpprb/PyReplayBuffer.pyx"],
                                        extra_compile_args=["-std=c++17",
@@ -19,6 +19,7 @@ if os.path.exists("cpprb/PyReplayBuffer.pyx"):
                             compiler_directives={'language_level':"3"},
                             include_path=["."],
                             annotate = True)
+    requires = ["cython>=0.29","numpy"]
 else:
     ext_modules = [Extension("cpprb.ReplayBuffer",
                              sources=["cpprb/PyReplayBuffer.cpp"],
@@ -32,6 +33,7 @@ else:
                                                  "-march=native"],
                              extra_link_args=["-std=c++17","-pthread"],
                              language="c++")]
+    requires = ["numpy"]
 
 extras = {
     'gym' : ["matplotlib"]
@@ -47,7 +49,7 @@ setup(name = "cpprb",
       author_email="incoming+ymd-h-cpprb-10328285-issue-@incoming.gitlab.com",
       description = "ReplayBuffer for Reinforcement Learning written by C++",
       version="7.7.3",
-      install_requires=["cython>=0.29","numpy"],
+      install_requires= requires,
       extras_require=extras,
       url="https://ymd_h.gitlab.io/cpprb/",
       ext_modules = ext_modules,
