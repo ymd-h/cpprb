@@ -24,14 +24,14 @@ stages:
     - pip install $(echo dist/cpprb-*)['all']
     - cd test
 
-.ReplayBuffer.cpp:
+ReplayBuffer.cpp:
   <<: *setup
   stage: cpp_test
   script:
     - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
     - test/ReplayBuffer
 
-.SegmentTree.cpp:
+SegmentTree.cpp:
   <<: *setup
   stage: cpp_test
   script:
