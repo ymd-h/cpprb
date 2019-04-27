@@ -509,11 +509,7 @@ cdef class SelectiveEnvironment(Environment):
                                         self.next_obs.ptr,
                                         self.done.ptr)
         cdef size_t buffer_size = self.get_buffer_size()
-        self.obs.update_vec_size(buffer_size)
-        self.act.update_vec_size(buffer_size)
-        self.rew.update_vec_size(buffer_size)
-        self.next_obs.update_vec_size(buffer_size)
-        self.done.update_vec_size(buffer_size)
+        self._update_size(buffer_size)
         return super()._encode_sample(indexes)
 
 @cython.embedsignature(True)
