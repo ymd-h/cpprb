@@ -1,7 +1,6 @@
 variables:
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
   GIT_SUBMODULE_STRATEGY: recursive
-  SPHINX_APIDOC_OPTIONS: members,undoc-members,show-inheritance,special-members
 
 stages:
   - page_export
