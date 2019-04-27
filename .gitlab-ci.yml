@@ -6,6 +6,7 @@ stages:
   - page_export
   - cpp_test
   - py_build
+  - page_build
   - page_deploy
   - py_test
 
@@ -100,7 +101,7 @@ pages:
 
 sphinx:
   image: *dev_image
-  stage: page_deploy
+  stage: page_build
   environment: production
   script:
     - pip install $(echo dist/cpprb-*)['all']
