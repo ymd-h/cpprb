@@ -495,11 +495,7 @@ cdef class SelectiveEnvironment(Environment):
                     'next_obs': np.ndarray((0,self.obs_dim)),
                     'done': np.ndarray(0)}
 
-        self.obs.update_vec_size(len)
-        self.act.update_vec_size(len)
-        self.rew.update_vec_size(len)
-        self.next_obs.update_vec_size(len)
-        self.done.update_vec_size(len)
+        self._update_size(len)
         return {'obs': np.asarray(self.obs),
                 'act': np.asarray(self.act),
                 'rew': np.asarray(self.rew),
