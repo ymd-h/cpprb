@@ -126,7 +126,7 @@ namespace ymd {
 			     Observation*& next_obs, Done*& done) const {
       get(std::size_t(0),obs,act,rew,next_obs,done);
     }
-    std::size_t get_buffer_size() const { return buffer_size; }
+    std::size_t get_buffer_size() const noexcept { return buffer_size; }
   };
 
   template<bool MultiThread,typename T> struct ThreadSafe{

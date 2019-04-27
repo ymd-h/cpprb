@@ -108,6 +108,23 @@ cdef class Environment:
         """
         return self.buffer_size
 
+    cdef void _update_size(self,size_t new_size):
+        """ Update environment size
+
+        Parameters
+        ----------
+        new_size : size_t
+            new size to set as environment (obs,act,rew,next_obs,done)
+
+        Returns
+        -------
+        """
+        self.obs.update_vec_size(new_size)
+        self.act.update_vec_size(new_size)
+        self.rew.update_vec_size(new_size)
+        self.next_obs.update_vec_size(new_size)
+        self.done.update_vec_size(new_size)
+
 @cython.embedsignature(True)
 cdef class RingEnvironment(Environment):
     """
@@ -127,6 +144,7 @@ cdef class RingEnvironment(Environment):
                                         self.done.ptr)
 
         self.buffer_size = get_buffer_size(self.buffer)
+        self._update_size(self.buffer_size)
 
     def __init__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
         """
@@ -251,6 +269,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
                                         self.done.ptr)
 
         self.buffer_size = get_buffer_size(self.buffer)
+        self._update_size(self.buffer_size)
         if N != self.buffer_size:
             raise ValueError("Size mismutch")
 
@@ -478,11 +497,7 @@ cdef class SelectiveEnvironment(Environment):
                     'next_obs': np.ndarray((0,self.obs_dim)),
                     'done': np.ndarray(0)}
 
-        self.obs.update_vec_size(len)
-        self.act.update_vec_size(len)
-        self.rew.update_vec_size(len)
-        self.next_obs.update_vec_size(len)
-        self.done.update_vec_size(len)
+        self._update_size(len)
         return {'obs': np.asarray(self.obs),
                 'act': np.asarray(self.act),
                 'rew': np.asarray(self.rew),
@@ -496,11 +511,7 @@ cdef class SelectiveEnvironment(Environment):
                                         self.next_obs.ptr,
                                         self.done.ptr)
         cdef size_t buffer_size = self.get_buffer_size()
-        self.obs.update_vec_size(buffer_size)
-        self.act.update_vec_size(buffer_size)
-        self.rew.update_vec_size(buffer_size)
-        self.next_obs.update_vec_size(buffer_size)
-        self.done.update_vec_size(buffer_size)
+        self._update_size(buffer_size)
         return super()._encode_sample(indexes)
 
 @cython.embedsignature(True)
