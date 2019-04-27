@@ -101,12 +101,12 @@ pages:
 sphinx:
   image: *dev_image
   stage: page_deploy
-  environment: test
+  environment: production
   script:
     - pip install $(echo dist/cpprb-*)['all']
     - sphinx-apidoc -F -o sphinx cpprb
-    - sphinx-build -b html sphinx sphinx_test
+    - sphinx-build -b html sphinx public/api
   artifacts:
     paths:
-      - sphinx_test
+      - public
 
