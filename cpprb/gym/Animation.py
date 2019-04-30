@@ -46,6 +46,7 @@ class NotebookAnimation(Animation):
         Parameters
         ----------
         env : gym.Env
+            Environment snapshot to be recorded.
 
         Returns
         -------
