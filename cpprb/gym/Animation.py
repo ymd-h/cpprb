@@ -17,11 +17,24 @@ class NotebookAnimation(Animation):
     """
     Notebook embedded animation class where widget cannot be opened separatedly.
     """
-    def __init__(self):
-        """
+    def __init__(self,*,size = (1024,768)):
+        """Initiate virtual display for Notebook Animation
+
         Parameters
         ----------
+        size : tuple of int, optional
+            Display size whose default value is (1024, 768)
+
+        Returns
+        -------
         """
+        from pyvirtualdisplay import Display
+        import os
+
+        display = Display(visible=0, size=size)
+        display.start()
+        os.environ["DISPLAY"] = ":" + str(display.display) + "." + str(display.screen)
+
         self.frames = []
 
     def add(self,env):
