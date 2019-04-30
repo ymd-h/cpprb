@@ -16,6 +16,8 @@ class Animation(metaclass = ABCMeta):
 class NotebookAnimation(Animation):
     """
     Notebook embedded animation class where widget cannot be opened separatedly.
+
+    This class stores frames of display images and shows as HTML movie in notebook.
     """
     def __init__(self,*,size = (1024,768)):
         """Initiate virtual display for Notebook Animation
