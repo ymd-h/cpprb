@@ -78,13 +78,6 @@ class NotebookAnimation(Animation):
 
         Returns
         -------
-        IPython.display.HTML
-            recorded movie
-
-        Notes
-        -----
-        Returned HTML should be the last line of the cell to display movie or passed
-        to display function.
         """
         import matplotlib.pyplot as plt
         from IPython import display
@@ -96,4 +89,4 @@ class NotebookAnimation(Animation):
         animate = lambda i: patch.set_data(self.frames[i])
         ani = animation.FuncAnimation(plt.gcf(),animate,frames=len(self.frames),
                                       interval=interval)
-        return display.HTML(ani.to_jshtml())
+        display.display(display.HTML(ani.to_jshtml()))
