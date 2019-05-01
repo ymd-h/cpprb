@@ -79,6 +79,10 @@ class NotebookAnimation(Animation):
         Returns
         -------
         """
+
+        if len(self.frames) is 0:
+            return
+
         import matplotlib.pyplot as plt
         from IPython import display
         from matplotlib import animation
