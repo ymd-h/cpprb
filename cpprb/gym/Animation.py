@@ -29,13 +29,13 @@ class NotebookAnimation(Animation):
             Display size whose default value is (1024, 768)
         """
 
-        self.display = None
+        self._display = None
         if ("DISPLAY" not in os.environ) or (not os.environ["DISPLAY"]):
             from pyvirtualdisplay import Display
 
-            self.display = Display(visible=0, size=size)
-            self.display.start()
-            os.environ["DISPLAY"] = f":{self.display.display}.{self.display.screen}"
+            self._display = Display(visible=0, size=size)
+            self._display.start()
+            os.environ["DISPLAY"] = f":{self._display.display}.{self._display.screen}"
 
         self.frames = []
 
@@ -46,8 +46,8 @@ class NotebookAnimation(Animation):
         Delete DISPLAY environment.
         """
 
-        if self.display:
-            self.display.stop()
+        if self._display:
+            self._display.stop()
             os.environ["DISPLAY"] = ""
 
     def add(self,env):
