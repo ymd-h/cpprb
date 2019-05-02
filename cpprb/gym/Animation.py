@@ -27,9 +27,6 @@ class NotebookAnimation(Animation):
         ----------
         size : tuple of int, optional
             Display size whose default value is (1024, 768)
-
-        Returns
-        -------
         """
 
         self.display = None
