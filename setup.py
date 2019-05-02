@@ -1,5 +1,5 @@
 import os
-from setuptools import setup,Extension,find_packages
+from setuptools import setup, Extension, find_packages
 import numpy as np
 
 if os.path.exists("cpprb/PyReplayBuffer.pyx"):
@@ -8,35 +8,35 @@ if os.path.exists("cpprb/PyReplayBuffer.pyx"):
                                        sources=["cpprb/PyReplayBuffer.pyx"],
                                        extra_compile_args=["-std=c++17",
                                                            "-march=native"],
-                                       extra_link_args=["-std=c++17","-pthread"],
+                                       extra_link_args=["-std=c++17", "-pthread"],
                                        language="c++"),
                              Extension("cpprb.VectorWrapper",
                                        sources=["cpprb/VectorWrapper.pyx"],
                                        extra_compile_args=["-std=c++17",
                                                            "-march=native"],
-                                       extra_link_args=["-std=c++17","-pthread"],
+                                       extra_link_args=["-std=c++17", "-pthread"],
                                        language="c++")],
-                            compiler_directives={'language_level':"3"},
+                            compiler_directives={'language_level': "3"},
                             include_path=["."],
                             annotate = True)
-    requires = ["cython>=0.29","numpy"]
+    requires = ["cython>=0.29", "numpy"]
 else:
     ext_modules = [Extension("cpprb.PyReplayBuffer",
                              sources=["cpprb/PyReplayBuffer.cpp"],
                              extra_compile_args=["-std=c++17",
                                                  "-march=native"],
-                             extra_link_args=["-std=c++17","-pthread"],
+                             extra_link_args=["-std=c++17", "-pthread"],
                              language="c++"),
                    Extension("cpprb.VectorWrapper",
                              sources=["cpprb/VectorWrapper.cpp"],
                              extra_compile_args=["-std=c++17",
                                                  "-march=native"],
-                             extra_link_args=["-std=c++17","-pthread"],
+                             extra_link_args=["-std=c++17", "-pthread"],
                              language="c++")]
     requires = ["numpy"]
 
 extras = {
-    'gym' : ["matplotlib","pyvirtualdisplay"]
+    'gym' : ["matplotlib", "pyvirtualdisplay"]
 }
 
 all_deps = []
@@ -53,8 +53,8 @@ setup(name = "cpprb",
       extras_require=extras,
       url="https://ymd_h.gitlab.io/cpprb/",
       ext_modules = ext_modules,
-      include_dirs=["cpprb",np.get_include()],
-      packages=["cpprb","cpprb.gym"],
+      include_dirs=["cpprb", np.get_include()],
+      packages=["cpprb", "cpprb.gym"],
       classifiers = ["Programming Language :: Python",
                      "Programming Language :: Python :: 3",
                      "License :: OSI Approved :: MIT License",
