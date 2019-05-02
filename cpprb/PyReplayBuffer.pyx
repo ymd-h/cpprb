@@ -166,7 +166,7 @@ cdef class RingEnvironment(Environment):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
-    cpdef void clear(self):
+    cpdef void clear(self) except *:
         """
         Clear replay buffer.
 
@@ -316,7 +316,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
-    cpdef void clear(self):
+    cpdef void clear(self) except *:
         """
         Clear replay buffer.
 
@@ -400,7 +400,7 @@ cdef class SelectiveEnvironment(Environment):
         return self.buffer.store(&obs[0],&act[0],&rew[0],
                                  &next_obs[0],&done[0],done.shape[0])
 
-    cpdef void clear(self):
+    cpdef void clear(self) except *:
         """
         Clear replay buffer.
 
@@ -804,7 +804,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
-    cpdef void clear(self):
+    cpdef void clear(self) except *:
         """
         Clear replay buffer
 
@@ -814,7 +814,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         Returns
         -------
         """
-        super().clear()
+        super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
 
     cpdef double get_max_priority(self):
@@ -976,7 +976,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         cdef size_t N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
-    cpdef void clear(self):
+    cpdef void clear(self) except *:
         """
         Clear replay buffer
 
@@ -986,7 +986,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         Returns
         -------
         """
-        super().clear()
+        super(ProcessSharedPrioritizedWorker,self).clear()
         clear(self.per)
 
     cpdef double get_max_priority(self):

@@ -1,7 +1,8 @@
 import numpy as np
 import unittest
 
-from cpprb import ReplayBuffer,PrioritizedReplayBuffer
+from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,
+                   ProcessSharedPrioritizedReplayBuffer)
 
 
 class TestIssue39(unittest.TestCase):
@@ -92,6 +93,18 @@ class TestIssue43(unittest.TestCase):
         self.assertEqual(1024,prb.get_buffer_size())
 
         rb._encode_sample([i for i in range(1024)])
+
+class TestIssue44(unittest.TestCase):
+    def test_cpdef_super(self):
+        buffer_size = 256
+        obs_dim = 15
+        act_dim = 3
+
+        prb = PrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
+        pprb = ProcessSharedPrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
+
+        prb.clear()
+        pprb.clear()
 
 if __name__ == '__main__':
     unittest.main()
