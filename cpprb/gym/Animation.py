@@ -31,14 +31,27 @@ class NotebookAnimation(Animation):
         Returns
         -------
         """
+
+        self.display = None
         if ("DISPLAY" not in os.environ) or (not os.environ["DISPLAY"]):
             from pyvirtualdisplay import Display
 
-            display = Display(visible=0, size=size)
-            display.start()
-            os.environ["DISPLAY"] = f":{display.display}.{display.screen}"
+            self.display = Display(visible=0, size=size)
+            self.display.start()
+            os.environ["DISPLAY"] = f":{self.display.display}.{self.display.screen}"
 
         self.frames = []
+
+    def __del__(self):
+        """ Destructor
+
+        Stop virtual display if started.
+        Delete DISPLAY environment.
+        """
+
+        if self.display:
+            self.display.stop()
+            os.environ["DISPLAY"] = ""
 
     def add(self,env):
         """
