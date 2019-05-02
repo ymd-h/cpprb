@@ -814,7 +814,7 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         Returns
         -------
         """
-        super().clear()
+        super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
 
     cpdef double get_max_priority(self):
@@ -986,7 +986,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         Returns
         -------
         """
-        super().clear()
+        super(ProcessSharedPrioritizedWorker,self).clear()
         clear(self.per)
 
     cpdef double get_max_priority(self):
