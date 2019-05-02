@@ -1,5 +1,5 @@
 import os
-from setuptools import setup,Extension,find_packages
+from setuptools import setup, Extension, find_packages
 import numpy as np
 
 if os.path.exists("cpprb/PyReplayBuffer.pyx"):
@@ -8,35 +8,35 @@ if os.path.exists("cpprb/PyReplayBuffer.pyx"):
                                        sources=["cpprb/PyReplayBuffer.pyx"],
                                        extra_compile_args=["-std=c++17",
                                                            "-march=native"],
-                                       extra_link_args=["-std=c++17","-pthread"],
+                                       extra_link_args=["-std=c++17", "-pthread"],
                                        language="c++"),
                              Extension("cpprb.VectorWrapper",
                                        sources=["cpprb/VectorWrapper.pyx"],
                                        extra_compile_args=["-std=c++17",
                                                            "-march=native"],
-                                       extra_link_args=["-std=c++17","-pthread"],
+                                       extra_link_args=["-std=c++17", "-pthread"],
                                        language="c++")],
-                            compiler_directives={'language_level':"3"},
+                            compiler_directives={'language_level': "3"},
                             include_path=["."],
-                            annotate = True)
-    requires = ["cython>=0.29","numpy"]
+                            annotate=True)
+    requires = ["cython>=0.29", "numpy"]
 else:
     ext_modules = [Extension("cpprb.PyReplayBuffer",
                              sources=["cpprb/PyReplayBuffer.cpp"],
                              extra_compile_args=["-std=c++17",
                                                  "-march=native"],
-                             extra_link_args=["-std=c++17","-pthread"],
+                             extra_link_args=["-std=c++17", "-pthread"],
                              language="c++"),
                    Extension("cpprb.VectorWrapper",
                              sources=["cpprb/VectorWrapper.cpp"],
                              extra_compile_args=["-std=c++17",
                                                  "-march=native"],
-                             extra_link_args=["-std=c++17","-pthread"],
+                             extra_link_args=["-std=c++17", "-pthread"],
                              language="c++")]
     requires = ["numpy"]
 
 extras = {
-    'gym' : ["matplotlib","pyvirtualdisplay"]
+    'gym': ["matplotlib", "pyvirtualdisplay"]
 }
 
 all_deps = []
@@ -44,28 +44,28 @@ for group_name in extras:
     all_deps += extras[group_name]
 extras['all'] = all_deps
 
-setup(name = "cpprb",
+setup(name="cpprb",
       author="Yamada Hiroyuki",
       author_email="incoming+ymd-h-cpprb-10328285-issue-@incoming.gitlab.com",
-      description = "ReplayBuffer for Reinforcement Learning written by C++",
+      description="ReplayBuffer for Reinforcement Learning written by C++",
       version="7.7.6",
-      install_requires= requires,
+      install_requires=requires,
       extras_require=extras,
       url="https://ymd_h.gitlab.io/cpprb/",
-      ext_modules = ext_modules,
-      include_dirs=["cpprb",np.get_include()],
-      packages=["cpprb","cpprb.gym"],
-      classifiers = ["Programming Language :: Python",
-                     "Programming Language :: Python :: 3",
-                     "License :: OSI Approved :: MIT License",
-                     "Operating System :: OS Independent",
-                     "Development Status :: 4 - Beta",
-                     "Intended Audience :: Developers",
-                     "Intended Audience :: Science/Research",
-                     "Topic :: Scientific/Engineering",
-                     "Topic :: Scientific/Engineering :: Artificial Intelligence",
-                     "Topic :: Software Development :: Libraries"],
-      long_description = """cpprb is a python package written by C++.
+      ext_modules=ext_modules,
+      include_dirs=["cpprb", np.get_include()],
+      packages=["cpprb", "cpprb.gym"],
+      classifiers=["Programming Language :: Python",
+                   "Programming Language :: Python :: 3",
+                   "License :: OSI Approved :: MIT License",
+                   "Operating System :: OS Independent",
+                   "Development Status :: 4 - Beta",
+                   "Intended Audience :: Developers",
+                   "Intended Audience :: Science/Research",
+                   "Topic :: Scientific/Engineering",
+                   "Topic :: Scientific/Engineering :: Artificial Intelligence",
+                   "Topic :: Software Development :: Libraries"],
+      long_description="""cpprb is a python package written by C++.
 The package provides replay buffer classes for reinforcement learning.
 
 Complicated calculation (e.g. Segment Tree) are offloaded onto C++ which must be much faster than Python.
