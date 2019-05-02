@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+import os
 
 class Animation(metaclass = ABCMeta):
     @abstractmethod
@@ -32,7 +33,6 @@ class NotebookAnimation(Animation):
         """
         if headress:
             from pyvirtualdisplay import Display
-            import os
 
             display = Display(visible=0, size=size)
             display.start()
