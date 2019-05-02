@@ -31,7 +31,7 @@ class NotebookAnimation(Animation):
         Returns
         -------
         """
-        if not os.environ["DISPLAY"]:
+        if ("DISPLAY" not in os.environ) or (not os.environ["DISPLAY"]):
             from pyvirtualdisplay import Display
 
             display = Display(visible=0, size=size)
