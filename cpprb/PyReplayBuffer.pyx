@@ -1238,6 +1238,21 @@ def create_buffer(size,obs_dim,act_dim,*,
     raise NotImplementedError(f"{buffer_name} is not Implemented")
 
 def explore(buffer,policy,env,n_iteration,*,local_buffer = 10,longest_step = 500):
+    """Explore multiple iterations and add envitonment into buffer
+
+    Parameters
+    ----------
+    buffer: one of the ReplayBuffer classes
+        replay buffer to be stored
+    policy: callable
+        policy returns action from observation
+    env: gym.Env
+        gym.Env compatible environment
+    local_buffer: int, optional
+        local buffer size before adding replay buffer. default = 10
+    longest_step: int
+        longest step in a single episode. default = 500
+    """
     cdef size_t ITERATION = n_iteration
     cdef size_t LOCAL = local_buffer
     cdef size_t LONGEST = longest_step
