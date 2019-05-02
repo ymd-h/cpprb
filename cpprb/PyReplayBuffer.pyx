@@ -1236,3 +1236,47 @@ def create_buffer(size,obs_dim,act_dim,*,
         return buffer(size,obs_dim,act_dim,**kwarg)
 
     raise NotImplementedError(f"{buffer_name} is not Implemented")
+
+def explore(buffer,policy,env,n_iteration,*,local_buffer = 10,longest_step = 500):
+    cdef size_t ITERATION = n_iteration
+    cdef size_t LOCAL = local_buffer
+    cdef size_t LONGEST = longest_step
+
+    obs = np.zeros((LOCAL,buffer.obs_dim),dtype=np.double)
+    next_obs = np.zeros_like(obs)
+    act = np.zeros((LOCAL,buffer.act_dim),dtype=np.double)
+    rew = np.zeros((LOCAL,buffer.rew_dim),dtype=np.double)
+    done = np.zeros((LOCAL),dtype=np.double)
+
+    cdef double [::] o = obs
+    cdef double [::] a = act
+    cdef double [::] r = rew
+    cdef double [::] no= next_obs
+    cdef double [:]  d = done
+
+    cdef size_t it
+    cdef size_t idx = 0
+    cdef size_t step = 0
+    cdef size_t tmp_i
+
+    for it in range(ITERATION):
+        o[idx] = env.reset()
+
+        for step in range(LONGEST):
+            act[idx] = policy(o[idx])
+            no[idx], r[idx], d[idx], _ = env.step(act[idx])
+
+            tmp_i = idx + 1
+            if tmp_i == LOCAL:
+                tmp_i = 0
+                buffer.add(o,a,r,no,d)
+
+            if d[idx]:
+                idx = tmp_i
+                break
+
+            o[tmp_i] = no[idx]
+            idx = tmp_i
+
+    if idx != 0:
+        buffer.add(o[:idx],a[:idx],r[:idx],np[:idx],d[:idx])
