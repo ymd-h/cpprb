@@ -108,3 +108,5 @@ sphinx:
   artifacts:
     paths:
       - public
+  only:
+    - master
