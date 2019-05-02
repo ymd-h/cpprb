@@ -8,6 +8,7 @@ class TestGym(unittest.TestCase):
 
     def test_NoteBookAnimation(self):
         a = gym.NotebookAnimation()
+        a.display()
 
     def test_Animation(self):
         with self.assertRaises(TypeError):

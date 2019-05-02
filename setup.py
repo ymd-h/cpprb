@@ -36,7 +36,7 @@ else:
     requires = ["numpy"]
 
 extras = {
-    'gym' : ["matplotlib"]
+    'gym' : ["matplotlib","pyvirtualdisplay"]
 }
 
 all_deps = []

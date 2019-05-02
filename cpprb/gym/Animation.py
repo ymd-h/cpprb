@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+import os
 
 class Animation(metaclass = ABCMeta):
     @abstractmethod
@@ -16,13 +17,38 @@ class Animation(metaclass = ABCMeta):
 class NotebookAnimation(Animation):
     """
     Notebook embedded animation class where widget cannot be opened separatedly.
+
+    This class stores frames of display images and shows as HTML movie in notebook.
     """
-    def __init__(self):
-        """
+    def __init__(self,*,size = (1024,768)):
+        """Initiate virtual display for Notebook Animation
+
         Parameters
         ----------
+        size : tuple of int, optional
+            Display size whose default value is (1024, 768)
         """
+
+        self._display = None
+        if ("DISPLAY" not in os.environ) or (not os.environ["DISPLAY"]):
+            from pyvirtualdisplay import Display
+
+            self._display = Display(visible=0, size=size)
+            self._display.start()
+            os.environ["DISPLAY"] = f":{self._display.display}.{self._display.screen}"
+
         self.frames = []
+
+    def __del__(self):
+        """ Destructor
+
+        Stop virtual display if started.
+        Delete DISPLAY environment.
+        """
+
+        if self._display:
+            self._display.stop()
+            os.environ["DISPLAY"] = ""
 
     def add(self,env):
         """
@@ -31,6 +57,7 @@ class NotebookAnimation(Animation):
         Parameters
         ----------
         env : gym.Env
+            Environment snapshot to be recorded.
 
         Returns
         -------
@@ -62,14 +89,11 @@ class NotebookAnimation(Animation):
 
         Returns
         -------
-        IPython.display.HTML
-            recorded movie
-
-        Notes
-        -----
-        Returned HTML should be the last line of the cell to display movie or passed
-        to display function.
         """
+
+        if len(self.frames) is 0:
+            return
+
         import matplotlib.pyplot as plt
         from IPython import display
         from matplotlib import animation
@@ -80,4 +104,4 @@ class NotebookAnimation(Animation):
         animate = lambda i: patch.set_data(self.frames[i])
         ani = animation.FuncAnimation(plt.gcf(),animate,frames=len(self.frames),
                                       interval=interval)
-        return display.HTML(ani.to_jshtml())
+        display.display(display.HTML(ani.to_jshtml()))
