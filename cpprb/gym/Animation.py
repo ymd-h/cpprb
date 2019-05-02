@@ -20,7 +20,7 @@ class NotebookAnimation(Animation):
 
     This class stores frames of display images and shows as HTML movie in notebook.
     """
-    def __init__(self,*,size = (1024,768), headress = True):
+    def __init__(self,*,size = (1024,768)):
         """Initiate virtual display for Notebook Animation
 
         Parameters
@@ -31,7 +31,7 @@ class NotebookAnimation(Animation):
         Returns
         -------
         """
-        if headress:
+        if not os.environ["DISPLAY"]:
             from pyvirtualdisplay import Display
 
             display = Display(visible=0, size=size)
