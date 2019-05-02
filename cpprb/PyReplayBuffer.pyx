@@ -1186,6 +1186,37 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
 
 def create_buffer(size,obs_dim,act_dim,*,
                   prioritized = False, Nstep = False, process_shared = False,**kwarg):
+    """Create specified version of replay buffer
+
+    Parameters
+    ----------
+    size: int
+        buffer size
+    obs_dim: int
+        observation (obs, next_obs) dimension
+    act_dim: int
+        action (act) dimension
+    prioritized: bool, optional
+        create prioritized version replay buffer, default = False
+    Nstep: bool, optional
+        create Nstep version replay buffer, default = False
+    process_shared: bool
+        create process shared version replay buffer, default = False
+
+    Returns
+    -------
+    : one of the replay buffer classes
+
+    Raises
+    ------
+    NotImplementedError
+        If you specified not implemented version replay buffer
+
+    Note
+    ----
+    Any other keyword arguments are passed to replay buffer constructor.
+
+    """
     per = "Prioritized" if prioritized else ""
     nstep = "Nstep" if Nstep else ""
     ps = "ProcessShared" if process_shared else ""
