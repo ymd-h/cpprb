@@ -1183,3 +1183,25 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
         samples['rew'] = np.asarray(self.nstep_rew)
         samples['next_obs'] = np.asarray(self.nstep_next_obs)
         return samples
+
+def create_buffer(size,obs_dim,act_dim,*,
+                  prioritized = False, Nstep = False, process_shared = False,**kwarg):
+    per = "Prioritized" if prioritized else ""
+    nstep = "Nstep" if Nstep else ""
+    ps = "ProcessShared" if process_shared else ""
+
+    buffer_name = f"{ps}{nstep}{per}ReplayBuffer"
+
+    cls={"ReplayBuffer": ReplayBuffer,
+         "PrioritizedReplayBuffer": PrioritizedReplayBuffer,
+         "NstepReplayBuffer": NstepReplayBuffer,
+         "NstepPrioritizedReplayBuffer": NstepPrioritizedReplayBuffer,
+         "ProcessSharedReplayBuffer": ProcessSharedReplayBuffer,
+         "ProcessSharedPrioritizedReplayBuffer": ProcessSharedPrioritizedReplayBuffer}
+
+    buffer = cls.get(f"{buffer_name}",None)
+
+    if buffer:
+        return buffer(size,obs_dim,act_dim,**kwarg)
+
+    raise NotImplementedError(f"{buffer_name} is not Implemented")
