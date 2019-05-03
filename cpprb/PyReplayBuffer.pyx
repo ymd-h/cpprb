@@ -109,7 +109,11 @@ cdef class Environment:
     def _encode_sample(self,idx):
         dtype = np.int if self.is_discrete_action else np.double
 
-        return {'obs': self.obs.as_numpy()[idx],
+        _o = self.obs.as_numpy()
+        if self.obs_shape:
+            _o = _o.reshape((-1,*self.obs_shape))
+
+        return {'obs': _o[idx],
                 'act': self.act.as_numpy(dtype=dtype)[idx],
                 'rew': self.rew.as_numpy()[idx],
                 'next_obs': self.next_obs.as_numpy()[idx],
