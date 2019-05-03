@@ -76,8 +76,8 @@ class TestExplore(unittest.TestCase):
                 o = no
 
         idx = [range(size)]
-        self.assertEqual(list(rb1._encode_sample(idx)["obs"]),
-                         list(rb2._encode_sample(idx)["obs"]))
+        np.testing.assert_allclose(rb1._encode_sample(idx)["obs"],
+                                   rb2._encode_sample(idx)["obs"])
 
 if __name__ == '__main__':
     unittest.main()
