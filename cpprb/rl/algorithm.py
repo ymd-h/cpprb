@@ -8,7 +8,7 @@ class RandomPolicy:
         self.act_dim = env.action_space.n
 
     def __call__(self,*args,**kwargs):
-        return np.random.choices(self.act_dim)
+        return np.random.choice(self.act_dim)
 
 class GreedyPolicy:
     def __init__(self,model,*args,**kwargs):
