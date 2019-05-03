@@ -44,7 +44,7 @@ class GreedyPolicy:
 
         Paremeters
         ----------
-        obs: gym.Env
+        obs: array-like
             observation to be used for prediction
 
         Returns
