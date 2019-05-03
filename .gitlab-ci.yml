@@ -68,6 +68,11 @@ gym:
   script:
     - python3 gym.py
 
+high_level_api:
+  <<: *py_setup
+  script:
+    - python3 HighLevelAPI.py
+
 emacs:
   image: iquiw/alpine-emacs
   stage: page_export
