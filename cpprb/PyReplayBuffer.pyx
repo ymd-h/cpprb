@@ -52,10 +52,10 @@ cdef class Environment:
         self.act_dim = act_dim if not self.is_discrete_action else 1
         self.rew_dim = rew_dim
 
-        self.obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
-        self.act = PointerDouble(ndim=2,value_dim=act_dim,size=size)
-        self.rew = PointerDouble(ndim=2,value_dim=rew_dim,size=size)
-        self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
+        self.obs = PointerDouble(ndim=2,value_dim=self.obs_dim,size=size)
+        self.act = PointerDouble(ndim=2,value_dim=self.act_dim,size=size)
+        self.rew = PointerDouble(ndim=2,value_dim=self.rew_dim,size=size)
+        self.next_obs = PointerDouble(ndim=2,value_dim=self.obs_dim,size=size)
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
     def __init__(self,size,obs_dim=1,act_dim=1,*,
