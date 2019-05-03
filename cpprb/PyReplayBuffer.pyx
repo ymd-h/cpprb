@@ -93,16 +93,13 @@ cdef class Environment:
         return self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
 
     def _encode_sample(self,idx):
-        if self.is_discrete_action:
-            _a = np.array(self.act,copy=False,dtype=np.int)[idx]
-        else:
-            _a = np.asarray(self.act)[idx]
+        dtype = np.int if self.is_discrete_action else np.double
 
-        return {'obs': np.asarray(self.obs)[idx],
-                'act': _a,
-                'rew': np.asarray(self.rew)[idx],
-                'next_obs': np.asarray(self.next_obs)[idx],
-                'done': np.asarray(self.done)[idx]}
+        return {'obs': self.obs.as_numpy()[idx],
+                'act': self.act.as_numpy(dtype=dtype)[idx],
+                'rew': self.rew.as_numpy()[idx],
+                'next_obs': self.next_obs.as_numpy()[idx],
+                'done': self.done.as_numpy()[idx]}
 
     cpdef size_t get_buffer_size(self):
         """
@@ -523,11 +520,11 @@ cdef class SelectiveEnvironment(Environment):
                     'done': np.ndarray(0)}
 
         self._update_size(len)
-        return {'obs': np.asarray(self.obs),
-                'act': np.asarray(self.act),
-                'rew': np.asarray(self.rew),
-                'next_obs': np.asarray(self.next_obs),
-                'done': np.asarray(self.done)}
+        return {'obs': self.obs.as_numpy(),
+                'act': self.act.as_numpy(),
+                'rew': self.rew.as_numpy(),
+                'next_obs': self.next_obs.as_numpy(),
+                'done': self.done.as_numpy()}
 
     def _encode_sample(self,indexes):
         self.buffer.get_buffer_pointers(self.obs.ptr,
@@ -804,9 +801,9 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
                         self.get_stored_size())
-        idx = np.asarray(self.indexes)
+        idx = self.indexes.as_numpy()
         samples = self._encode_sample(idx)
-        samples['weights'] = np.asarray(self.weights)
+        samples['weights'] = self.weights.as_numpy()
         samples['indexes'] = idx
         return samples
 
@@ -1064,9 +1061,9 @@ cdef class ProcessSharedPrioritizedReplayBuffer(ProcessSharedPrioritizedWorker):
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
                         self.get_stored_size())
-        idx = np.asarray(self.indexes)
+        idx = self.indexes.as_numpy()
         samples = self._encode_sample(idx)
-        samples['weights'] = np.asarray(self.weights)
+        samples['weights'] = self.weights.as_numpy()
         samples['indexes'] = idx
         return samples
 
@@ -1154,9 +1151,9 @@ cdef class NstepReplayBuffer(ReplayBuffer):
         self.gamma.update_vec_size(batch_size)
         self.nstep_rew.update_vec_size(batch_size)
         self.nstep_next_obs.update_vec_size(batch_size)
-        samples['discounts'] = np.asarray(self.gamma)
-        samples['rew'] = np.asarray(self.nstep_rew)
-        samples['next_obs'] = np.asarray(self.nstep_next_obs)
+        samples['discounts'] = self.gamma.as_numpy()
+        samples['rew'] = self.nstep_rew.as_numpy()
+        samples['next_obs'] = self.nstep_next_obs.as_numpy()
         return samples
 
 @cython.embedsignature(True)
@@ -1204,9 +1201,9 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
         self.gamma.update_vec_size(batch_size)
         self.nstep_rew.update_vec_size(batch_size)
         self.nstep_next_obs.update_vec_size(batch_size)
-        samples['discounts'] = np.asarray(self.gamma)
-        samples['rew'] = np.asarray(self.nstep_rew)
-        samples['next_obs'] = np.asarray(self.nstep_next_obs)
+        samples['discounts'] = self.gamma.as_numpy()
+        samples['rew'] = self.nstep_rew.as_numpy()
+        samples['next_obs'] = self.nstep_next_obs.as_numpy()
         return samples
 
 def create_buffer(size,obs_dim,act_dim,*,
