@@ -125,6 +125,21 @@ cdef class Environment:
         self.next_obs.update_vec_size(new_size)
         self.done.update_vec_size(new_size)
 
+    cpdef size_t get_obs_dim(self):
+        """Return observation dimension (obs_dim)
+        """
+        return obs_dim
+
+    cpdef size_t get_act_dim(self):
+        """Return action dimension (act_dim)
+        """
+        return act_dim
+
+    cpdef size_t get_rew_dim(self):
+        """Return reward dimension (rew_dim)
+        """
+        return rew_dim
+
 @cython.embedsignature(True)
 cdef class RingEnvironment(Environment):
     """
