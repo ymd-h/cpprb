@@ -125,6 +125,21 @@ cdef class Environment:
         self.next_obs.update_vec_size(new_size)
         self.done.update_vec_size(new_size)
 
+    cpdef size_t get_obs_dim(self):
+        """Return observation dimension (obs_dim)
+        """
+        return self.obs_dim
+
+    cpdef size_t get_act_dim(self):
+        """Return action dimension (act_dim)
+        """
+        return self.act_dim
+
+    cpdef size_t get_rew_dim(self):
+        """Return reward dimension (rew_dim)
+        """
+        return self.rew_dim
+
 @cython.embedsignature(True)
 cdef class RingEnvironment(Environment):
     """
@@ -1183,3 +1198,135 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
         samples['rew'] = np.asarray(self.nstep_rew)
         samples['next_obs'] = np.asarray(self.nstep_next_obs)
         return samples
+
+def create_buffer(size,obs_dim,act_dim,*,
+                  prioritized = False, Nstep = False, process_shared = False,**kwarg):
+    """Create specified version of replay buffer
+
+    Parameters
+    ----------
+    size: int
+        buffer size
+    obs_dim: int
+        observation (obs, next_obs) dimension
+    act_dim: int
+        action (act) dimension
+    prioritized: bool, optional
+        create prioritized version replay buffer, default = False
+    Nstep: bool, optional
+        create Nstep version replay buffer, default = False
+    process_shared: bool
+        create process shared version replay buffer, default = False
+
+    Returns
+    -------
+    : one of the replay buffer classes
+
+    Raises
+    ------
+    NotImplementedError
+        If you specified not implemented version replay buffer
+
+    Note
+    ----
+    Any other keyword arguments are passed to replay buffer constructor.
+
+    """
+    per = "Prioritized" if prioritized else ""
+    nstep = "Nstep" if Nstep else ""
+    ps = "ProcessShared" if process_shared else ""
+
+    buffer_name = f"{ps}{nstep}{per}ReplayBuffer"
+
+    cls={"ReplayBuffer": ReplayBuffer,
+         "PrioritizedReplayBuffer": PrioritizedReplayBuffer,
+         "NstepReplayBuffer": NstepReplayBuffer,
+         "NstepPrioritizedReplayBuffer": NstepPrioritizedReplayBuffer,
+         "ProcessSharedReplayBuffer": ProcessSharedReplayBuffer,
+         "ProcessSharedPrioritizedReplayBuffer": ProcessSharedPrioritizedReplayBuffer}
+
+    buffer = cls.get(f"{buffer_name}",None)
+
+    if buffer:
+        return buffer(size,obs_dim,act_dim,**kwarg)
+
+    raise NotImplementedError(f"{buffer_name} is not Implemented")
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def explore(buffer,policy,env,n_iteration,*,
+            local_buffer = 10,longest_step = 500,rew_func = None):
+    """Explore multiple iterations and add envitonment into buffer
+
+    Parameters
+    ----------
+    buffer: one of the ReplayBuffer classes
+        replay buffer to be stored
+    policy: callable
+        policy returns action from observation
+    env: gym.Env
+        gym.Env compatible environment
+    local_buffer: int, optional
+        local buffer size before adding replay buffer. default = 10
+    longest_step: int
+        longest step in a single episode. default = 500
+    rew_func: callable
+        function to custom reward from obs, act, rew, next_obs, and doe
+    """
+    cdef size_t ITERATION = n_iteration
+    cdef size_t LOCAL = local_buffer
+    cdef size_t LONGEST = longest_step
+
+    obs = np.zeros((LOCAL,buffer.get_obs_dim()),dtype=np.double)
+    next_obs = np.zeros_like(obs)
+    act = np.zeros((LOCAL,buffer.get_act_dim()),dtype=np.double)
+    rew = np.zeros((LOCAL,buffer.get_rew_dim()),dtype=np.double)
+    done = np.zeros((LOCAL),dtype=np.double)
+
+    cdef double [:,:] o = obs
+    cdef double [:,:] a = act
+    cdef double [:,:] r = rew
+    cdef double [:,:] no= next_obs
+    cdef double [:]  d = done
+
+    cdef double [:] _o
+    cdef double [:] _a
+    cdef double [:] _r
+
+    cdef size_t it
+    cdef size_t idx = 0
+    cdef size_t step = 0
+    cdef size_t tmp_i
+
+    cdef bool custom_rew = rew_func
+
+    for it in range(ITERATION):
+        _o = env.reset()
+        o[idx] = _o
+
+        for step in range(LONGEST):
+            _a = policy(o[idx])
+            a[idx] = _a
+            next_obs[idx], rew[idx], done[idx], _ = env.step(a[idx])
+            # Use ndarray for unpack assignment because of cython bug.
+            # https://github.com/cython/cython/issues/541
+
+            if custom_rew:
+                _r = rew_func(obs=o[idx], act=a[idx], rew=r[idx],
+                              next_obs=no[idx], done=d[idx])
+                r[idx] = _r
+
+            tmp_i = idx + 1
+            if tmp_i == LOCAL:
+                tmp_i = 0
+                buffer.add(o,a,r,no,d)
+
+            if d[idx]:
+                idx = tmp_i
+                break
+
+            o[tmp_i] = no[idx]
+            idx = tmp_i
+
+    if idx != 0:
+        buffer.add(o[:idx],a[:idx],r[:idx],no[:idx],d[:idx])
