@@ -75,7 +75,7 @@ class TestExplore(unittest.TestCase):
 
                 o = no
 
-        idx = [range(size)]
+        idx = np.arange(size)
         np.testing.assert_allclose(rb1._encode_sample(idx)["obs"],
                                    rb2._encode_sample(idx)["obs"])
 
