@@ -33,13 +33,25 @@ cdef class Environment:
     cdef size_t act_dim
     cdef size_t rew_dim
     cdef bool is_discrete_action
+    cdef obs_shape
 
     def __cinit__(self,size,obs_dim=1,act_dim=1,*,
-                  rew_dim=1,is_discrete_action = False,**kwargs):
+                  rew_dim=1,is_discrete_action = False,
+                  obs_shape = None, **kwargs):
+        self.obs_shape = obs_shape
         self.is_discrete_action = is_discrete_action
-        self.obs_dim = obs_dim
+
+        cdef size_t _dim
+        if obs_shape is None:
+            self.obs_dim = obs_dim
+        else:
+            self.obs_dim = 1
+            for _dim in self.obs_shape
+            self.obs_dim *= _dim
+
         self.act_dim = act_dim if not self.is_discrete_action else 1
         self.rew_dim = rew_dim
+
         self.obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.act = PointerDouble(ndim=2,value_dim=act_dim,size=size)
         self.rew = PointerDouble(ndim=2,value_dim=rew_dim,size=size)
@@ -47,7 +59,8 @@ cdef class Environment:
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
     def __init__(self,size,obs_dim=1,act_dim=1,*,
-                 rew_dim=1,is_discrete_action = False,**kwargs):
+                 rew_dim=1,is_discrete_action = False,
+                 obs_shape = None, **kwargs):
         """
         Parameters
         ----------
