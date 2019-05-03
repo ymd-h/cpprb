@@ -45,7 +45,7 @@ class GreedyPolicy:
         Paremeters
         ----------
         obs: array-like
-            observation to be used for prediction
+            observation for prediction
 
         Returns
         -------
@@ -67,7 +67,7 @@ class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
         env: gym.Env
             gym.Env compatible discrete action environment
         model: tensorflow.keral.models.Model
-            model to be used for prediction
+            model for prediction
         eps: float, optional
             small fraction for random selection
         """
@@ -81,7 +81,7 @@ class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
         Parameters
         ----------
         obs: array-like
-            observation to be used for prediction
+            observation for prediction
 
         Returns
         -------
@@ -102,7 +102,7 @@ class SofmaxPolicy:
         Parameters
         ----------
         model: tensorflow.keras.models.Model
-            model to be used for predction
+            model for predction
         """
         self.model = model
 
@@ -112,7 +112,7 @@ class SofmaxPolicy:
         Parameters
         ----------
         obs: array-like
-            observation to be used for prediction
+            observation for prediction
 
         Returns
         -------
