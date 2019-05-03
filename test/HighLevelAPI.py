@@ -50,10 +50,10 @@ class TestExplore(unittest.TestCase):
             return np.ones((act_dim),np.double)
 
         class env_stub:
-            def reset():
+            def reset(self):
                 return np.ones((obs_dim),np.double)
 
-            def step(**kwargs):
+            def step(self,**kwargs):
                 return (np.ones((obs_dim),np.double),
                         np.ones((rew_dim),np.double),
                         np.zeros(1,np.double),
