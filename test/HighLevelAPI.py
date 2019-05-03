@@ -63,6 +63,9 @@ class TestExplore(unittest.TestCase):
         def rew_func_stub(rew,*args,**kwargs):
             return rew
 
+        def callback_stub(*args,**kwargs):
+            pass
+
         env = env_stub()
 
         n_iteration = 256
@@ -80,7 +83,9 @@ class TestExplore(unittest.TestCase):
                 o = no
 
         explore(rb3,policy_stub,env,n_iteration,
-                longest_step = episode_len, rew_func =rew_func_stub)
+                longest_step = episode_len,
+                rew_func = rew_func_stub,
+                callback = callback_stub)
 
         idx = np.arange(size)
         np.testing.assert_allclose(rb1._encode_sample(idx)["obs"],
