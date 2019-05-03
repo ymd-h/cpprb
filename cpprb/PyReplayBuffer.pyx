@@ -128,17 +128,17 @@ cdef class Environment:
     cpdef size_t get_obs_dim(self):
         """Return observation dimension (obs_dim)
         """
-        return obs_dim
+        return self.obs_dim
 
     cpdef size_t get_act_dim(self):
         """Return action dimension (act_dim)
         """
-        return act_dim
+        return self.act_dim
 
     cpdef size_t get_rew_dim(self):
         """Return reward dimension (rew_dim)
         """
-        return rew_dim
+        return self.rew_dim
 
 @cython.embedsignature(True)
 cdef class RingEnvironment(Environment):
