@@ -4,10 +4,21 @@ from scipy.special import softmax
 from cpprb import explore
 
 class RandomPolicy:
+    """Functor class which randomly select action from discrete action space.
+    """
     def __init__(self,env,*args,**kwargs):
+        """Initialize action dimension (act_dim) from environment (env)
+
+        Parameters
+        ----------
+        env: gym.Env
+            gym.Env compatible discrete action environment
+        """
         self.act_dim = env.action_space.n
 
     def __call__(self,*args,**kwargs):
+        """Return random action
+        """
         return np.random.choice(self.act_dim)
 
 class GreedyPolicy:
