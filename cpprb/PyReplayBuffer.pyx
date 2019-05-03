@@ -1289,6 +1289,10 @@ def explore(buffer,policy,env,n_iteration,*,
     cdef double [:,:] no= next_obs
     cdef double [:]  d = done
 
+    cdef double [:] _o
+    cdef double [:] _a
+    cdef double [:] _r
+
     cdef size_t it
     cdef size_t idx = 0
     cdef size_t step = 0
@@ -1297,17 +1301,20 @@ def explore(buffer,policy,env,n_iteration,*,
     cdef bool custom_rew = rew_func
 
     for it in range(ITERATION):
-        o[idx] = env.reset()
+        _o = env.reset()
+        o[idx] = _o
 
         for step in range(LONGEST):
-            a[idx] = policy(o[idx])
+            _a = policy(o[idx])
+            a[idx] = _a
             next_obs[idx], rew[idx], done[idx], _ = env.step(a[idx])
             # Use ndarray for unpack assignment because of cython bug.
             # https://github.com/cython/cython/issues/541
 
             if custom_rew:
-                r[idx] = rew_func(obs=o[idx], act=a[idx], rew=r[idx],
-                                  next_obs=no[idx], done=d[idx])
+                _r = rew_func(obs=o[idx], act=a[idx], rew=r[idx],
+                              next_obs=no[idx], done=d[idx])
+                r[idx] = _r
 
             tmp_i = idx + 1
             if tmp_i == LOCAL:
