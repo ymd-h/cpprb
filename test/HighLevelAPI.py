@@ -34,3 +34,6 @@ class TestCreateBuffer(unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             cb_type(process_shared = True, Nstep = True, prioritized = True)
+
+if __name__ == '__main__':
+    unittest.main()
