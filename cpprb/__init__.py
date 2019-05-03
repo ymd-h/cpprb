@@ -3,3 +3,4 @@ from .PyReplayBuffer import (ReplayBuffer,PrioritizedReplayBuffer,
                              SelectiveReplayBuffer,
                              ProcessSharedReplayBuffer,
                              ProcessSharedPrioritizedReplayBuffer)
+from .PyReplayBuffer import create_buffer, explore
