@@ -32,10 +32,13 @@ cdef class Environment:
     cdef size_t obs_dim
     cdef size_t act_dim
     cdef size_t rew_dim
+    cdef bool is_discrete_action
 
-    def __cinit__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+    def __cinit__(self,size,obs_dim,act_dim,*,
+                  rew_dim=1,is_discrete_action = False,**kwargs):
+        self.is_discrete_action = is_discrete_action
         self.obs_dim = obs_dim
-        self.act_dim = act_dim
+        self.act_dim = act_dim if not self.is_discrete_action else 1
         self.rew_dim = rew_dim
         self.obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.act = PointerDouble(ndim=2,value_dim=act_dim,size=size)
@@ -55,6 +58,8 @@ cdef class Environment:
             action (act) dimension
         rew_dim : int, optional
             reward (rew) dimension whose default value is 1
+        is_discrete_action: bool, optional
+            If True, act_dim is compressed to 1 whose default value is False
         """
         pass
 
@@ -88,8 +93,13 @@ cdef class Environment:
         return self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
 
     def _encode_sample(self,idx):
+        if self.is_discrete_action:
+            _a = np.array(self.act,copy=False,dtype=np.int)[idx]
+        else:
+            _a = np.asarray(self.act)[idx]
+
         return {'obs': np.asarray(self.obs)[idx],
-                'act': np.asarray(self.act)[idx],
+                'act': _a,
                 'rew': np.asarray(self.rew)[idx],
                 'next_obs': np.asarray(self.next_obs)[idx],
                 'done': np.asarray(self.done)[idx]}
