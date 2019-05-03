@@ -55,12 +55,39 @@ class GreedyPolicy:
         return np.argmax(self.model.predict(obs.reshape(1,-1),batch_size=1))
 
 class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
+    """Functor class which almost select best prediction and sometime randomly.
+
+    Within small epsilon fraction, select action randomly.
+    """
     def __init__(self,env,model,eps = 0.1,*args,**kwargs):
+        """Initialize action dimension (act_dim) and prediction model
+
+        Parameters
+        ----------
+        env: gym.Env
+            gym.Env compatible discrete action environment
+        model: tensorflow.keral.models.Model
+            model to be used for prediction
+        eps: float, optional
+            small fraction for random selection
+        """
         RandomPolicy.__init__(self,env,*args,**kwargs)
         GreedyPolicy.__init__(self,model,*args,**kwargs)
         self.eps = eps
 
     def __call__(self,obs,*args,**kwargs):
+        """Return selected action
+
+        Parameters
+        ----------
+        obs: array-like
+            observation to be used for prediction
+
+        Returns
+        -------
+        : int
+            selected action (best prediction, sometime random)
+        """
         if np.random.rand() < eps:
             RandomPolicy.__call__(self,obs,*args,**kwargs)
         else:
