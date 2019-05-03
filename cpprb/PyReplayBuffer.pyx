@@ -1237,7 +1237,8 @@ def create_buffer(size,obs_dim,act_dim,*,
 
     raise NotImplementedError(f"{buffer_name} is not Implemented")
 
-def explore(buffer,policy,env,n_iteration,*,local_buffer = 10,longest_step = 500):
+def explore(buffer,policy,env,n_iteration,*,
+            local_buffer = 10,longest_step = 500,rew_func = None):
     """Explore multiple iterations and add envitonment into buffer
 
     Parameters
@@ -1252,6 +1253,8 @@ def explore(buffer,policy,env,n_iteration,*,local_buffer = 10,longest_step = 500
         local buffer size before adding replay buffer. default = 10
     longest_step: int
         longest step in a single episode. default = 500
+    rew_func: callable
+        function to custom reward from obs, act, rew, next_obs, and doe
     """
     cdef size_t ITERATION = n_iteration
     cdef size_t LOCAL = local_buffer
@@ -1274,12 +1277,18 @@ def explore(buffer,policy,env,n_iteration,*,local_buffer = 10,longest_step = 500
     cdef size_t step = 0
     cdef size_t tmp_i
 
+    cdef bool custom_rew = rew_func
+
     for it in range(ITERATION):
         o[idx] = env.reset()
 
         for step in range(LONGEST):
             act[idx] = policy(o[idx])
             no[idx], r[idx], d[idx], _ = env.step(act[idx])
+
+            if custom_rew:
+                r[idx] = rew_func(obs=o[idx], act=a[idx], rew=r[idx],
+                                  next_obs=no[idx], done=d[idx])
 
             tmp_i = idx + 1
             if tmp_i == LOCAL:
