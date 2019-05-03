@@ -46,8 +46,8 @@ cdef class Environment:
             self.obs_dim = obs_dim
         else:
             self.obs_dim = 1
-            for _dim in self.obs_shape
-            self.obs_dim *= _dim
+            for _dim in self.obs_shape:
+                self.obs_dim *= _dim
 
         self.act_dim = act_dim if not self.is_discrete_action else 1
         self.rew_dim = rew_dim
