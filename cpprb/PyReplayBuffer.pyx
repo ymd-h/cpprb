@@ -172,10 +172,11 @@ cdef class RingEnvironment(Environment):
     """
     cdef CppRingEnvironment[double,double,double,double] *buffer
     def __cinit__(self,size,obs_dim=1,act_dim=1,*,rew_dim = 1,**kwargs):
-        self.buffer = new CppRingEnvironment[double,double,double,double](size,
-                                                                          obs_dim,
-                                                                          act_dim,
-                                                                          rew_dim)
+        self.buffer = new CppRingEnvironment[double,double,
+                                             double,double](size,
+                                                            self.obs_dim,
+                                                            self.act_dim,
+                                                            self.rew_dim)
 
         self.buffer.get_buffer_pointers(self.obs.ptr,
                                         self.act.ptr,
@@ -273,10 +274,10 @@ cdef class ProcessSharedRingEnvironment(Environment):
 
         self.stored_size_v = stored_size or RawArray(ctypes.c_size_t,1)
         self.next_index_v  = next_index  or RawArray(ctypes.c_size_t,1)
-        self.obs_v         = obs         or RawArray(ctypes.c_double,N*obs_dim)
-        self.act_v         = act         or RawArray(ctypes.c_double,N*act_dim)
-        self.rew_v         = rew         or RawArray(ctypes.c_double,N*rew_dim)
-        self.next_obs_v    = next_obs    or RawArray(ctypes.c_double,N*obs_dim)
+        self.obs_v         = obs         or RawArray(ctypes.c_double,N*self.obs_dim)
+        self.act_v         = act         or RawArray(ctypes.c_double,N*self.act_dim)
+        self.rew_v         = rew         or RawArray(ctypes.c_double,N*self.rew_dim)
+        self.next_obs_v    = next_obs    or RawArray(ctypes.c_double,N*self.obs_dim)
         self.done_v        = done        or RawArray(ctypes.c_double,N)
 
         cdef size_t [:] stored_size_view = self.stored_size_v
@@ -291,9 +292,9 @@ cdef class ProcessSharedRingEnvironment(Environment):
                                                        double,
                                                        double,
                                                        double](N,
-                                                               obs_dim,
-                                                               act_dim,
-                                                               rew_dim,
+                                                               self.obs_dim,
+                                                               self.act_dim,
+                                                               self.rew_dim,
                                                                &stored_size_view[0],
                                                                &next_index_view[0],
                                                                &obs_view[0],
@@ -408,9 +409,9 @@ cdef class SelectiveEnvironment(Environment):
         self.buffer = new CppSelectiveEnvironment[double,double,
                                                   double,double](episode_len,
                                                                  Nepisodes,
-                                                                 obs_dim,
-                                                                 act_dim,
-                                                                 rew_dim)
+                                                                 self.obs_dim,
+                                                                 self.act_dim,
+                                                                 self.rew_dim)
 
         self.buffer.get_buffer_pointers(self.obs.ptr,
                                         self.act.ptr,
@@ -1135,11 +1136,11 @@ cdef class NstepReplayBuffer(ReplayBuffer):
     cdef PointerDouble nstep_rew
     cdef PointerDouble nstep_next_obs
     def __cinit__(self,size,obs_dim=1,act_dim=1,*,n_step = 4, discount = 0.99,**kwargs):
-        self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
+        self.nrb = new CppNstepRewardBuffer[double,double](size,self.obs_dim,
                                                            n_step,discount)
         self.gamma = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
-        self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
+        self.nstep_next_obs = PointerDouble(ndim=2,value_dim=self.obs_dim,size=size)
 
     def __init__(self,size,obs_dim=1,act_dim=1,*,n_step = 4, discount = 0.99,**kwargs):
         """
@@ -1185,11 +1186,11 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
     cdef PointerDouble nstep_next_obs
     def __cinit__(self,size,obs_dim=1,act_dim=1,*,
                   alpha = 0.6,n_step = 4, discount = 0.99,**kwargs):
-        self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
+        self.nrb = new CppNstepRewardBuffer[double,double](size,self.obs_dim,
                                                            n_step,discount)
         self.gamma = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
-        self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
+        self.nstep_next_obs = PointerDouble(ndim=2,value_dim=self.obs_dim,size=size)
 
     def __init__(self,size,obs_dim=1,act_dim=1,*,
                  alpha = 0.6,n_step = 4, discount = 0.99,**kwargs):
