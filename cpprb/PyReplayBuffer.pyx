@@ -46,7 +46,8 @@ cdef class Environment:
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
-    def __init__(self,size,obs_dim=1,act_dim=1,*,rew_dim=1,**kwargs):
+    def __init__(self,size,obs_dim=1,act_dim=1,*,
+                 rew_dim=1,is_discrete_action = False,**kwargs):
         """
         Parameters
         ----------
