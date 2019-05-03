@@ -1300,7 +1300,7 @@ def explore(buffer,policy,env,n_iteration,*,
         o[idx] = env.reset()
 
         for step in range(LONGEST):
-            act[idx] = policy(o[idx])
+            a[idx] = policy(o[idx])
             next_obs[idx], rew[idx], done[idx], _ = env.step(a[idx])
             # Use ndarray for unpack assignment because of cython bug.
             # https://github.com/cython/cython/issues/541
