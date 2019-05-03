@@ -26,5 +26,29 @@ class TestFeatureDiscreteAction(unittest.TestCase):
 
         self.assertEqual(np.arange(size)[_a[0]],_a[0])
 
+class TestFeatureHighDimensionalObs(unittest.TestCase):
+    def test_RGB_screen_obs(self):
+        size = 256
+        obs_shape = (84,84,3)
+        act_dim = 3
+
+        rb = create_buffer(size,obs_shape=obs_shape,act_dim=act_dim,
+                           prioritized = True,
+                           is_discrete_action = True)
+
+        obs = np.ones(obs_shape,dtype=np.double)
+        act = 2
+        rew = 0.5
+        next_obs = np.zeros_like(obs)
+        done = 0
+
+        rb.add(obs,act,rew,next_obs,done)
+
+        _o = rb._encode_sample(np.array((0)))["obs"]
+
+        self.assertEqual(obs_shape,_o.shape)
+
+        np.testing.assert_allclose(obs,_o)
+
 if __name__ == '__main__':
     unittest.main()
