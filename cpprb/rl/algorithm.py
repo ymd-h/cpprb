@@ -50,7 +50,7 @@ class GreedyPolicy:
         Returns
         -------
         : int
-            selected action
+            selected action (best prediction)
         """
         return np.argmax(self.model.predict(obs.reshape(1,-1),batch_size=1))
 
