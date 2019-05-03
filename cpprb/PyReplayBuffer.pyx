@@ -1301,7 +1301,9 @@ def explore(buffer,policy,env,n_iteration,*,
 
         for step in range(LONGEST):
             act[idx] = policy(o[idx])
-            no[idx], r[idx], d[idx], _ = env.step(act[idx])
+            next_obs[idx], rew[idx], done[idx], _ = env.step(a[idx])
+            # Use ndarray for unpack assignment because of cython bug.
+            # https://github.com/cython/cython/issues/541
 
             if custom_rew:
                 r[idx] = rew_func(obs=o[idx], act=a[idx], rew=r[idx],
