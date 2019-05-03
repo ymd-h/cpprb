@@ -34,7 +34,7 @@ cdef class Environment:
     cdef size_t rew_dim
     cdef bool is_discrete_action
 
-    def __cinit__(self,size,obs_dim,act_dim,*,
+    def __cinit__(self,size,obs_dim=1,act_dim=1,*,
                   rew_dim=1,is_discrete_action = False,**kwargs):
         self.is_discrete_action = is_discrete_action
         self.obs_dim = obs_dim
@@ -46,7 +46,7 @@ cdef class Environment:
         self.next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
         self.done = PointerDouble(ndim=2,value_dim=1,size=size)
 
-    def __init__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+    def __init__(self,size,obs_dim=1,act_dim=1,*,rew_dim=1,**kwargs):
         """
         Parameters
         ----------
@@ -153,7 +153,7 @@ cdef class RingEnvironment(Environment):
     Ring buffer class to store environment
     """
     cdef CppRingEnvironment[double,double,double,double] *buffer
-    def __cinit__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
+    def __cinit__(self,size,obs_dim=1,act_dim=1,*,rew_dim = 1,**kwargs):
         self.buffer = new CppRingEnvironment[double,double,double,double](size,
                                                                           obs_dim,
                                                                           act_dim,
@@ -168,7 +168,7 @@ cdef class RingEnvironment(Environment):
         self.buffer_size = get_buffer_size(self.buffer)
         self._update_size(self.buffer_size)
 
-    def __init__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
+    def __init__(self,size,obs_dim=1,act_dim=1,*,rew_dim = 1,**kwargs):
         """
         Parameters
         ----------
@@ -242,7 +242,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
     cdef rew_v
     cdef next_obs_v
     cdef done_v
-    def __cinit__(self,size,obs_dim,act_dim,*,
+    def __cinit__(self,size,obs_dim=1,act_dim=1,*,
                   rew_dim = 1,
                   stored_size=None,next_index=None,
                   obs=None,act=None,rew=None,next_obs=None,done=None,
@@ -295,7 +295,7 @@ cdef class ProcessSharedRingEnvironment(Environment):
         if N != self.buffer_size:
             raise ValueError("Size mismutch")
 
-    def __init__(self,size,obs_dim,act_dim,*,
+    def __init__(self,size,obs_dim=1,act_dim=1,*,
                  rew_dim = 1,
                  stored_size=None,next_index=None,
                  obs=None,act=None,rew=None,next_obs=None,done=None,
@@ -384,7 +384,7 @@ cdef class SelectiveEnvironment(Environment):
     Base class for episode level management envirionment
     """
     cdef CppSelectiveEnvironment[double,double,double,double] *buffer
-    def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
+    def __cinit__(self,episode_len,obs_dim=1,act_dim=1,*,Nepisodes=10,rew_dim=1,**kwargs):
         self.buffer_size = episode_len * Nepisodes
 
         self.buffer = new CppSelectiveEnvironment[double,double,
@@ -400,7 +400,7 @@ cdef class SelectiveEnvironment(Environment):
                                         self.next_obs.ptr,
                                         self.done.ptr)
 
-    def __init__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
+    def __init__(self,episode_len,obs_dim=1,act_dim=1,*,Nepisodes=10,rew_dim=1,**kwargs):
         """
         Parameters
         ----------
@@ -547,10 +547,10 @@ cdef class ReplayBuffer(RingEnvironment):
     In this class, sampling is random sampling and the same environment can be
     chosen multiple times.
     """
-    def __cinit__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
+    def __cinit__(self,size,obs_dim=1,act_dim=1,*,rew_dim = 1,**kwargs):
         pass
 
-    def __init__(self,size,obs_dim,act_dim,*,rew_dim = 1,**kwargs):
+    def __init__(self,size,obs_dim=1,act_dim=1,*,rew_dim = 1,**kwargs):
         """
         Parameters
         ----------
@@ -595,10 +595,10 @@ cdef class ProcessSharedReplayBuffer(ProcessSharedRingEnvironment):
 
     This class can be add-ed from 'multiprocessing' without explicit lock.
     """
-    def __cinit__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+    def __cinit__(self,size,obs_dim=1,act_dim=1,*,rew_dim=1,**kwargs):
         pass
 
-    def __init__(self,size,obs_dim,act_dim,*,rew_dim=1,**kwargs):
+    def __init__(self,size,obs_dim=1,act_dim=1,*,rew_dim=1,**kwargs):
         """
         Parameters
         ----------
@@ -667,10 +667,10 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
 
     This class can get and delete a episode.
     """
-    def __cinit__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
+    def __cinit__(self,episode_len,obs_dim=1,act_dim=1,*,Nepisodes=10,rew_dim=1,**kwargs):
         pass
 
-    def __init__(self,episode_len,obs_dim,act_dim,*,Nepisodes=10,rew_dim=1,**kwargs):
+    def __init__(self,episode_len,obs_dim=1,act_dim=1,*,Nepisodes=10,rew_dim=1,**kwargs):
         """
         Parameters
         ----------
@@ -714,13 +714,13 @@ cdef class PrioritizedReplayBuffer(RingEnvironment):
     cdef VectorSize_t indexes
     cdef double alpha
     cdef CppPrioritizedSampler[double]* per
-    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,**kwrags):
+    def __cinit__(self,size,obs_dim=1,act_dim=1,*,alpha=0.6,rew_dim=1,**kwrags):
         self.alpha = alpha
         self.per = new CppPrioritizedSampler[double](size,alpha)
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
-    def __init__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,**kwrags):
+    def __init__(self,size,obs_dim=1,act_dim=1,*,alpha=0.6,rew_dim=1,**kwrags):
         """
         Parameters
         ----------
@@ -869,7 +869,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
     cdef min_tree
     cdef min_anychanged
     cdef min_changed
-    def __cinit__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,
+    def __cinit__(self,size,obs_dim=1,act_dim=1,*,alpha=0.6,rew_dim=1,
                   max_priority = None,
                   sum_tree = None,sum_anychanged = None,sum_changed = None,
                   min_tree = None,min_anychanged = None,min_changed = None,
@@ -906,7 +906,7 @@ cdef class ProcessSharedPrioritizedWorker(ProcessSharedRingEnvironment):
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
-    def __init__(self,size,obs_dim,act_dim,*,alpha=0.6,rew_dim=1,
+    def __init__(self,size,obs_dim=1,act_dim=1,*,alpha=0.6,rew_dim=1,
                   max_priority = None,
                   sum_tree = None,sum_anychanged = None,sum_changed = None,
                   min_tree = None,min_anychanged = None,min_changed = None,
@@ -1116,14 +1116,14 @@ cdef class NstepReplayBuffer(ReplayBuffer):
     cdef PointerDouble gamma
     cdef PointerDouble nstep_rew
     cdef PointerDouble nstep_next_obs
-    def __cinit__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
+    def __cinit__(self,size,obs_dim=1,act_dim=1,*,n_step = 4, discount = 0.99,**kwargs):
         self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
                                                            n_step,discount)
         self.gamma = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
-    def __init__(self,size,obs_dim,act_dim,*,n_step = 4, discount = 0.99,**kwargs):
+    def __init__(self,size,obs_dim=1,act_dim=1,*,n_step = 4, discount = 0.99,**kwargs):
         """
         Parameters
         ----------
@@ -1165,7 +1165,7 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
     cdef PointerDouble gamma
     cdef PointerDouble nstep_rew
     cdef PointerDouble nstep_next_obs
-    def __cinit__(self,size,obs_dim,act_dim,*,
+    def __cinit__(self,size,obs_dim=1,act_dim=1,*,
                   alpha = 0.6,n_step = 4, discount = 0.99,**kwargs):
         self.nrb = new CppNstepRewardBuffer[double,double](size,obs_dim,
                                                            n_step,discount)
@@ -1173,7 +1173,7 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
         self.nstep_rew = PointerDouble(ndim=2,value_dim=1,size=size)
         self.nstep_next_obs = PointerDouble(ndim=2,value_dim=obs_dim,size=size)
 
-    def __init__(self,size,obs_dim,act_dim,*,
+    def __init__(self,size,obs_dim=1,act_dim=1,*,
                  alpha = 0.6,n_step = 4, discount = 0.99,**kwargs):
         """
         Parameters
@@ -1206,7 +1206,7 @@ cdef class NstepPrioritizedReplayBuffer(PrioritizedReplayBuffer):
         samples['next_obs'] = self.nstep_next_obs.as_numpy()
         return samples
 
-def create_buffer(size,obs_dim,act_dim,*,
+def create_buffer(size,obs_dim=1,act_dim=1,*,
                   prioritized = False, Nstep = False, process_shared = False,**kwarg):
     """Create specified version of replay buffer
 
@@ -1255,7 +1255,7 @@ def create_buffer(size,obs_dim,act_dim,*,
     buffer = cls.get(f"{buffer_name}",None)
 
     if buffer:
-        return buffer(size,obs_dim,act_dim,**kwarg)
+        return buffer(size,obs_dim=1,act_dim=1,**kwarg)
 
     raise NotImplementedError(f"{buffer_name} is not Implemented")
 
