@@ -46,14 +46,14 @@ class TestExplore(unittest.TestCase):
         rb1 = create_buffer(size,obs_dim,act_dim,rew_dim=rew_dim)
         rb2 = create_buffer(size,obs_dim,act_dim,rew_dim=rew_dim)
 
-        def policy_stub(**kwargs):
+        def policy_stub(*args,**kwargs):
             return np.ones((act_dim),np.double)
 
         class env_stub:
             def reset(self):
                 return np.ones((obs_dim),np.double)
 
-            def step(self,**kwargs):
+            def step(self,*args,**kwargs):
                 return (np.ones((obs_dim),np.double),
                         np.ones((rew_dim),np.double),
                         np.zeros(1,np.double),
