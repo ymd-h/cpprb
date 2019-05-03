@@ -1322,4 +1322,4 @@ def explore(buffer,policy,env,n_iteration,*,
             idx = tmp_i
 
     if idx != 0:
-        buffer.add(o[:idx],a[:idx],r[:idx],np[:idx],d[:idx])
+        buffer.add(o[:idx],a[:idx],r[:idx],no[:idx],d[:idx])
