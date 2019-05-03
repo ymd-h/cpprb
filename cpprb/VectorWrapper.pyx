@@ -1,5 +1,8 @@
 # distutils: language = c++
 
+cimport numpy as np
+import numpy as np
+
 from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference
 import cython
@@ -48,6 +51,9 @@ cdef class VectorWrapper:
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
+
+    def as_numpy(self,copy = False,**kwargs):
+        return np.array(self,copy=copy,**kwargs)
 
 cdef class VectorInt(VectorWrapper):
     def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
