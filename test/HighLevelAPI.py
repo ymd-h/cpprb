@@ -35,5 +35,49 @@ class TestCreateBuffer(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             cb_type(process_shared = True, Nstep = True, prioritized = True)
 
+
+class TestExplore(unittest.TestCase):
+    def test_explore(self):
+        size = 1024
+        obs_dim = 7
+        act_dim = 3
+        rew_dim = 2
+
+        rb1 = create_buffer(size,obs_dim,act_dim,rew_dim=rew_dim)
+        rb2 = create_buffer(size,obs_dim,act_dim,rew_dim=rew_dim)
+
+        def policy_stub(**kwargs):
+            return np.ones((act_dim),np.double)
+
+        class env_stub:
+            def reset():
+                return np.ones((obs_dim),np.double)
+
+            def step(**kwargs):
+                return (np.ones((obs_dim),np.double),
+                        np.ones((rew_dim),np.double),
+                        np.zeros(1,np.double),
+                        None)
+
+        env = env_stub()
+
+        n_iteration = 256
+        episode_len = 2
+
+        explore(rb1,policy_stub,env,n_iteration,longest_step = episode_len)
+
+        for it in range(n_iteration):
+            o = env.reset()
+            for _ in range(episode_len):
+                a = policy_stub(o)
+                no, r, d, _ = env.step(a)
+                rb2.add(o,a,r,no,d)
+
+                o = no
+
+        idx = [range(size)]
+        self.assertEqual(list(rb1._encode_sample(idx)["obs"]),
+                         list(rb2._encode_sample(idx)["obs"]))
+
 if __name__ == '__main__':
     unittest.main()
