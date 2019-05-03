@@ -18,6 +18,11 @@ class RandomPolicy:
 
     def __call__(self,*args,**kwargs):
         """Return random action
+
+        Returns
+        -------
+        : int
+            selected action (random choice)
         """
         return np.random.choice(self.act_dim)
 
