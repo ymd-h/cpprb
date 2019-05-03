@@ -94,10 +94,31 @@ class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
             GreedyPolicy.__call__(self,obs,*args,**kwargs)
 
 class SofmaxPolicy:
+    """Functor class which select action with respect to softmax probabilities.
+    """
     def __init__(self,model,*args,**kwargs):
+        """Initialize prediction model
+
+        Parameters
+        ----------
+        model: tensorflow.keras.models.Model
+            model to be used for predction
+        """
         self.model = model
 
     def __call__(self,obs,*args,**kwargs):
+        """Return selected action with regard to softmax probabilities.
+
+        Parameters
+        ----------
+        obs: array-like
+            observation to be used for prediction
+
+        Returns
+        -------
+        : int
+            selected action with regard to softmax probabilities.
+        """
         actions = softmax(np.ravel(model.predict(obs.reshape(1,-1),batch_size=1)))
         actions /= actions.sum()
 
