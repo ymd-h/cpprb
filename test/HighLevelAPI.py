@@ -45,6 +45,7 @@ class TestExplore(unittest.TestCase):
 
         rb1 = create_buffer(size,obs_dim,act_dim,rew_dim=rew_dim)
         rb2 = create_buffer(size,obs_dim,act_dim,rew_dim=rew_dim)
+        rb3 = create_buffer(size,obs_dim,act_dim,rew_dim=rew_dim)
 
         def policy_stub(*args,**kwargs):
             return np.ones((act_dim),np.double)
@@ -58,6 +59,9 @@ class TestExplore(unittest.TestCase):
                         np.ones((rew_dim),np.double),
                         np.zeros(1,np.double),
                         None)
+
+        def rew_func_stub(rew,*args,**kwargs):
+            return rew
 
         env = env_stub()
 
@@ -75,9 +79,15 @@ class TestExplore(unittest.TestCase):
 
                 o = no
 
+        explore(rb3,policy_stub,env,n_iteration,
+                longest_step = episode_len, rew_func =rew_func_stub)
+
         idx = np.arange(size)
         np.testing.assert_allclose(rb1._encode_sample(idx)["obs"],
                                    rb2._encode_sample(idx)["obs"])
+
+        np.testing.assert_allclose(rb1._encode_sample(idx)["obs"],
+                                   rb3._encode_sample(idx)["obs"])
 
 if __name__ == '__main__':
     unittest.main()
