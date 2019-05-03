@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.special import softmax
 
 from cpprb import explore
 
@@ -27,3 +28,13 @@ class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
             RandomPolicy.__call__(self,obs,*args,**kwargs)
         else:
             GreedyPolicy.__call__(self,obs,*args,**kwargs)
+
+class SofmaxPolicy:
+    def __init__(self,model,*args,**kwargs):
+        self.model = model
+
+    def __call__(self,obs,*args,**kwargs):
+        actions = softmax(np.ravel(model.predict(obs.reshape(1,-1),batch_size=1)))
+        actions /= actions.sum()
+
+        return np.random.choice(actions.shape[0],p=actions)
