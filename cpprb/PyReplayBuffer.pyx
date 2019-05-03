@@ -1273,7 +1273,7 @@ def create_buffer(size,obs_dim=1,act_dim=1,*,
     buffer = cls.get(f"{buffer_name}",None)
 
     if buffer:
-        return buffer(size,obs_dim=1,act_dim=1,**kwarg)
+        return buffer(size,obs_dim=obs_dim,act_dim=act_dim,**kwarg)
 
     raise NotImplementedError(f"{buffer_name} is not Implemented")
 
