@@ -1265,7 +1265,7 @@ def create_buffer(size,obs_dim,act_dim,*,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def explore(buffer,policy,env,n_iteration,*,
-            local_buffer = 10,longest_step = 500,rew_func = None):
+            local_buffer = 10,longest_step = 500,rew_func = None, callback = None):
     """Explore multiple iterations and add envitonment into buffer
 
     Parameters
@@ -1282,6 +1282,8 @@ def explore(buffer,policy,env,n_iteration,*,
         longest step in a single episode. default = 500
     rew_func: callable
         function to custom reward from obs, act, rew, next_obs, and doe
+    callback: callable
+        call-back function to call at each step
     """
     cdef size_t ITERATION = n_iteration
     cdef size_t LOCAL = local_buffer
@@ -1309,6 +1311,7 @@ def explore(buffer,policy,env,n_iteration,*,
     cdef size_t tmp_i
 
     cdef bool custom_rew = rew_func
+    cdef bool use_callback = callback
 
     for it in range(ITERATION):
         _o = env.reset()
@@ -1317,6 +1320,7 @@ def explore(buffer,policy,env,n_iteration,*,
         for step in range(LONGEST):
             _a = policy(o[idx])
             a[idx] = _a
+
             next_obs[idx], rew[idx], done[idx], _ = env.step(a[idx])
             # Use ndarray for unpack assignment because of cython bug.
             # https://github.com/cython/cython/issues/541
@@ -1325,6 +1329,11 @@ def explore(buffer,policy,env,n_iteration,*,
                 _r = rew_func(obs=o[idx], act=a[idx], rew=r[idx],
                               next_obs=no[idx], done=d[idx])
                 r[idx] = _r
+
+            if use_callback:
+                callback(obs=o[idx], act=a[idx], rew=r[idx],
+                         next_obs=no[idx], done=d[idx],
+                         step = step, iteration = it)
 
             tmp_i = idx + 1
             if tmp_i == LOCAL:
