@@ -22,10 +22,31 @@ class RandomPolicy:
         return np.random.choice(self.act_dim)
 
 class GreedyPolicy:
+    """Functor class which always select best prediction.
+    """
     def __init__(self,model,*args,**kwargs):
+        """Initialize prediction model.
+
+        Parameters
+        ----------
+        model: tensorflow.keras.models.Model
+            model to use prediction.
+        """
         self.model = model
 
     def __call__(self,obs,*args,**kwargs):
+        """Return best predicted action
+
+        Paremeters
+        ----------
+        obs: gym.Env
+            observation to be used for prediction
+
+        Returns
+        -------
+        : int
+            selected action
+        """
         return np.argmax(self.model.predict(obs.reshape(1,-1),batch_size=1))
 
 class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
