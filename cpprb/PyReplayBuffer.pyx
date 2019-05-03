@@ -1283,10 +1283,10 @@ def explore(buffer,policy,env,n_iteration,*,
     rew = np.zeros((LOCAL,buffer.get_rew_dim()),dtype=np.double)
     done = np.zeros((LOCAL),dtype=np.double)
 
-    cdef double [::] o = obs
-    cdef double [::] a = act
-    cdef double [::] r = rew
-    cdef double [::] no= next_obs
+    cdef double [:,:] o = obs
+    cdef double [:,:] a = act
+    cdef double [:,:] r = rew
+    cdef double [:,:] no= next_obs
     cdef double [:]  d = done
 
     cdef size_t it
