@@ -24,8 +24,7 @@ class TestFeatureDiscreteAction(unittest.TestCase):
 
         self.assertIs(np.dtype('int64'),_a.dtype)
 
-        self.assertEqual(rb._encode_sample(np.array((0),dtype=np.int))["obs"][_a[0]],
-                         _a[0])
+        self.assertEqual(np.arange(size)[_a[0]],_a[0])
 
 if __name__ == '__main__':
     unittest.main()
