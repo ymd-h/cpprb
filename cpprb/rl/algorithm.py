@@ -15,7 +15,7 @@ class GreedyPolicy:
         self.model = model
 
     def __call__(self,obs,*args,**kwargs):
-        return np.argmax(self.model.predict(obs))
+        return np.argmax(self.model.predict(obs.reshape(1,-1),batch_size=1))
 
 class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
     def __init__(self,env,model,eps = 0.1,*args,**kwargs):
