@@ -1237,6 +1237,8 @@ def create_buffer(size,obs_dim,act_dim,*,
 
     raise NotImplementedError(f"{buffer_name} is not Implemented")
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
 def explore(buffer,policy,env,n_iteration,*,
             local_buffer = 10,longest_step = 500,rew_func = None):
     """Explore multiple iterations and add envitonment into buffer
