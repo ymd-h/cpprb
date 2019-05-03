@@ -42,7 +42,7 @@ cdef class Environment:
         self.is_discrete_action = is_discrete_action
 
         cdef size_t _dim
-        if obs_shape is None:
+        if self.obs_shape is None:
             self.obs_dim = obs_dim
         else:
             self.obs_dim = 1
