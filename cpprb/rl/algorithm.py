@@ -1,7 +1,12 @@
+from functools import reduce
 import numpy as np
 from scipy.special import softmax
 
-from cpprb import explore
+from tensorflow.keras import Sequential, clone_model
+from tensorflow.keras.layers import InputLayer, Dense
+from tensorflow.keras.optimizer import Adam
+
+from cpprb import explore, create_buffer
 
 class RandomPolicy:
     """Functor class which randomly select action from discrete action space.
@@ -123,3 +128,41 @@ class SofmaxPolicy:
         actions /= actions.sum()
 
         return np.random.choice(actions.shape[0],p=actions)
+
+class DQN:
+    def __init__(self,env, hidden_units = (64,64),*,
+                 buffer_size = 1e6,
+                 obs_shape = None,
+                 prioritized = False,
+                 Nstep = False,
+                 process_shared = False,
+                 *args,**kwargs):
+        self.env = env
+
+        self.obs_shape = self.env.observation_space.shape
+        self.act_dim = self.env.action_space.n
+
+        self.buffer = create_buffer(buffer_size,
+                                    obs_shape = self.obs_shape,
+                                    act_dim = self.act_dim,
+                                    prioritized = prioritized,
+                                    Nstep = Nstep,
+                                    process_shared = process_shared)
+
+        self.model = Sequential([InputLayer(input_shape=(self.obs_shape))])
+
+        for units in hidden_units:
+            self.model.add(Dense(units,activation="relu"))
+
+        self.model.add(Dense(self.act_dim))
+
+        self.model.compile()
+        self.target_model = clone_model(self.model)
+
+
+    def sync_models(self):
+        self.target_model.set_weights(self.model.get_weights())
+
+
+    def train(self,policy):
+        pass
