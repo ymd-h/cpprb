@@ -66,14 +66,16 @@ cdef class Environment:
         ----------
         size : int
             buffer size
-        obs_dim : int
-            observation (obs) dimension
-        act_dim : int
-            action (act) dimension
+        obs_dim : int, optional
+            observation (obs) dimension whose default value is 1
+        act_dim : int, optional
+            action (act) dimension whose default value is 1
         rew_dim : int, optional
             reward (rew) dimension whose default value is 1
         is_discrete_action: bool, optional
             If True, act_dim is compressed to 1 whose default value is False
+        obs_shape: array-like
+            observation shape. If not None, overwrite obs_dim.
         """
         pass
 
