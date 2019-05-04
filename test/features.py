@@ -45,10 +45,13 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
         rb.add(obs,act,rew,next_obs,done)
 
         _o = rb._encode_sample(np.array((0)))["obs"]
+        _no = rb._encode_sample(np.array((0)))["next_obs"]
 
         self.assertEqual(obs_shape,_o[0].shape)
-
         np.testing.assert_allclose(obs,_o[0])
+
+        self.assertEqual(obs_shape,_no[0].shape)
+        np.testing.assert_allclose(next_obs,_no[0])
 
     def test_BatchSampling(self):
         size = 256
