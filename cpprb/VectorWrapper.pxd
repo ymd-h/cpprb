@@ -4,8 +4,8 @@ cdef class VectorWrapper:
     cdef Py_ssize_t *shape
     cdef Py_ssize_t *strides
     cdef Py_ssize_t itemsize
-    cdef int ndim
-    cdef int value_dim
+    cdef size_t ndim
+    cdef size_t value_dim
     cdef void update_size(self)
     cdef void set_buffer(self,Py_buffer*)
     cdef void set_shape_strides(self)
@@ -22,5 +22,5 @@ cdef class VectorSize_t(VectorWrapper):
 
 cdef class PointerDouble(VectorWrapper):
     cdef double* ptr
-    cdef int _vec_size
+    cdef size_t _vec_size
     cdef void update_vec_size(self,size_t)
