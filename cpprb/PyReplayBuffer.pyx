@@ -112,13 +112,16 @@ cdef class Environment:
         dtype = np.int if self.is_discrete_action else np.double
 
         _o = self.obs.as_numpy()[idx]
+        _no = self.next_obs.as_numpy()[idx]
         if self.obs_shape is not None:
-            _o = _o.reshape(-1,*self.obs_shape)
+            _shape = (-1,*self.obs_shape)
+            _o = _o.reshape(_shape)
+            _no = _no.reshape(_shape)
 
         return {'obs': _o,
                 'act': self.act.as_numpy(dtype=dtype)[idx],
                 'rew': self.rew.as_numpy()[idx],
-                'next_obs': self.next_obs.as_numpy()[idx],
+                'next_obs': _no,
                 'done': self.done.as_numpy()[idx]}
 
     cpdef size_t get_buffer_size(self):
