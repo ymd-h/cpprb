@@ -113,7 +113,7 @@ cdef class Environment:
 
         _o = self.obs.as_numpy()[idx]
         if self.obs_shape is not None:
-            _o = _o.reshape(self.obs_shape)
+            _o = _o.reshape(-1,*self.obs_shape)
 
         return {'obs': _o,
                 'act': self.act.as_numpy(dtype=dtype)[idx],
