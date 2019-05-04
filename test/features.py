@@ -50,5 +50,26 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
 
         np.testing.assert_allclose(obs,_o)
 
+    def test_BatchSampling(self):
+        size = 256
+        obs_shape = (84,84,3)
+        act_dim = 3
+        batch_size = 64
+
+        rb = create_buffer(size,obs_shape=obs_shape,act_dim=act_dim,
+                           prioritized = True,
+                           Nstep = True,
+                           is_discrete_action = True)
+
+        obs = np.ones(obs_shape,dtype=np.double)
+        act = 2
+        rew = 0.5
+        next_obs = np.zeros_like(obs)
+        done = 0
+
+        rb.add(obs,act,rew,next_obs,done)
+
+        rb.sample(batch_size)
+
 if __name__ == '__main__':
     unittest.main()
