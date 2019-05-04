@@ -117,5 +117,16 @@ class TestIssue45(unittest.TestCase):
                            is_discrete_action = True,
                            prioritized = True)
 
+class TestIssue46(unittest.TestCase):
+    def test_large_size(self):
+        buffer_size = 256
+        obs_shape = np.array((210, 160, 3))
+        act_dim = 4
+
+        rb = create_buffer(buffer_size,obs_shape=obs_shape,act_dim=act_dim,
+                           is_discrete_action = True,
+                           prioritized = True)
+        rb._encode_sample((0))
+
 if __name__ == '__main__':
     unittest.main()

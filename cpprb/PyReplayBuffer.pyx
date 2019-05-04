@@ -112,7 +112,7 @@ cdef class Environment:
         dtype = np.int if self.is_discrete_action else np.double
 
         _o = self.obs.as_numpy()[idx]
-        if self.obs_shape:
+        if self.obs_shape is not None:
             _o = _o.reshape(self.obs_shape)
 
         return {'obs': _o,
