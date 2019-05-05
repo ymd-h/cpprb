@@ -11,7 +11,7 @@ from cpprb import explore, create_buffer
 class RandomPolicy:
     """Functor class which randomly select action from discrete action space.
     """
-    def __init__(self,env,*args,**kwargs):
+    def __init__(self,*args,**kwargs):
         """Initialize action dimension (act_dim) from environment (env)
 
         Parameters
@@ -19,9 +19,9 @@ class RandomPolicy:
         env: gym.Env
             gym.Env compatible discrete action environment
         """
-        self.act_dim = env.action_space.n
+        pass
 
-    def __call__(self,*args,**kwargs):
+    def __call__(self,model,obs,obs_shape,act_dim,*args,**kwargs):
         """Return random action
 
         Returns
@@ -29,12 +29,12 @@ class RandomPolicy:
         : int
             selected action (random choice)
         """
-        return np.random.choice(self.act_dim)
+        return np.random.choice(act_dim)
 
 class GreedyPolicy:
     """Functor class which always select best prediction.
     """
-    def __init__(self,model,*args,**kwargs):
+    def __init__(self,*args,**kwargs):
         """Initialize prediction model.
 
         Parameters
@@ -42,9 +42,9 @@ class GreedyPolicy:
         model: tensorflow.keras.models.Model
             model to use prediction.
         """
-        self.model = model
+        pass
 
-    def __call__(self,obs,*args,**kwargs):
+    def __call__(self,model,obs,obs_shape,act_dim,*args,**kwargs):
         """Return best predicted action
 
         Paremeters
@@ -57,14 +57,14 @@ class GreedyPolicy:
         : int
             selected action (best prediction)
         """
-        return np.argmax(self.model.predict(obs.reshape(1,-1),batch_size=1))
+        return np.argmax(model.predict(obs.reshape(1,*obs_shape)))
 
 class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
     """Functor class which almost select best prediction and sometime randomly.
 
     Within small epsilon fraction, select action randomly.
     """
-    def __init__(self,env,model,eps = 0.1,*args,**kwargs):
+    def __init__(self,eps = 0.1,*args,**kwargs):
         """Initialize action dimension (act_dim) and prediction model
 
         Parameters
@@ -76,11 +76,11 @@ class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
         eps: float, optional
             small fraction for random selection
         """
-        RandomPolicy.__init__(self,env,*args,**kwargs)
-        GreedyPolicy.__init__(self,model,*args,**kwargs)
+        RandomPolicy.__init__(self,*args,**kwargs)
+        GreedyPolicy.__init__(self,*args,**kwargs)
         self.eps = eps
 
-    def __call__(self,obs,*args,**kwargs):
+    def __call__(self,*args,**kwargs):
         """Return selected action
 
         Parameters
@@ -94,14 +94,14 @@ class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
             selected action (best prediction, sometime random)
         """
         if np.random.rand() < eps:
-            RandomPolicy.__call__(self,obs,*args,**kwargs)
+            RandomPolicy.__call__(self,*args,**kwargs)
         else:
-            GreedyPolicy.__call__(self,obs,*args,**kwargs)
+            GreedyPolicy.__call__(self,*args,**kwargs)
 
 class SofmaxPolicy:
     """Functor class which select action with respect to softmax probabilities.
     """
-    def __init__(self,model,*args,**kwargs):
+    def __init__(self,*args,**kwargs):
         """Initialize prediction model
 
         Parameters
@@ -109,9 +109,9 @@ class SofmaxPolicy:
         model: tensorflow.keras.models.Model
             model for predction
         """
-        self.model = model
+        pass
 
-    def __call__(self,obs,*args,**kwargs):
+    def __call__(self,model,obs,obs_shape,act_dim,*args,**kwargs):
         """Return selected action with regard to softmax probabilities.
 
         Parameters
@@ -124,7 +124,7 @@ class SofmaxPolicy:
         : int
             selected action with regard to softmax probabilities.
         """
-        actions = softmax(np.ravel(model.predict(obs.reshape(1,-1),batch_size=1)))
+        actions = softmax(np.ravel(model.predict(obs.reshape(1,*obs_shape))))
         actions /= actions.sum()
 
         return np.random.choice(actions.shape[0],p=actions)
@@ -132,7 +132,6 @@ class SofmaxPolicy:
 class DQN:
     def __init__(self,env, hidden_units = (64,64),*,
                  buffer_size = 1e6,
-                 obs_shape = None,
                  prioritized = False,
                  Nstep = False,
                  process_shared = False,
