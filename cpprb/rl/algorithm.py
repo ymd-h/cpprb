@@ -136,8 +136,11 @@ class DQN:
                  prioritized = False,
                  Nstep = False,
                  process_shared = False,
+                 gamma = 0.99,
                  *args,**kwargs):
         self.env = env
+        self.gamma = gamma
+        self.prioritized = prioritized
 
         self.obs_shape = self.env.observation_space.shape
         self.act_dim = self.env.action_space.n
@@ -145,9 +148,10 @@ class DQN:
         self.buffer = create_buffer(buffer_size,
                                     obs_shape = self.obs_shape,
                                     act_dim = self.act_dim,
-                                    prioritized = prioritized,
+                                    prioritized = self.prioritized,
                                     Nstep = Nstep,
-                                    process_shared = process_shared)
+                                    process_shared = process_shared,
+                                    is_discrete_action = True)
 
         self.model = Sequential([InputLayer(input_shape=(self.obs_shape))])
 
@@ -164,5 +168,19 @@ class DQN:
         self.target_model.set_weights(self.model.get_weights())
 
 
-    def train(self,policy):
-        pass
+    def train(self,batch_size = 256):
+        sample = buffer.sample(batch_size)
+        obs = sample["obs"]
+
+        target_y = self.target_model.predict(sample["next_obs"]).max(axis=1) * (1.0 - sample["done"]) * self.gamma + sample["rew"]
+
+        if self.prioritized:
+            predict_y = self.model.predict(obs)[np.arange(batch_size),act]
+            TD = np.square(target_y - predict_y)
+            buffer.update_priorities(sample["indexes"],TD)
+
+        self.model.fit(x=obs,
+                       y=target_y,
+                       batch_size=batch_size,
+                       epoch = epoch,
+                       callbacks = [])
