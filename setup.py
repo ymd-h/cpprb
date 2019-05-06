@@ -36,7 +36,7 @@ else:
     requires = ["numpy"]
 
 extras = {
-    'gym': ["matplotlib", "pyvirtualdisplay"]
+    'gym': ["matplotlib", "pyvirtualdisplay"],
     'rl': ["tf-nightly-2.0-preview"]
 }
 
