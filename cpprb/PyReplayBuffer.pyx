@@ -1315,7 +1315,8 @@ def explore(buffer,policy,env,n_iteration,*,
     cdef size_t LOCAL = local_buffer
     cdef size_t LONGEST = longest_step
 
-    obs = np.zeros((LOCAL,* buffer.get_obs_shape()),dtype=np.double)
+    obs_shape = buffer.get_obs_shape() or [buffer.get_obs_dim()]
+    obs = np.zeros((LOCAL,* obs_shape), dtype=np.double)
     next_obs = np.zeros_like(obs)
     act = np.zeros((LOCAL,buffer.get_act_dim()),dtype=np.double)
     rew = np.zeros((LOCAL,buffer.get_rew_dim()),dtype=np.double)
