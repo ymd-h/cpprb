@@ -183,7 +183,7 @@ class DQN:
             buffer.update_priorities(sample["indexes"],TD)
 
         self.model.fit(x=obs,
-                       y=target_y,
+                       y=target_Q,
                        batch_size=batch_size,
                        epoch = epoch,
                        callbacks = [])
