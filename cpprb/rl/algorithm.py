@@ -137,10 +137,12 @@ class DQN:
                  Nstep = False,
                  process_shared = False,
                  gamma = 0.99,
+                 optimizer = Adam(),
                  *args,**kwargs):
         self.env = env
         self.gamma = gamma
         self.prioritized = prioritized
+        self.optimizer = optimizer
 
         self.obs_shape = self.env.observation_space.shape
         self.act_dim = self.env.action_space.n
@@ -160,7 +162,9 @@ class DQN:
 
         self.model.add(Dense(self.act_dim))
 
-        self.model.compile(loss = "huber_loss",optimizer = Adam())
+        self.model.compile(loss = "huber_loss",
+                           optimizer = self.optimizer,
+                           metrics=['accuracy'])
         self.target_model = clone_model(self.model)
 
 
