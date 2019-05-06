@@ -183,3 +183,27 @@ class DQN:
                        batch_size=batch_size,
                        epoch = epoch,
                        callbacks = [])
+
+
+    def __call__(self,policy,n_iteration,*
+                 batch_size = 256,
+                 validation = 5,
+                 callbacks = None,
+                 local_buffer = 10,
+                 longest_step = 500,
+                 rew_func = None,
+                 callback = None):
+
+        greedy = GreedyPolicy()
+
+        explore(self.buffer,policy,n_iteration,
+                local_buffer = local_buffer,
+                longest_step = longest_step,
+                rew_func = rew_func,
+                callback = self.train)
+
+        explore(self.buffer,greedy,validation,
+                local_buffer = local_buffer,
+                longest_step = longest_step,
+                rew_func = rew_func,
+                callback = callback)
