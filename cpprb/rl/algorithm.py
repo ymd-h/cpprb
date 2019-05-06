@@ -101,7 +101,7 @@ class EpsilonGreedyPolicy(RandomPolicy,GreedyPolicy):
         else:
             GreedyPolicy.__call__(self,*args,**kwargs)
 
-class SofmaxPolicy:
+class SoftmaxPolicy:
     """Functor class which select action with respect to softmax probabilities.
     """
     def __init__(self,*args,**kwargs):
