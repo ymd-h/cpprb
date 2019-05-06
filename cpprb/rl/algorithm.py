@@ -3,7 +3,8 @@ import numpy as np
 from scipy.special import softmax
 
 import tensorflow as tf
-from tensorflow.keras import Sequential, clone_model
+from tensorflow.keras import Sequential
+from tensorflow.keras.models import clone_model
 from tensorflow.keras.layers import InputLayer, Dense
 from tensorflow.keras.optimizer import Adam
 
