@@ -37,6 +37,7 @@ else:
 
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"]
+    'rl': ["tf-nightly-2.0-preview"]
 }
 
 all_deps = []
