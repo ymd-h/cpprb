@@ -1369,9 +1369,7 @@ def explore(buffer,policy,env,n_iteration,*,
             idx = tmp_i
 
         if use_callback:
-            callback(obs=o[idx], act=a[idx], rew=r[idx],
-                     next_obs=no[idx], done=d[idx],
-                     iteration = it)
+            callback(iteration = it)
 
     if idx != 0:
         buffer.add(o[:idx],a[:idx],r[:idx],no[:idx],d[:idx])
