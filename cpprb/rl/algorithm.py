@@ -138,7 +138,7 @@ class DQN:
                  process_shared = False,
                  gamma = 0.99,
                  optimizer = Adam(),
-                 *args,**kwargs):
+                 **kwargs):
         self.env = env
         self.gamma = gamma
         self.prioritized = prioritized
