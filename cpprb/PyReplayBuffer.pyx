@@ -1351,11 +1351,6 @@ def explore(buffer,policy,env,n_iteration,*,
                               next_obs=no[idx], done=d[idx])
                 r[idx] = _r
 
-            if use_callback:
-                callback(obs=o[idx], act=a[idx], rew=r[idx],
-                         next_obs=no[idx], done=d[idx],
-                         step = step, iteration = it)
-
             tmp_i = idx + 1
             if tmp_i == LOCAL:
                 tmp_i = 0
@@ -1367,6 +1362,11 @@ def explore(buffer,policy,env,n_iteration,*,
 
             o[tmp_i] = no[idx]
             idx = tmp_i
+
+        if use_callback:
+            callback(obs=o[idx], act=a[idx], rew=r[idx],
+                     next_obs=no[idx], done=d[idx],
+                     iteration = it)
 
     if idx != 0:
         buffer.add(o[:idx],a[:idx],r[:idx],no[:idx],d[:idx])
