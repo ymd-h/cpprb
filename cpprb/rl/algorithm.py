@@ -172,7 +172,9 @@ class DQN:
         self.target_model.set_weights(self.model.get_weights())
 
 
-    def train(self,batch_size = 256):
+    def train(self,batch_size = 256,*
+              callbacks = [EarlyStopping(monitor='loss', patience=1,
+                                         verbose=0, mode='auto')]):
         sample = buffer.sample(batch_size)
         obs = sample["obs"]
 
@@ -190,7 +192,7 @@ class DQN:
                        y=target_Q,
                        batch_size=batch_size,
                        epoch = epoch,
-                       callbacks = [])
+                       callbacks = callbacks)
 
 
     def __call__(self,policy,n_iteration,*
