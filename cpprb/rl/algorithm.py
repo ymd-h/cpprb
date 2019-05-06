@@ -7,6 +7,7 @@ from tensorflow.keras import Sequential
 from tensorflow.keras.models import clone_model
 from tensorflow.keras.layers import InputLayer, Dense
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
 
 from cpprb import explore, create_buffer
 
