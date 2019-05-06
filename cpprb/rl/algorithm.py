@@ -171,11 +171,11 @@ class DQN:
         sample = buffer.sample(batch_size)
         obs = sample["obs"]
 
-        target_y = self.target_model.predict(sample["next_obs"]).max(axis=1) * (1.0 - sample["done"]) * self.gamma + sample["rew"]
+        target_Q = self.target_model.predict(sample["next_obs"]).max(axis=1) * (1.0 - sample["done"]) * self.gamma + sample["rew"]
 
         if self.prioritized:
-            predict_y = self.model.predict(obs)[np.arange(batch_size),act]
-            TD = np.square(target_y - predict_y)
+            predict_Q = self.model.predict(obs)[np.arange(batch_size),act]
+            TD = np.square(target_Q - predict_Q)
             buffer.update_priorities(sample["indexes"],TD)
 
         self.model.fit(x=obs,
