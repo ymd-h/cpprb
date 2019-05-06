@@ -160,6 +160,11 @@ cdef class Environment:
         """
         return self.obs_dim
 
+    def get_obs_shape(self):
+        """Return observation shape
+        """
+        return self.obs_shape
+
     cpdef size_t get_act_dim(self):
         """Return action dimension (act_dim)
         """
