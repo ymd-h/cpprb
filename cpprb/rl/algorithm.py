@@ -2,6 +2,7 @@ from functools import reduce
 import numpy as np
 from scipy.special import softmax
 
+import tensorflow as tf
 from tensorflow.keras import Sequential, clone_model
 from tensorflow.keras.layers import InputLayer, Dense
 from tensorflow.keras.optimizer import Adam
@@ -159,7 +160,7 @@ class DQN:
 
         self.model.add(Dense(self.act_dim))
 
-        self.model.compile()
+        self.model.compile(loss = "huber_loss",optimizer = Adam())
         self.target_model = clone_model(self.model)
 
 
@@ -171,10 +172,13 @@ class DQN:
         sample = buffer.sample(batch_size)
         obs = sample["obs"]
 
+        predict_Q = self.model.predict(obs)
         target_Q = self.target_model.predict(sample["next_obs"]).max(axis=1) * (1.0 - sample["done"]) * self.gamma + sample["rew"]
 
+        target_Q = tf.where(tf.one_hot(sample["act"],self.act_dim,True,False),
+                            target_Q,predict_Q)
+
         if self.prioritized:
-            predict_Q = self.model.predict(obs)[np.arange(batch_size),act]
             TD = np.square(target_Q - predict_Q)
             buffer.update_priorities(sample["indexes"],TD)
 
