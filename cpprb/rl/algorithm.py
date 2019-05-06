@@ -184,7 +184,7 @@ class DQN:
 
         if self.prioritized:
             TD = np.square(target_Q - predict_Q)
-            buffer.update_priorities(sample["indexes"],TD)
+            self.buffer.update_priorities(sample["indexes"],TD)
 
         self.model.fit(x=obs,
                        y=target_Q,
