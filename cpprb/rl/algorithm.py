@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow.keras import Sequential
 from tensorflow.keras.models import clone_model
 from tensorflow.keras.layers import InputLayer, Dense
-from tensorflow.keras.optimizer import Adam
+from tensorflow.keras.optimizers import Adam
 
 from cpprb import explore, create_buffer
 
