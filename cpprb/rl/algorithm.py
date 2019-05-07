@@ -175,7 +175,7 @@ class DQN:
 
     def train(self,batch_size = 256,*,
               callbacks = None):
-        sample = buffer.sample(batch_size)
+        sample = self.buffer.sample(batch_size)
         obs = sample["obs"]
 
         predict_Q = self.model.predict(obs)
