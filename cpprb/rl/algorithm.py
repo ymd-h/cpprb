@@ -191,7 +191,7 @@ class DQN:
         self.model.fit(x=obs,
                        y=target_Q,
                        batch_size=batch_size,
-                       epoch = 1,
+                       epochs = 1,
                        callbacks = callbacks)
 
 
