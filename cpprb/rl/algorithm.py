@@ -202,7 +202,8 @@ class DQN:
                  local_buffer = 10,
                  longest_step = 500,
                  rew_func = None,
-                 callback = None):
+                 callback = None,
+                 use_total_loss = True):
 
         greedy = GreedyPolicy()
 
