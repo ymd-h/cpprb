@@ -7,7 +7,6 @@ from tensorflow.keras import Sequential
 from tensorflow.keras.models import clone_model
 from tensorflow.keras.layers import InputLayer, Dense
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping
 
 from cpprb import explore, create_buffer
 
@@ -175,8 +174,7 @@ class DQN:
 
 
     def train(self,batch_size = 256,*,
-              callbacks = [EarlyStopping(monitor='loss', patience=1,
-                                         verbose=0, mode='auto')]):
+              callbacks = None):
         sample = buffer.sample(batch_size)
         obs = sample["obs"]
 
@@ -193,7 +191,7 @@ class DQN:
         self.model.fit(x=obs,
                        y=target_Q,
                        batch_size=batch_size,
-                       epoch = epoch,
+                       epoch = 1,
                        callbacks = callbacks)
 
 
