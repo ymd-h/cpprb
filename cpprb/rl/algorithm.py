@@ -205,16 +205,8 @@ class DQN:
                  callback = None,
                  use_total_loss = True):
 
-        greedy = GreedyPolicy()
-
         explore(self.buffer,policy,n_iteration,
                 local_buffer = local_buffer,
                 longest_step = longest_step,
                 rew_func = rew_func,
-                callback = self.train)
-
-        explore(self.buffer,greedy,validation,
-                local_buffer = local_buffer,
-                longest_step = longest_step,
-                rew_func = rew_func,
-                callback = callback)
+                callback = lambda it: self.train(batch_size,callbacks=callbacks))
