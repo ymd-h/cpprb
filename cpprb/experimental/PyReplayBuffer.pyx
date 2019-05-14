@@ -3,7 +3,7 @@
 cimport numpy as np
 import numpy as np
 import cython
-from cython cimport dereference
+from cython.operator cimport dereference
 
 from cpp.ReplayBuffer cimport *
 
