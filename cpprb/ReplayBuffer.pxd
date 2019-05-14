@@ -49,3 +49,9 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         CppNstepRewardBuffer(size_t,size_t,size_t,Rew) except +
         void sample[Done](const vector[size_t]&,Rew*,Obs*,Done*)
         void get_buffer_pointers(Rew*,Rew*,Obs*&)
+
+    cdef cppclass DimensionalBuffer[T]:
+        DimensionalBuffer(size_t,size_t,T*=*)
+        void store_data[V](V* v,size_t,size_t,size_t)
+        void get_data(size_t,T*&)
+        size_t get_buffer_size()
