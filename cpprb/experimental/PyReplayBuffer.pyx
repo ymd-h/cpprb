@@ -32,7 +32,8 @@ cdef class ReplayBuffer:
     def add(self,**kwargs):
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
 
-        cdef int end = self.index + N
+        cdef size_t index = self.index
+        cdef int end = index + N
         cdef int remain = 0
 
         if end > self.buffer_size:
@@ -43,13 +44,14 @@ cdef class ReplayBuffer:
             b = self.buffer[name]
 
             if end <= self.buffer_size:
-                b[self.index:end] = value
+                b[index:end] = value
             else:
-                b[self.index:] = value[:-remain]
+                b[index:] = value[:-remain]
                 b[:remain] = value[-remain:]
 
         self.stored_size = min(self.stored_size,self.buffer_size)
         self.index = remain or end
+        return index
 
     def _encode_sample(self,idx):
         sample = {}
