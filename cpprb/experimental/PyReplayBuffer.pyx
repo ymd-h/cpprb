@@ -22,7 +22,7 @@ cdef class ReplayBuffer:
         self.index = 0
 
         self.buffer = {}
-        for name, defs in self.env_dict:
+        for name, defs in self.env_dict.items():
             shape = np.insert(np.asarray(defs.get("shape",1)),0,self.buffer_size)
             self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
 
@@ -39,7 +39,7 @@ cdef class ReplayBuffer:
         if end > self.buffer_size:
             remain = end - self.buffer_size
 
-        for name, value in kwargs:
+        for name, value in kwargs.items():
             value = np.array(value,copy=False,ndmin=2,order='C')
             b = self.buffer[name]
 
@@ -55,7 +55,7 @@ cdef class ReplayBuffer:
 
     def _encode_sample(self,idx):
         sample = {}
-        for name, defs in self.env_dict:
+        for name, defs in self.env_dict.items():
             sample[name] = self.buffer[name][idx]
         return sample
 
