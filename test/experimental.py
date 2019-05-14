@@ -40,3 +40,6 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         np.testing.assert_allclose(s["rew"],es["rew"])
         np.testing.assert_allclose(s["next_obs"],es["next_obs"])
         np.testing.assert_allclose(s["done"],es["done"])
+
+if __name__ == '__main__':
+    unittest.main()
