@@ -50,7 +50,7 @@ cdef class ReplayBuffer:
                 b[:remain] = value[-remain:]
 
         self.stored_size = min(self.stored_size,self.buffer_size)
-        self.index = remain or end
+        self.index = end if end < self.buffer_size else remain
         return index
 
     def _encode_sample(self,idx):
