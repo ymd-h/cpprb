@@ -31,9 +31,8 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
             rb.add(obs,act,rew,next_obs,done)
             erb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
-
-        s = rb._encode_sample(range(N))
-        es = erb._encode_sample(range(N))
+        s = rb._encode_sample(range(buffer_size))
+        es = erb._encode_sample(range(buffer_size))
 
         np.testing.assert_allclose(s["obs"],es["obs"])
         np.testing.assert_allclose(s["act"],es["act"])
