@@ -33,8 +33,8 @@ cdef class ReplayBuffer:
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
 
         cdef size_t index = self.index
-        cdef int end = index + N
-        cdef int remain = 0
+        cdef size_t end = index + N
+        cdef size_t remain = 0
 
         if end > self.buffer_size:
             remain = end - self.buffer_size
