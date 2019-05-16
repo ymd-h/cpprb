@@ -1,1 +1,1 @@
-from cpprb.experimental.PyReplayBuffer import ReplayBuffer
+from cpprb.experimental.PyReplayBuffer import (ReplayBuffer,PrioritizedReplayBuffer)
