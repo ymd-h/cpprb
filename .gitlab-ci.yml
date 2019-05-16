@@ -9,6 +9,7 @@ stages:
   - page_build
   - page_deploy
   - py_test
+  - pypi_upload
 
 .job_template: &setup
   image: &dev_image registry.gitlab.com/ymd_h/cpprb/build:latest
@@ -22,7 +23,7 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - pip install $(echo dist/cpprb-*)['all']
+    - pip install dist/cpprb-*.whl['all']
     - cd test
 
 ReplayBuffer.cpp:
@@ -43,7 +44,7 @@ py_build:
   <<: *setup
   stage: py_build
   script:
-    - CC=g++ python3 setup.py bdist_wheel
+    - CC=g++ python3 setup.py sdist bdist_wheel
   artifacts:
     paths:
       - dist
@@ -117,7 +118,7 @@ sphinx:
   stage: page_build
   environment: production
   script:
-    - pip install $(echo dist/cpprb-*)['all']
+    - pip install dist/cpprb-*.whl['all']
     - sphinx-apidoc -F -M -o sphinx cpprb
     - sphinx-build -b html sphinx public/api
   artifacts:
@@ -125,3 +126,14 @@ sphinx:
       - public
   only:
     - master
+
+pypi:
+  image: *dev_image
+  stage: pypi_upload
+  environment: production
+  script:
+    - twine upload dist/*
+  only:
+    - tags
+  except:
+    - branches
