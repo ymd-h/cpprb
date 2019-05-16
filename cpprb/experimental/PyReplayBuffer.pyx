@@ -76,6 +76,7 @@ cdef class ReplayBuffer:
         ------
         KeyError
             When kwargs don't include all environment variables defined in __cinit__
+            When environment variables don't include "done"
         """
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
 
