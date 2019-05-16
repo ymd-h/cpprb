@@ -48,8 +48,8 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         act_dim = 5
 
         rb = ReplayBuffer(buffer_size,env_dict={"obs":{"shape": obs_shape},
-                                                "act",{"shape": act_dim},
-                                                "rew",{},
+                                                "act":{"shape": act_dim},
+                                                "rew":{},
                                                 "next_obs": {},
                                                 "done": {}})
 
