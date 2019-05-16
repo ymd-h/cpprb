@@ -26,7 +26,7 @@ if os.path.exists("cpprb/PyReplayBuffer.pyx"):
     requires.extend(["cython>=0.29"])
 else:
     suffix = ".cpp"
-    wrap = lambda x: return x
+    wrap = lambda x: x
 
 ext = [["cpprb","PyReplayBuffer"],
        ["cpprb","VectorRapper"],
