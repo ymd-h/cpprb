@@ -77,3 +77,138 @@ cdef class ReplayBuffer:
 
     cpdef size_t get_buffer_size(self):
         return self.buffer_size
+
+cdef class PrioritizedReplayBuffer(ReplayBuffer):
+    """
+    Prioritized replay buffer class to store environments with priorities.
+    In this class, these environments are sampled with corresponding priorities.
+    """
+    cdef VectorDouble weights
+    cdef VectorSize_t indexes
+    cdef double alpha
+    cdef CppPrioritizedSampler[double]* per
+
+    def __cinit__(self,size,alpha=0.6,*args,**kwrags):
+        self.alpha = alpha
+        self.per = new CppPrioritizedSampler[double](size,alpha)
+        self.weights = VectorDouble()
+        self.indexes = VectorSize_t()
+
+    def __init__(self,size,alpha=0.6,*args,**kwargs):
+        """Initialize PrioritizedReplayBuffer
+
+        Parameters
+        ----------
+        size : int
+            buffer size
+        alpha : float, optional
+            the exponent of the priorities in stored whose default value is 0.6
+        """
+        pass
+
+    def add(self,priorities = None,**kwargs):
+        """
+        Add environment(s) into replay buffer.
+        Multiple step environments can be added.
+
+        Parameters
+        ----------
+        priorities : array like or float or int
+            priorities of each environment
+        **kwargs : array like or float or int optional
+            environment(s) to be stored
+
+        Returns
+        -------
+        int
+            the stored first index
+        """
+        cdef size_t index = super().add(**kwargs)
+        cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
+        cdef double [:] ps
+
+        if priorities is not None:
+            ps = np.array(priorities,copy=False,ndmin=1,dtype=np.double)
+            self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
+        else:
+            self.per.set_priorities(index,N,self.get_buffer_size())
+
+    def sample(self,batch_size,beta = 0.4):
+        """
+        Sample the stored environment depending on correspoinding priorities
+        with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+        beta : float, optional
+            the exponent for discount priority effect whose default value is 0.4
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples which also includes 'weights' and 'indexes'
+
+
+        Notes
+        -----
+        When 'beta' is 0, priorities are ignored.
+        The greater 'beta', the bigger effect of priories.
+
+        The sampling probabilities are propotional to :math:`priorities ^ {-'beta'}`
+        """
+        self.per.sample(batch_size,beta,
+                        self.weights.vec,self.indexes.vec,
+                        self.get_stored_size())
+        cdef idx = self.indexes.as_numpy()
+        samples = self._encode_sample(idx)
+        samples['weights'] = self.weights.as_numpy()
+        samples['indexes'] = idx
+        return samples
+
+    def update_priorities(self,indexes,priorities):
+        """
+        Update priorities
+
+        Parameters
+        ----------
+        indexes : array_like
+            indexes to update priorities
+        priorities : array_like
+            priorities to update
+
+        Returns
+        -------
+        """
+        cdef size_t [:] idx = Csize(indexes)
+        cdef double [:] ps = Cview(priorities)
+        cdef N = idx.shape[0]
+        self.per.update_priorities(&idx[0],&ps[0],N)
+
+    cpdef void clear(self) except *:
+        """
+        Clear replay buffer
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
+        super(PrioritizedReplayBuffer,self).clear()
+        clear(self.per)
+
+    cpdef double get_max_priority(self):
+        """
+        Get the max priority of stored priorities
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        max_priority : double
+            the max priority of stored priorities
+        """
+        return self.per.get_max_priority()
