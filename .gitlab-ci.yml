@@ -23,7 +23,7 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - pip install dist/cpprb-*.whl['all']
+    - pip install $(echo dist/cpprb-*.whl)['all']
     - cd test
 
 ReplayBuffer.cpp:
@@ -118,7 +118,7 @@ sphinx:
   stage: page_build
   environment: production
   script:
-    - pip install dist/cpprb-*.whl['all']
+    - pip install $(echo dist/cpprb-*.whl)['all']
     - sphinx-apidoc -F -M -o sphinx cpprb
     - sphinx-build -b html sphinx public/api
   artifacts:
