@@ -7,9 +7,9 @@ from cython.operator cimport dereference
 
 from cpprb.ReplayBuffer cimport *
 
-from .VectorWrapper cimport *
-from .VectorWrapper import (VectorWrapper,
-                            VectorInt,VectorSize_t,VectorDouble,PointerDouble)
+from cpprb.VectorWrapper cimport *
+from cpprb.VectorWrapper import (VectorWrapper,
+                                 VectorInt,VectorSize_t,VectorDouble,PointerDouble)
 
 cdef double [::1] Cview(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
