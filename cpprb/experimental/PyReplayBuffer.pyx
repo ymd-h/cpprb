@@ -72,6 +72,10 @@ cdef class ReplayBuffer:
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
+    cpdef void clear(self) except *:
+        self.index = 0
+        self.stored_size = 0
+
     cpdef size_t get_stored_size(self):
         return self.stored_size
 
