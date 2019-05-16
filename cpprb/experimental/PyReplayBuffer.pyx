@@ -82,6 +82,20 @@ cdef class ReplayBuffer:
     cpdef size_t get_buffer_size(self):
         return self.buffer_size
 
+    cpdef size_t get_next_index(self):
+        """
+        Get the next index to store
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            the next index to store
+        """
+        return self.index
+
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
     """
     Prioritized replay buffer class to store environments with priorities.
