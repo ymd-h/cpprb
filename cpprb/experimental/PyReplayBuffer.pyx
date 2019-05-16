@@ -18,6 +18,14 @@ cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
 cdef class ReplayBuffer:
+    """Replay Buffer class to store environments and to sample them randomly.
+
+    The envitonment contains observation (obs), action (act), reward (rew),
+    the next observation (next_obs), and done (done).
+
+    In this class, sampling is random sampling and the same environment can be
+    chosen multiple times.
+    """
     cdef buffer
     cdef size_t buffer_size
     cdef env_dict
@@ -36,9 +44,34 @@ cdef class ReplayBuffer:
             self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
 
     def __init__(self,size,env_dict=None,*args,**kwargs):
+        """Initialize ReplayBuffer
+
+        Parameters
+        ----------
+        size : int
+            buffer size
+        env_dict : dict of dict, optional
+            dictionary specifying environments. The keies of env_dict become
+            environment names. The values of env_dict, which are also dict,
+            defines "shape" (default 1) and "dtypes" (default np.double aka.
+            double)
+        """
         pass
 
     def add(self,**kwargs):
+        """Add environment(s) into replay buffer.
+        Multiple step environments can be added.
+
+        Parameters
+        ----------
+        **kwargs : array like or float or int
+            environments to be stored
+
+        Returns
+        -------
+        int
+            the stored first index
+        """
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
 
         cdef size_t index = self.index
@@ -69,22 +102,61 @@ cdef class ReplayBuffer:
         return sample
 
     def sample(self,batch_size):
+        """Sample the stored environment randomly with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples, which might contains the same event multiple times.
+        """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
     cpdef void clear(self) except *:
+        """Clear replay buffer.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         self.index = 0
         self.stored_size = 0
 
     cpdef size_t get_stored_size(self):
+        """Get stored size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            stored size
+        """
         return self.stored_size
 
     cpdef size_t get_buffer_size(self):
+        """Get buffer size
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        size_t
+            buffer size
+        """
         return self.buffer_size
 
     cpdef size_t get_next_index(self):
-        """
-        Get the next index to store
+        """Get the next index to store
 
         Parameters
         ----------
