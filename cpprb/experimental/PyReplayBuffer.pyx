@@ -71,6 +71,11 @@ cdef class ReplayBuffer:
         -------
         int
             the stored first index
+
+        Raises
+        ------
+        KeyError
+            When kwargs doon't include all environment variables defined in __cinit__
         """
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
 
