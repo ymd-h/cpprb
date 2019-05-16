@@ -33,7 +33,7 @@ ext = [["cpprb","PyReplayBuffer"],
        ["cpprb","experimental","PyReplayBuffer"]]
 
 ext_modules = wrap([Extension(".".join(e),
-                              sources=["/".join(e) + "suffix"],
+                              sources=["/".join(e) + suffix],
                               extra_compile_args=["-std=c++17",
                                                   "-march=native"],
                               extra_link_args=["-std=c++17", "-pthread"],
