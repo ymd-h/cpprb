@@ -102,8 +102,8 @@ cdef class ReplayBuffer:
 
     def _encode_sample(self,idx):
         sample = {}
-        for name, defs in self.env_dict.items():
-            sample[name] = self.buffer[name][idx]
+        for name, b in self.buffer.items():
+            sample[name] = b[idx]
         return sample
 
     def sample(self,batch_size):
