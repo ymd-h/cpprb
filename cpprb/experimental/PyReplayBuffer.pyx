@@ -49,7 +49,7 @@ cdef class ReplayBuffer:
                 b[index:] = value[:-remain]
                 b[:remain] = value[-remain:]
 
-        self.stored_size = min(self.stored_size,self.buffer_size)
+        self.stored_size = min(self.stored_size + N,self.buffer_size)
         self.index = end if end < self.buffer_size else remain
         return index
 
