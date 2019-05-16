@@ -67,6 +67,9 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),1)
         self.assertEqual(rb.get_stored_size(),1)
 
+        with self.assertRaises(KeyError):
+            rb.add(obs=obs)
+
 
 if __name__ == '__main__':
     unittest.main()
