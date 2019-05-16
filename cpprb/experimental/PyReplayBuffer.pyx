@@ -15,7 +15,7 @@ cdef class ReplayBuffer:
     cdef size_t index
     cdef size_t stored_size
 
-    def __cinit__(self,size,env_dict=None,**kwargs):
+    def __cinit__(self,size,env_dict=None,*args,**kwargs):
         self.env_dict = env_dict or {}
         self.buffer_size = size
         self.stored_size = 0
