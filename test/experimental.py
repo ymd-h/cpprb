@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from cpprb import ReplayBuffer
-from cpprb.experimental import ReplayBuffer as expReplayBuffer
+from cpprb import ReplayBuffer as nowReplayBuffer
+from cpprb.experimental import ReplayBuffer,PrioritizedReplayBuffer
 
 class TestExperimentalReplayBuffer(unittest.TestCase):
     def test_buffer(self):
@@ -14,12 +14,12 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
         N = 512
 
-        rb = ReplayBuffer(buffer_size,obs_shape=obs_shape,act_dim=act_dim)
-        erb = expReplayBuffer(buffer_size,{"obs":{"shape": obs_shape},
-                                           "act":{"shape": act_dim},
-                                           "rew":{},
-                                           "next_obs":{"shape": obs_shape},
-                                           "done":{}})
+        rb = nowReplayBuffer(buffer_size,obs_shape=obs_shape,act_dim=act_dim)
+        erb = ReplayBuffer(buffer_size,{"obs":{"shape": obs_shape},
+                                        "act":{"shape": act_dim},
+                                        "rew":{},
+                                        "next_obs":{"shape": obs_shape},
+                                        "done":{}})
 
         for i in range(N):
             obs = np.full(obs_shape,i,dtype=np.double)
