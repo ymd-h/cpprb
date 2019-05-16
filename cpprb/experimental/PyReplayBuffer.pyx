@@ -49,7 +49,7 @@ cdef class ReplayBuffer:
                 b[index:] = value[:-remain]
                 b[:remain] = value[-remain:]
 
-        self.stored_size = min(self.stored_size,self.buffer_size)
+        self.stored_size = min(self.stored_size + N,self.buffer_size)
         self.index = end if end < self.buffer_size else remain
         return index
 
@@ -62,3 +62,9 @@ cdef class ReplayBuffer:
     def sample(self,batch_size):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
+
+    cpdef size_t get_stored_size(self):
+        return self.stored_size
+
+    cpdef size_t get_buffer_size(self):
+        return self.buffer_size
