@@ -35,7 +35,7 @@ cdef class ReplayBuffer:
             shape = np.insert(np.asarray(defs.get("shape",1)),0,self.buffer_size)
             self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
 
-    def __init__(self,size,env_dict,*args,**kwargs):
+    def __init__(self,size,env_dict=None,*args,**kwargs):
         pass
 
     def add(self,**kwargs):
