@@ -50,7 +50,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         rb = ReplayBuffer(buffer_size,env_dict={"obs":{"shape": obs_shape},
                                                 "act":{"shape": act_dim},
                                                 "rew":{},
-                                                "next_obs": {},
+                                                "next_obs": {"shape": obs_shape},
                                                 "done": {}})
 
         self.assertEqual(rb.get_next_index(),0)
