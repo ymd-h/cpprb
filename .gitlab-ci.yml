@@ -88,12 +88,10 @@ emacs:
   image: iquiw/alpine-emacs
   stage: page_export
   script:
-    - emacs --version
     - emacs --batch README.org -l site/init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
     - emacs --batch README.org --eval '(org-md-export-to-markdown)'
     - cd site
     - emacs --batch site.org -l init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
-    - ls -l content
   artifacts:
     paths:
       - site/content
