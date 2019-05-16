@@ -18,36 +18,26 @@ extras['all'] = all_deps
 if os.path.exists("cpprb/PyReplayBuffer.pyx"):
     from Cython.Build import cythonize
 
-    suffix = "pyx"
+    suffix = ".pyx"
     wrap = lambda x: cythonize(x,
                                compiler_directives={'language_level': "3"},
                                include_path=["."],
                                annotate=True)
     requires.extend(["cython>=0.29"])
 else:
-    suffix = "cpp"
+    suffix = ".cpp"
     wrap = lambda x: return x
 
+ext = [["cpprb","PyReplayBuffer"],
+       ["cpprb","VectorRapper"],
+       ["cpprb","experimental","PyReplayBuffer"]]
 
-ext_modules = wrap([Extension("cpprb.PyReplayBuffer",
-                              sources=[f"cpprb/PyReplayBuffer.{suffix}"],
+ext_modules = wrap([Extension(".".join(e),
+                              sources=["/".join(e) + "suffix"],
                               extra_compile_args=["-std=c++17",
                                                   "-march=native"],
                               extra_link_args=["-std=c++17", "-pthread"],
-                              language="c++"),
-                    Extension("cpprb.VectorWrapper",
-                              sources=[f"cpprb/VectorWrapper.{suffix}"],
-                              extra_compile_args=["-std=c++17",
-                                                  "-march=native"],
-                              extra_link_args=["-std=c++17", "-pthread"],
-                              language="c++"),
-                    Extension("cpprb.experimental.PyReplayBuffer",
-                              sources=[f"cpprb/experimental/PyReplayBuffer.{suffix}"],
-                              extra_compile_args=["-std=c++17",
-                                                  "-march=native"],
-                              extra_link_args=["-std=c++17", "-pthread"],
-                              language="c++")])
-
+                              language="c++") for e in ext])
 
 setup(name="cpprb",
       author="Yamada Hiroyuki",
