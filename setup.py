@@ -2,60 +2,52 @@ import os
 from setuptools import setup, Extension, find_packages
 import numpy as np
 
-if os.path.exists("cpprb/PyReplayBuffer.pyx"):
-    from Cython.Build import cythonize
-    ext_modules = cythonize([Extension("cpprb.PyReplayBuffer",
-                                       sources=["cpprb/PyReplayBuffer.pyx"],
-                                       extra_compile_args=["-std=c++17",
-                                                           "-march=native"],
-                                       extra_link_args=["-std=c++17", "-pthread"],
-                                       language="c++"),
-                             Extension("cpprb.VectorWrapper",
-                                       sources=["cpprb/VectorWrapper.pyx"],
-                                       extra_compile_args=["-std=c++17",
-                                                           "-march=native"],
-                                       extra_link_args=["-std=c++17", "-pthread"],
-                                       language="c++"),
-                             Extension("cpprb.experimental.PyReplayBuffer",
-                                       sources=["cpprb/experimental/PyReplayBuffer.pyx"],
-                                       extra_compile_args=["-std=c++17",
-                                                           "-march=native"],
-                                       extra_link_args=["-std=c++17", "-pthread"],
-                                       language="c++")],
-                            compiler_directives={'language_level': "3"},
-                            include_path=["."],
-                            annotate=True)
-    requires = ["cython>=0.29", "numpy"]
-else:
-    ext_modules = [Extension("cpprb.PyReplayBuffer",
-                             sources=["cpprb/PyReplayBuffer.cpp"],
-                             extra_compile_args=["-std=c++17",
-                                                 "-march=native"],
-                             extra_link_args=["-std=c++17", "-pthread"],
-                             language="c++"),
-                   Extension("cpprb.VectorWrapper",
-                             sources=["cpprb/VectorWrapper.cpp"],
-                             extra_compile_args=["-std=c++17",
-                                                 "-march=native"],
-                             extra_link_args=["-std=c++17", "-pthread"],
-                             language="c++"),
-                   Extension("cpprb.experimental.PyReplayBuffer",
-                             sources=["cpprb/experimental/PyReplayBuffer.cpp"],
-                             extra_compile_args=["-std=c++17",
-                                                 "-march=native"],
-                             extra_link_args=["-std=c++17", "-pthread"],
-                             language="c++")]
-    requires = ["numpy"]
+
+requires = ["numpy"]
 
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"],
     'rl': ["scipy","tf-nightly-2.0-preview"]
 }
-
 all_deps = []
 for group_name in extras:
     all_deps += extras[group_name]
 extras['all'] = all_deps
+
+
+if os.path.exists("cpprb/PyReplayBuffer.pyx"):
+    from Cython.Build import cythonize
+
+    suffix = "pyx"
+    wrap = lambda x: cythonize(x,
+                               compiler_directives={'language_level': "3"},
+                               include_path=["."],
+                               annotate=True)
+    requires.extend(["cython>=0.29"])
+else:
+    suffix = "cpp"
+    wrap = lambda x: return x
+
+
+ext_modules = wrap([Extension("cpprb.PyReplayBuffer",
+                              sources=[f"cpprb/PyReplayBuffer.{suffix}"],
+                              extra_compile_args=["-std=c++17",
+                                                  "-march=native"],
+                              extra_link_args=["-std=c++17", "-pthread"],
+                              language="c++"),
+                    Extension("cpprb.VectorWrapper",
+                              sources=[f"cpprb/VectorWrapper.{suffix}"],
+                              extra_compile_args=["-std=c++17",
+                                                  "-march=native"],
+                              extra_link_args=["-std=c++17", "-pthread"],
+                              language="c++"),
+                    Extension("cpprb.experimental.PyReplayBuffer",
+                              sources=[f"cpprb/experimental/PyReplayBuffer.{suffix}"],
+                              extra_compile_args=["-std=c++17",
+                                                  "-march=native"],
+                              extra_link_args=["-std=c++17", "-pthread"],
+                              language="c++")])
+
 
 setup(name="cpprb",
       author="Yamada Hiroyuki",
