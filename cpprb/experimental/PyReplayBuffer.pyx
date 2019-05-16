@@ -119,21 +119,12 @@ cdef class ReplayBuffer:
 
     cpdef void clear(self) except *:
         """Clear replay buffer.
-
-        Parameters
-        ----------
-
-        Returns
-        -------
         """
         self.index = 0
         self.stored_size = 0
 
     cpdef size_t get_stored_size(self):
         """Get stored size
-
-        Parameters
-        ----------
 
         Returns
         -------
@@ -145,9 +136,6 @@ cdef class ReplayBuffer:
     cpdef size_t get_buffer_size(self):
         """Get buffer size
 
-        Parameters
-        ----------
-
         Returns
         -------
         size_t
@@ -158,9 +146,6 @@ cdef class ReplayBuffer:
     cpdef size_t get_next_index(self):
         """Get the next index to store
 
-        Parameters
-        ----------
-
         Returns
         -------
         size_t
@@ -169,8 +154,8 @@ cdef class ReplayBuffer:
         return self.index
 
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
-    """
-    Prioritized replay buffer class to store environments with priorities.
+    """Prioritized replay buffer class to store environments with priorities.
+
     In this class, these environments are sampled with corresponding priorities.
     """
     cdef VectorDouble weights
@@ -197,8 +182,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         pass
 
     def add(self,priorities = None,**kwargs):
-        """
-        Add environment(s) into replay buffer.
+        """Add environment(s) into replay buffer.
+        
         Multiple step environments can be added.
 
         Parameters
@@ -224,8 +209,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             self.per.set_priorities(index,N,self.get_buffer_size())
 
     def sample(self,batch_size,beta = 0.4):
-        """
-        Sample the stored environment depending on correspoinding priorities
+        """Sample the stored environment depending on correspoinding priorities
         with speciped size
 
         Parameters
@@ -258,8 +242,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         return samples
 
     def update_priorities(self,indexes,priorities):
-        """
-        Update priorities
+        """Update priorities
 
         Parameters
         ----------
@@ -277,24 +260,13 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         self.per.update_priorities(&idx[0],&ps[0],N)
 
     cpdef void clear(self) except *:
-        """
-        Clear replay buffer
-
-        Parameters
-        ----------
-
-        Returns
-        -------
+        """Clear replay buffer
         """
         super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
 
     cpdef double get_max_priority(self):
-        """
-        Get the max priority of stored priorities
-
-        Parameters
-        ----------
+        """Get the max priority of stored priorities
 
         Returns
         -------
