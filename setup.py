@@ -29,7 +29,7 @@ else:
     wrap = lambda x: x
 
 ext = [["cpprb","PyReplayBuffer"],
-       ["cpprb","VectorRapper"],
+       ["cpprb","VectorWrapper"],
        ["cpprb","experimental","PyReplayBuffer"]]
 
 ext_modules = wrap([Extension(".".join(e),
