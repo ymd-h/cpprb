@@ -81,9 +81,8 @@ cdef class ReplayBuffer:
         if end > self.buffer_size:
             remain = end - self.buffer_size
 
-        for name, value in kwargs.items():
-            value = np.array(value,copy=False,ndmin=2,order='C')
-            b = self.buffer[name]
+        for name, b in self.buffer.items():
+            value = np.array(kwargs[name],copy=False,ndmin=2,order='C')
 
             if end <= self.buffer_size:
                 b[index:end] = value
