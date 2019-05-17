@@ -78,7 +78,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         obs_shape = (15,15)
         act_dim = 5
 
-        rb = ReplayBuffer(buffer_size,{"obs":{"shape": obs_shape},
+        rb = ReplayBuffer(buffer_size,{"obs":{"shape": obs_shape,"dtype": np.ubyte},
                                        "act":{"shape": act_dim},
                                        "rew":{},
                                        "done": {}},
