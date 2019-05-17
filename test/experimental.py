@@ -47,11 +47,11 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         obs_shape = (15,15)
         act_dim = 5
 
-        rb = ReplayBuffer(buffer_size,env_dict={"obs":{"shape": obs_shape},
-                                                "act":{"shape": act_dim},
-                                                "rew":{},
-                                                "next_obs": {"shape": obs_shape},
-                                                "done": {}})
+        rb = ReplayBuffer(buffer_size,{"obs":{"shape": obs_shape},
+                                       "act":{"shape": act_dim},
+                                       "rew":{},
+                                       "next_obs": {"shape": obs_shape},
+                                       "done": {}})
 
         self.assertEqual(rb.get_next_index(),0)
         self.assertEqual(rb.get_stored_size(),0)
