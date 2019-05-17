@@ -134,5 +134,30 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
                                     np.roll(sample["next_obs"],-ith-1,axis=0)[:-1])
 
 
+class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
+    def test_add(self):
+        buffer_size = 500
+        obs_shape = (84,84,3)
+        act_dim = 10
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape},
+                                                  "act": {"shape": act_dim},
+                                                  "rew": {},
+                                                  "done": {}},
+                                     next_of = ("obs"))
+
+        obs = np.zeros(obs_shape)
+        act = np.ones(act_dim)
+        rew = 1
+        done = 0
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = 1.5
+
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+        self.assertAlmostEqual(rb.get_max_priority(),1.5)
+
 if __name__ == '__main__':
     unittest.main()
