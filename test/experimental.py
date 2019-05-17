@@ -159,9 +159,20 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
 
         self.assertAlmostEqual(rb.get_max_priority(),1.5)
 
-        erb.clear()
-        self.assertEqual(erb.get_next_index(),0)
-        self.assertEqual(erb.get_stored_size(),0)
+        obs = np.stack((obs,obs))
+        act = np.stack((act,act))
+        rew = (1,0)
+        done = (0.0,1.0)
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = (0.2,0.4)
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+
+        rb.clear()
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
 
 
 if __name__ == '__main__':
