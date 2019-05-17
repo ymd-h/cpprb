@@ -105,5 +105,17 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
         next_obs = rb.sample(32)["next_obs"]
 
+
+        for i in range(512):
+            obs = np.ones(obs_shape) * i
+            rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        sample = rb._encode_sample(range(buffer_size))
+
+        ith = rb.get_next_index()
+        np.tensting.assert_allclose(np.roll(sample["obs"],-ith-1,axis=0)[1:],
+                                    np.roll(sample["next_obs"],-ith-1,axis=0)[:-1])
+
+
 if __name__ == '__main__':
     unittest.main()
