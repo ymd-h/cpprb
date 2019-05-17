@@ -73,6 +73,18 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),1)
         self.assertEqual(rb.get_stored_size(),1)
 
+        obs = np.stack((obs,obs))
+        act = np.stack((act,act))
+        rew = (1,0)
+        next_obs = np.stack((next_obs,next_obs))
+        done = (0.0,1.0)
+
+        rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
+
+        self.assertEqual(rb.get_next_index(),3)
+        self.assertEqual(rb.get_stored_size(),3)
+
+
     def test_next_obs(self):
         buffer_size = 256
         obs_shape = (15,15)
