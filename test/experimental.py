@@ -113,7 +113,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         sample = rb._encode_sample(range(buffer_size))
 
         ith = rb.get_next_index()
-        np.tensting.assert_allclose(np.roll(sample["obs"],-ith-1,axis=0)[1:],
+        np.testing.assert_allclose(np.roll(sample["obs"],-ith-1,axis=0)[1:],
                                     np.roll(sample["next_obs"],-ith-1,axis=0)[:-1])
 
 
