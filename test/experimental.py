@@ -159,5 +159,10 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
 
         self.assertAlmostEqual(rb.get_max_priority(),1.5)
 
+        erb.clear()
+        self.assertEqual(erb.get_next_index(),0)
+        self.assertEqual(erb.get_stored_size(),0)
+
+
 if __name__ == '__main__':
     unittest.main()
