@@ -32,7 +32,7 @@ cdef class ReplayBuffer:
     cdef size_t index
     cdef size_t stored_size
 
-    def __cinit__(self,size,env_dict=None,*args,**kwargs):
+    def __cinit__(self,size,env_dict=None,*,**kwargs):
         self.env_dict = env_dict or {}
         self.buffer_size = size
         self.stored_size = 0
@@ -43,7 +43,7 @@ cdef class ReplayBuffer:
             shape = np.insert(np.asarray(defs.get("shape",1)),0,self.buffer_size)
             self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
 
-    def __init__(self,size,env_dict=None,*args,**kwargs):
+    def __init__(self,size,env_dict=None,*,**kwargs):
         """Initialize ReplayBuffer
 
         Parameters
@@ -168,13 +168,13 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     cdef double alpha
     cdef CppPrioritizedSampler[double]* per
 
-    def __cinit__(self,size,alpha=0.6,*args,**kwrags):
+    def __cinit__(self,size,env_dict=None,*,alpha=0.6,**kwrags):
         self.alpha = alpha
         self.per = new CppPrioritizedSampler[double](size,alpha)
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
-    def __init__(self,size,alpha=0.6,*args,**kwargs):
+    def __init__(self,size,env_dict=None,*,alpha=0.6,**kwargs):
         """Initialize PrioritizedReplayBuffer
 
         Parameters
