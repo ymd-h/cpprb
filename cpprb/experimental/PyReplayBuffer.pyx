@@ -40,7 +40,7 @@ cdef class ReplayBuffer:
         self.stored_size = 0
         self.index = 0
 
-        self.next_of = np.asarray(next_of)
+        self.next_of = np.array(next_of,ndmin=1,copy=False)
         self.has_next_of = next_of
 
         self.buffer = {}
