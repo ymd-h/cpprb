@@ -73,5 +73,37 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),1)
         self.assertEqual(rb.get_stored_size(),1)
 
+    def test_next_obs(self):
+        buffer_size = 256
+        obs_shape = (15,15)
+        act_dim = 5
+
+        rb = ReplayBuffer(buffer_size,{"obs":{"shape": obs_shape},
+                                       "act":{"shape": act_dim},
+                                       "rew":{},
+                                       "done": {}},
+                          next_of = "obs")
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        obs = np.zeros(obs_shape)
+        act = np.ones(act_dim)
+        rew = 1
+        done = 0
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        self.assertEqual(rb.get_next_index(),1)
+        self.assertEqual(rb.get_stored_size(),1)
+
+        with self.assertRaises(KeyError):
+            rb.add(obs=obs)
+
+        self.assertEqual(rb.get_next_index(),1)
+        self.assertEqual(rb.get_stored_size(),1)
+
+        next_obs = rb.sample(32)["next_obs"]
+
 if __name__ == '__main__':
     unittest.main()
