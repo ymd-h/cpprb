@@ -47,6 +47,8 @@ cdef class ReplayBuffer:
         for name, defs in self.env_dict.items():
             shape = np.insert(np.asarray(defs.get("shape",1)),0,self.buffer_size)
             self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
+            shape[0] = -1
+            defs["add_shape"] = shape
 
     def __init__(self,size,env_dict=None,*,next_of=None,**kwargs):
         """Initialize ReplayBuffer
@@ -93,7 +95,8 @@ cdef class ReplayBuffer:
             remain = end - self.buffer_size
 
         for name, b in self.buffer.items():
-            value = np.array(kwargs[name],copy=False,ndmin=2,order='C')
+            value = np.reshape(np.array(kwargs[name],copy=False,ndmin=2,order='C'),
+                               self.env_dict[name]["add_shape"])
 
             if end <= self.buffer_size:
                 b[index:end] = value
