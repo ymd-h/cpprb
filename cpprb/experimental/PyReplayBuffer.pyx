@@ -31,19 +31,24 @@ cdef class ReplayBuffer:
     cdef env_dict
     cdef size_t index
     cdef size_t stored_size
+    cdef next_of
+    cdef bool has_next_of
 
-    def __cinit__(self,size,env_dict=None,*,**kwargs):
+    def __cinit__(self,size,env_dict=None,*,next_of=None,**kwargs):
         self.env_dict = env_dict or {}
         self.buffer_size = size
         self.stored_size = 0
         self.index = 0
+
+        self.next_of = np.asarray(next_of)
+        self.has_next_of = next_of
 
         self.buffer = {}
         for name, defs in self.env_dict.items():
             shape = np.insert(np.asarray(defs.get("shape",1)),0,self.buffer_size)
             self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
 
-    def __init__(self,size,env_dict=None,*,**kwargs):
+    def __init__(self,size,env_dict=None,*,next_of=None,**kwargs):
         """Initialize ReplayBuffer
 
         Parameters
@@ -104,6 +109,14 @@ cdef class ReplayBuffer:
         sample = {}
         for name, b in self.buffer.items():
             sample[name] = b[idx]
+
+        if self.has_next_of:
+            next_idx = idx + 1
+            next_idx[next_idx == self.get_buffer_size()] = 0
+
+            for name in self.next_of:
+                sample[f"next_{name}"] = self.buffer[name][next_idx]
+
         return sample
 
     def sample(self,batch_size):
@@ -188,7 +201,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
     def add(self,priorities = None,**kwargs):
         """Add environment(s) into replay buffer.
-        
+
         Multiple step environments can be added.
 
         Parameters
