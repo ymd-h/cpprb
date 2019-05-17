@@ -42,6 +42,11 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
         erb.sample(32)
 
+        erb.clear()
+
+        self.assertEqual(erb.get_next_index(),0)
+        self.assertEqual(erb.get_stored_size(),0)
+
     def test_add(self):
         buffer_size = 256
         obs_shape = (15,15)
