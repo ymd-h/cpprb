@@ -62,6 +62,9 @@ cdef class ReplayBuffer:
             environment names. The values of env_dict, which are also dict,
             defines "shape" (default 1) and "dtypes" (default np.double aka.
             double)
+        next_of : str or array like of str, optional
+            next item of specified environemt variables (eg. next_obs for next) are
+            also sampled without duplicated values
         """
         pass
 
