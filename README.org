@@ -66,6 +66,7 @@
 
 [[https://img.shields.io/gitlab/pipeline/ymd_h/cpprb.svg]]
 [[https://img.shields.io/pypi/v/cpprb.svg]]
+[[https://img.shields.io/pypi/l/cpprb.svg]]
 
 * DONE Overview
 CLOSED: [2019-02-11 Mon 09:02]
