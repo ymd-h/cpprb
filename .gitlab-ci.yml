@@ -132,7 +132,7 @@ pypi:
   stage: pypi_upload
   environment: production
   script:
-    - twine upload dist/*
+    - twine upload dist/*.tar.gz
   only:
     - tags
   except:
