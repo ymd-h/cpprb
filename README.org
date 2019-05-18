@@ -64,6 +64,7 @@
 
 [[https://ymd_h.gitlab.io/cpprb/][Project Site]]
 
+[[https://img.shields.io/gitlab/pipeline/ymd_h/cpprb.svg]]
 [[https://img.shields.io/pypi/v/cpprb.svg]]
 
 * DONE Overview
