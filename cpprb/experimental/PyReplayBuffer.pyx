@@ -11,12 +11,15 @@ from cpprb.VectorWrapper cimport *
 from cpprb.VectorWrapper import (VectorWrapper,
                                  VectorInt,VectorSize_t,VectorDouble,PointerDouble)
 
+@cython.embedsignature(True)
 cdef double [::1] Cview(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
 
+@cython.embedsignature(True)
 cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
+@cython.embedsignature(True)
 cdef class ReplayBuffer:
     """Replay Buffer class to store environments and to sample them randomly.
 
@@ -177,6 +180,7 @@ cdef class ReplayBuffer:
         """
         return self.index
 
+@cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
     """Prioritized replay buffer class to store environments with priorities.
 
