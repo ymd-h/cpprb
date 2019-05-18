@@ -64,6 +64,8 @@
 
 [[https://ymd_h.gitlab.io/cpprb/][Project Site]]
 
+[[https://img.shields.io/pypi/v/cpprb.svg]]
+
 * DONE Overview
 CLOSED: [2019-02-11 Mon 09:02]
 :PROPERTIES:
