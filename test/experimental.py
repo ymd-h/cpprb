@@ -110,7 +110,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         rew = 1
         done = 0
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         self.assertEqual(rb.get_next_index(),1)
         self.assertEqual(rb.get_stored_size(),1)
@@ -126,13 +126,13 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
         for i in range(512):
             obs = np.ones(obs_shape) * i
-            rb.add(obs=obs,act=act,rew=rew,done=done)
+            rb.add(obs=obs,act=act,rew=rew,next_obs=obs+1,done=done)
 
         sample = rb._encode_sample(range(buffer_size))
 
         ith = rb.get_next_index()
         np.testing.assert_allclose(np.roll(sample["obs"],-ith-1,axis=0)[1:],
-                                    np.roll(sample["next_obs"],-ith-1,axis=0)[:-1])
+                                   np.roll(sample["next_obs"],-ith-1,axis=0)[:-1])
 
 
 class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
@@ -152,11 +152,11 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
         rew = 1
         done = 0
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         ps = 1.5
 
-        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done,priorities=ps)
 
         self.assertAlmostEqual(rb.get_max_priority(),1.5)
 
@@ -165,10 +165,10 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
         rew = (1,0)
         done = (0.0,1.0)
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         ps = (0.2,0.4)
-        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done,priorities=ps)
 
 
         rb.clear()
@@ -191,11 +191,11 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
         rew = 1
         done = 0
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         ps = 1.5
 
-        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done,priorities=ps)
 
         self.assertAlmostEqual(rb.get_max_priority(),1.5)
 
@@ -204,10 +204,10 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
         rew = (1,0)
         done = (0.0,1.0)
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         ps = (0.2,0.4)
-        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done,priorities=ps)
 
         sample = rb.sample(64)
 
@@ -244,8 +244,8 @@ class TestCreateBuffer(unittest.TestCase):
         rew = 1
         done = 0
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
-        per.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
+        per.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         o = rb.sample(1)["obs"]
         po = per.sample(1)["obs"]
@@ -253,14 +253,38 @@ class TestCreateBuffer(unittest.TestCase):
         np.testing.assert_allclose(o,obs.reshape((-1,*obs.shape)))
         np.testing.assert_allclose(po,obs.reshape((-1,*obs.shape)))
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
-        per.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
+        per.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         no = rb._encode_sample((0))["next_obs"]
         pno = per._encode_sample((0))["next_obs"]
 
         np.testing.assert_allclose(no,obs.reshape((-1,*obs.shape)))
         np.testing.assert_allclose(pno,obs.reshape((-1,*obs.shape)))
+
+class TestIssue(unittest.TestCase):
+    def test_issue51(self):
+        buffer_size = 256
+        obs_shape = 15
+        act_dim = 3
+
+        rb = create_buffer(buffer_size,
+                           env_dict={"obs": {"shape": obs_shape},
+                                     "act": {"shape": act_dim},
+                                     "rew": {},
+                                     "done": {}},
+                           next_of = "obs")
+
+        obs = np.arange(obs_shape)
+        act = np.ones(act_dim)
+        rew = 1
+        next_obs = obs + 1
+        done = 0
+
+        rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
+
+        np.testing.assert_allclose(rb._encode_sample((0))["next_obs"][0],
+                                   next_obs)
 
 if __name__ == '__main__':
     unittest.main()
