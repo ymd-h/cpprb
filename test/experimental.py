@@ -4,6 +4,7 @@ import numpy as np
 
 from cpprb import ReplayBuffer as nowReplayBuffer
 from cpprb.experimental import ReplayBuffer,PrioritizedReplayBuffer
+from cpprb.experimental import create_buffer
 
 class TestExperimentalReplayBuffer(unittest.TestCase):
     def test_buffer(self):
@@ -214,6 +215,43 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
         i = sample["indexes"]
 
         rb.update_priorities(i,w*w)
+
+class TestCreateBuffer(unittest.TestCase):
+    def test_create(self):
+        buffer_size = 256
+        obs_shape = (4,84,84)
+        act_dim = 3
+
+        rb = create_buffer(buffer_size,
+                           env_dict={"obs": {"shape": obs_shape},
+                                     "act": {"shape": act_dim},
+                                     "rew": {},
+                                     "done": {}},
+                           next_of = "obs")
+        per = create_buffer(buffer_size,
+                            env_dict={"obs": {"shape": obs_shape},
+                                      "act": {"shape": act_dim},
+                                      "rew": {},
+                                      "done": {}},
+                            next_of = "obs",
+                            prioritized = True)
+
+        self.assertIs(type(rb),ReplayBuffer)
+        self.assertIs(type(per),PrioritizedReplayBuffer)
+
+        obs = np.random.random(obs_shape)
+        act = np.ones(act_dim)
+        rew = 1
+        done = 0
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+        per.add(obs=obs,act=act,rew=rew,done=done)
+
+        no = rb.sample(32)["next_obs"]
+        pno = per.sample(32)["next_obs"]
+
+        np.testing.assert_allclose(no,obs)
+        np.testing.assert_allclose(pno,obs)
 
 if __name__ == '__main__':
     unittest.main()
