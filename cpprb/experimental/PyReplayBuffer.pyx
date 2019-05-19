@@ -36,6 +36,7 @@ cdef class ReplayBuffer:
     cdef size_t stored_size
     cdef next_of
     cdef bool has_next_of
+    cdef next_
 
     def __cinit__(self,size,env_dict=None,*,next_of=None,**kwargs):
         self.env_dict = env_dict or {}
@@ -45,6 +46,7 @@ cdef class ReplayBuffer:
 
         self.next_of = np.array(next_of,ndmin=1,copy=False)
         self.has_next_of = next_of
+        self.next_ = {}
 
         self.buffer = {}
         for name, defs in self.env_dict.items():
@@ -110,21 +112,37 @@ cdef class ReplayBuffer:
                 b[index:] = value[:-remain]
                 b[:remain] = value[-remain:]
 
+        if self.has_next_of:
+            for name in self.next_of:
+                self.next_[name] = np.reshape(np.array(kwargs[f"next_{name}"],
+                                                       copy=False,
+                                                       ndmin=2,
+                                                       order='C'),
+                                              self.env_dict[name]["add_shape"])[-1]
+
         self.stored_size = min(self.stored_size + N,self.buffer_size)
         self.index = end if end < self.buffer_size else remain
         return index
 
     def _encode_sample(self,idx):
         sample = {}
+        cdef bool use_cache
         for name, b in self.buffer.items():
             sample[name] = b[idx]
 
         if self.has_next_of:
             next_idx = np.array(idx,copy=False,ndmin=1) + 1
             next_idx[next_idx == self.get_buffer_size()] = 0
+            cache_idx = (next_idx == self.get_next_index())
+            use_cache = cache_idx.any()
 
             for name in self.next_of:
-                sample[f"next_{name}"] = self.buffer[name][next_idx]
+                if use_cache:
+                    tmp = np.copy(self.buffer[name][next_idx])
+                    tmp[cache_idx] = self.next_[name]
+                    sample[f"next_{name}"] = tmp
+                else:
+                    sample[f"next_{name}"] = self.buffer[name][next_idx]
 
         return sample
 
