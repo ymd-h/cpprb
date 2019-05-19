@@ -132,7 +132,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
         ith = rb.get_next_index()
         np.testing.assert_allclose(np.roll(sample["obs"],-ith-1,axis=0)[1:],
-                                    np.roll(sample["next_obs"],-ith-1,axis=0)[:-1])
+                                   np.roll(sample["next_obs"],-ith-1,axis=0)[:-1])
 
 
 class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
