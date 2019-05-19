@@ -341,6 +341,6 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     buffer = cls.get(f"{buffer_name}",None)
 
     if buffer:
-        return buffer(size,env_dict,**kwarg)
+        return buffer(size,env_dict,**kwargs)
 
     raise NotImplementedError(f"{buffer_name} is not Implemented")
