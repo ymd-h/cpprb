@@ -110,7 +110,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         rew = 1
         done = 0
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         self.assertEqual(rb.get_next_index(),1)
         self.assertEqual(rb.get_stored_size(),1)
@@ -126,7 +126,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
         for i in range(512):
             obs = np.ones(obs_shape) * i
-            rb.add(obs=obs,act=act,rew=rew,done=done)
+            rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         sample = rb._encode_sample(range(buffer_size))
 
@@ -152,11 +152,11 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
         rew = 1
         done = 0
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         ps = 1.5
 
-        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done,priorities=ps)
 
         self.assertAlmostEqual(rb.get_max_priority(),1.5)
 
@@ -165,10 +165,10 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
         rew = (1,0)
         done = (0.0,1.0)
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         ps = (0.2,0.4)
-        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done,priorities=ps)
 
 
         rb.clear()
@@ -191,11 +191,11 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
         rew = 1
         done = 0
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         ps = 1.5
 
-        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done,priorities=ps)
 
         self.assertAlmostEqual(rb.get_max_priority(),1.5)
 
@@ -204,10 +204,10 @@ class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
         rew = (1,0)
         done = (0.0,1.0)
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         ps = (0.2,0.4)
-        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done,priorities=ps)
 
         sample = rb.sample(64)
 
@@ -244,8 +244,8 @@ class TestCreateBuffer(unittest.TestCase):
         rew = 1
         done = 0
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
-        per.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
+        per.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         o = rb.sample(1)["obs"]
         po = per.sample(1)["obs"]
@@ -253,8 +253,8 @@ class TestCreateBuffer(unittest.TestCase):
         np.testing.assert_allclose(o,obs.reshape((-1,*obs.shape)))
         np.testing.assert_allclose(po,obs.reshape((-1,*obs.shape)))
 
-        rb.add(obs=obs,act=act,rew=rew,done=done)
-        per.add(obs=obs,act=act,rew=rew,done=done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
+        per.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
 
         no = rb._encode_sample((0))["next_obs"]
         pno = per._encode_sample((0))["next_obs"]
