@@ -120,7 +120,7 @@ cdef class ReplayBuffer:
             sample[name] = b[idx]
 
         if self.has_next_of:
-            next_idx = np.asarray(idx) + 1
+            next_idx = np.array(idx,copy=False,ndmin=1) + 1
             next_idx[next_idx == self.get_buffer_size()] = 0
 
             for name in self.next_of:
@@ -302,3 +302,45 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             the max priority of stored priorities
         """
         return self.per.get_max_priority()
+
+def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
+    """Create specified version of replay buffer
+
+    Parameters
+    ----------
+    size : int
+        buffer size
+    env_dict : dict of dict, optional
+        dictionary specifying environments. The keies of env_dict become
+        environment names. The values of env_dict, which are also dict,
+        defines "shape" (default 1) and "dtypes" (default np.double aka.
+        double)
+    prioritized : bool, optional
+        create prioritized version replay buffer, default = False
+
+    Returns
+    -------
+    : one of the replay buffer classes
+
+    Raises
+    ------
+    NotImplementedError
+        If you specified not implemented version replay buffer
+
+    Note
+    ----
+    Any other keyword arguments are passed to replay buffer constructor.
+    """
+    per = "Prioritized" if prioritized else ""
+
+    buffer_name = f"{per}ReplayBuffer"
+
+    cls={"ReplayBuffer": ReplayBuffer,
+         "PrioritizedReplayBuffer": PrioritizedReplayBuffer}
+
+    buffer = cls.get(f"{buffer_name}",None)
+
+    if buffer:
+        return buffer(size,env_dict,**kwargs)
+
+    raise NotImplementedError(f"{buffer_name} is not Implemented")
