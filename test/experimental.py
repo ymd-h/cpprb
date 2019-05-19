@@ -253,5 +253,14 @@ class TestCreateBuffer(unittest.TestCase):
         np.testing.assert_allclose(o,obs.reshape((-1,*obs.shape)))
         np.testing.assert_allclose(po,obs.reshape((-1,*obs.shape)))
 
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+        per.add(obs=obs,act=act,rew=rew,done=done)
+
+        no = rb._encode_sample((0))["next_obs"]
+        pno = per._encode_sample((0))["next_obs"]
+
+        np.testing.assert_allclose(no,obs.reshape((-1,*obs.shape)))
+        np.testing.assert_allclose(pno,obs.reshape((-1,*obs.shape)))
+
 if __name__ == '__main__':
     unittest.main()
