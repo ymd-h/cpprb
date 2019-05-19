@@ -126,7 +126,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
         for i in range(512):
             obs = np.ones(obs_shape) * i
-            rb.add(obs=obs,act=act,rew=rew,next_obs=obs,done=done)
+            rb.add(obs=obs,act=act,rew=rew,next_obs=obs+1,done=done)
 
         sample = rb._encode_sample(range(buffer_size))
 
