@@ -262,5 +262,29 @@ class TestCreateBuffer(unittest.TestCase):
         np.testing.assert_allclose(no,obs.reshape((-1,*obs.shape)))
         np.testing.assert_allclose(pno,obs.reshape((-1,*obs.shape)))
 
+class TestIssue(unittest.TestCase):
+    def test_issue51(self):
+        buffer_size = 256
+        obs_shape = 15
+        act_dim = 3
+
+        rb = create_buffer(buffer_size,
+                           env_dict={"obs": {"shape": obs_shape},
+                                     "act": {"shape": act_dim},
+                                     "rew": {},
+                                     "done": {}},
+                           next_of = "obs")
+
+        obs = np.arange(obs_shape)
+        act = np.ones(act_dim)
+        rew = 1
+        next_obs = obs + 1
+        done = 0
+
+        rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
+
+        np.testing.assert_allclose(rb._encode_sample((0))["next_obs"][0],
+                                   next_obs)
+
 if __name__ == '__main__':
     unittest.main()
