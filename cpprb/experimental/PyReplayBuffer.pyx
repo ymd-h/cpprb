@@ -120,7 +120,7 @@ cdef class ReplayBuffer:
             sample[name] = b[idx]
 
         if self.has_next_of:
-            next_idx = np.asarray(idx) + 1
+            next_idx = np.array(idx,copy=False,ndmin=1) + 1
             next_idx[next_idx == self.get_buffer_size()] = 0
 
             for name in self.next_of:
