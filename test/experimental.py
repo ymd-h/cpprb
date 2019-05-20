@@ -134,31 +134,34 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         np.testing.assert_allclose(np.roll(sample["obs"],-ith-1,axis=0)[1:],
                                    np.roll(sample["next_obs"],-ith-1,axis=0)[:-1])
 
-        def test_stack(self):
-            buffer_size = 256
-            obs_shape = (4,16,16)
-            act_dim = 5
+    def test_stack(self):
+        buffer_size = 256
+        obs_shape = (4,16,16)
+        act_dim = 5
 
-            rb = create_buffer(buffer_size,{"obs": {"shape": obs_shape},
-                                            "act": {"shape": act_dim},
-                                            "rew": {},
-                                            "done": {}},
-                               next_of = "obs",
-                               stack_compress = "obs")
+        rb = create_buffer(buffer_size,{"obs": {"shape": obs_shape},
+                                        "act": {"shape": act_dim},
+                                        "rew": {},
+                                        "done": {}},
+                           next_of = "obs",
+                           stack_compress = "obs")
 
-            obs = np.random.random((buffer_size+obs_shape[0],*(obs_shape[1:])))
-            act = np.ones(act)
-            rew = 0.5
-            done = 0
+        obs = np.random.random((buffer_size+obs_shape[0],*(obs_shape[1:])))
+        act = np.ones(act_dim)
+        rew = 0.5
+        done = 0
 
-            for i in range(buffer_size):
-                rb.add(obs=obs[i:i+obs_shape[0]],
-                       act=act,
-                       rew=rew,
-                       next_obs=obs[i+1,i+1+obs_shape[0]],
-                       done=done)
+        for i in range(buffer_size):
+            rb.add(obs=obs[i:i+obs_shape[0]],
+                   act=act,
+                   rew=rew,
+                   next_obs=obs[i+1:i+1+obs_shape[0]],
+                   done=done)
 
-            np.testing.assert_allclose(rb._encode_sample(range(buffer_size)),obs)
+        np.testing.assert_allclose(rb._encode_sample(range(buffer_size))["obs"],
+                                   obs)
+        np.testing.assert_allclose(rb._encode_sample(buffer_size-1)["next_obs"],
+                                   obs[buffer_size-4:buffer_size])
 
 class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
