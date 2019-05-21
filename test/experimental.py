@@ -158,10 +158,11 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
                    next_obs=obs[i+1:i+1+obs_shape[0]],
                    done=done)
 
-        np.testing.assert_allclose(rb._encode_sample(range(buffer_size))["obs"],
-                                   obs)
-        np.testing.assert_allclose(rb._encode_sample(buffer_size-1)["next_obs"],
-                                   obs[buffer_size-4:buffer_size])
+        for i in range(buffer_size):
+            np.testing.assert_allclose(rb._encode_sample(i)["obs"][0],
+                                       obs[i:i+obs_shape[0]])
+            np.testing.assert_allclose(rb._encode_sample(i)["next_obs"][0],
+                                       obs[i+1:i+1+obs_shape[0]])
 
 class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
