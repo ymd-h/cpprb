@@ -148,12 +148,13 @@ cdef class ReplayBuffer:
 
     def _encode_sample(self,idx):
         sample = {}
+        idx = np.array(idx,copy=False,ndmin=1)
         cdef bool use_cache
         for name, b in self.buffer.items():
             sample[name] = b[idx]
 
         if self.has_next_of:
-            next_idx = np.array(idx,copy=False,ndmin=1) + 1
+            next_idx = idx + 1
             next_idx[next_idx == self.get_buffer_size()] = 0
             cache_idx = (next_idx == self.get_next_index())
             use_cache = cache_idx.any()
