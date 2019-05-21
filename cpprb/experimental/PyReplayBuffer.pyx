@@ -66,7 +66,8 @@ cdef class ReplayBuffer:
                 buffer_shape[1] = 1
                 buffer = np.zeros(buffer_shape,dtype=defs.get("dtype",np.double))
                 self.buffer[name] = np.lib.stride_tricks.as_strided(buffer,
-                                                                    shape=shape)
+                                                                    shape,
+                                                                    buffer.strides)
             else:
                 self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
 
