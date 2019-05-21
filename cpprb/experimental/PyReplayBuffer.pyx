@@ -37,8 +37,11 @@ cdef class ReplayBuffer:
     cdef next_of
     cdef bool has_next_of
     cdef next_
+    cdef bool compress_any
+    cdef stack_compress
 
-    def __cinit__(self,size,env_dict=None,*,next_of=None,**kwargs):
+    def __cinit__(self,size,env_dict=None,*,
+                  next_of=None,stack_compress=None,**kwargs):
         self.env_dict = env_dict or {}
         self.buffer_size = size
         self.stored_size = 0
@@ -48,14 +51,31 @@ cdef class ReplayBuffer:
         self.has_next_of = next_of
         self.next_ = {}
 
+        self.compress_any = stack_compress
+        self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
+
         self.buffer = {}
         for name, defs in self.env_dict.items():
             shape = np.insert(np.asarray(defs.get("shape",1)),0,self.buffer_size)
-            self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
+
+            if self.compress_any and np.isin(name,
+                                             self.stack_compress,
+                                             assume_unique=True).any():
+                buffer_shape = np.copy(shape)
+                buffer_shape[0] += buffer_shape[1] - 1
+                buffer_shape[1] = 1
+                buffer = np.zeros(buffer_shape,dtype=defs.get("dtype",np.double))
+                self.buffer[name] = np.lib.stride_tricks.as_strided(buffer,
+                                                                    shape,
+                                                                    buffer.strides)
+            else:
+                self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
+
             shape[0] = -1
             defs["add_shape"] = shape
 
-    def __init__(self,size,env_dict=None,*,next_of=None,**kwargs):
+    def __init__(self,size,env_dict=None,*,
+                 next_of=None,stack_compress=None,**kwargs):
         """Initialize ReplayBuffer
 
         Parameters
@@ -70,6 +90,8 @@ cdef class ReplayBuffer:
         next_of : str or array like of str, optional
             next item of specified environemt variables (eg. next_obs for next) are
             also sampled without duplicated values
+        stack_compress : str or array like of str, optional
+            compress memory of specified stacked values.
         """
         pass
 
@@ -126,12 +148,13 @@ cdef class ReplayBuffer:
 
     def _encode_sample(self,idx):
         sample = {}
+        idx = np.array(idx,copy=False,ndmin=1)
         cdef bool use_cache
         for name, b in self.buffer.items():
             sample[name] = b[idx]
 
         if self.has_next_of:
-            next_idx = np.array(idx,copy=False,ndmin=1) + 1
+            next_idx = idx + 1
             next_idx[next_idx == self.get_buffer_size()] = 0
             cache_idx = (next_idx == self.get_next_index())
             use_cache = cache_idx.any()
