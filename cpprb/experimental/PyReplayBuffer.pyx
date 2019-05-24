@@ -153,9 +153,12 @@ cdef class ReplayBuffer:
         return index
 
     def _encode_sample(self,idx):
-        sample = {}
-        idx = np.array(idx,copy=False,ndmin=1)
+        cdef sample = {}
+        cdef next_idx
+        cdef cache_idx
         cdef bool use_cache
+
+        idx = np.array(idx,copy=False,ndmin=1)
         for name, b in self.buffer.items():
             sample[name] = b[idx]
 
