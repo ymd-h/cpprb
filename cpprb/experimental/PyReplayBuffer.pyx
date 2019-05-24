@@ -360,7 +360,7 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     env_dict : dict of dict, optional
         dictionary specifying environments. The keies of env_dict become
         environment names. The values of env_dict, which are also dict,
-        defines "shape" (default 1) and "dtypes" (default np.double aka.
+        defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         double)
     prioritized : bool, optional
         create prioritized version replay buffer, default = False
