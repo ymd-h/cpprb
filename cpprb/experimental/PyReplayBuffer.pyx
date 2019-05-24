@@ -39,9 +39,10 @@ cdef class ReplayBuffer:
     cdef next_
     cdef bool compress_any
     cdef stack_compress
+    cdef default_dtype
 
     def __cinit__(self,size,env_dict=None,*,
-                  next_of=None,stack_compress=None,**kwargs):
+                  next_of=None,stack_compress=None,default_dtype=None,**kwargs):
         self.env_dict = env_dict or {}
         self.buffer_size = size
         self.stored_size = 0
@@ -54,6 +55,8 @@ cdef class ReplayBuffer:
         self.compress_any = stack_compress
         self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
 
+        self.default_dtype = default_dtype or np.double
+
         self.buffer = {}
         for name, defs in self.env_dict.items():
             shape = np.insert(np.asarray(defs.get("shape",1)),0,self.buffer_size)
@@ -64,18 +67,20 @@ cdef class ReplayBuffer:
                 buffer_shape = np.copy(shape)
                 buffer_shape[0] += buffer_shape[1] - 1
                 buffer_shape[1] = 1
-                buffer = np.zeros(buffer_shape,dtype=defs.get("dtype",np.double))
+                buffer = np.zeros(buffer_shape,
+                                  dtype=defs.get("dtype",self.default_dtype))
                 self.buffer[name] = np.lib.stride_tricks.as_strided(buffer,
                                                                     shape,
                                                                     buffer.strides)
             else:
-                self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",np.double))
+                self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",
+                                                                  self.default_dtype))
 
             shape[0] = -1
             defs["add_shape"] = shape
 
     def __init__(self,size,env_dict=None,*,
-                 next_of=None,stack_compress=None,**kwargs):
+                 next_of=None,stack_compress=None,default_dtype=None,**kwargs):
         """Initialize ReplayBuffer
 
         Parameters
@@ -85,13 +90,14 @@ cdef class ReplayBuffer:
         env_dict : dict of dict, optional
             dictionary specifying environments. The keies of env_dict become
             environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (default np.double aka.
-            double)
+            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         next_of : str or array like of str, optional
             next item of specified environemt variables (eg. next_obs for next) are
             also sampled without duplicated values
         stack_compress : str or array like of str, optional
             compress memory of specified stacked values.
+        default_dtype : numpy.dtype, optional
+            fallback dtype for not specified in `env_dict`. default is numpy.double
         """
         pass
 
@@ -354,7 +360,7 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     env_dict : dict of dict, optional
         dictionary specifying environments. The keies of env_dict become
         environment names. The values of env_dict, which are also dict,
-        defines "shape" (default 1) and "dtypes" (default np.double aka.
+        defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         double)
     prioritized : bool, optional
         create prioritized version replay buffer, default = False

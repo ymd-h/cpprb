@@ -164,6 +164,15 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
             np.testing.assert_allclose(rb._encode_sample(i)["next_obs"][0],
                                        obs[i+1:i+1+obs_shape[0]])
 
+    def test_default_dtype(self):
+        buffer_size = 256
+
+        rb = create_buffer(buffer_size,{"done": {}},
+                           default_dtype = np.float32)
+
+        rb.add(done=1)
+        self.assertEqual(rb.sample(1)["done"][0].dtype,np.float32)
+
 class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
         buffer_size = 500
