@@ -134,7 +134,7 @@ cdef class ReplayBuffer:
             value = np.reshape(np.array(kwargs[name],copy=False,ndmin=2,order='C'),
                                self.env_dict[name]["add_shape"])
 
-            if end <= self.buffer_size:
+            if remain == 0:
                 b[index:end] = value
             else:
                 b[index:] = value[:-remain]
