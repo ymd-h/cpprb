@@ -131,7 +131,7 @@ cdef class ReplayBuffer:
             remain = end - self.buffer_size
 
         for name, b in self.buffer.items():
-            value = np.reshape(np.array(kwargs[name],copy=False,ndmin=2,order='C'),
+            value = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
                                self.env_dict[name]["add_shape"])
 
             if remain == 0:
@@ -144,8 +144,7 @@ cdef class ReplayBuffer:
             for name in self.next_of:
                 self.next_[name] = np.reshape(np.array(kwargs[f"next_{name}"],
                                                        copy=False,
-                                                       ndmin=2,
-                                                       order='C'),
+                                                       ndmin=2),
                                               self.env_dict[name]["add_shape"])[-1]
 
         self.stored_size = min(self.stored_size + N,self.buffer_size)
