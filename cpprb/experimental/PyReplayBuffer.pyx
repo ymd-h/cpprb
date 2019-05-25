@@ -130,19 +130,15 @@ cdef class ReplayBuffer:
         cdef size_t index = self.index
         cdef size_t end = index + N
         cdef size_t remain = 0
+        cdef add_idx = np.arange(index,end)
 
         if end > self.buffer_size:
             remain = end - self.buffer_size
+            add_idx[add_idx >= self.buffer_size] -= self.buffer_size
 
         for name, b in self.buffer.items():
-            value = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
-                               self.env_dict[name]["add_shape"])
-
-            if remain == 0:
-                b[index:end] = value
-            else:
-                b[index:] = value[:-remain]
-                b[:remain] = value[-remain:]
+            b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+                                    self.env_dict[name]["add_shape"])
 
         if self.has_next_of:
             for name in self.next_of:
