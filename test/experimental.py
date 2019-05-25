@@ -105,7 +105,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),0)
         self.assertEqual(rb.get_stored_size(),0)
 
-        obs = np.zeros(obs_shape)
+        obs = np.zeros(obs_shape,dtype=np.ubyte)
         act = np.ones(act_dim)
         rew = 1
         done = 0
@@ -125,7 +125,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
 
         for i in range(512):
-            obs = np.ones(obs_shape) * i
+            obs = np.ones(obs_shape,dtype=np.ubyte) * i
             rb.add(obs=obs,act=act,rew=rew,next_obs=obs+1,done=done)
 
         sample = rb._encode_sample(range(buffer_size))
