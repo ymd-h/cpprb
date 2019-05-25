@@ -168,12 +168,9 @@ cdef class ReplayBuffer:
             use_cache = cache_idx.any()
 
             for name in self.next_of:
+                sample[f"next_{name}"] = self.buffer[name][next_idx]
                 if use_cache:
-                    tmp = np.copy(self.buffer[name][next_idx])
-                    tmp[cache_idx] = self.next_[name]
-                    sample[f"next_{name}"] = tmp
-                else:
-                    sample[f"next_{name}"] = self.buffer[name][next_idx]
+                    sample[f"next_{name}"][cache_idx] = self.next_[name]
 
         return sample
 
