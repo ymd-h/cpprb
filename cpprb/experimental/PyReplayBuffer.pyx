@@ -131,10 +131,10 @@ cdef class ReplayBuffer:
             remain = end - self.buffer_size
 
         for name, b in self.buffer.items():
-            value = np.reshape(np.array(kwargs[name],copy=False,ndmin=2,order='C'),
+            value = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
                                self.env_dict[name]["add_shape"])
 
-            if end <= self.buffer_size:
+            if remain == 0:
                 b[index:end] = value
             else:
                 b[index:] = value[:-remain]
@@ -144,8 +144,7 @@ cdef class ReplayBuffer:
             for name in self.next_of:
                 self.next_[name] = np.reshape(np.array(kwargs[f"next_{name}"],
                                                        copy=False,
-                                                       ndmin=2,
-                                                       order='C'),
+                                                       ndmin=2),
                                               self.env_dict[name]["add_shape"])[-1]
 
         self.stored_size = min(self.stored_size + N,self.buffer_size)
@@ -153,9 +152,12 @@ cdef class ReplayBuffer:
         return index
 
     def _encode_sample(self,idx):
-        sample = {}
-        idx = np.array(idx,copy=False,ndmin=1)
+        cdef sample = {}
+        cdef next_idx
+        cdef cache_idx
         cdef bool use_cache
+
+        idx = np.array(idx,copy=False,ndmin=1)
         for name, b in self.buffer.items():
             sample[name] = b[idx]
 
@@ -166,12 +168,9 @@ cdef class ReplayBuffer:
             use_cache = cache_idx.any()
 
             for name in self.next_of:
+                sample[f"next_{name}"] = self.buffer[name][next_idx]
                 if use_cache:
-                    tmp = np.copy(self.buffer[name][next_idx])
-                    tmp[cache_idx] = self.next_[name]
-                    sample[f"next_{name}"] = tmp
-                else:
-                    sample[f"next_{name}"] = self.buffer[name][next_idx]
+                    sample[f"next_{name}"][cache_idx] = self.next_[name]
 
         return sample
 
