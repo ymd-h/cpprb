@@ -136,8 +136,9 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
     def test_stack(self):
         buffer_size = 256
-        obs_shape = (4,16,16)
+        obs_shape = (16,16,4)
         act_dim = 5
+        stack_dim = -1
 
         rb = create_buffer(buffer_size,{"obs": {"shape": obs_shape},
                                         "act": {"shape": act_dim},
@@ -146,23 +147,29 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
                            next_of = "obs",
                            stack_compress = "obs")
 
-        obs = np.random.random((buffer_size+obs_shape[0],*(obs_shape[1:])))
+        random_shape = np.array(obs_shape,copy=True)
+        random_shape[stack_dim] += buffer_size
+        obs = np.random.random(random_shape)
         act = np.ones(act_dim)
         rew = 0.5
         done = 0
 
         for i in range(buffer_size):
-            rb.add(obs=obs[i:i+obs_shape[0]],
+            rb.add(obs=obs.take(np.arange(i,i+obs_shape[stack_dim]),axis=stack_dim),
                    act=act,
                    rew=rew,
-                   next_obs=obs[i+1:i+1+obs_shape[0]],
+                   next_obs=obs.take(np.arange(i+1,i+1+obs_shape[stack_dim]),
+                                     axis=stack_dim),
                    done=done)
 
         for i in range(buffer_size):
             np.testing.assert_allclose(rb._encode_sample(i)["obs"][0],
-                                       obs[i:i+obs_shape[0]])
+                                       obs.take(np.arange(i,i+obs_shape[stack_dim]),
+                                                axis=stack_dim))
             np.testing.assert_allclose(rb._encode_sample(i)["next_obs"][0],
-                                       obs[i+1:i+1+obs_shape[0]])
+                                       obs.take(np.arange(i+1,
+                                                          i+1+obs_shape[stack_dim]),
+                                                axis=stack_dim))
 
     def test_default_dtype(self):
         buffer_size = 256
