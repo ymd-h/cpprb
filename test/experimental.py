@@ -158,7 +158,8 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
             rb.add(obs=obs.take(slice(i,i+obs_shape[stack_dim]),axis=stack_dim),
                    act=act,
                    rew=rew,
-                   next_obs.take(slice(i+1,i+1+obs_shape[stack_dim]),axis=stack_dim),
+                   next_obs=obs.take(slice(i+1,i+1+obs_shape[stack_dim]),
+                                     axis=stack_dim),
                    done=done)
 
         for i in range(buffer_size):
