@@ -68,7 +68,7 @@ cdef class ReplayBuffer:
                 strides = np.concatenate((buffer.strides[0],
                                           buffer.strides[2:],
                                           buffer.strides[1]),
-                                         axis=1)
+                                         axis=0)
                 self.buffer[name] = np.lib.stride_tricks.as_strided(buffer,
                                                                     shape=shape,
                                                                     strides=strides)
