@@ -147,7 +147,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
                            next_of = "obs",
                            stack_compress = "obs")
 
-        random_shape = obs_shape.copy()
+        random_shape = np.array(obs_shape,copy=True)
         random_shape[stack_dim] += buffer_size
         obs = np.random.random(random_shape)
         act = np.ones(act_dim)
