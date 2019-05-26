@@ -60,14 +60,18 @@ cdef class ReplayBuffer:
             if self.compress_any and np.isin(name,
                                              self.stack_compress,
                                              assume_unique=True).any():
-                buffer_shape = np.copy(shape)
+                buffer_shape = np.concatenate((shape[[0,-1]],shape[1:-1]),axis=0)
                 buffer_shape[0] += buffer_shape[1] - 1
                 buffer_shape[1] = 1
                 buffer = np.zeros(buffer_shape,
                                   dtype=defs.get("dtype",self.default_dtype))
+                strides = np.concatenate((buffer.strides[0],
+                                          buffer.strides[2:],
+                                          buffer.strides[1]),
+                                         axis=1)
                 self.buffer[name] = np.lib.stride_tricks.as_strided(buffer,
-                                                                    shape,
-                                                                    buffer.strides)
+                                                                    shape=shape,
+                                                                    strides=strides)
             else:
                 self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",
                                                                   self.default_dtype))
