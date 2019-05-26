@@ -136,7 +136,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
     def test_stack(self):
         buffer_size = 256
-        obs_shape = (4,16,16)
+        obs_shape = (16,16,4)
         act_dim = 5
 
         rb = create_buffer(buffer_size,{"obs": {"shape": obs_shape},
