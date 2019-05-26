@@ -166,7 +166,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
                                        obs.take(slice(i,i+obs_shape[stack_dim]),
                                                 axis=stack_dim))
             np.testing.assert_allclose(rb._encode_sample(i)["next_obs"][0],
-                                       obs.take(slice(i+1:i+1+obs_shape[stack_dim]),
+                                       obs.take(slice(i+1,i+1+obs_shape[stack_dim]),
                                                 axis=stack_dim))
 
     def test_default_dtype(self):
