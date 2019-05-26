@@ -155,19 +155,20 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         done = 0
 
         for i in range(buffer_size):
-            rb.add(obs=obs.take(slice(i,i+obs_shape[stack_dim]),axis=stack_dim),
+            rb.add(obs=obs.take(np.arange(i,i+obs_shape[stack_dim]),axis=stack_dim),
                    act=act,
                    rew=rew,
-                   next_obs=obs.take(slice(i+1,i+1+obs_shape[stack_dim]),
+                   next_obs=obs.take(np.arange(i+1,i+1+obs_shape[stack_dim]),
                                      axis=stack_dim),
                    done=done)
 
         for i in range(buffer_size):
             np.testing.assert_allclose(rb._encode_sample(i)["obs"][0],
-                                       obs.take(slice(i,i+obs_shape[stack_dim]),
+                                       obs.take(np.arange(i,i+obs_shape[stack_dim]),
                                                 axis=stack_dim))
             np.testing.assert_allclose(rb._encode_sample(i)["next_obs"][0],
-                                       obs.take(slice(i+1,i+1+obs_shape[stack_dim]),
+                                       obs.take(np.arange(i+1,
+                                                          i+1+obs_shape[stack_dim]),
                                                 axis=stack_dim))
 
     def test_default_dtype(self):
