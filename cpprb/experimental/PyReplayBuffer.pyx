@@ -106,7 +106,7 @@ cdef class ReplayBuffer:
         """
         pass
 
-    def add(self,**kwargs):
+    def add(self,*,**kwargs):
         """Add environment(s) into replay buffer.
         Multiple step environments can be added.
 
@@ -256,7 +256,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         pass
 
-    def add(self,priorities = None,**kwargs):
+    def add(self,*,priorities = None,**kwargs):
         """Add environment(s) into replay buffer.
 
         Multiple step environments can be added.
