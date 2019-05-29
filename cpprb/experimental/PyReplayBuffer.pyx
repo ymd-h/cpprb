@@ -8,12 +8,11 @@ from cython.operator cimport dereference
 from cpprb.ReplayBuffer cimport *
 
 from cpprb.VectorWrapper cimport *
-from cpprb.VectorWrapper import (VectorWrapper,
-                                 VectorInt,VectorSize_t,VectorDouble,PointerDouble)
+from cpprb.VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorFloat)
 
 @cython.embedsignature(True)
-cdef double [::1] Cview(array):
-    return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
+cdef float [::1] Cview(array):
+    return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
 cdef size_t [::1] Csize(array):
@@ -51,7 +50,7 @@ cdef class ReplayBuffer:
         self.compress_any = stack_compress
         self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
 
-        self.default_dtype = default_dtype or np.double
+        self.default_dtype = default_dtype or np.single
 
         self.buffer = {}
         for name, defs in self.env_dict.items():
@@ -102,7 +101,7 @@ cdef class ReplayBuffer:
         stack_compress : str or array like of str, optional
             compress memory of specified stacked values.
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in `env_dict`. default is numpy.double
+            fallback dtype for not specified in `env_dict`. default is numpy.single
         """
         pass
 
@@ -233,15 +232,15 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
     In this class, these environments are sampled with corresponding priorities.
     """
-    cdef VectorDouble weights
+    cdef VectorFloat weights
     cdef VectorSize_t indexes
-    cdef double alpha
-    cdef CppPrioritizedSampler[double]* per
+    cdef float alpha
+    cdef CppPrioritizedSampler[float]* per
 
     def __cinit__(self,size,env_dict=None,*,alpha=0.6,**kwrags):
         self.alpha = alpha
-        self.per = new CppPrioritizedSampler[double](size,alpha)
-        self.weights = VectorDouble()
+        self.per = new CppPrioritizedSampler[float](size,alpha)
+        self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,**kwargs):
@@ -275,10 +274,10 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         cdef size_t index = super().add(**kwargs)
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
-        cdef double [:] ps
+        cdef float [:] ps
 
         if priorities is not None:
-            ps = np.array(priorities,copy=False,ndmin=1,dtype=np.double)
+            ps = np.array(priorities,copy=False,ndmin=1,dtype=np.single)
             self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
         else:
             self.per.set_priorities(index,N,self.get_buffer_size())
@@ -330,7 +329,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         -------
         """
         cdef size_t [:] idx = Csize(indexes)
-        cdef double [:] ps = Cview(priorities)
+        cdef float [:] ps = Cview(priorities)
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
@@ -340,12 +339,12 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
 
-    cpdef double get_max_priority(self):
+    cpdef float get_max_priority(self):
         """Get the max priority of stored priorities
 
         Returns
         -------
-        max_priority : double
+        max_priority : float
             the max priority of stored priorities
         """
         return self.per.get_max_priority()
@@ -361,7 +360,6 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
         dictionary specifying environments. The keies of env_dict become
         environment names. The values of env_dict, which are also dict,
         defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
-        double)
     prioritized : bool, optional
         create prioritized version replay buffer, default = False
 
