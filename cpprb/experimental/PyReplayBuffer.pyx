@@ -11,9 +11,12 @@ from cpprb.VectorWrapper cimport *
 from cpprb.VectorWrapper import (VectorWrapper,
                                  VectorInt,VectorSize_t,VectorDouble,PointerDouble)
 
+ctypedef float Float_t
+ctypedef np.single NpFloat_t
+
 @cython.embedsignature(True)
-cdef double [::1] Cview(array):
-    return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
+cdef Float_t [::1] Cview(array):
+    return np.ravel(np.array(array,copy=False,dtype=NpFloat_t,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
 cdef size_t [::1] Csize(array):
@@ -51,7 +54,7 @@ cdef class ReplayBuffer:
         self.compress_any = stack_compress
         self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
 
-        self.default_dtype = default_dtype or np.double
+        self.default_dtype = default_dtype or NpFloat_t
 
         self.buffer = {}
         for name, defs in self.env_dict.items():
@@ -102,7 +105,7 @@ cdef class ReplayBuffer:
         stack_compress : str or array like of str, optional
             compress memory of specified stacked values.
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in `env_dict`. default is numpy.double
+            fallback dtype for not specified in `env_dict`. default is numpy.single
         """
         pass
 
@@ -235,12 +238,12 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     """
     cdef VectorDouble weights
     cdef VectorSize_t indexes
-    cdef double alpha
+    cdef Float_t alpha
     cdef CppPrioritizedSampler[double]* per
 
     def __cinit__(self,size,env_dict=None,*,alpha=0.6,**kwrags):
         self.alpha = alpha
-        self.per = new CppPrioritizedSampler[double](size,alpha)
+        self.per = new CppPrioritizedSampler[Float_t](size,alpha)
         self.weights = VectorDouble()
         self.indexes = VectorSize_t()
 
@@ -275,10 +278,10 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         cdef size_t index = super().add(**kwargs)
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
-        cdef double [:] ps
+        cdef Float_t [:] ps
 
         if priorities is not None:
-            ps = np.array(priorities,copy=False,ndmin=1,dtype=np.double)
+            ps = np.array(priorities,copy=False,ndmin=1,dtype=NpFloat_t)
             self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
         else:
             self.per.set_priorities(index,N,self.get_buffer_size())
@@ -330,7 +333,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         -------
         """
         cdef size_t [:] idx = Csize(indexes)
-        cdef double [:] ps = Cview(priorities)
+        cdef Float_t [:] ps = Cview(priorities)
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
@@ -340,12 +343,12 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
 
-    cpdef double get_max_priority(self):
+    cpdef Float_t get_max_priority(self):
         """Get the max priority of stored priorities
 
         Returns
         -------
-        max_priority : double
+        max_priority : float
             the max priority of stored priorities
         """
         return self.per.get_max_priority()
