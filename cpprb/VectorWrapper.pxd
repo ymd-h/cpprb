@@ -17,6 +17,9 @@ cdef class VectorInt(VectorWrapper):
 cdef class VectorDouble(VectorWrapper):
     cdef vector[double] vec
 
+cdef class VectorFloat(VectorWrapper):
+    cdef vector[float] vec
+
 cdef class VectorSize_t(VectorWrapper):
     cdef vector[size_t] vec
 

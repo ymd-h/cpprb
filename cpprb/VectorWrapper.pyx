@@ -81,6 +81,19 @@ cdef class VectorDouble(VectorWrapper):
     cpdef size_t vec_size(self):
         return self.vec.size()
 
+cdef class VectorFloat(VectorWrapper):
+    def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
+        self.vec = vector[float]()
+        self.itemsize = sizeof(float)
+        self.set_shape_strides()
+
+    cdef void set_buffer(self,Py_buffer* buffer):
+        buffer.buf = <void*>(self.vec.data())
+        buffer.format = 'f'
+
+    cpdef size_t vec_size(self):
+        return self.vec.size()
+
 cdef class VectorSize_t(VectorWrapper):
     def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[size_t]()
