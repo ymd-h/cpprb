@@ -10,10 +10,8 @@ from cpprb.ReplayBuffer cimport *
 from cpprb.VectorWrapper cimport *
 from cpprb.VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorFloat)
 
-ctypedef float Float_t
-
 @cython.embedsignature(True)
-cdef Float_t [::1] Cview(array):
+cdef float [::1] Cview(array):
     return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
@@ -236,12 +234,12 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
-    cdef Float_t alpha
-    cdef CppPrioritizedSampler[Float_t]* per
+    cdef float alpha
+    cdef CppPrioritizedSampler[float]* per
 
     def __cinit__(self,size,env_dict=None,*,alpha=0.6,**kwrags):
         self.alpha = alpha
-        self.per = new CppPrioritizedSampler[Float_t](size,alpha)
+        self.per = new CppPrioritizedSampler[float](size,alpha)
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
@@ -276,7 +274,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         cdef size_t index = super().add(**kwargs)
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
-        cdef Float_t [:] ps
+        cdef float [:] ps
 
         if priorities is not None:
             ps = np.array(priorities,copy=False,ndmin=1,dtype=np.single)
@@ -331,7 +329,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         -------
         """
         cdef size_t [:] idx = Csize(indexes)
-        cdef Float_t [:] ps = Cview(priorities)
+        cdef float [:] ps = Cview(priorities)
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
@@ -341,7 +339,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
 
-    cpdef Float_t get_max_priority(self):
+    cpdef float get_max_priority(self):
         """Get the max priority of stored priorities
 
         Returns
