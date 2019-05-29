@@ -8,8 +8,7 @@ from cython.operator cimport dereference
 from cpprb.ReplayBuffer cimport *
 
 from cpprb.VectorWrapper cimport *
-from cpprb.VectorWrapper import (VectorWrapper,
-                                 VectorInt,VectorSize_t,VectorFloat,PointerDouble)
+from cpprb.VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorFloat)
 
 ctypedef float Float_t
 ctypedef np.single NpFloat_t
