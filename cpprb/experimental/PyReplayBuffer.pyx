@@ -237,7 +237,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     cdef VectorFloat weights
     cdef VectorSize_t indexes
     cdef Float_t alpha
-    cdef CppPrioritizedSampler[double]* per
+    cdef CppPrioritizedSampler[Float_t]* per
 
     def __cinit__(self,size,env_dict=None,*,alpha=0.6,**kwrags):
         self.alpha = alpha
