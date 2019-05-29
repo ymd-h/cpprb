@@ -11,11 +11,10 @@ from cpprb.VectorWrapper cimport *
 from cpprb.VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorFloat)
 
 ctypedef float Float_t
-ctypedef np.single NpFloat_t
 
 @cython.embedsignature(True)
 cdef Float_t [::1] Cview(array):
-    return np.ravel(np.array(array,copy=False,dtype=NpFloat_t,ndmin=1,order='C'))
+    return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
 cdef size_t [::1] Csize(array):
@@ -53,7 +52,7 @@ cdef class ReplayBuffer:
         self.compress_any = stack_compress
         self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
 
-        self.default_dtype = default_dtype or NpFloat_t
+        self.default_dtype = default_dtype or np.single
 
         self.buffer = {}
         for name, defs in self.env_dict.items():
@@ -280,7 +279,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         cdef Float_t [:] ps
 
         if priorities is not None:
-            ps = np.array(priorities,copy=False,ndmin=1,dtype=NpFloat_t)
+            ps = np.array(priorities,copy=False,ndmin=1,dtype=np.single)
             self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
         else:
             self.per.set_priorities(index,N,self.get_buffer_size())
