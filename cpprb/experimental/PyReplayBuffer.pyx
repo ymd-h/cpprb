@@ -9,7 +9,7 @@ from cpprb.ReplayBuffer cimport *
 
 from cpprb.VectorWrapper cimport *
 from cpprb.VectorWrapper import (VectorWrapper,
-                                 VectorInt,VectorSize_t,VectorDouble,PointerDouble)
+                                 VectorInt,VectorSize_t,VectorFloat,PointerDouble)
 
 ctypedef float Float_t
 ctypedef np.single NpFloat_t
@@ -236,7 +236,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
     In this class, these environments are sampled with corresponding priorities.
     """
-    cdef VectorDouble weights
+    cdef VectorFloat weights
     cdef VectorSize_t indexes
     cdef Float_t alpha
     cdef CppPrioritizedSampler[double]* per
@@ -244,7 +244,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     def __cinit__(self,size,env_dict=None,*,alpha=0.6,**kwrags):
         self.alpha = alpha
         self.per = new CppPrioritizedSampler[Float_t](size,alpha)
-        self.weights = VectorDouble()
+        self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,**kwargs):
