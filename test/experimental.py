@@ -180,6 +180,43 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         rb.add(done=1)
         self.assertEqual(rb.sample(1)["done"][0].dtype,np.float32)
 
+    def test_episode_termination(self):
+        buffer_size = 256
+        obs_shape = (4,84,84)
+        act_dim = 3
+
+        rb = create_buffer(buffer_size,{"obs": {"shape": obs_shape, "dtype": np.ubyte},
+                                        "act": {"shape": act_dim},
+                                        "rew": {},
+                                        "done": {}},
+                           next_of = "obs",
+                           stack_compress = "obs")
+
+        obs = np.ones(obs_shape,dtype = np.ubyte)
+        act = np.ones(act_dim)
+        rew = 0
+        done = 0
+
+        for i in range(10):
+            for _ in range(30):
+                rb.add(obs=obs*i,
+                       act=act,
+                       rew=rew,
+                       next_obs=obs*i,
+                       done=0)
+            else:
+                rb.add(obs=obs*i,
+                       act=act,
+                       rew=rew,
+                       next_obs=obs*i,
+                       done=1)
+                rb.on_episode_end()
+
+        s = rb._encode_sample(range(buffer_size))
+
+        for o in s["obs"]:
+            self.assertTrue(np.array_equiv(o,o[0]))
+
 class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
         buffer_size = 500
