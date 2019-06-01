@@ -38,6 +38,7 @@ cdef class ReplayBuffer:
     cdef next_
     cdef bool compress_any
     cdef stack_compress
+    cdef cache
     cdef default_dtype
 
     def __cinit__(self,size,env_dict=None,*,
@@ -78,6 +79,7 @@ cdef class ReplayBuffer:
         self.next_of = np.array(next_of,ndmin=1,copy=False)
         self.has_next_of = next_of
         self.next_ = {}
+        self.cache = {} if (self.has_next_of or self.compress_any) else None
 
         if self.has_next_of:
             for name in self.next_of:
@@ -147,6 +149,9 @@ cdef class ReplayBuffer:
                                                           ndmin=2),
                                                  self.env_dict[name]["add_shape"])[-1]
 
+        if (self.cache is not None) and (index in self.cache):
+            del self.cache[index]
+
         self.stored_size = min(self.stored_size + N,self.buffer_size)
         self.index = end if end < self.buffer_size else remain
         return index
@@ -171,6 +176,17 @@ cdef class ReplayBuffer:
                 sample[f"next_{name}"] = self.buffer[name][next_idx]
                 if use_cache:
                     sample[f"next_{name}"][cache_idx] = self.next_[name]
+
+        cdef size_t i
+        if self.cache is not None:
+            for i in idx:
+                if i in self.cache:
+                    if self.has_next_of:
+                        for name in self.next_of:
+                            sample[f"next_{name}"][i] = self.cache[i][f"next_{name}"]
+                    if self.compress_any:
+                        for name in self.stack_compress:
+                            sample[name][i] = self.cache[i][name]
 
         return sample
 
@@ -225,6 +241,28 @@ cdef class ReplayBuffer:
             the next index to store
         """
         return self.index
+
+    cdef void add_cache(self):
+        """Add last items into cache
+        """
+        cdef size_t key = (self.index or self.buffer_size) -1
+        self.cache[key] = {}
+
+        if self.has_next_of:
+            for name, value in self.next_.items():
+                self.cache[key][f"next_{name}"] = value
+
+        if self.compress_any:
+            for name in self.stack_compress:
+                self.cache[key][name] = self.buffer[name][key].copy()
+
+    cpdef void on_episode_end(self):
+        """Call on episode end
+
+        This is necessary for stack compression mode.
+        """
+        if self.cache is not None:
+            self.add_cache()
 
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
