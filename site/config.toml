@@ -32,3 +32,9 @@ name = "<i class='fas fa-bookmark'></i> Class Reference"
 identifier = "api"
 url = "https://ymd_h.gitlab.io/cpprb/api/"
 weight = 20
+
+[[menu.shortcuts]]
+name = "<i class='fas fa-bug'></i> Unit Test Coverage"
+identifier = "cov"
+url = "https://ymd_h.gitlab.io/cpprb/coverage/"
+weight = 30
