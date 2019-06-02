@@ -209,6 +209,22 @@ cdef class ReplayBuffer:
 
     cpdef void clear(self) except *:
         """Clear replay buffer.
+
+        Set `index` and `stored_size` to 0.
+
+        Example
+        -------
+        >>> rb = ReplayBuffer(5,{"done",{}})
+        >>> rb.add(1)
+        >>> rb.get_stored_size()
+        1
+        >>> rb.get_next_index()
+        1
+        >>> rb.clear()
+        >>> rb.get_stored_size()
+        0
+        >>> rb.get_next_index()
+        0
         """
         self.index = 0
         self.stored_size = 0
@@ -260,7 +276,10 @@ cdef class ReplayBuffer:
     cpdef void on_episode_end(self):
         """Call on episode end
 
-        This is necessary for stack compression mode.
+        Notes
+        -----
+        This is necessary for stack compression (stack_compress) mode or next
+        compression (next_of) mode.
         """
         if self.cache is not None:
             self.add_cache()
@@ -289,6 +308,10 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         ----------
         size : int
             buffer size
+        env_dict : dict of dict, optional
+            dictionary specifying environments. The keies of env_dict become
+            environment names. The values of env_dict, which are also dict,
+            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         alpha : float, optional
             the exponent of the priorities in stored whose default value is 0.6
         """
