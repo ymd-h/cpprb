@@ -87,6 +87,17 @@ experimental:
   script:
     - python3 -m coverage run --rcfile=.coveragerc test/experimental.py
 
+coverage:
+  <<: *setup
+  stage: test_coverage
+  script:
+    - python3 -m coverage combine
+    - python3 -m coverage report
+    - python3 -m coverage html -d public/coverage
+  artifacts:
+    paths:
+      - public
+
 emacs:
   image: iquiw/alpine-emacs
   stage: page_export
