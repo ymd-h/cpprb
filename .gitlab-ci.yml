@@ -9,6 +9,7 @@ stages:
   - page_build
   - page_deploy
   - py_test
+  - test_coverage
   - pypi_upload
 
 .job_template: &setup
@@ -24,7 +25,6 @@ stages:
     - g++ --version
     - python3 --version
     - pip install $(echo dist/cpprb-*.whl)['all']
-    - cd test
   artifacts:
     paths:
       - .coverage*
@@ -55,37 +55,37 @@ py_build:
 ReplayBuffer:
   <<: *py_setup
   script:
-    - python3 PyReplayBuffer.py
+    - python3 -m coverage run --rcfile=.coveragerc test/PyReplayBuffer.py
 
 issue:
   <<: *py_setup
   script:
-    - python3 issue.py
+    - python3 -m coverage run --rcfile=.coveragerc test/issue.py
 
 multi_rew:
   <<: *py_setup
   script:
-    - python3 multi_rew.py
+    - python3 -m coverage run --rcfile=.coveragerc test/multi_rew.py
 
 gym:
   <<: *py_setup
   script:
-    - python3 gym.py
+    - python3 -m coverage run --rcfile=.coveragerc test/gym.py
 
 high_level_api:
   <<: *py_setup
   script:
-    - python3 HighLevelAPI.py
+    - python3 -m coverage run --rcfile=.coveragerc test/HighLevelAPI.py
 
 features:
   <<: *py_setup
   script:
-    - python3 features.py
+    - python3 -m coverage run --rcfile=.coveragerc test/features.py
 
 experimental:
   <<: *py_setup
   script:
-    - python3 experimental.py
+    - python3 -m coverage run --rcfile=.coveragerc test/experimental.py
 
 emacs:
   image: iquiw/alpine-emacs
