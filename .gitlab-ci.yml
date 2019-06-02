@@ -25,6 +25,9 @@ stages:
     - python3 --version
     - pip install $(echo dist/cpprb-*.whl)['all']
     - cd test
+  artifacts:
+    paths:
+      - .coverage*
 
 ReplayBuffer.cpp:
   <<: *setup
