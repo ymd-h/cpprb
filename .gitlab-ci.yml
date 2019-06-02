@@ -2,6 +2,7 @@ variables:
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
   CC: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
   GIT_SUBMODULE_STRATEGY: recursive
+  COVERAGE_RCFILE: .coveragerc
 
 stages:
   - page_export
@@ -58,43 +59,42 @@ py_build:
 ReplayBuffer:
   <<: *py_setup
   script:
-    - python3 -m coverage run --rcfile=.coveragerc test/PyReplayBuffer.py
+    - python3 -m coverage run test/PyReplayBuffer.py
 
 issue:
   <<: *py_setup
   script:
-    - python3 -m coverage run --rcfile=.coveragerc test/issue.py
+    - python3 -m coverage run test/issue.py
 
 multi_rew:
   <<: *py_setup
   script:
-    - python3 -m coverage run --rcfile=.coveragerc test/multi_rew.py
+    - python3 -m coverage run test/multi_rew.py
 
 gym:
   <<: *py_setup
   script:
-    - python3 -m coverage run --rcfile=.coveragerc test/gym.py
+    - python3 -m coverage run test/gym.py
 
 high_level_api:
   <<: *py_setup
   script:
-    - python3 -m coverage run --rcfile=.coveragerc test/HighLevelAPI.py
+    - python3 -m coverage run test/HighLevelAPI.py
 
 features:
   <<: *py_setup
   script:
-    - python3 -m coverage run --rcfile=.coveragerc test/features.py
+    - python3 -m coverage run test/features.py
 
 experimental:
   <<: *py_setup
   script:
-    - python3 -m coverage run --rcfile=.coveragerc test/experimental.py
+    - python3 -m coverage run test/experimental.py
 
 coverage:
   <<: *setup
   stage: test_coverage
   script:
-    - pip install $(echo dist/cpprb-*.whl)['all']
     - python3 -m coverage combine
     - python3 -m coverage report
     - python3 -m coverage html -d public/coverage
