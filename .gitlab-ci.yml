@@ -28,7 +28,7 @@ stages:
     - pip install $(echo dist/cpprb-*.whl)['all']
   artifacts:
     paths:
-      - .coverage*
+      - .coverage.*
 
 ReplayBuffer.cpp:
   <<: *setup
