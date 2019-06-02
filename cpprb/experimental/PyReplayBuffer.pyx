@@ -260,7 +260,10 @@ cdef class ReplayBuffer:
     cpdef void on_episode_end(self):
         """Call on episode end
 
-        This is necessary for stack compression mode.
+        Notes
+        -----
+        This is necessary for stack compression (stack_compress) mode or next
+        compression (next_of) mode.
         """
         if self.cache is not None:
             self.add_cache()
