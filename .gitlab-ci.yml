@@ -55,6 +55,7 @@ py_build:
     paths:
       - dist
       - cpprb/*.cpp
+      - cpprb/*/*.cpp
 
 ReplayBuffer:
   <<: *py_setup
