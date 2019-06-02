@@ -102,6 +102,7 @@ coverage:
   artifacts:
     paths:
       - public
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 emacs:
   image: iquiw/alpine-emacs
