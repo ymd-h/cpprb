@@ -48,10 +48,12 @@ py_build:
   <<: *setup
   stage: py_build
   script:
-    - CC=g++ python3 setup.py sdist bdist_wheel
+    - python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL
+    - python3 setup.py sdist bdist_wheel
   artifacts:
     paths:
       - dist
+      - cpprb/*.cpp
 
 ReplayBuffer:
   <<: *py_setup
