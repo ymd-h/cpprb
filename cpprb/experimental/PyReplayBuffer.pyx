@@ -209,6 +209,22 @@ cdef class ReplayBuffer:
 
     cpdef void clear(self) except *:
         """Clear replay buffer.
+
+        Set `index` and `stored_size` to 0.
+
+        Example
+        -------
+        >>> rb = ReplayBuffer(5,{"done",{}})
+        >>> rb.add(1)
+        >>> rb.get_stored_size()
+        1
+        >>> rb.get_next_index()
+        1
+        >>> rb.clear()
+        >>> rb.get_stored_size()
+        0
+        >>> rb.get_next_index()
+        0
         """
         self.index = 0
         self.stored_size = 0
