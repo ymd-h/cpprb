@@ -143,6 +143,7 @@ sphinx:
     - sphinx-build -b html sphinx public/api
   artifacts:
     paths:
+      - sphinx/*.rst
       - public
   only:
     - master
