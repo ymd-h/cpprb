@@ -292,6 +292,10 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         ----------
         size : int
             buffer size
+        env_dict : dict of dict, optional
+            dictionary specifying environments. The keies of env_dict become
+            environment names. The values of env_dict, which are also dict,
+            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         alpha : float, optional
             the exponent of the priorities in stored whose default value is 0.6
         """
