@@ -28,13 +28,13 @@ url = "https://gitlab.com/ymd_h/cpprb"
 weight = 10
 
 [[menu.shortcuts]]
-name = "<i class='fas fa-bookmark'></i> Class Reference"
+name = "<i class='fas fa-fw fa-bookmark'></i> Class Reference"
 identifier = "api"
 url = "https://ymd_h.gitlab.io/cpprb/api/"
 weight = 20
 
 [[menu.shortcuts]]
-name = "<i class='fas fa-bug'></i> Unit Test Coverage"
+name = "<i class='fas fa-fw fa-bug'></i> Unit Test Coverage"
 identifier = "cov"
 url = "https://ymd_h.gitlab.io/cpprb/coverage/"
 weight = 30
