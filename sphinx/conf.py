@@ -13,13 +13,13 @@ napoleon_use_admonition_for_examples = True
 napoleon_use_admonition_for_notes = True
 napoleon_use_admonition_for_references = True
 
-autodoc_default_flags = {
+autodoc_default_options = {
     'members': None,
+    'member-order': 'bysource',
     'undoc-members': None,
     'private-members': None,
+    'inherited-members': None,
     'special-members': '__init__',
     'show-inheritance': None,
-    'inherited-members': None,
-    'member-order': 'bysource',
-    'exclude-members': '__dict__,__weakref__,__module__,__new__,__pyx_vtable____reduce__,__setstate__'
+    'exclude-members': '__dict__, __weakref__, __module__, __new__, __pyx_vtable__, __reduce__, __setstate__'
 }
