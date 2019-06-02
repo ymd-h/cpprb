@@ -16,7 +16,7 @@ napoleon_use_admonition_for_references = True
 autodoc_default_flags = {
     'members': None,
     'undoc-members': None,
-    'special-members': '__init__,__cinit__',
+    'special-members': '__init__',
     'show-inheritance': None,
     'member-order': 'bysource',
     'exclude-members': '__dict__,__weakref__,__module__,__new__,__pyx_vtable____reduce__,__setstate__'
