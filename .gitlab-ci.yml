@@ -1,14 +1,17 @@
 variables:
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
+  CC: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
   GIT_SUBMODULE_STRATEGY: recursive
+  COVERAGE_RCFILE: .coveragerc
 
 stages:
   - page_export
   - cpp_test
   - py_build
   - page_build
-  - page_deploy
   - py_test
+  - test_coverage
+  - page_deploy
   - pypi_upload
 
 .job_template: &setup
@@ -24,7 +27,9 @@ stages:
     - g++ --version
     - python3 --version
     - pip install $(echo dist/cpprb-*.whl)['all']
-    - cd test
+  artifacts:
+    paths:
+      - .coverage.*
 
 ReplayBuffer.cpp:
   <<: *setup
@@ -44,45 +49,59 @@ py_build:
   <<: *setup
   stage: py_build
   script:
-    - CC=g++ python3 setup.py sdist bdist_wheel
+    - python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL
+    - python3 setup.py sdist bdist_wheel
   artifacts:
     paths:
       - dist
+      - cpprb/*.cpp
+      - cpprb/*/*.cpp
 
 ReplayBuffer:
   <<: *py_setup
   script:
-    - python3 PyReplayBuffer.py
+    - python3 -m coverage run test/PyReplayBuffer.py
 
 issue:
   <<: *py_setup
   script:
-    - python3 issue.py
+    - python3 -m coverage run test/issue.py
 
 multi_rew:
   <<: *py_setup
   script:
-    - python3 multi_rew.py
+    - python3 -m coverage run test/multi_rew.py
 
 gym:
   <<: *py_setup
   script:
-    - python3 gym.py
+    - python3 -m coverage run test/gym.py
 
 high_level_api:
   <<: *py_setup
   script:
-    - python3 HighLevelAPI.py
+    - python3 -m coverage run test/HighLevelAPI.py
 
 features:
   <<: *py_setup
   script:
-    - python3 features.py
+    - python3 -m coverage run test/features.py
 
 experimental:
   <<: *py_setup
   script:
-    - python3 experimental.py
+    - python3 -m coverage run test/experimental.py
+
+coverage:
+  <<: *setup
+  stage: test_coverage
+  script:
+    - python3 -m coverage combine
+    - python3 -m coverage report
+    - python3 -m coverage html -d public/coverage
+  artifacts:
+    paths:
+      - public
 
 emacs:
   image: iquiw/alpine-emacs

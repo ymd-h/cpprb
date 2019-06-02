@@ -1,4 +1,5 @@
 # distutils: language = c++
+# cython: linetrace=True
 
 from multiprocessing.sharedctypes import RawArray
 import ctypes

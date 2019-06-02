@@ -1,4 +1,5 @@
 # distutils: language = c++
+# cython: linetrace=True
 
 cimport numpy as np
 import numpy as np
