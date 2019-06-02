@@ -1,5 +1,6 @@
 variables:
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
+  CC: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
   GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
