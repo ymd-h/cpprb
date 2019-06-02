@@ -94,6 +94,7 @@ coverage:
   <<: *setup
   stage: test_coverage
   script:
+    - pip install $(echo dist/cpprb-*.whl)['all']
     - python3 -m coverage combine
     - python3 -m coverage report
     - python3 -m coverage html -d public/coverage
