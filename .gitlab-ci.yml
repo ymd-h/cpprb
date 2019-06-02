@@ -7,9 +7,9 @@ stages:
   - cpp_test
   - py_build
   - page_build
-  - page_deploy
   - py_test
   - test_coverage
+  - page_deploy
   - pypi_upload
 
 .job_template: &setup
