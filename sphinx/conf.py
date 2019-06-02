@@ -19,6 +19,7 @@ autodoc_default_flags = {
     'private-members': None,
     'special-members': '__init__',
     'show-inheritance': None,
+    'inherited-members': None,
     'member-order': 'bysource',
     'exclude-members': '__dict__,__weakref__,__module__,__new__,__pyx_vtable____reduce__,__setstate__'
 }
