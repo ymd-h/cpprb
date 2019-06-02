@@ -16,6 +16,7 @@ napoleon_use_admonition_for_references = True
 autodoc_default_flags = {
     'members': None,
     'undoc-members': None,
+    'private-members': None,
     'special-members': '__init__',
     'show-inheritance': None,
     'member-order': 'bysource',
