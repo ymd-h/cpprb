@@ -1,3 +1,7 @@
+project = "cpprb"
+author = "Hiroyuki Yamada"
+copyright = "2018, Hiroyuki Yamada"
+
 extensions = ['sphinx.ext.napoleon']
 html_theme = "sphinx_rtd_theme"
 
