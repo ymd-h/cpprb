@@ -1,6 +1,7 @@
 [run]
 branch = True
 plugins = Cython.Coverage
+include = cpprb/*
 
 [report]
 show_missing = true
