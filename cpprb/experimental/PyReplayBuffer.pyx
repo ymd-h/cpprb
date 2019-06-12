@@ -344,6 +344,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         else:
             self.per.set_priorities(index,N,self.get_buffer_size())
 
+        return index
+
     def sample(self,batch_size,beta = 0.4):
         """Sample the stored environment depending on correspoinding priorities
         with speciped size
