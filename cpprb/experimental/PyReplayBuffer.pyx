@@ -189,7 +189,7 @@ cdef class ReplayBuffer:
     cdef stack_compress
     cdef cache
     cdef default_dtype
-    cdef size_check
+    cdef StepChecker size_check
 
     def __cinit__(self,size,env_dict=None,*,
                   next_of=None,stack_compress=None,default_dtype=None,**kwargs):
