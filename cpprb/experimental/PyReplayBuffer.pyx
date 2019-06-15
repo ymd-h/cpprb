@@ -19,7 +19,7 @@ cdef float [::1] Cview(array):
 cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
-def dict2buffer(buffer_size,env_dict,*,stack_compress,default_dtype):
+def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = None):
     """Create buffer from env_dict
 
     Parameters
@@ -35,6 +35,7 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress,default_dtype):
     """
     cdef buffer = {}
     cdef bool compress_any = stack_compress
+    default_dtype = default_dtype or np.single
     for name, defs in env_dict.items():
         shape = np.insert(np.asarray(defs.get("shape",1)),0,buffer_size)
 
