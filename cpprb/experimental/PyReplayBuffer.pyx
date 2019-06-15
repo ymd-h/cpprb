@@ -19,7 +19,7 @@ cdef float [::1] Cview(array):
 cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
-def dict2buffer(buffer_size,env_dict,*,compress_any,stack_compress,default_dtype):
+def dict2buffer(buffer_size,env_dict,*,stack_compress,default_dtype):
     """Create buffer from env_dict
 
     Parameters
@@ -28,14 +28,13 @@ def dict2buffer(buffer_size,env_dict,*,compress_any,stack_compress,default_dtype
         buffer size
     env_dict : dict of dict
         Specify environment values to be stored in buffer.
-    compress_any : bool
-        Whether compress any stack
     stack_compress : str or array like of str, optional
         compress memory of specified stacked values.
     default_dtype : numpy.dtype, optional
         fallback dtype for not specified in `env_dict`. default is numpy.single
     """
     cdef buffer = {}
+    cdef bool compress_any = stack_compress
     for name, defs in env_dict.items():
         shape = np.insert(np.asarray(defs.get("shape",1)),0,buffer_size)
 
@@ -133,7 +132,6 @@ cdef class ReplayBuffer:
         self.default_dtype = default_dtype or np.single
 
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
-                                  compress_any = self.compress_any,
                                   stack_compress = self.stack_compress,
                                   default_dtype = self.default_dtype)
 
