@@ -32,6 +32,11 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
         compress memory of specified stacked values.
     default_dtype : numpy.dtype, optional
         fallback dtype for not specified in `env_dict`. default is numpy.single
+
+    Returns
+    -------
+    buffer : dict of numpy.ndarray
+        buffer for environment specified by env_dict.
     """
     cdef buffer = {}
     cdef bool compress_any = stack_compress
