@@ -67,16 +67,28 @@ cdef class NstepBuffer:
     cdef size_t Nstep_size
     cdef env_dict
 
-    def __cinit__(self,env_dict=None,Nstep=None):
+    def __cinit__(self,env_dict=None,Nstep=None,*,
+                  stack_compress = None,default_dtype = None):
         pass
 
-    def __init__(self,env_dict=None,Nstep=None):
+    def __init__(self,env_dict=None,Nstep=None,*,
+                 stack_compress = None,default_dtype = None):
         """Initialize NstepBuffer class.
 
         Parameters
         ----------
         env_dict : dict
             Specify environment values to be stored.
+        Nstep : dict
+            `Nstep["size"]` is `int` specifying step size of Nstep reward.
+            `Nstep["rew"]` is `str` or array like of `str` specifying
+            Nstep reward to be summed. `Nstep["gamma"]` is float specifying
+            discount factor, its default is 0.99. `Nstep["next"]` is `str` or
+            list of `str` specifying next values to be moved.
+        stack_compress : str or array like of str, optional
+            compress memory of specified stacked values.
+        default_dtype : numpy.dtype, optional
+            fallback dtype for not specified in `env_dict`. default is numpy.single
         """
         pass
 
