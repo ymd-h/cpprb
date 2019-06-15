@@ -67,6 +67,7 @@ cdef class NstepBuffer:
     environment values for `ReplayBuffer`
     """
     cdef buffer
+    cdef size_t stored_size
     cdef size_t Nstep_size
     cdef float Nstep_gamma
     cdef Nstep_rew
@@ -77,6 +78,7 @@ cdef class NstepBuffer:
     def __cinit__(self,env_dict=None,Nstep=None,*,
                   stack_compress = None,default_dtype = None):
         self.env_dict = env_dict or {}
+        self.stored_size = 0
         self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
 
         self.Nstep_size = Nstep["size"]
