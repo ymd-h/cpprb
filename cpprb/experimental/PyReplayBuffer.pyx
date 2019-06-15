@@ -62,6 +62,9 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
 @cython.embedsignature(True)
 cdef class NstepBuffer:
     """Local buffer class for Nstep reward.
+
+    This buffer temporary stores environment values and returns Nstep-modified
+    environment values for `ReplayBuffer`
     """
     cdef buffer
     cdef size_t Nstep_size
