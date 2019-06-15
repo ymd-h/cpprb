@@ -73,7 +73,7 @@ cdef class StepChecker:
     def __cinit__(self,env_dict):
         for name, defs in env_dict.items():
             self.check_str = name
-            self.checl_shape = defs["add_shape"]
+            self.check_shape = defs["add_shape"]
 
     def __init__(self,env_dict):
         """Initialize StepChecker class.
