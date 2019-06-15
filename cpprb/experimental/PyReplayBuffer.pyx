@@ -189,6 +189,7 @@ cdef class ReplayBuffer:
     cdef stack_compress
     cdef cache
     cdef default_dtype
+    cdef size_check
 
     def __cinit__(self,size,env_dict=None,*,
                   next_of=None,stack_compress=None,default_dtype=None,**kwargs):
@@ -205,6 +206,8 @@ cdef class ReplayBuffer:
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
                                   default_dtype = self.default_dtype)
+
+        self.size_check = StepChecker(self.env_dict)
 
         self.next_of = np.array(next_of,ndmin=1,copy=False)
         self.has_next_of = next_of
@@ -257,7 +260,7 @@ cdef class ReplayBuffer:
             When kwargs don't include all environment variables defined in __cinit__
             When environment variables don't include "done"
         """
-        cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
+        cdef size_t N = self.size_check.step_size(kwargs)
 
         cdef size_t index = self.index
         cdef size_t end = index + N
