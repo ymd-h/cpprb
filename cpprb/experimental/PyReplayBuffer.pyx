@@ -125,7 +125,7 @@ cdef class NstepBuffer:
                                                                     ndim=1,copy=False)
 
         self.buffer = dict2buffer(self.Nstep_size,self.env_dict,
-                                  stack_compress = self.stack_compress
+                                  stack_compress = self.stack_compress,
                                   default_dtype = default_dtype)
 
 
