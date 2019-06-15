@@ -68,10 +68,19 @@ cdef class NstepBuffer:
     """
     cdef buffer
     cdef size_t Nstep_size
+    cdef float Nstep_gamma
+    cdef Nstep_rew
+    cdef Nstep_next
     cdef env_dict
 
     def __cinit__(self,env_dict=None,Nstep=None,*,
                   stack_compress = None,default_dtype = None):
+        self.Nstep_size = Nstep["size"]
+        self.Nstep_gamma = Nstep.get("gamma",0.4)
+        self.Nstep_rew = None if not "rew" in Nstep else np.array(Nstep["rew"],
+                                                                  ndmin=1,copy=False)
+        self.Nstep_next = None if not "next" in Nstep else np.array(Nstep["next"],
+                                                                    ndim=1,copy=False)
         pass
 
     def __init__(self,env_dict=None,Nstep=None,*,
