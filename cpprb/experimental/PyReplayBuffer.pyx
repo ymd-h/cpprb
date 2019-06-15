@@ -20,6 +20,21 @@ cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
 def dict2buffer(buffer_size,env_dict,*,compress_any,stack_compress,default_dtype):
+    """Create buffer from env_dict
+
+    Parameters
+    ----------
+    buffer_size : int
+        buffer size
+    env_dict : dict of dict
+        Specify environment values to be stored in buffer.
+    compress_any : bool
+        Whether compress any stack
+    stack_compress : str or array like of str, optional
+        compress memory of specified stacked values.
+    default_dtype : numpy.dtype, optional
+        fallback dtype for not specified in `env_dict`. default is numpy.single
+    """
     cdef buffer = {}
     for name, defs in env_dict.items():
         shape = np.insert(np.asarray(defs.get("shape",1)),0,buffer_size)
