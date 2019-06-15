@@ -20,6 +20,44 @@ cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
+cdef class NstepBuffer:
+    """Local buffer class for Nstep reward.
+    """
+    cdef buffer
+    cdef size_t Nstep_size
+    cdef env_dict
+
+    def __cinit__(self,env_dict=None,Nstep=None):
+        pass
+
+    def __init__(self,env_dict=None,Nstep=None):
+        """Initialize NstepBuffer class.
+
+        Parameters
+        ----------
+        env_dict : dict
+            Specify environment values to be stored.
+        """
+        pass
+
+    def add(self,*,**kwargs):
+        """Add envronment into local buffer.
+
+        Paremeters
+        ----------
+        **kwargs : keyword arguments
+            Values to be added.
+
+        Returns
+        -------
+        env : dict or None
+            Values with Nstep reward calculated. When the local buffer does not
+            store enough cache items, returns 'None'.
+        """
+        pass
+
+
+@cython.embedsignature(True)
 cdef class ReplayBuffer:
     """Replay Buffer class to store environments and to sample them randomly.
 
