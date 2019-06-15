@@ -19,6 +19,31 @@ cdef float [::1] Cview(array):
 cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
+def dict2buffer(buffer_size,env_dict,*,compress_any,stack_compress,default_dtype):
+    cdef buffer = {}
+    for name, defs in env_dict.items():
+        shape = np.insert(np.asarray(defs.get("shape",1)),0,buffer_size)
+
+        if compress_any and np.isin(name,
+                                    stack_compress,
+                                    assume_unique=True).any():
+            buffer_shape = np.insert(np.delete(shape,-1),1,shape[-1])
+            buffer_shape[0] += buffer_shape[1] - 1
+            buffer_shape[1] = 1
+            memory = np.zeros(buffer_shape,
+                              dtype=defs.get("dtype",default_dtype))
+            strides = np.append(np.delete(memory.strides,1),memory.strides[1])
+            buffer[name] = np.lib.stride_tricks.as_strided(memory,
+                                                           shape=shape,
+                                                           strides=strides)
+        else:
+            buffer[name] = np.zeros(shape,dtype=defs.get("dtype",default_dtype))
+
+        shape[0] = -1
+        defs["add_shape"] = shape
+    return buffer
+
+
 @cython.embedsignature(True)
 cdef class NstepBuffer:
     """Local buffer class for Nstep reward.
@@ -92,28 +117,10 @@ cdef class ReplayBuffer:
 
         self.default_dtype = default_dtype or np.single
 
-        self.buffer = {}
-        for name, defs in self.env_dict.items():
-            shape = np.insert(np.asarray(defs.get("shape",1)),0,self.buffer_size)
-
-            if self.compress_any and np.isin(name,
-                                             self.stack_compress,
-                                             assume_unique=True).any():
-                buffer_shape = np.insert(np.delete(shape,-1),1,shape[-1])
-                buffer_shape[0] += buffer_shape[1] - 1
-                buffer_shape[1] = 1
-                buffer = np.zeros(buffer_shape,
-                                  dtype=defs.get("dtype",self.default_dtype))
-                strides = np.append(np.delete(buffer.strides,1),buffer.strides[1])
-                self.buffer[name] = np.lib.stride_tricks.as_strided(buffer,
-                                                                    shape=shape,
-                                                                    strides=strides)
-            else:
-                self.buffer[name] = np.zeros(shape,dtype=defs.get("dtype",
-                                                                  self.default_dtype))
-
-            shape[0] = -1
-            defs["add_shape"] = shape
+        self.buffer = dict2buffer(self.buffer_size,self.env_dict,
+                                  compress_any = self.compress_any,
+                                  stack_compress = self.stack_compress,
+                                  default_dtype = self.default_dtype)
 
         self.next_of = np.array(next_of,ndmin=1,copy=False)
         self.has_next_of = next_of
