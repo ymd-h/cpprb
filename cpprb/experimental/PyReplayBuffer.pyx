@@ -103,6 +103,7 @@ cdef class NstepBuffer:
     environment values for `ReplayBuffer`
     """
     cdef buffer
+    cdef buffer_size
     cdef size_t stored_size
     cdef size_t Nstep_size
     cdef float Nstep_gamma
@@ -125,7 +126,8 @@ cdef class NstepBuffer:
         self.Nstep_next = None if not "next" in Nstep else np.array(Nstep["next"],
                                                                     ndim=1,copy=False)
 
-        self.buffer = dict2buffer(self.Nstep_size,self.env_dict,
+        self.buffer_size = self.Nstep_size - 1
+        self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
                                   default_dtype = default_dtype)
 
