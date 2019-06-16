@@ -152,7 +152,7 @@ cdef class NstepBuffer:
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
         """
-        cdef size_t N = self.size_check.step_size(kwargs)
+        pass
 
     def add(self,*,**kwargs):
         """Add envronment into local buffer.
