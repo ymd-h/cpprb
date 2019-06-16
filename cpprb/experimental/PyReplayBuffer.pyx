@@ -85,7 +85,7 @@ cdef class StepChecker:
         """
         pass
 
-    cdef size_t step_size(self,kwargs):
+    cdef size_t step_size(self,kwargs) except *:
         """Return step size.
 
         Parameters
