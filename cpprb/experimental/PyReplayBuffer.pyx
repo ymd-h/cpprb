@@ -110,6 +110,7 @@ cdef class NstepBuffer:
     cdef Nstep_next
     cdef env_dict
     cdef stack_compress
+    cdef StepChecker size_check
 
     def __cinit__(self,env_dict=None,Nstep=None,*,
                   stack_compress = None,default_dtype = None):
@@ -128,6 +129,7 @@ cdef class NstepBuffer:
                                   stack_compress = self.stack_compress,
                                   default_dtype = default_dtype)
 
+        self.size_check = StepChecker(self.env_dict)
 
     def __init__(self,env_dict=None,Nstep=None,*,
                  stack_compress = None,default_dtype = None):
@@ -148,7 +150,7 @@ cdef class NstepBuffer:
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
         """
-        pass
+        cdef size_t N = self.size_check.step_size(kwargs)
 
     def add(self,*,**kwargs):
         """Add envronment into local buffer.
