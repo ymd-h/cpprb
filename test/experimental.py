@@ -390,5 +390,11 @@ class TestNstepBuffer(unittest.TestCase):
         np.testing.assert_allclose(nb.add(obs=(1,1))['obs'],
                                    np.array((1),dtype=np.float32))
 
+    def test_large_step_add(self):
+        nb = NstepBuffer({'obs': {}},{"size": 3})
+
+        np.testing.assert_allclose(nb.add(obs=(1,1,1,1,1))['obs'],
+                                   np.array((1,1),dtype=np.float32))
+
 if __name__ == '__main__':
     unittest.main()
