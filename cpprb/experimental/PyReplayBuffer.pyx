@@ -200,11 +200,20 @@ cdef class NstepBuffer:
                 # https://stackoverflow.com/a/33362030
                 b[:end], _b[-end:] = _b[-end:], b[:end].copy()
                 if NisBigger:
+                    # buffer: XX--, add: YYYYY
+                    # buffer: YYYY, add: YXX--
                     _b = np.roll(_b,end,axis=0)
+                    # buffer: YYYY, add: XX--YY
+
                     if self.stored_size < self.buffer_size:
+                        # buffer: YYYY, add: XX--YY
                         _b[self.stored_size:add_N] = _b[self.buffer_size:]
+                        # buffer: YYYY, add: XXYY
                 else:
+                    # buffer: XXXZZ, add: YYY
+                    # buffer: YYYZZ, add: XXX
                     b = np.roll(b,-end,axis=0)
+                    # buffer: ZZYYY, add: XXX
 
                 self.buffer[name] = b
                 kwargs[name] = _b[:add_N]
