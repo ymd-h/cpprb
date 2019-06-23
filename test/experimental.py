@@ -6,6 +6,8 @@ from cpprb import ReplayBuffer as nowReplayBuffer
 from cpprb.experimental import ReplayBuffer,PrioritizedReplayBuffer
 from cpprb.experimental import create_buffer
 
+from cpprb.experimental.PyReplayBuffer import NstepBuffer
+
 class TestExperimentalReplayBuffer(unittest.TestCase):
     def test_buffer(self):
 
@@ -367,6 +369,26 @@ class TestIssue(unittest.TestCase):
 
         np.testing.assert_allclose(rb._encode_sample((0))["next_obs"][0],
                                    next_obs)
+
+class TestNstepBuffer(unittest.TestCase):
+    def test_single_add(self):
+        nb = NstepBuffer({'obs': {}},{"size": 4})
+
+        self.assertIs(nb.add(obs=1),None)
+        self.assertIs(nb.add(obs=1),None)
+        self.assertIs(nb.add(obs=1),None)
+        self.assertIs(nb.add(obs=1),None)
+
+        np.testing.assert_allclose(nb.add(obs=1)['obs'],
+                                   np.array((1),dtype=np.float32))
+
+    def test_multi_add(self):
+        nb = NstepBuffer({'obs': {}},{"size": 3})
+
+        self.assertIs(nb.add(obs=(1,1)),None)
+
+        np.testing.assert_allclose(nb.add(obs=(1,1))['obs'],
+                                   np.array((1),dtype=np.float32))
 
 if __name__ == '__main__':
     unittest.main()
