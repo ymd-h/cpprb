@@ -201,6 +201,8 @@ cdef class NstepBuffer:
                 b[:end], _b[-end:] = _b[-end:], b[:end].copy()
                 if NisBigger:
                     _b = np.roll(_b,end,axis=0)
+                    if self.stored_size < self.buffer_size:
+                        _b[self.stored_size:add_N] = _b[self.buffer_size:]
                 else:
                     b = np.roll(b,-end,axis=0)
 
