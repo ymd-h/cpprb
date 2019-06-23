@@ -196,6 +196,8 @@ cdef class NstepBuffer:
             else:
                 _b = self._extract(kwargs,name)
 
+                # Swap numpy.ndarray
+                # https://stackoverflow.com/a/33362030
                 b[:end], _b[-end:] = _b[-end:], b[:end].copy()
                 if NisBigger:
                     _b = np.roll(_b,end,axis=0)
