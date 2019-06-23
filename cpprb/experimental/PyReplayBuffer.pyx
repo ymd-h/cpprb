@@ -170,7 +170,7 @@ cdef class NstepBuffer:
         """
         cdef size_t N = self.size_check.step_size(kwargs)
 
-        cdef size_t end = self.stored_size + N
+        cdef ssize_t end = self.stored_size + N
 
         if end <= self.buffer_size:
             for name, b in self.buffer.items():
