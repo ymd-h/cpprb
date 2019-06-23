@@ -210,10 +210,10 @@ cdef class NstepBuffer:
                         _b[self.stored_size:add_N] = _b[self.buffer_size:]
                         # buffer: YYYY, add: XXYY
                 else:
-                    # buffer: XXXZZ, add: YYY
-                    # buffer: YYYZZ, add: XXX
+                    # buffer: XXXZZ--, add: YYY
+                    # buffer: YYYZZ--, add: XXX
                     b = np.roll(b,-end,axis=0)
-                    # buffer: ZZYYY, add: XXX
+                    # buffer: ZZ--YYY, add: XXX
 
                 self.buffer[name] = b
                 kwargs[name] = _b[:add_N]
