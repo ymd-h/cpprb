@@ -393,7 +393,7 @@ class TestNstepBuffer(unittest.TestCase):
         nb = NstepBuffer({'obs': {}},{"size": 4})
 
         np.testing.assert_allclose(nb.add(obs=(1,1,1,1,1))['obs'],
-                                   np.array((1,1),dtype=np.float32))
+                                   np.array((1,1),dtype=np.float32).reshape(-1,1))
 
 if __name__ == '__main__':
     unittest.main()
