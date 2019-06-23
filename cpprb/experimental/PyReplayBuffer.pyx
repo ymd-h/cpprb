@@ -198,11 +198,12 @@ cdef class NstepBuffer:
 
                 b[:end], _b[-end:] = _b[-end:], b[:end].copy()
                 if NisBigger:
-                    np.roll(_b,end,axis=0)
+                    _b = np.roll(_b,end,axis=0)
                 else:
-                    np.roll(b,-end,axis=0)
+                    b = np.roll(b,-end,axis=0)
 
-                    kwargs[name] = _b[:add_N]
+                self.buffer[name] = b
+                kwargs[name] = _b[:add_N]
 
         self.stored_size = self.buffer_size
         return kwargs
