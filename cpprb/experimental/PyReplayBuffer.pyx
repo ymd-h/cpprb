@@ -168,7 +168,48 @@ cdef class NstepBuffer:
             Values with Nstep reward calculated. When the local buffer does not
             store enough cache items, returns 'None'.
         """
-        pass
+        cdef size_t N = self.size_check.step_size(kwargs)
+
+        cdef size_t end = self.stored_size + N
+
+        if end <= self.buffer_size:
+            for name, b in self.buffer.items():
+                if np.isin(name,self.Nstep_rew).any():
+                    pass
+                elif np.isin(name,self.Nstep_next).any():
+                    pass
+                else:
+                    b[self.stored_size:end] = self._extract(kwargs,name)
+
+            self.stored_size = end
+            return None
+
+        cdef bool NisBigger = (N > self.buffer_size)
+        cdef add_N = N - (self.buffer_size - self.stored_size)
+        end = self.buffer_size if NisBigger else N
+
+        for name, b in self.buffer.items():
+            if np.isin(name,self.Nstep_rew):
+                pass
+            elif np.isin(name,self.Nstep_next).any():
+                pass
+            else:
+                _b = self._extract(kwargs,name)
+
+                b[:end], _b[-end:] = _b[-end:], b[:end].copy()
+                if NisBigger:
+                    np.roll(_b,end,axis=0)
+                else:
+                    np.roll(b,-end,axis=0)
+
+                    kwargs[name] = _b[:add_N]
+
+        self.stored_size = self.buffer_size
+        return kwargs
+
+    cdef _extract(self,kwargs,name):
+        return np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+                          self.env_dict[name]["add_shape"])
 
 
 @cython.embedsignature(True)
