@@ -189,7 +189,7 @@ cdef class NstepBuffer:
         end = self.buffer_size if NisBigger else N
 
         for name, b in self.buffer.items():
-            if np.isin(name,self.Nstep_rew):
+            if np.isin(name,self.Nstep_rew).any():
                 pass
             elif np.isin(name,self.Nstep_next).any():
                 pass
