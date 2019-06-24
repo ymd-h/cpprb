@@ -124,7 +124,7 @@ cdef class NstepBuffer:
         self.Nstep_rew = None if not "rew" in Nstep else np.array(Nstep["rew"],
                                                                   ndmin=1,copy=False)
         self.Nstep_next = None if not "next" in Nstep else np.array(Nstep["next"],
-                                                                    ndim=1,copy=False)
+                                                                    ndmin=1,copy=False)
 
         self.buffer_size = self.Nstep_size - 1
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
