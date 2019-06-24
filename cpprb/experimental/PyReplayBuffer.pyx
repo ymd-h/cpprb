@@ -184,9 +184,10 @@ cdef class NstepBuffer:
             self.stored_size = end
             return None
 
-        cdef bool NisBigger = (N > self.buffer_size)
-        cdef add_N = N - (self.buffer_size - self.stored_size)
-        end = self.buffer_size if NisBigger else N
+        cdef size_t diff_N = self.buffer_size - self.stored_size
+        cdef size_t add_N = N - diff_N
+        cdef bool NisBigger = (add_N > self.buffer_size)
+        end = self.buffer_size if NisBigger else add_N
 
         for name, b in self.buffer.items():
             if np.isin(name,self.Nstep_rew).any():
@@ -196,24 +197,23 @@ cdef class NstepBuffer:
             else:
                 _b = self._extract(kwargs,name)
 
+                if diff_N:
+                    b[self.stored_size:] = _b[:diff_N]
+                    _b = _b[diff_N:]
+
                 # Swap numpy.ndarray
                 # https://stackoverflow.com/a/33362030
                 b[:end], _b[-end:] = _b[-end:], b[:end].copy()
                 if NisBigger:
-                    # buffer: XX--, add: YYYYY
-                    # buffer: YYYY, add: YXX--
+                    # buffer: XXXX, add: YYYYY
+                    # buffer: YYYY, add: YXXXX
                     _b = np.roll(_b,end,axis=0)
-                    # buffer: YYYY, add: XX--YY
-
-                    if self.stored_size < self.buffer_size:
-                        # buffer: YYYY, add: XX--YY
-                        _b[self.stored_size:add_N] = _b[self.buffer_size:]
-                        # buffer: YYYY, add: XXYY
+                    # buffer: YYYY, add: XXXXY
                 else:
-                    # buffer: XXXZZ--, add: YYY
-                    # buffer: YYYZZ--, add: XXX
+                    # buffer: XXXZZZZ, add: YYY
+                    # buffer: YYYZZZZ, add: XXX
                     b = np.roll(b,-end,axis=0)
-                    # buffer: ZZ--YYY, add: XXX
+                    # buffer: ZZZZYYY, add: XXX
 
                 self.buffer[name] = b
                 kwargs[name] = _b[:add_N]
