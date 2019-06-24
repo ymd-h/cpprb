@@ -173,13 +173,13 @@ cdef class NstepBuffer:
         cdef ssize_t end = self.stored_size + N
 
         if end <= self.buffer_size:
-            for name, b in self.buffer.items():
+            for name, stored_b in self.buffer.items():
                 if np.isin(name,self.Nstep_rew).any():
                     pass
                 elif np.isin(name,self.Nstep_next).any():
                     pass
                 else:
-                    b[self.stored_size:end] = self._extract(kwargs,name)
+                    stored_b[self.stored_size:end] = self._extract(kwargs,name)
 
             self.stored_size = end
             return None
@@ -189,7 +189,7 @@ cdef class NstepBuffer:
         cdef bool NisBigger = (add_N > self.buffer_size)
         end = self.buffer_size if NisBigger else add_N
 
-        for name, b in self.buffer.items():
+        for name, stored_b in self.buffer.items():
             if np.isin(name,self.Nstep_rew).any():
                 pass
             elif np.isin(name,self.Nstep_next).any():
@@ -198,12 +198,12 @@ cdef class NstepBuffer:
                 _b = self._extract(kwargs,name)
 
                 if diff_N:
-                    b[self.stored_size:] = _b[:diff_N]
+                    stored_b[self.stored_size:] = _b[:diff_N]
                     _b = _b[diff_N:]
 
                 # Swap numpy.ndarray
                 # https://stackoverflow.com/a/33362030
-                b[:end], _b[-end:] = _b[-end:], b[:end].copy()
+                stored_b[:end], _b[-end:] = _b[-end:], stored_b[:end].copy()
                 if NisBigger:
                     # buffer: XXXX, add: YYYYY
                     # buffer: YYYY, add: YXXXX
@@ -212,10 +212,10 @@ cdef class NstepBuffer:
                 else:
                     # buffer: XXXZZZZ, add: YYY
                     # buffer: YYYZZZZ, add: XXX
-                    b = np.roll(b,-end,axis=0)
+                    stored_b = np.roll(stored_b,-end,axis=0)
                     # buffer: ZZZZYYY, add: XXX
 
-                self.buffer[name] = b
+                self.buffer[name] = stored_b
                 kwargs[name] = _b[:add_N]
 
         self.stored_size = self.buffer_size
