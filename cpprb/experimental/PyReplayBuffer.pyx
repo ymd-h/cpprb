@@ -195,19 +195,19 @@ cdef class NstepBuffer:
             elif np.isin(name,self.Nstep_next).any():
                 pass
             else:
-                _b = self._extract(kwargs,name)
+                ext_b = self._extract(kwargs,name)
 
                 if diff_N:
-                    stored_b[self.stored_size:] = _b[:diff_N]
-                    _b = _b[diff_N:]
+                    stored_b[self.stored_size:] = ext_b[:diff_N]
+                    ext_b = ext_b[diff_N:]
 
                 # Swap numpy.ndarray
                 # https://stackoverflow.com/a/33362030
-                stored_b[:end], _b[-end:] = _b[-end:], stored_b[:end].copy()
+                stored_b[:end], ext_b[-end:] = ext_b[-end:], stored_b[:end].copy()
                 if NisBigger:
                     # buffer: XXXX, add: YYYYY
                     # buffer: YYYY, add: YXXXX
-                    _b = np.roll(_b,end,axis=0)
+                    ext_b = np.roll(ext_b,end,axis=0)
                     # buffer: YYYY, add: XXXXY
                 else:
                     # buffer: XXXZZZZ, add: YYY
@@ -216,7 +216,7 @@ cdef class NstepBuffer:
                     # buffer: ZZZZYYY, add: XXX
 
                 self.buffer[name] = stored_b
-                kwargs[name] = _b[:add_N]
+                kwargs[name] = ext_b[:add_N]
 
         self.stored_size = self.buffer_size
         return kwargs
