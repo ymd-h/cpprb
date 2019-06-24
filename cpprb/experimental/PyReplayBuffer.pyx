@@ -193,7 +193,7 @@ cdef class NstepBuffer:
             if np.isin(name,self.Nstep_rew).any():
                 pass
             elif np.isin(name,self.Nstep_next).any():
-                pass
+                kwargs[name] = self._extract(kwargs,name)[diff_N:]
             else:
                 ext_b = self._extract(kwargs,name)
 
