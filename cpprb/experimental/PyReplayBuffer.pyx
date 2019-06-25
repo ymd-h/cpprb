@@ -193,10 +193,11 @@ cdef class NstepBuffer:
 
         if end <= self.buffer_size:
             for name, stored_b in self.buffer.items():
-                if np.isin(name,self.Nstep_rew).any():
+                if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
                     # Calculate later.
                     pass
-                elif np.isin(name,self.Nstep_next).any():
+                elif (self.Nstep_next is not None
+                      and np.isin(name,self.Nstep_next).any()):
                     # Do nothing.
                     pass
                 else:
@@ -214,9 +215,10 @@ cdef class NstepBuffer:
         end = self.buffer_size if NisBigger else add_N
 
         for name, stored_b in self.buffer.items():
-            if np.isin(name,self.Nstep_rew).any():
+            if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
                 pass
-            elif np.isin(name,self.Nstep_next).any():
+            elif (self.Nstep_next is not None
+                      and np.isin(name,self.Nstep_next).any()):
                 kwargs[name] = self._extract(kwargs,name)[diff_N:]
             else:
                 ext_b = self._extract(kwargs,name)
