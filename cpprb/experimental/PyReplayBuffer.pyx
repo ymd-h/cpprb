@@ -130,6 +130,7 @@ cdef class NstepBuffer:
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
                                   default_dtype = default_dtype)
+        self.buffer["gamma"] = np.zeros(self.buffer_size,dtype=default_dtype)
 
         self.size_check = StepChecker(self.env_dict)
 
