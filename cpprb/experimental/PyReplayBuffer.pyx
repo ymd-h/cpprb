@@ -216,6 +216,7 @@ cdef class NstepBuffer:
 
         for name, stored_b in self.buffer.items():
             if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
+                # Calculate later.
                 pass
             elif (self.Nstep_next is not None
                       and np.isin(name,self.Nstep_next).any()):
@@ -228,6 +229,9 @@ cdef class NstepBuffer:
                     ext_b = ext_b[diff_N:]
 
                 self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
+        else:
+            # Nstep reward must be calculated after "done" filling
+            self._fill_rew_and_gamma(kwargs,diff_N,self.buffer_size)
 
         self.stored_size = self.buffer_size
         return kwargs
