@@ -109,6 +109,7 @@ cdef class NstepBuffer:
     cdef float Nstep_gamma
     cdef Nstep_rew
     cdef Nstep_next
+    cdef gamma_buffer
     cdef env_dict
     cdef stack_compress
     cdef StepChecker size_check
@@ -130,7 +131,7 @@ cdef class NstepBuffer:
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
                                   default_dtype = default_dtype)
-        self.buffer["gamma"] = np.zeros(self.buffer_size,dtype=default_dtype)
+        self.gamma_buffer = np.zeros(self.buffer_size,dtype=default_dtype)
 
         self.size_check = StepChecker(self.env_dict)
 
@@ -237,7 +238,7 @@ cdef class NstepBuffer:
         cdef ssize_t ext_begin
 
         gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
-        self.buffer["gamma"][self.stored_size:end] = 1
+        self.gamma_buffer[self.stored_size:end] = 1
 
         if self.Nstep_rew is None:
             return
