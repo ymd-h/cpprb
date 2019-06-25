@@ -395,5 +395,18 @@ class TestNstepBuffer(unittest.TestCase):
         np.testing.assert_allclose(nb.add(obs=(1,1,1,1,1))['obs'],
                                    np.array((1,1),dtype=np.float32).reshape(-1,1))
 
+    def test_next(self):
+        nb = NstepBuffer({'next_obs': {}},{"size": 4, "next": "next_obs"})
+
+        self.assertIs(nb.add(next_obs=1),None)
+        self.assertIs(nb.add(next_obs=1),None)
+        self.assertIs(nb.add(next_obs=1),None)
+
+        for i in range(5):
+            with self.subTest(i=i):
+                np.testing.assert_allclose(nb.add(next_obs=(i))["next_obs"],
+                                           np.array(i,dtype=np.float32).reshape(-1,1))
+
+
 if __name__ == '__main__':
     unittest.main()
