@@ -63,6 +63,24 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
         defs["add_shape"] = shape
     return buffer
 
+def find_array(dict,key):
+    """Find 'key' and ensure numpy.ndarray with the minimum dimension of 1.
+
+    Parameters
+    ----------
+    dict : dict
+        dict where find 'key'
+    key : str
+        dictionary key to find
+
+    Returns
+    -------
+    : numpy.ndarray or None
+        If `dict` has `key`, returns the values with numpy.ndarray with the minimum
+        dimension of 1. Otherwise, returns `None`.
+    """
+    return None if not key in dict else np.array(dict[key],ndmin=1,copy=False)
+
 @cython.embedsignature(True)
 cdef class StepChecker:
     """Check the step size of addition
