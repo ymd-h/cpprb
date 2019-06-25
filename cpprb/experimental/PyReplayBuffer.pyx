@@ -140,10 +140,8 @@ cdef class NstepBuffer:
 
         self.Nstep_size = Nstep["size"]
         self.Nstep_gamma = Nstep.get("gamma",0.99)
-        self.Nstep_rew = None if not "rew" in Nstep else np.array(Nstep["rew"],
-                                                                  ndmin=1,copy=False)
-        self.Nstep_next = None if not "next" in Nstep else np.array(Nstep["next"],
-                                                                    ndmin=1,copy=False)
+        self.Nstep_rew = find_array(Nstep,"rew")
+        self.Nstep_next = find_array(Nstep,"next")
 
         self.buffer_size = self.Nstep_size - 1
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
