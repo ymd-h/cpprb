@@ -168,18 +168,38 @@ cdef class NstepBuffer:
             Values with Nstep reward calculated. When the local buffer does not
             store enough cache items, returns 'None'.
         """
+        cdef ssize_t i # for-loop counter
         cdef size_t N = self.size_check.step_size(kwargs)
 
         cdef ssize_t end = self.stored_size + N
+        cdef ssize_t stored_begin
+        cdef ssize_t ext_begin
 
         if end <= self.buffer_size:
             for name, stored_b in self.buffer.items():
                 if np.isin(name,self.Nstep_rew).any():
+                    # Calculate later.
                     pass
                 elif np.isin(name,self.Nstep_next).any():
+                    # Do nothing.
                     pass
                 else:
                     stored_b[self.stored_size:end] = self._extract(kwargs,name)
+            else:
+                # Nstep reward must be calculated after "done" filling
+                gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
+
+                for name, stored_b in self.Nstep_rew:
+                    ext_b = self._extract(kwargs,name)
+
+                    stored_b[self.stored_size:end] = ext_b
+                    for i in range(self.stored_size - 1,
+                                   self.stored_size - self.Nstep_size,
+                                   -1):
+                        stored_begin = max(i,0)
+                        ext_begin = max(-i,0)
+                        ext_b[ext_begin:] *= gamma[stored_begin:i+N]
+                        self.stored_b[stored_begin:i+N] += ext_b[ext_begin:]
 
             self.stored_size = end
             return None
