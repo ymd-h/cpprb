@@ -136,7 +136,8 @@ cdef class NstepBuffer:
                   stack_compress = None,default_dtype = None):
         self.env_dict = env_dict or {}
         self.stored_size = 0
-        self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
+        self.stack_compress = stack_compress and np.array(stack_compress,
+                                                          ndmin=1,copy=False)
 
         self.Nstep_size = Nstep["size"]
         self.Nstep_gamma = Nstep.get("gamma",0.99)
