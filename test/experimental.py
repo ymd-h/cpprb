@@ -372,39 +372,41 @@ class TestIssue(unittest.TestCase):
 
 class TestNstepBuffer(unittest.TestCase):
     def test_single_add(self):
-        nb = NstepBuffer({'obs': {}},{"size": 4})
+        nb = NstepBuffer({'obs': {}, 'done': {}},{"size": 4})
 
-        self.assertIs(nb.add(obs=1),None)
-        self.assertIs(nb.add(obs=1),None)
-        self.assertIs(nb.add(obs=1),None)
+        self.assertIs(nb.add(obs=1,done=0),None)
+        self.assertIs(nb.add(obs=1,done=0),None)
+        self.assertIs(nb.add(obs=1,done=0),None)
 
-        np.testing.assert_allclose(nb.add(obs=1)['obs'],
+        np.testing.assert_allclose(nb.add(obs=1,done=0)['obs'],
                                    np.array((1),dtype=np.float32))
 
     def test_multi_add(self):
-        nb = NstepBuffer({'obs': {}},{"size": 4})
+        nb = NstepBuffer({'obs': {}, 'done': {}},{"size": 4})
 
-        self.assertIs(nb.add(obs=(1,1)),None)
+        self.assertIs(nb.add(obs=(1,1),done=(0,0)),None)
 
-        np.testing.assert_allclose(nb.add(obs=(1,1))['obs'],
+        np.testing.assert_allclose(nb.add(obs=(1,1),
+                                          done=(0,0))['obs'],
                                    np.array((1),dtype=np.float32))
 
     def test_large_step_add(self):
-        nb = NstepBuffer({'obs': {}},{"size": 4})
+        nb = NstepBuffer({'obs': {}, 'done': {}},{"size": 4})
 
-        np.testing.assert_allclose(nb.add(obs=(1,1,1,1,1))['obs'],
+        np.testing.assert_allclose(nb.add(obs=(1,1,1,1,1),
+                                          done=(0,0,0,0,0))['obs'],
                                    np.array((1,1),dtype=np.float32).reshape(-1,1))
 
     def test_next(self):
-        nb = NstepBuffer({'next_obs': {}},{"size": 4, "next": "next_obs"})
+        nb = NstepBuffer({'next_obs': {}, 'done': {}},{"size": 4, "next": "next_obs"})
 
-        self.assertIs(nb.add(next_obs=1),None)
-        self.assertIs(nb.add(next_obs=1),None)
-        self.assertIs(nb.add(next_obs=1),None)
+        self.assertIs(nb.add(next_obs=1,done=0),None)
+        self.assertIs(nb.add(next_obs=1,done=0),None)
+        self.assertIs(nb.add(next_obs=1,done=0),None)
 
         for i in range(5):
             with self.subTest(i=i):
-                np.testing.assert_allclose(nb.add(next_obs=(i))["next_obs"],
+                np.testing.assert_allclose(nb.add(next_obs=(i),done=0)["next_obs"],
                                            np.array(i,dtype=np.float32).reshape(-1,1))
 
 
