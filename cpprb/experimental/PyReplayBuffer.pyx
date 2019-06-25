@@ -248,7 +248,7 @@ cdef class NstepBuffer:
             return
 
         for name in self.Nstep_rew:
-            ext_b = self._extract(kwargs,name)
+            ext_b = self._extract(kwargs,name)[:N]
 
             self.buffer[name][self.stored_size:end] = ext_b
             for i in range(self.stored_size-1,self.stored_size-self.Nstep_size,-1):
