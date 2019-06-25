@@ -225,21 +225,7 @@ cdef class NstepBuffer:
                     stored_b[self.stored_size:] = ext_b[:diff_N]
                     ext_b = ext_b[diff_N:]
 
-                # Swap numpy.ndarray
-                # https://stackoverflow.com/a/33362030
-                stored_b[:end], ext_b[-end:] = ext_b[-end:], stored_b[:end].copy()
-                if NisBigger:
-                    # buffer: XXXX, add: YYYYY
-                    # buffer: YYYY, add: YXXXX
-                    ext_b = np.roll(ext_b,end,axis=0)
-                    # buffer: YYYY, add: XXXXY
-                else:
-                    # buffer: XXXZZZZ, add: YYY
-                    # buffer: YYYZZZZ, add: XXX
-                    stored_b[:] = np.roll(stored_b,-end,axis=0)[:]
-                    # buffer: ZZZZYYY, add: XXX
-
-                kwargs[name] = ext_b[:add_N]
+                self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
 
         self.stored_size = self.buffer_size
         return kwargs
@@ -268,6 +254,23 @@ cdef class NstepBuffer:
                 ext_begin = max(-i,0)
                 ext_b[ext_begin:] *= gamma[stored_begin:i+N]
                 self.buffer[name][stored_begin:i+N] += ext_b[ext_begin:]
+
+    cdef void _roll(self,stored_b,ext_b,
+                    ssize_t end,bool NisBigger,kwargs,name,size_t add_N):
+        # Swap numpy.ndarray
+        # https://stackoverflow.com/a/33362030
+        stored_b[:end], ext_b[-end:] = ext_b[-end:], stored_b[:end].copy()
+        if NisBigger:
+            # buffer: XXXX, add: YYYYY
+            # buffer: YYYY, add: YXXXX
+            ext_b = np.roll(ext_b,end,axis=0)
+            # buffer: YYYY, add: XXXXY
+        else:
+            # buffer: XXXZZZZ, add: YYY
+            # buffer: YYYZZZZ, add: XXX
+            stored_b[:] = np.roll(stored_b,-end,axis=0)[:]
+            # buffer: ZZZZYYY, add: XXX
+        kwargs[name] = ext_b[:add_N]
 
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
