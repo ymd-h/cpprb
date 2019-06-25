@@ -169,12 +169,9 @@ cdef class NstepBuffer:
             Values with Nstep reward calculated. When the local buffer does not
             store enough cache items, returns 'None'.
         """
-        cdef ssize_t i # for-loop counter
         cdef size_t N = self.size_check.step_size(kwargs)
 
         cdef ssize_t end = self.stored_size + N
-        cdef ssize_t stored_begin
-        cdef ssize_t ext_begin
 
         if end <= self.buffer_size:
             for name, stored_b in self.buffer.items():
@@ -188,20 +185,7 @@ cdef class NstepBuffer:
                     stored_b[self.stored_size:end] = self._extract(kwargs,name)
             else:
                 # Nstep reward must be calculated after "done" filling
-                gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
-
-                if self.Nstep_rew is not None:
-                    for name, stored_b in self.Nstep_rew.items():
-                        ext_b = self._extract(kwargs,name)
-
-                        stored_b[self.stored_size:end] = ext_b
-                        for i in range(self.stored_size - 1,
-                                       self.stored_size - self.Nstep_size,
-                                       -1):
-                            stored_begin = max(i,0)
-                            ext_begin = max(-i,0)
-                            ext_b[ext_begin:] *= gamma[stored_begin:i+N]
-                            self.stored_b[stored_begin:i+N] += ext_b[ext_begin:]
+                self._fill_rew_and_gamma(kwargs,N,end)
 
             self.stored_size = end
             return None
@@ -247,6 +231,26 @@ cdef class NstepBuffer:
         return np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
                           self.env_dict[name]["add_shape"])
 
+    cdef void _fill_rew_and_gamma(self,kwargs,size_t N,ssize_t end):
+        cdef ssize_t i
+        cdef ssize_t stored_begin
+        cdef ssize_t ext_begin
+
+        gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
+        self.buffer["gamma"][self.stored_size:end] = 1
+
+        if self.Nstep_rew is None:
+            return
+
+        for name in self.Nstep_rew:
+            ext_b = self._extract(kwargs,name)
+
+            self.buffer[name][self.stored_size:end] = ext_b
+            for i in range(self.stored_size-1,self.stored_size-self.Nstep_size,-1):
+                stored_begin = max(i,0)
+                ext_begin = max(-i,0)
+                ext_b[ext_begin:] *= gamma[stored_begin:i+N]
+                self.buffer[name][stored_begin:i+N] += ext_b[ext_begin:]
 
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
