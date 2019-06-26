@@ -12,11 +12,11 @@ from cpprb.VectorWrapper cimport *
 from cpprb.VectorWrapper import (VectorWrapper,VectorInt,VectorSize_t,VectorFloat)
 
 @cython.embedsignature(True)
-cdef float [::1] Cview(array):
+cdef inline float [::1] Cview(array):
     return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
-cdef size_t [::1] Csize(array):
+cdef inline size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
 def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = None):
