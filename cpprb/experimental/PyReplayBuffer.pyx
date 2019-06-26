@@ -237,7 +237,7 @@ cdef class NstepBuffer:
                 self._fill_rew_and_gamma(kwargs,gamma,diff_N,self.buffer_size)
                 for name in self.Nstep_rew:
                     b = kwargs[name]
-                    self._calculate_reward(b,b,gamma,0,N)
+                    self._calculate_reward(b.copy(),b,gamma,0,N)
                     self._roll(self.buffer[name],b,end,NisBigger,kwargs,name,add_N)
 
         self.stored_size = self.buffer_size
@@ -254,7 +254,7 @@ cdef class NstepBuffer:
             return
 
         for name in self.Nstep_rew:
-            ext_b = self._extract(kwargs,name)[:N]
+            ext_b = self._extract(kwargs,name)[:N].copy()
 
             self.buffer[name][self.stored_size:end] = ext_b
             self._calculate_reward(ext_b,self.buffer[name],gamma,self.stored_size,N)
