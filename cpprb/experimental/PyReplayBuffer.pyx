@@ -204,7 +204,8 @@ cdef class NstepBuffer:
                     stored_b[self.stored_size:end] = self._extract(kwargs,name)
             else:
                 # Nstep reward must be calculated after "done" filling
-                self._fill_rew_and_gamma(kwargs,N,end)
+                gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
+                self._fill_rew_and_gamma(kwargs,gamma,N,end)
 
             self.stored_size = end
             return None
@@ -240,8 +241,7 @@ cdef class NstepBuffer:
         return np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
                           self.env_dict[name]["add_shape"])
 
-    cdef void _fill_rew_and_gamma(self,kwargs,size_t N,ssize_t end):
-        gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
+    cdef void _fill_rew_and_gamma(self,kwargs,gamma,size_t N,ssize_t end):
         self.gamma_buffer[self.stored_size:end] = 1
 
         if self.Nstep_rew is None:
