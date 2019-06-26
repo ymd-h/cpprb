@@ -241,10 +241,6 @@ cdef class NstepBuffer:
                           self.env_dict[name]["add_shape"])
 
     cdef void _fill_rew_and_gamma(self,kwargs,size_t N,ssize_t end):
-        cdef ssize_t i
-        cdef ssize_t stored_begin
-        cdef ssize_t ext_begin
-
         gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
         self.gamma_buffer[self.stored_size:end] = 1
 
@@ -255,11 +251,7 @@ cdef class NstepBuffer:
             ext_b = self._extract(kwargs,name)[:N]
 
             self.buffer[name][self.stored_size:end] = ext_b
-            for i in range(self.stored_size-1,self.stored_size-self.Nstep_size,-1):
-                stored_begin = max(i,0)
-                ext_begin = max(-i,0)
-                ext_b[ext_begin:] *= gamma[stored_begin:i+N]
-                self.buffer[name][stored_begin:i+N] += ext_b[ext_begin:]
+            self._calculate_reward(ext_b,self.buffer[name],gamma,self.stored_size,N)
 
     cdef void _roll(self,stored_b,ext_b,
                     ssize_t end,bool NisBigger,kwargs,name,size_t add_N):
@@ -277,6 +269,17 @@ cdef class NstepBuffer:
             stored_b[:] = np.roll(stored_b,-end,axis=0)[:]
             # buffer: ZZZZYYY, add: XXX
         kwargs[name] = ext_b[:add_N]
+
+    cdef void _calculate_reward(self,_from,_to,gamma,ssize_t index,size_t N):
+        cdef ssize_t i
+        cdef ssize_t stored_begin
+        cdef ssize_t ext_begin
+
+        for i in range(index-1,index-self.Nstep_size,-1):
+            stored_begin = max(i,0)
+            ext_begin = max(-i,0)
+            _from[ext_begin:] *= gamma[stored_begin:i+N]
+            _to[stored_begin:i+N] += _from[ext_begin:]
 
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
