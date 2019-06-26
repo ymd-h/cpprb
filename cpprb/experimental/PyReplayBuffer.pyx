@@ -232,7 +232,13 @@ cdef class NstepBuffer:
                 self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
         else:
             # Nstep reward must be calculated after "done" filling
-            self._fill_rew_and_gamma(kwargs,diff_N,self.buffer_size)
+            if self.Nstep_rew is not None:
+                gamma = (1-self.buffer["done"][:self.buffer_size]) * self.Nstep_gamma
+                self._fill_rew_and_gamma(kwargs,gamma,diff_N,self.buffer_size)
+                for name in self.Nstep_rew:
+                    b = kwargs[name]
+                    self._calculate_reward(b,b,gamma,0,N)
+                    self._roll(self.buffer[name],b,end,NisBigger,kwargs,name,add_N)
 
         self.stored_size = self.buffer_size
         return kwargs
