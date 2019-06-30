@@ -153,6 +153,8 @@ cdef class NstepBuffer:
         self.gamma_buffer = np.zeros(self.buffer_size,dtype=default_dtype)
 
         if self.Nstep_rew is not None:
+            self.rew_buffer = {}
+            self.rew_dict = {}
             for name in self.Nstep_rew:
                 self.rew_buffer[name] = self.buffer[name]
                 del self.buffer[name]
