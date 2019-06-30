@@ -241,7 +241,7 @@ cdef class NstepBuffer:
             gamma = (1-self.buffer["done"][:self.buffer_size]) * self.Nstep_gamma
             self._fill_rew_and_gamma(kwargs,gamma,diff_N,self.buffer_size)
             for name in self.Nstep_rew:
-                b = kwargs[name]
+                b = self._extract(kwargs,name)
                 self._calculate_reward(b.copy(),b,gamma,0,N)
                 self._roll(self.buffer[name],b,end,NisBigger,kwargs,name,add_N)
 
