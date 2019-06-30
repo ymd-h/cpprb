@@ -215,9 +215,34 @@ cdef class NstepBuffer:
         cdef bool NisBigger = (add_N > self.buffer_size)
         end = self.buffer_size if NisBigger else add_N
 
+        # Nstep reward must be calculated before "done" filling
+        cdef ssize_t i
+        cdef ssize_t stored_begin
+        cdef ssize_t ext_begin
+        gamma = np.ones((end,1))
+        gamma[:self.stored_size] -= self.buffer["done"]
+        gamma[self.stored_size:] -= self._extract(kwargs,"done")
+        gamma *= self.gamma
+        if self.Nstep_rew is not None:
+            for name in self.Nstep_rew:
+                ext_b = self._extract(kwargs,name)
+
+                if diff_N:
+                    self.buffer[name][self.stored_size:] = ext_b[:diff_N]
+
+                copy_ext = ext_b.copy()
+                for i in range(self.stored_size-1,
+                               self.stored_size-self.Nstep_size,-1):
+                    stored_begin = max(i,0)
+                    ext_begin = max(-i,0)
+                    copy_ext[ext_begin:] *= gamma[stored_begin:i+N]
+                    ext_b[stored_begin:i+N] += copy_ext[ext_begin:]
+
+                self._roll(self.buffer[name],b,end,NisBigger,kwargs,name,add_N)
+
         for name, stored_b in self.buffer.items():
             if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
-                # Calculate later.
+                # Calculated.
                 pass
             elif (self.Nstep_next is not None
                   and np.isin(name,self.Nstep_next).any()):
@@ -230,15 +255,6 @@ cdef class NstepBuffer:
                     ext_b = ext_b[diff_N:]
 
                 self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
-
-        # Nstep reward must be calculated after "done" filling
-        if self.Nstep_rew is not None:
-            gamma = (1-self.buffer["done"][:self.buffer_size]) * self.Nstep_gamma
-            self._fill_rew_and_gamma(kwargs,gamma,diff_N,self.buffer_size)
-            for name in self.Nstep_rew:
-                b = self._extract(kwargs,name)
-                self._calculate_reward(b.copy(),b,gamma,0,N)
-                self._roll(self.buffer[name],b,end,NisBigger,kwargs,name,add_N)
 
         self.stored_size = self.buffer_size
         return kwargs
