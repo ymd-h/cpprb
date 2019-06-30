@@ -261,8 +261,9 @@ cdef class NstepBuffer:
         for name in self.Nstep_rew:
             ext_b = self._extract(kwargs,name)[:N].copy()
 
-            self.buffer[name][self.stored_size:end] = ext_b
-            self._calculate_reward(ext_b,self.buffer[name],gamma,self.stored_size,N)
+            self.rew_buffer[name][self.stored_size:end] = ext_b
+            self._calculate_reward(ext_b,self.rew_buffer[name],gamma,
+                                   self.stored_size,N)
 
     cdef void _roll(self,stored_b,ext_b,
                     ssize_t end,bool NisBigger,kwargs,name,size_t add_N):
