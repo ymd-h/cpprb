@@ -126,11 +126,9 @@ cdef class NstepBuffer:
     cdef size_t Nstep_size
     cdef float Nstep_gamma
     cdef Nstep_rew
-    cdef rew_buffer
     cdef Nstep_next
     cdef gamma_buffer
     cdef env_dict
-    cdef rew_dict
     cdef stack_compress
     cdef StepChecker size_check
 
@@ -151,15 +149,6 @@ cdef class NstepBuffer:
                                   stack_compress = self.stack_compress,
                                   default_dtype = default_dtype)
         self.gamma_buffer = np.zeros(self.buffer_size,dtype=default_dtype)
-
-        if self.Nstep_rew is not None:
-            self.rew_buffer = {}
-            self.rew_dict = {}
-            for name in self.Nstep_rew:
-                self.rew_buffer[name] = self.buffer[name]
-                del self.buffer[name]
-                self.rew_dict[name] = self.env_dict[name]
-                del self.env_dict[name]
 
         self.size_check = StepChecker(self.env_dict)
 
@@ -204,8 +193,11 @@ cdef class NstepBuffer:
 
         if end <= self.buffer_size:
             for name, stored_b in self.buffer.items():
-                if (self.Nstep_next is not None
-                    and np.isin(name,self.Nstep_next).any()):
+                if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
+                    # Calculate later.
+                    pass
+                elif (self.Nstep_next is not None
+                      and np.isin(name,self.Nstep_next).any()):
                     # Do nothing.
                     pass
                 else:
@@ -224,8 +216,11 @@ cdef class NstepBuffer:
         end = self.buffer_size if NisBigger else add_N
 
         for name, stored_b in self.buffer.items():
-            if (self.Nstep_next is not None
-                and np.isin(name,self.Nstep_next).any()):
+            if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
+                # Calculate later.
+                pass
+            elif (self.Nstep_next is not None
+                  and np.isin(name,self.Nstep_next).any()):
                 kwargs[name] = self._extract(kwargs,name)[diff_N:]
             else:
                 ext_b = self._extract(kwargs,name)
