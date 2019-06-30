@@ -220,7 +220,7 @@ cdef class NstepBuffer:
                 # Calculate later.
                 pass
             elif (self.Nstep_next is not None
-                      and np.isin(name,self.Nstep_next).any()):
+                  and np.isin(name,self.Nstep_next).any()):
                 kwargs[name] = self._extract(kwargs,name)[diff_N:]
             else:
                 ext_b = self._extract(kwargs,name)
