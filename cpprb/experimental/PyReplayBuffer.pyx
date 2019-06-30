@@ -202,10 +202,10 @@ cdef class NstepBuffer:
                     pass
                 else:
                     stored_b[self.stored_size:end] = self._extract(kwargs,name)
-            else:
-                # Nstep reward must be calculated after "done" filling
-                gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
-                self._fill_rew_and_gamma(kwargs,gamma,N,end)
+
+            # Nstep reward must be calculated after "done" filling
+            gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
+            self._fill_rew_and_gamma(kwargs,gamma,N,end)
 
             self.stored_size = end
             return None
@@ -230,15 +230,15 @@ cdef class NstepBuffer:
                     ext_b = ext_b[diff_N:]
 
                 self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
-        else:
-            # Nstep reward must be calculated after "done" filling
-            if self.Nstep_rew is not None:
-                gamma = (1-self.buffer["done"][:self.buffer_size]) * self.Nstep_gamma
-                self._fill_rew_and_gamma(kwargs,gamma,diff_N,self.buffer_size)
-                for name in self.Nstep_rew:
-                    b = kwargs[name]
-                    self._calculate_reward(b.copy(),b,gamma,0,N)
-                    self._roll(self.buffer[name],b,end,NisBigger,kwargs,name,add_N)
+
+        # Nstep reward must be calculated after "done" filling
+        if self.Nstep_rew is not None:
+            gamma = (1-self.buffer["done"][:self.buffer_size]) * self.Nstep_gamma
+            self._fill_rew_and_gamma(kwargs,gamma,diff_N,self.buffer_size)
+            for name in self.Nstep_rew:
+                b = kwargs[name]
+                self._calculate_reward(b.copy(),b,gamma,0,N)
+                self._roll(self.buffer[name],b,end,NisBigger,kwargs,name,add_N)
 
         self.stored_size = self.buffer_size
         return kwargs
