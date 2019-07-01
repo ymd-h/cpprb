@@ -265,7 +265,6 @@ cdef class NstepBuffer:
                         ext_b[:spilled_N] += copy_ext[-spilled_N:]
 
                 self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
-                kwargs[name] = ext_b
 
         for name, stored_b in self.buffer.items():
             if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
