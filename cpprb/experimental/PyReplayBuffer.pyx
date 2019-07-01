@@ -205,7 +205,13 @@ cdef class NstepBuffer:
 
             # Nstep reward must be calculated after "done" filling
             gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
-            self._fill_rew_and_gamma(kwargs,gamma,N,end)
+            self.gamma_buffer[self.stored_size:end] = 1
+
+            if self.Nstep_rew is not None:
+                for name in self.Nstep_rew:
+                    ext_b = self._extract(kwargs,name)[:N].copy()
+                    self.buffer[name][self.stored_size:end] = ext_b
+                    self._calculate_reward(ext_b,self.buffer[name],gamma,self.stored_size,N)
 
             self.stored_size = end
             return None
@@ -273,18 +279,6 @@ cdef class NstepBuffer:
     cdef _extract(self,kwargs,name):
         return np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
                           self.env_dict[name]["add_shape"])
-
-    cdef void _fill_rew_and_gamma(self,kwargs,gamma,size_t N,ssize_t end):
-        self.gamma_buffer[self.stored_size:end] = 1
-
-        if self.Nstep_rew is None:
-            return
-
-        for name in self.Nstep_rew:
-            ext_b = self._extract(kwargs,name)[:N].copy()
-
-            self.buffer[name][self.stored_size:end] = ext_b
-            self._calculate_reward(ext_b,self.buffer[name],gamma,self.stored_size,N)
 
     cdef void _roll(self,stored_b,ext_b,
                     ssize_t end,bool NisBigger,kwargs,name,size_t add_N):
