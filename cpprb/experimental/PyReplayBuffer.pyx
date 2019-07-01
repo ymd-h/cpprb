@@ -122,6 +122,7 @@ cdef class NstepBuffer:
     """
     cdef buffer
     cdef buffer_size
+    cdef default_dtype
     cdef size_t stored_size
     cdef size_t Nstep_size
     cdef float Nstep_gamma
@@ -138,6 +139,7 @@ cdef class NstepBuffer:
         self.stored_size = 0
         self.stack_compress = stack_compress and np.array(stack_compress,
                                                           ndmin=1,copy=False)
+        self.default_dtype = default_dtype or np.single
 
         self.Nstep_size = Nstep["size"]
         self.Nstep_gamma = Nstep.get("gamma",0.99)
@@ -147,7 +149,7 @@ cdef class NstepBuffer:
         self.buffer_size = self.Nstep_size - 1
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
-                                  default_dtype = default_dtype)
+                                  default_dtype = self.default_dtype)
         self.gamma_buffer = np.zeros(self.buffer_size,dtype=default_dtype)
 
         self.size_check = StepChecker(self.env_dict)
