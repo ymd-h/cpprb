@@ -227,10 +227,11 @@ cdef class NstepBuffer:
             for name in self.Nstep_rew:
                 ext_b = self._extract(kwargs,name)
 
+                copy_ext = ext_b.copy()
                 if diff_N:
                     self.buffer[name][self.stored_size:] = ext_b[:diff_N]
+                    ext_b = ext_b[diff_N:]
 
-                copy_ext = ext_b.copy()
                 for i in range(self.stored_size-1,
                                self.stored_size-self.Nstep_size,-1):
                     stored_begin = max(i,0)
