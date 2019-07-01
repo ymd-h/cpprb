@@ -204,8 +204,8 @@ cdef class NstepBuffer:
                     stored_b[self.stored_size:end] = self._extract(kwargs,name)
 
             # Nstep reward must be calculated after "done" filling
-            gamma = (1 - self.buffer["done"][:end]) * self.Nstep_gamma
-            self.gamma_buffer[self.stored_size:end] = 1
+            gamma = (1.0 - self.buffer["done"][:end]) * self.Nstep_gamma
+            self.gamma_buffer[self.stored_size:end] = 1.0
 
             if self.Nstep_rew is not None:
                 for name in self.Nstep_rew:
@@ -227,7 +227,7 @@ cdef class NstepBuffer:
         cdef ssize_t stored_end
         cdef ssize_t ext_begin
         cdef ssize_t spilled_N
-        gamma = np.ones((self.stored_size + N,1))
+        gamma = np.ones((self.stored_size + N,1),dtype=self.gamma_buffer.dtype)
         gamma[:self.stored_size] -= self.buffer["done"][:self.stored_size]
         gamma[self.stored_size:] -= self._extract(kwargs,"done")
         gamma *= self.Nstep_gamma
