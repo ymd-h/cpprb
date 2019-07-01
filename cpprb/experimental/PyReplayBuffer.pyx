@@ -224,7 +224,7 @@ cdef class NstepBuffer:
         gamma = np.ones((self.stored_size + N,1))
         gamma[:self.stored_size] -= self.buffer["done"][:self.stored_size]
         gamma[self.stored_size:] -= self._extract(kwargs,"done")
-        gamma *= self.gamma
+        gamma *= self.Nstep_gamma
         if self.Nstep_rew is not None:
             for name in self.Nstep_rew:
                 stored_b = self.buffer[name]
