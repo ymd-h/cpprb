@@ -240,7 +240,7 @@ cdef class NstepBuffer:
                     copy_ext[ext_begin:] *= gamma[stored_begin:i+N]
                     ext_b[stored_begin:i+N] += copy_ext[ext_begin:]
 
-                self._roll(stored_b,b,end,NisBigger,kwargs,name,add_N)
+                self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
 
         for name, stored_b in self.buffer.items():
             if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
