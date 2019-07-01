@@ -283,7 +283,9 @@ cdef class NstepBuffer:
         return kwargs
 
     cdef _extract(self,kwargs,name):
-        return np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+        return np.reshape(np.array(kwargs[name],copy=False,ndmin=2,
+                                   dtype=self.env_dict[name].get("dtype",
+                                                                 self.default_dtype)),
                           self.env_dict[name]["add_shape"])
 
     cdef void _roll(self,stored_b,ext_b,
