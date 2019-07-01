@@ -218,7 +218,9 @@ cdef class NstepBuffer:
         # Nstep reward must be calculated before "done" filling
         cdef ssize_t i
         cdef ssize_t stored_begin
+        cdef ssize_t stored_end
         cdef ssize_t ext_begin
+        cdef ssize_t spilled_N
         gamma = np.ones((end,1))
         gamma[:self.stored_size] -= self.buffer["done"]
         gamma[self.stored_size:] -= self._extract(kwargs,"done")
@@ -236,9 +238,15 @@ cdef class NstepBuffer:
                 for i in range(self.stored_size-1,
                                self.stored_size-self.Nstep_size,-1):
                     stored_begin = max(i,0)
+                    stored_end = i+N
                     ext_begin = max(-i,0)
-                    copy_ext[ext_begin:] *= gamma[stored_begin:i+N]
-                    stored_b[stored_begin:i+N] += copy_ext[ext_begin:]
+                    copy_ext[ext_begin:] *= gamma[stored_begin:stored_end]
+                    if stored_end <= self.buffer_size:
+                        stored_b[stored_begin:stored_end] += copy_ext[ext_begin:]
+                    else:
+                        spilled_N = self.buffer_size - stored_end
+                        stored_b[stored_begin:] += copy_ext[ext_begin:-spilled_N]
+                        ext_b[:spilled_N] += copy_ext[-spilled_N:]
 
                 self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
                 kwargs[name] = ext_b
