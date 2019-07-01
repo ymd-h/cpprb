@@ -242,6 +242,8 @@ cdef class NstepBuffer:
         gamma[self.stored_size:] -= self._extract(kwargs,"done")
         gamma *= self.Nstep_gamma
         if self.Nstep_rew is not None:
+            max_slide = min(self.Nstep_size - self.stored_size,N)
+            max_slide *= -1
             for name in self.Nstep_rew:
                 stored_b = self.buffer[name]
                 ext_b = self._extract(kwargs,name)
@@ -251,8 +253,7 @@ cdef class NstepBuffer:
                     stored_b[self.stored_size:] = ext_b[:diff_N]
                     ext_b = ext_b[diff_N:]
 
-                for i in range(self.stored_size-1,
-                               self.stored_size-self.Nstep_size,-1):
+                for i in range(self.stored_size-1,max_slide,-1):
                     stored_begin = max(i,0)
                     stored_end = i+N
                     ext_begin = max(-i,0)
