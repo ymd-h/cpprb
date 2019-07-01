@@ -222,7 +222,7 @@ cdef class NstepBuffer:
         cdef ssize_t ext_begin
         cdef ssize_t spilled_N
         gamma = np.ones((end,1))
-        gamma[:self.stored_size] -= self.buffer["done"]
+        gamma[:self.stored_size] -= self.buffer["done"][:self.stored_size]
         gamma[self.stored_size:] -= self._extract(kwargs,"done")
         gamma *= self.gamma
         if self.Nstep_rew is not None:
