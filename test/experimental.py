@@ -422,6 +422,21 @@ class TestNstepBuffer(unittest.TestCase):
                 np.testing.assert_allclose(nb.add(rew=1,done=0)["rew"],
                                            1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5)
 
+    def test_rew_with_done(self):
+        nb = NstepBuffer({"rew": {}, "done": {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        self.assertIs(nb.add(rew=1,done=0),None)
+        self.assertIs(nb.add(rew=1,done=1),None)
+        self.assertIs(nb.add(rew=1,done=0),None)
+
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["rew"],
+                                   1 + 0.5)
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["rew"],
+                                   1)
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["rew"],
+                                   1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5)
+
 
 if __name__ == '__main__':
     unittest.main()
