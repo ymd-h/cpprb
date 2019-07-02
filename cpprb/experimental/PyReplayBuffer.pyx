@@ -262,7 +262,7 @@ cdef class NstepBuffer:
                     if stored_end <= self.buffer_size:
                         stored_b[stored_begin:stored_end] += copy_ext[ext_begin:]
                     else:
-                        spilled_N = self.buffer_size - stored_end
+                        spilled_N = stored_end - self.buffer_size
                         stored_b[stored_begin:] += copy_ext[ext_begin:-spilled_N]
                         ext_b[:spilled_N] += copy_ext[-spilled_N:]
 
