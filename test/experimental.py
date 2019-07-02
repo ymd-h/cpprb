@@ -448,6 +448,15 @@ class TestNstepBuffer(unittest.TestCase):
                                    np.array((1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5),
                                             dtype=np.float32))
 
+    def test_rew_large_step_add(self):
+        nb = NstepBuffer({'rew': {}, 'done': {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        np.testing.assert_allclose(nb.add(rew=(1,1,1,1,1),
+                                          done=(0,0,0,0,0))['rew'],
+                                   np.array((1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5,
+                                             1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5),
+                                            dtype=np.float32).reshape(-1,1))
 
 if __name__ == '__main__':
     unittest.main()
