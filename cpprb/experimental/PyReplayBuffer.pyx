@@ -223,9 +223,10 @@ cdef class NstepBuffer:
 
                     for i in range(self.stored_size-1,max_slide,-1):
                         stored_begin = max(i,0)
+                        stored_end = i+N
                         ext_begin = max(-i,0)
-                        ext_b[ext_begin:] *= gamma[stored_begin:i+N]
-                        self.buffer[name][stored_begin:i+N] += ext_b[ext_begin:]
+                        ext_b[ext_begin:] *= gamma[stored_begin:stored_end]
+                        self.buffer[name][stored_begin:stored_end] +=ext_b[ext_begin:]
 
             self.stored_size = end
             return None
