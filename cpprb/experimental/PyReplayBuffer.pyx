@@ -324,6 +324,8 @@ cdef class NstepBuffer:
         kwargs[name] = ext_b[:add_N]
 
     cpdef void clear(self):
+        """Clear the bufer.
+        """
         self.stored_size = 0
 
     cpdef on_episode_end(self):
