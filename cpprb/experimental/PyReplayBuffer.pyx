@@ -128,7 +128,6 @@ cdef class NstepBuffer:
     cdef float Nstep_gamma
     cdef Nstep_rew
     cdef Nstep_next
-    cdef gamma_buffer
     cdef env_dict
     cdef stack_compress
     cdef StepChecker size_check
@@ -150,8 +149,6 @@ cdef class NstepBuffer:
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
                                   default_dtype = self.default_dtype)
-        self.gamma_buffer = np.zeros(self.buffer_size,dtype=default_dtype)
-
         self.size_check = StepChecker(self.env_dict)
 
     def __init__(self,env_dict=None,Nstep=None,*,
@@ -212,7 +209,6 @@ cdef class NstepBuffer:
 
             # Nstep reward must be calculated after "done" filling
             gamma = (1.0 - self.buffer["done"][:end]) * self.Nstep_gamma
-            self.gamma_buffer[self.stored_size:end] = 1.0
 
             if self.Nstep_rew is not None:
                 max_slide = min(self.Nstep_size - self.stored_size,N)
@@ -238,7 +234,7 @@ cdef class NstepBuffer:
 
         # Nstep reward must be calculated before "done" filling
         cdef ssize_t spilled_N
-        gamma = np.ones((self.stored_size + N,1),dtype=self.gamma_buffer.dtype)
+        gamma = np.ones((self.stored_size + N,1),dtype=np.single)
         gamma[:self.stored_size] -= self.buffer["done"][:self.stored_size]
         gamma[self.stored_size:] -= self._extract(kwargs,"done")
         gamma *= self.Nstep_gamma
