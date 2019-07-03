@@ -326,7 +326,7 @@ cdef class NstepBuffer:
         done = kwargs["done"]
         kwargs["discount"] = np.where(done,1,self.Nstep_gamma)
 
-        for i in range(1,min(self.buffer_size,add_N+1)):
+        for i in range(1,self.buffer_size):
             done[:-i] += kwargs["done"][i:]
             kwargs["discount"][done == 0] *= self.Nstep_gamma
 
