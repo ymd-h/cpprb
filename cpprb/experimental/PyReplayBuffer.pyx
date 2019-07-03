@@ -173,6 +173,11 @@ cdef class NstepBuffer:
             compress memory of specified stacked values.
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
+
+        Notes
+        -----
+        Currently, memory compression features (`stack_compress` and `next_of`) are
+        not supported yet. (Fall back to usual storing)
         """
         pass
 
