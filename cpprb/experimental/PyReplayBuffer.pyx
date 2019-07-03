@@ -136,7 +136,7 @@ cdef class NstepBuffer:
                   stack_compress = None,default_dtype = None):
         self.env_dict = env_dict.copy() if env_dict else {}
         self.stored_size = 0
-        self.stack_compress = None
+        self.stack_compress = None # stack_compress is not support yet.
         self.default_dtype = default_dtype or np.single
 
         self.Nstep_size = Nstep["size"]
