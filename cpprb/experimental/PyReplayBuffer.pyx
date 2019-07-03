@@ -218,7 +218,7 @@ cdef class NstepBuffer:
                 max_slide = min(self.Nstep_size - self.stored_size,N)
                 max_slide *= -1
                 for name in self.Nstep_rew:
-                    ext_b = self._extract(kwargs,name)[:N].copy()
+                    ext_b = self._extract(kwargs,name).copy()
                     self.buffer[name][self.stored_size:end] = ext_b
 
                     for i in range(self.stored_size-1,max_slide,-1):
