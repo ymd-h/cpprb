@@ -319,6 +319,9 @@ cdef class NstepBuffer:
             # buffer: ZZZZYYY, add: XXX
         kwargs[name] = ext_b[:add_N]
 
+    cpdef void clear(self):
+        self.stored_size = 0
+
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
     """Replay Buffer class to store environments and to sample them randomly.
