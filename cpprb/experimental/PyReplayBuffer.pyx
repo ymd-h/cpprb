@@ -372,7 +372,8 @@ cdef class ReplayBuffer:
     cdef StepChecker size_check
 
     def __cinit__(self,size,env_dict=None,*,
-                  next_of=None,stack_compress=None,default_dtype=None,**kwargs):
+                  next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
+                  **kwargs):
         self.env_dict = env_dict or {}
         self.buffer_size = size
         self.stored_size = 0
@@ -399,7 +400,8 @@ cdef class ReplayBuffer:
                 self.next_[name] = self.buffer[name][0].copy()
 
     def __init__(self,size,env_dict=None,*,
-                 next_of=None,stack_compress=None,default_dtype=None,**kwargs):
+                 next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
+                 **kwargs):
         """Initialize ReplayBuffer
 
         Parameters
