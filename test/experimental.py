@@ -487,6 +487,26 @@ class TestNstepBuffer(unittest.TestCase):
         np.testing.assert_allclose(nb.add(rew=1,done=0)["discount"],
                                    0.5*0.5*0.5)
 
+    def test_gamma_multi_step(self):
+        nb = NstepBuffer({'rew': {}, 'done': {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        self.assertIs(nb.add(rew=(1,1),done=(0,0)),None)
+
+        np.testing.assert_allclose(nb.add(rew=(1,1),
+                                          done=(0,0))['discount'],
+                                   np.array((0.5*0.5*0.5),
+                                            dtype=np.float32))
+
+    def test_gamma_large_step_add(self):
+        nb = NstepBuffer({'rew': {}, 'done': {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        np.testing.assert_allclose(nb.add(rew=(1,1,1,1,1),
+                                          done=(0,0,0,0,0))['discount'],
+                                   np.array((0.5*0.5*0.5,
+                                             0.5*0.5*0.5),
+                                            dtype=np.float32).reshape(-1,1))
 
 if __name__ == '__main__':
     unittest.main()
