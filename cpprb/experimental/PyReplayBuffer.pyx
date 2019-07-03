@@ -322,6 +322,17 @@ cdef class NstepBuffer:
     cpdef void clear(self):
         self.stored_size = 0
 
+    cpdef on_episode_end(self):
+        kwargs = self.buffer.copy()
+        done = kwargs["done"]
+        kwargs["discount"] = np.where(done,1,self.Nstep_gamma)
+
+        for i in range(1,min(self.buffer_size,add_N+1)):
+            done[:-i] += kwargs["done"][i:]
+            kwargs["discount"][done == 0] *= self.Nstep_gamma
+
+        return kwargs
+
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
     """Replay Buffer class to store environments and to sample them randomly.
