@@ -339,6 +339,7 @@ cdef class NstepBuffer:
             done[:-i] += kwargs["done"][i:]
             kwargs["discount"][done == 0] *= self.Nstep_gamma
 
+        self.clear()
         return kwargs
 
 @cython.embedsignature(True)
