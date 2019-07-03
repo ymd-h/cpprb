@@ -139,6 +139,11 @@ cdef class NstepBuffer:
         self.stack_compress = None # stack_compress is not support yet.
         self.default_dtype = default_dtype or np.single
 
+        if "next_of" in self.env_dict: # next_of is not support yet.
+            for name in np.array(self.env_dict["next_of"],copy=False,ndmin=1):
+                self.env_dict[f"next_{name}"] = self.env_dict[name]
+            del self.env_dict["next_of"]
+
         self.Nstep_size = Nstep["size"]
         self.Nstep_gamma = Nstep.get("gamma",0.99)
         self.Nstep_rew = find_array(Nstep,"rew")
