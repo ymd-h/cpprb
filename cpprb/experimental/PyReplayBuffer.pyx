@@ -329,6 +329,8 @@ cdef class NstepBuffer:
         self.stored_size = 0
 
     cpdef on_episode_end(self):
+        """ Terminate episode.
+        """
         kwargs = self.buffer.copy()
         done = kwargs["done"]
         kwargs["discount"] = np.where(done,1,self.Nstep_gamma)
