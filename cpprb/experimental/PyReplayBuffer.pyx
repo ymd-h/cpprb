@@ -134,7 +134,7 @@ cdef class NstepBuffer:
 
     def __cinit__(self,env_dict=None,Nstep=None,*,
                   stack_compress = None,default_dtype = None):
-        self.env_dict = env_dict or {}
+        self.env_dict = env_dict.copy() if env_dict else {}
         self.stored_size = 0
         self.stack_compress = stack_compress and np.array(stack_compress,
                                                           ndmin=1,copy=False)
