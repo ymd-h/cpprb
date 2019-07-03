@@ -284,6 +284,19 @@ cdef class NstepBuffer:
 
                 self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
 
+        done = kwargs["done"]
+        kwargs["discount"] = np.ones((add_N,1),dtype=np.single)
+
+        for i in range(1,self.Nstep_size):
+            if i <= add_N:
+                done[:-i] += kwargs["done"][i:]
+                done[-i:] += self.buffer["done"][:i]
+            else:
+                done += self.buffer["done"][i-add_N:i]
+
+            kwargs["discount"][done == 0] *= self.Nstep_gamma
+
+
         self.stored_size = self.buffer_size
         return kwargs
 
