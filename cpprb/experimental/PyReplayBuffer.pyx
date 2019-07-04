@@ -133,14 +133,14 @@ cdef class NstepBuffer:
     cdef StepChecker size_check
 
     def __cinit__(self,env_dict=None,Nstep=None,*,
-                  stack_compress = None,default_dtype = None):
+                  stack_compress = None,default_dtype = None,next_of = None):
         self.env_dict = env_dict.copy() if env_dict else {}
         self.stored_size = 0
         self.stack_compress = None # stack_compress is not support yet.
         self.default_dtype = default_dtype or np.single
 
-        if "next_of" in self.env_dict: # next_of is not support yet.
-            for name in np.array(self.env_dict["next_of"],copy=False,ndmin=1):
+        if next_of is not None: # next_of is not support yet.
+            for name in np.array(next_of,copy=False,ndmin=1):
                 self.env_dict[f"next_{name}"] = self.env_dict[name]
             del self.env_dict["next_of"]
 
@@ -156,7 +156,7 @@ cdef class NstepBuffer:
         self.size_check = StepChecker(self.env_dict)
 
     def __init__(self,env_dict=None,Nstep=None,*,
-                 stack_compress = None,default_dtype = None):
+                 stack_compress = None,default_dtype = None, next_of = None):
         """Initialize NstepBuffer class.
 
         Parameters
@@ -173,6 +173,9 @@ cdef class NstepBuffer:
             compress memory of specified stacked values.
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
+        next_of : str or array like of str, optional
+            next item of specified environemt variables (eg. next_obs for next) are
+            also sampled without duplicated values
 
         Notes
         -----
