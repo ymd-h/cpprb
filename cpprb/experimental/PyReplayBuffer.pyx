@@ -459,6 +459,11 @@ cdef class ReplayBuffer:
             When kwargs don't include all environment variables defined in __cinit__
             When environment variables don't include "done"
         """
+        if self.NstepBuffer is not None:
+            kwargs = self.NstepBuffer.add(kwargs)
+            if kwargs is None:
+                return
+
         cdef size_t N = self.size_check.step_size(kwargs)
 
         cdef size_t index = self.index
