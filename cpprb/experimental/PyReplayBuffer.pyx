@@ -373,6 +373,7 @@ cdef class ReplayBuffer:
     cdef cache
     cdef default_dtype
     cdef StepChecker size_check
+    cdef NstepBuffer nstep
 
     def __cinit__(self,size,env_dict=None,*,
                   next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
@@ -386,6 +387,13 @@ cdef class ReplayBuffer:
         self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
 
         self.default_dtype = default_dtype or np.single
+
+        if Nstep is not None:
+            nstep = NstepBuffer(self.env_dict,self.Nstep,
+                                stack_compress = self.stack_compress,
+                                next_of = self.next_of,
+                                default_dtype = self.default_dtype)
+            self.env_dict["discount"] = {"dtype": np.single}
 
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
