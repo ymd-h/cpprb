@@ -673,7 +673,11 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         int
             the stored first index
         """
-        cdef size_t index = super().add(**kwargs)
+        cdef maybe_index = super().add(**kwargs)
+        if maybe_index is None:
+            return
+
+        cdef size_t index = maybe_index
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
         cdef float [:] ps
 
