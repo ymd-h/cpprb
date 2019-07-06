@@ -508,5 +508,15 @@ class TestNstepBuffer(unittest.TestCase):
                                              0.5*0.5*0.5),
                                             dtype=np.float32).reshape(-1,1))
 
+class TestNstepReplayBuffer(unittest.TestCase):
+    def test_nstep(self):
+        rb = ReplayBuffer(32,{'rew': {}, 'done': {}},
+                          Nstep={"size": 4, "rew": "rew"})
+
+        self.assertIs(rb.add(rew=1,done=0),None)
+        self.assertIs(rb.add(rew=1,done=0),None)
+        self.assertIs(rb.add(rew=1,done=0),None)
+        self.assertEqual(rb.add(rew=1,done=0),0)
+
 if __name__ == '__main__':
     unittest.main()
