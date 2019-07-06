@@ -389,10 +389,10 @@ cdef class ReplayBuffer:
         self.default_dtype = default_dtype or np.single
 
         if Nstep is not None:
-            nstep = NstepBuffer(self.env_dict,self.Nstep,
-                                stack_compress = self.stack_compress,
-                                next_of = self.next_of,
-                                default_dtype = self.default_dtype)
+            self.nstep = NstepBuffer(self.env_dict,self.Nstep,
+                                     stack_compress = self.stack_compress,
+                                     next_of = self.next_of,
+                                     default_dtype = self.default_dtype)
             self.env_dict["discount"] = {"dtype": np.single}
 
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
@@ -460,8 +460,8 @@ cdef class ReplayBuffer:
             When kwargs don't include all environment variables defined in __cinit__
             When environment variables don't include "done"
         """
-        if self.NstepBuffer is not None:
-            kwargs = self.NstepBuffer.add(kwargs)
+        if self.nstep is not None:
+            kwargs = self.nstep.add(kwargs)
             if kwargs is None:
                 return
 
@@ -566,8 +566,8 @@ cdef class ReplayBuffer:
         self.index = 0
         self.stored_size = 0
 
-        if self.NstepBuffer is not None:
-            self.NstepBuffer.clear()
+        if self.nstep is not None:
+            self.nstep.clear()
 
     cpdef size_t get_stored_size(self):
         """Get stored size
