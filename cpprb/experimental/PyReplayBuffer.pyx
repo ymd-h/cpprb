@@ -623,6 +623,11 @@ cdef class ReplayBuffer:
         This is necessary for stack compression (stack_compress) mode or next
         compression (next_of) mode.
         """
+        if self.use_nstep:
+            self.use_nstep = False
+            self.add(self.nstep.on_episode_end())
+            self.use_nstep = True
+
         if self.cache is not None:
             self.add_cache()
 
