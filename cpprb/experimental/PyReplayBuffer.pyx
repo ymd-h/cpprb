@@ -450,8 +450,9 @@ cdef class ReplayBuffer:
 
         Returns
         -------
-        int
-            the stored first index
+        : int or None
+            the stored first index. If all values store into NstepBuffer and
+            no values store into main buffer, return None.
 
         Raises
         ------
@@ -670,8 +671,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         Returns
         -------
-        int
-            the stored first index
+        : int or None
+            the stored first index. If all values store into NstepBuffer and
+            no values store into main buffer, return None.
         """
         cdef maybe_index = super().add(**kwargs)
         if maybe_index is None:
