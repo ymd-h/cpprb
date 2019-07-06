@@ -374,6 +374,7 @@ cdef class ReplayBuffer:
     cdef default_dtype
     cdef StepChecker size_check
     cdef NstepBuffer nstep
+    cdef bool use_nstep
 
     def __cinit__(self,size,env_dict=None,*,
                   next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
@@ -388,7 +389,8 @@ cdef class ReplayBuffer:
 
         self.default_dtype = default_dtype or np.single
 
-        if Nstep is not None:
+        self.use_nstep = Nstep
+        if use_nstep:
             self.nstep = NstepBuffer(self.env_dict,self.Nstep,
                                      stack_compress = self.stack_compress,
                                      next_of = self.next_of,
@@ -460,7 +462,7 @@ cdef class ReplayBuffer:
             When kwargs don't include all environment variables defined in __cinit__
             When environment variables don't include "done"
         """
-        if self.nstep is not None:
+        if self.use_nstep:
             kwargs = self.nstep.add(kwargs)
             if kwargs is None:
                 return
@@ -566,7 +568,7 @@ cdef class ReplayBuffer:
         self.index = 0
         self.stored_size = 0
 
-        if self.nstep is not None:
+        if self.use_nstep:
             self.nstep.clear()
 
     cpdef size_t get_stored_size(self):
