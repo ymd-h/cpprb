@@ -463,7 +463,7 @@ cdef class ReplayBuffer:
             When environment variables don't include "done"
         """
         if self.use_nstep:
-            kwargs = self.nstep.add(kwargs)
+            kwargs = self.nstep.add(**kwargs)
             if kwargs is None:
                 return
 
