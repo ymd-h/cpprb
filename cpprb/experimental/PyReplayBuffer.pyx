@@ -565,6 +565,9 @@ cdef class ReplayBuffer:
         self.index = 0
         self.stored_size = 0
 
+        if self.NstepBuffer is not None:
+            self.NstepBuffer.clear()
+
     cpdef size_t get_stored_size(self):
         """Get stored size
 
