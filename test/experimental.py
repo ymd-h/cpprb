@@ -518,5 +518,19 @@ class TestNstepReplayBuffer(unittest.TestCase):
         self.assertIs(rb.add(rew=1,done=0),None)
         self.assertEqual(rb.add(rew=1,done=0),0)
 
+    def test_nstep_with_memory_compress(self):
+        rb = ReplayBuffer(32,{"obs":{"shape": (16,16)}, 'rew': {}, 'done': {}},
+                          next_of = "obs", stack_compress = "obs",
+                          Nstep={"size": 4, "rew": "rew"})
+
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0),None)
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0),None)
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0),None)
+        self.assertEqual(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                                rew=1,done=0),0)
+
 if __name__ == '__main__':
     unittest.main()
