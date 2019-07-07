@@ -641,14 +641,19 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     cdef VectorSize_t indexes
     cdef float alpha
     cdef CppPrioritizedSampler[float]* per
+    cdef NstepBuffer priorities_nstep
 
-    def __cinit__(self,size,env_dict=None,*,alpha=0.6,**kwrags):
+    def __cinit__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,**kwrags):
         self.alpha = alpha
         self.per = new CppPrioritizedSampler[float](size,alpha)
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
-    def __init__(self,size,env_dict=None,*,alpha=0.6,**kwargs):
+        if self.use_nstep:
+            self.priorities_nstep = NstepBuffer({"priorities": {"dtype": np.single}},
+                                                {"size": Nstep["size"]})
+
+    def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,**kwargs):
         """Initialize PrioritizedReplayBuffer
 
         Parameters
@@ -682,12 +687,20 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             the stored first index. If all values store into NstepBuffer and
             no values store into main buffer, return None.
         """
+        cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
         cdef maybe_index = super().add(**kwargs)
-        if maybe_index is None:
-            return
+
+        if self.use_nstep:
+            if priorities is None:
+                priorities = np.full((N),self.get_max_priority(),dtype=np.single)
+
+            priorities = self.priorities_nstep.add(priorities=priorities)
+            if maybe_index is None:
+                return
+            else:
+                N = priorities.shape[0]
 
         cdef size_t index = maybe_index
-        cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
         cdef float [:] ps
 
         if priorities is not None:
