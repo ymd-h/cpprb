@@ -660,7 +660,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         self.indexes = VectorSize_t()
 
         if self.use_nstep:
-            self.priorities_nstep = NstepBuffer({"priorities": {"dtype": np.single}},
+            self.priorities_nstep = NstepBuffer({"priorities": {"dtype": np.single},
+                                                 "done": {}},
                                                 {"size": Nstep["size"]})
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,**kwargs):
@@ -698,23 +699,27 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             no values store into main buffer, return None.
         """
         cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
-        cdef maybe_index = super().add(**kwargs)
 
         if self.use_nstep:
             if priorities is None:
                 priorities = np.full((N),self.get_max_priority(),dtype=np.single)
 
-            priorities = self.priorities_nstep.add(priorities=priorities)
-            if maybe_index is None:
-                return
-            else:
-                N = priorities.shape[0]
+            priorities = self.priorities_nstep.add(priorities=priorities,
+                                                   done=np.array(kwargs["done"],
+                                                                 copy=True))
+            if priorities is not None:
+                priorities = priorities["priorities"]
 
+        cdef maybe_index = super().add(**kwargs)
+        if maybe_index is None:
+            return None
+
+        N = np.ravel(kwargs.get("done")).shape[0]
         cdef size_t index = maybe_index
         cdef float [:] ps
 
         if priorities is not None:
-            ps = np.array(priorities,copy=False,ndmin=1,dtype=np.single)
+            ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
             self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
         else:
             self.per.set_priorities(index,N,self.get_buffer_size())
