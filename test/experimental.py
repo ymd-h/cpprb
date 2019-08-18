@@ -6,6 +6,8 @@ from cpprb import ReplayBuffer as nowReplayBuffer
 from cpprb.experimental import ReplayBuffer,PrioritizedReplayBuffer
 from cpprb.experimental import create_buffer
 
+from cpprb.experimental.PyReplayBuffer import NstepBuffer
+
 class TestExperimentalReplayBuffer(unittest.TestCase):
     def test_buffer(self):
 
@@ -367,6 +369,196 @@ class TestIssue(unittest.TestCase):
 
         np.testing.assert_allclose(rb._encode_sample((0))["next_obs"][0],
                                    next_obs)
+
+class TestNstepBuffer(unittest.TestCase):
+    def test_single_add(self):
+        nb = NstepBuffer({'obs': {}, 'done': {}},{"size": 4})
+
+        self.assertIs(nb.add(obs=1,done=0),None)
+        self.assertIs(nb.add(obs=1,done=0),None)
+        self.assertIs(nb.add(obs=1,done=0),None)
+
+        np.testing.assert_allclose(nb.add(obs=1,done=0)['obs'],
+                                   np.array((1),dtype=np.float32))
+
+    def test_multi_add(self):
+        nb = NstepBuffer({'obs': {}, 'done': {}},{"size": 4})
+
+        self.assertIs(nb.add(obs=(1,1),done=(0,0)),None)
+
+        np.testing.assert_allclose(nb.add(obs=(1,1),
+                                          done=(0,0))['obs'],
+                                   np.array((1),dtype=np.float32))
+
+    def test_large_step_add(self):
+        nb = NstepBuffer({'obs': {}, 'done': {}},{"size": 4})
+
+        np.testing.assert_allclose(nb.add(obs=(1,1,1,1,1),
+                                          done=(0,0,0,0,0))['obs'],
+                                   np.array((1,1),dtype=np.float32).reshape(-1,1))
+
+    def test_next(self):
+        nb = NstepBuffer({'next_obs': {}, 'done': {}},{"size": 4, "next": "next_obs"})
+
+        self.assertIs(nb.add(next_obs=1,done=0),None)
+        self.assertIs(nb.add(next_obs=1,done=0),None)
+        self.assertIs(nb.add(next_obs=1,done=0),None)
+
+        for i in range(5):
+            with self.subTest(i=i):
+                np.testing.assert_allclose(nb.add(next_obs=(i),done=0)["next_obs"],
+                                           np.array(i,dtype=np.float32).reshape(-1,1))
+
+    def test_rew(self):
+        nb = NstepBuffer({"rew": {}, "done": {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        self.assertIs(nb.add(rew=1,done=0),None)
+        self.assertIs(nb.add(rew=1,done=0),None)
+        self.assertIs(nb.add(rew=1,done=0),None)
+
+        for i in range(5):
+            with self.subTest(i=i):
+                np.testing.assert_allclose(nb.add(rew=1,done=0)["rew"],
+                                           1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5)
+
+    def test_rew_with_done(self):
+        nb = NstepBuffer({"rew": {}, "done": {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        self.assertIs(nb.add(rew=1,done=0),None)
+        self.assertIs(nb.add(rew=1,done=1),None)
+        self.assertIs(nb.add(rew=1,done=0),None)
+
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["rew"],
+                                   1 + 0.5)
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["rew"],
+                                   1)
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["rew"],
+                                   1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5)
+
+    def test_rew_multi_step(self):
+        nb = NstepBuffer({'rew': {}, 'done': {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        self.assertIs(nb.add(rew=(1,1),done=(0,0)),None)
+
+        np.testing.assert_allclose(nb.add(rew=(1,1),
+                                          done=(0,0))['rew'],
+                                   np.array((1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5),
+                                            dtype=np.float32))
+
+    def test_rew_large_step_add(self):
+        nb = NstepBuffer({'rew': {}, 'done': {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        np.testing.assert_allclose(nb.add(rew=(1,1,1,1,1),
+                                          done=(0,0,0,0,0))['rew'],
+                                   np.array((1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5,
+                                             1 + 0.5 + 0.5*0.5 + 0.5*0.5*0.5),
+                                            dtype=np.float32).reshape(-1,1))
+
+
+    def test_gamma(self):
+        nb = NstepBuffer({'rew': {}, 'done': {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        self.assertIs(nb.add(rew=1,done=0),None)
+        self.assertIs(nb.add(rew=1,done=0),None)
+        self.assertIs(nb.add(rew=1,done=0),None)
+
+        for i in range(5):
+            with self.subTest(i=i):
+                np.testing.assert_allclose(nb.add(rew=1,done=0)["discount"],
+                                           0.5*0.5*0.5)
+
+    def test_gamma_with_done(self):
+        nb = NstepBuffer({"rew": {}, "done": {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        self.assertIs(nb.add(rew=1,done=0),None)
+        self.assertIs(nb.add(rew=1,done=1),None)
+        self.assertIs(nb.add(rew=1,done=0),None)
+
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["discount"],
+                                   0.5)
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["discount"],
+                                   1)
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["discount"],
+                                   0.5*0.5*0.5)
+
+    def test_gamma_multi_step(self):
+        nb = NstepBuffer({'rew': {}, 'done': {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        self.assertIs(nb.add(rew=(1,1),done=(0,0)),None)
+
+        np.testing.assert_allclose(nb.add(rew=(1,1),
+                                          done=(0,0))['discount'],
+                                   np.array((0.5*0.5*0.5),
+                                            dtype=np.float32))
+
+    def test_gamma_large_step_add(self):
+        nb = NstepBuffer({'rew': {}, 'done': {}},
+                         {"size": 4, "rew": "rew", "gamma": 0.5})
+
+        np.testing.assert_allclose(nb.add(rew=(1,1,1,1,1),
+                                          done=(0,0,0,0,0))['discount'],
+                                   np.array((0.5*0.5*0.5,
+                                             0.5*0.5*0.5),
+                                            dtype=np.float32).reshape(-1,1))
+
+class TestNstepReplayBuffer(unittest.TestCase):
+    def test_nstep(self):
+        rb = ReplayBuffer(32,{'rew': {}, 'done': {}},
+                          Nstep={"size": 4, "rew": "rew"})
+
+        self.assertIs(rb.add(rew=1,done=0),None)
+        self.assertIs(rb.add(rew=1,done=0),None)
+        self.assertIs(rb.add(rew=1,done=0),None)
+        self.assertEqual(rb.add(rew=1,done=0),0)
+
+    def test_nstep_with_memory_compress(self):
+        rb = ReplayBuffer(32,{"obs":{"shape": (16,16)}, 'rew': {}, 'done': {}},
+                          next_of = "obs", stack_compress = "obs",
+                          Nstep={"size": 4, "rew": "rew"})
+
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0),None)
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0),None)
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0),None)
+        self.assertEqual(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                                rew=1,done=0),0)
+
+    def test_prioritized_nstep(self):
+        rb = PrioritizedReplayBuffer(32,{"obs":{"shape": (16,16)},
+                                         'rew': {}, 'done': {}},
+                                     next_of = "obs", stack_compress = "obs",
+                                     Nstep={"size": 4, "rew": "rew"})
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0),None)
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0),None)
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0),None)
+        self.assertEqual(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                                rew=1,done=0),0)
+
+    def test_prioritized_nstep_with_priority(self):
+        rb = PrioritizedReplayBuffer(32,{"obs":{"shape": (16,16)},
+                                         'rew': {}, 'done': {}},
+                                     next_of = "obs", stack_compress = "obs",
+                                     Nstep={"size": 4, "rew": "rew"})
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0,priorities=1.0),None)
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0,priorities=1.0),None)
+        self.assertIs(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                             rew=1,done=0,priorities=1.0),None)
+        self.assertEqual(rb.add(obs=(np.ones((16,16))),next_obs=(np.ones((16,16))),
+                                rew=1,done=0,priorities=1.0),0)
 
 if __name__ == '__main__':
     unittest.main()
