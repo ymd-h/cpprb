@@ -350,6 +350,16 @@ cdef class NstepBuffer:
         self.clear()
         return kwargs
 
+    cpdef size_t get_Nstep_size(self):
+        """Get Nstep size
+
+        Returns
+        -------
+        Nstep_size : size_t
+            Nstep size
+        """
+        return self.Nstep_size
+
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
     """Replay Buffer class to store environments and to sample them randomly.
