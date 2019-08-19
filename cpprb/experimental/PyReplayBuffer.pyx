@@ -782,6 +782,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
+        if self.use_nstep:
+            self.priorities_nstep.clear()
 
     cpdef float get_max_priority(self):
         """Get the max priority of stored priorities
