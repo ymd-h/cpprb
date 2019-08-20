@@ -635,7 +635,7 @@ cdef class ReplayBuffer:
         """
         if self.use_nstep:
             self.use_nstep = False
-            self.add(self.nstep.on_episode_end())
+            self.add(**self.nstep.on_episode_end())
             self.use_nstep = True
 
         if self.cache is not None:
@@ -782,6 +782,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
+        if self.use_nstep:
+            self.priorities_nstep.clear()
 
     cpdef float get_max_priority(self):
         """Get the max priority of stored priorities
@@ -792,6 +794,23 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             the max priority of stored priorities
         """
         return self.per.get_max_priority()
+
+    cpdef void on_episode_end(self):
+        """Call on episode end
+
+        Notes
+        -----
+        This is necessary for stack compression (stack_compress) mode or next
+        compression (next_of) mode.
+        """
+        if self.use_nstep:
+            self.use_nstep = False
+            self.add(**self.nstep.on_episode_end(),
+                     **self.priorities_nstep.on_episode_end())
+            self.use_nstep = True
+
+        if self.cache is not None:
+            self.add_cache()
 
 def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     """Create specified version of replay buffer
