@@ -521,6 +521,7 @@ namespace ymd {
     SegmentTree<Priority,MultiThread> sum;
     SegmentTree<Priority,MultiThread> min;
     std::mt19937 g;
+    Priority eps;
 
     void sample_proportional(std::size_t batch_size,
 			     std::vector<std::size_t>& indexes,
@@ -566,7 +567,7 @@ namespace ymd {
     }
 
     void set_priority(std::size_t next_index,Priority p){
-      auto v = std::pow(p,alpha);
+      auto v = std::pow(p+eps,alpha);
       sum.set(next_index,v);
       min.set(next_index,v);
     }
@@ -578,7 +579,8 @@ namespace ymd {
 			  bool* sum_anychanged = nullptr,bool* sum_changed = nullptr,
 			  Priority* min_ptr = nullptr,
 			  bool* min_anychanged = nullptr,bool* min_changed = nullptr,
-			  bool initialize = true)
+			  bool initialize = true,
+			  Priority eps = Priority{1e-4})
       : alpha{alpha},
 	max_priority{(typename ThreadSafePriority_t::type*)max_p},
 	max_priority_view{},
@@ -589,7 +591,8 @@ namespace ymd {
 	min{PowerOf2(buffer_size),[](Priority a,Priority b){ return  std::min(a,b); },
 	    std::numeric_limits<Priority>::max(),
 	    min_ptr,min_anychanged,min_changed,initialize},
-	g{std::random_device{}()}
+	g{std::random_device{}()},
+	eps{eps}
     {
       if(!max_priority){
 	max_priority = new typename ThreadSafePriority_t::type{};
@@ -644,14 +647,16 @@ namespace ymd {
 			std::size_t N,std::size_t buffer_size){
       ThreadSafePriority_t::store_max(max_priority, *std::max_element(p,p+N));
 
-      set_priorities(next_index,[=]() mutable { return std::pow(*(p++),alpha); },
+      set_priorities(next_index,
+		     [=]() mutable { return std::pow(eps + *(p++),alpha); },
 		     N,buffer_size);
     }
 
     void set_priorities(std::size_t next_index,
 			std::size_t N,std::size_t buffer_size){
       const auto v = std::pow(ThreadSafePriority_t::load(max_priority,
-							 std::memory_order_acquire),
+							 std::memory_order_acquire)
+			      + eps,
 			      alpha);
       set_priorities(next_index,[=](){ return v; },N,buffer_size);
     }
@@ -688,6 +693,10 @@ namespace ymd {
 
       update_priorities(indexes.data(),priorities.data(),
 			std::min(indexes.size(),priorities.size()));
+    }
+
+    void set_eps(Priority eps){
+      this->eps = eps;
     }
   };
 

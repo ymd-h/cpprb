@@ -653,9 +653,10 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     cdef CppPrioritizedSampler[float]* per
     cdef NstepBuffer priorities_nstep
 
-    def __cinit__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,**kwrags):
+    def __cinit__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,**kwrags):
         self.alpha = alpha
         self.per = new CppPrioritizedSampler[float](size,alpha)
+        self.per.set_eps(eps)
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
@@ -664,7 +665,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
                                                  "done": {}},
                                                 {"size": Nstep["size"]})
 
-    def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,**kwargs):
+    def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,**kwargs):
         """Initialize PrioritizedReplayBuffer
 
         Parameters
@@ -677,6 +678,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         alpha : float, optional
             the exponent of the priorities in stored whose default value is 0.6
+        eps : float, optional
+            small positive constant to ensure error-less state will be sampled,
+            whose default value is 1e-4.
         """
         pass
 
