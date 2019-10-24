@@ -694,6 +694,10 @@ namespace ymd {
       update_priorities(indexes.data(),priorities.data(),
 			std::min(indexes.size(),priorities.size()));
     }
+
+    void set_eps(Priority eps){
+      this->eps = eps;
+    }
   };
 
   template<typename Priority>
