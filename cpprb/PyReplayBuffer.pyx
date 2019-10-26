@@ -10,7 +10,8 @@ from cpprb.ReplayBuffer cimport *
 
 from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,
-                            VectorInt,VectorSize_t,VectorDouble,PointerDouble)
+                            VectorInt,VectorSize_t,
+                            VectorDouble,PointerDouble,VectorFloat)
 
 cdef double [::1] Cdouble(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
