@@ -2,14 +2,6 @@ import numpy as np
 import unittest, time
 from cpprb import *
 
-def timer(f,N_times,name,*args,**kwargs):
-    start = time.perf_counter()
-    for _ in range(N_times):
-        f(*args,**kwargs)
-    end = time.perf_counter()
-    print("{}: {} time execution".format(name,N_times))
-    print("{} s".format(end - start))
-
 class TestReplayBuffer(unittest.TestCase):
     """=== ReplayBuffer.py ==="""
     class_name = "ER"
@@ -200,14 +192,6 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
                                             alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
-
-        start = time.perf_counter()
-        for _ in range(cls.N_time):
-            cls.rb.sample(cls.batch_size,cls.beta)
-        end = time.perf_counter()
-        print("PER Sample {} time execution".format(cls.N_time))
-        print("{} s".format(end - start))
-
 
 class TestNstepBase:
     def test_discounts(self):
