@@ -383,3 +383,48 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
+
+def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = None):
+    """Create buffer from env_dict
+
+    Parameters
+    ----------
+    buffer_size : int
+        buffer size
+    env_dict : dict of dict
+        Specify environment values to be stored in buffer.
+    stack_compress : str or array like of str, optional
+        compress memory of specified stacked values.
+    default_dtype : numpy.dtype, optional
+        fallback dtype for not specified in `env_dict`. default is numpy.single
+
+    Returns
+    -------
+    buffer : dict of numpy.ndarray
+        buffer for environment specified by env_dict.
+    """
+    cdef buffer = {}
+    cdef bool compress_any = stack_compress
+    default_dtype = default_dtype or np.single
+    for name, defs in env_dict.items():
+        shape = np.insert(np.asarray(defs.get("shape",1)),0,buffer_size)
+
+        if compress_any and np.isin(name,
+                                    stack_compress,
+                                    assume_unique=True).any():
+            buffer_shape = np.insert(np.delete(shape,-1),1,shape[-1])
+            buffer_shape[0] += buffer_shape[1] - 1
+            buffer_shape[1] = 1
+            memory = np.zeros(buffer_shape,
+                              dtype=defs.get("dtype",default_dtype))
+            strides = np.append(np.delete(memory.strides,1),memory.strides[1])
+            buffer[name] = np.lib.stride_tricks.as_strided(memory,
+                                                           shape=shape,
+                                                           strides=strides)
+        else:
+            buffer[name] = np.zeros(shape,dtype=defs.get("dtype",default_dtype))
+
+        shape[0] = -1
+        defs["add_shape"] = shape
+    return buffer
+
