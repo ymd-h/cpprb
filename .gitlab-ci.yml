@@ -15,7 +15,7 @@ stages:
   - pypi_upload
 
 .job_template: &setup
-  image: &dev_image registry.gitlab.com/ymd_h/cpprb/build:latest
+  image: &dev_image registry.gitlab.com/ymd_h/cpprb_build:latest
   before_script:
     - g++ --version
     - python3 --version
@@ -26,7 +26,7 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - pip install $(echo dist/cpprb-*.whl)['all']
+    - pip3 install $(echo dist/cpprb-*.whl)['all']
   artifacts:
     paths:
       - .coverage.*
@@ -138,7 +138,7 @@ sphinx:
   stage: page_build
   environment: production
   script:
-    - pip install $(echo dist/cpprb-*.whl)['all']
+    - pip3 install $(echo dist/cpprb-*.whl)['all']
     - sphinx-apidoc -F -M -o sphinx cpprb
     - sphinx-build -b html sphinx public/api
   artifacts:
