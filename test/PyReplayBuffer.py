@@ -25,33 +25,33 @@ class TestReplayBuffer(unittest.TestCase):
     @classmethod
     def fill_ReplayBuffer(cls):
         for i in range(cls.N_add):
-            cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                       np.zeros(shape=(cls.act_dim)),
-                       0.5,
-                       np.ones(shape=(cls.obs_dim)),
-                       0)
+            cls.rb.add(obs=np.ones(shape=(cls.obs_dim)),
+                       act=np.zeros(shape=(cls.act_dim)),
+                       rew=0.5,
+                       next_obs=np.ones(shape=(cls.obs_dim)),
+                       done=0)
         else:
-            cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                       np.zeros(shape=(cls.act_dim)),
-                       0.5,
-                       np.ones(shape=(cls.obs_dim)),
-                       1)
+            cls.rb.add(obs=np.ones(shape=(cls.obs_dim)),
+                       act=np.zeros(shape=(cls.act_dim)),
+                       rew=0.5,
+                       next_obs=np.ones(shape=(cls.obs_dim)),
+                       done=1)
 
 
         cls.rb.clear()
 
         for i in range(cls.N_add):
-            cls.rb.add(np.ones(shape=(cls.add_dim,cls.obs_dim))*i,
-                       np.zeros(shape=(cls.add_dim,cls.act_dim)),
-                       np.ones((cls.add_dim)) * 0.5*i,
-                       np.ones(shape=(cls.add_dim,cls.obs_dim))*(i+1),
-                       np.zeros((cls.add_dim)))
+            cls.rb.add(obs=np.ones(shape=(cls.add_dim,cls.obs_dim))*i,
+                       act=np.zeros(shape=(cls.add_dim,cls.act_dim)),
+                       rew=np.ones((cls.add_dim)) * 0.5*i,
+                       next_obs=np.ones(shape=(cls.add_dim,cls.obs_dim))*(i+1),
+                       done=np.zeros((cls.add_dim)))
         else:
-            cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                       np.zeros(shape=(cls.act_dim)),
-                       0.5,
-                       np.ones(shape=(cls.obs_dim)),
-                       1)
+            cls.rb.add(obs=np.ones(shape=(cls.obs_dim)),
+                       act=np.zeros(shape=(cls.act_dim)),
+                       rew=0.5,
+                       next_obs=np.ones(shape=(cls.obs_dim)),
+                       done=1)
 
     @classmethod
     def setUpClass(cls):
@@ -104,26 +104,26 @@ class TestPrioritizedBase:
 
     def test_priority_add(self):
         for i in range(self.N_add):
-            self.rb2.add(np.ones(shape=(self.obs_dim))*i,
-                         np.zeros(shape=(self.act_dim)),
-                         0.5*i,
-                         np.ones(shape=(self.obs_dim))*(i+1),
-                         0.0,
-                         0.0 + 1e-6)
+            self.rb2.add(obs=np.ones(shape=(self.obs_dim))*i,
+                         act=np.zeros(shape=(self.act_dim)),
+                         rew=0.5*i,
+                         next_obs=np.ones(shape=(self.obs_dim))*(i+1),
+                         done=0.0,
+                         priorities=0.0 + 1e-6)
         for i in range(self.N_add):
-            self.rb2.add(np.ones(shape=(self.add_dim,self.obs_dim))*i,
-                         np.zeros(shape=(self.add_dim,self.act_dim)),
-                         np.ones((self.add_dim)) * 0.5*i,
-                         np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
-                         np.zeros(shape=(self.add_dim)),
-                         np.zeros(shape=(self.add_dim)))
+            self.rb2.add(obs=np.ones(shape=(self.add_dim,self.obs_dim))*i,
+                         act=np.zeros(shape=(self.add_dim,self.act_dim)),
+                         rew=np.ones((self.add_dim)) * 0.5*i,
+                         next_obs=np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
+                         done=np.zeros(shape=(self.add_dim)),
+                         priorities=np.zeros(shape=(self.add_dim)))
         else:
-            self.rb2.add(np.ones(shape=(self.obs_dim)),
-                         np.zeros(shape=(self.act_dim)),
-                         0.5,
-                         np.ones(shape=(self.obs_dim)),
-                         1,
-                         0.1)
+            self.rb2.add(obs=np.ones(shape=(self.obs_dim)),
+                         act=np.zeros(shape=(self.act_dim)),
+                         rew=0.5,
+                         next_obs=np.ones(shape=(self.obs_dim)),
+                         done=1,
+                         priorities=0.1)
 
         self.s2 = self.rb2.sample(self.batch_size)
         self._check_ndarray(self.s2['indexes'],1,(self.batch_size,),
@@ -141,19 +141,19 @@ class TestPrioritizedBase:
 
     def test_update_indexes(self):
         for i in range(self.N_add):
-            self.rb_ui.add(np.ones(shape=(self.add_dim,self.obs_dim))*i,
-                           np.zeros(shape=(self.add_dim,self.act_dim)),
-                           np.ones((self.add_dim)) * 0.5*i,
-                           np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
-                           np.zeros(shape=(self.add_dim)),
-                           np.zeros(shape=(self.add_dim)))
+            self.rb_ui.add(obs=np.ones(shape=(self.add_dim,self.obs_dim))*i,
+                           act=np.zeros(shape=(self.add_dim,self.act_dim)),
+                           rew=np.ones((self.add_dim)) * 0.5*i,
+                           next_obs=np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
+                           done=np.zeros(shape=(self.add_dim)),
+                           priorities=np.zeros(shape=(self.add_dim)))
         else:
-            self.rb_ui.add(np.ones(shape=(self.obs_dim)),
-                           np.zeros(shape=(self.act_dim)),
-                           0.5,
-                           np.ones(shape=(self.obs_dim)),
-                           1,
-                           0.1)
+            self.rb_ui.add(obs=np.ones(shape=(self.obs_dim)),
+                           act=np.zeros(shape=(self.act_dim)),
+                           rew=0.5,
+                           next_obs=np.ones(shape=(self.obs_dim)),
+                           done=1,
+                           priorities=0.1)
 
         for i,type in enumerate([np.byte,np.ubyte,
                                  np.short,np.ushort,
@@ -271,8 +271,11 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
     @classmethod
     def setUpClass(cls):
         cls.rb = SelectiveReplayBuffer(cls.buffer_size,
-                                       cls.obs_dim,
-                                       cls.act_dim,
+                                       {"obs": {"shape": cls.obs_dim},
+                                        "act": {"shape": cls.act_dim}.
+                                        "rew": {},
+                                        "next_obs": {"shape": cls.obs_dim},
+                                        "done": {}},
                                        Nepisodes=10)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
