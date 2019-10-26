@@ -277,53 +277,5 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
         delete_len = self.srb.delete_episode(2)
         self.assertEqual(self.srb.get_next_index(), old_index - delete_len)
 
-class TestProcessSharedReplayBuffer(TestReplayBuffer):
-    """=== ProcessSharedReplayBuffer ==="""
-    class_name = "PS-ER"
-
-    @classmethod
-    def setUpClass(cls):
-        cls.rb = ProcessSharedReplayBuffer(cls.buffer_size,
-                                           cls.obs_dim,
-                                           cls.act_dim)
-        cls.fill_ReplayBuffer()
-        cls.s = cls.rb.sample(cls.batch_size)
-
-class TestProcessSharedPrioritizedReplayBuffer(TestPrioritizedReplayBuffer):
-    """=== ProcessSharedPrioritizedReplayBuffer.py ==="""
-    class_name = "PS-PER"
-
-    @classmethod
-    def setUpClass(cls):
-        cls.rb = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
-                                                      cls.obs_dim,
-                                                      cls.act_dim,
-                                                      alpha=cls.alpha)
-        cls.rb2 = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
-                                                       cls.obs_dim,
-                                                       cls.act_dim,
-                                                       alpha=cls.alpha)
-        cls.rb_ui = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
-                                                         cls.obs_dim,
-                                                         cls.act_dim,
-                                                         alpha=cls.alpha)
-        cls.fill_ReplayBuffer()
-        cls.s = cls.rb.sample(cls.batch_size,cls.beta)
-
-        start = time.perf_counter()
-        for _ in range(cls.N_time):
-            cls.rb.sample(cls.batch_size,cls.beta)
-        end = time.perf_counter()
-        print("PER Sample {} time execution".format(cls.N_time))
-        print("{} s".format(end - start))
-
-    def test_initial_state(self):
-        rb_init = ProcessSharedPrioritizedReplayBuffer(self.buffer_size,
-                                                       self.obs_dim,
-                                                       self.act_dim,
-                                                       alpha = self.alpha)
-        self.assertEqual(0,rb_init.get_next_index())
-        self.assertEqual(0,rb_init.get_stored_size())
-
 if __name__ == '__main__':
     unittest.main()
