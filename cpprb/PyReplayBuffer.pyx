@@ -1006,3 +1006,178 @@ cdef class ReplayBuffer:
         if self.cache is not None:
             self.add_cache()
 
+@cython.embedsignature(True)
+cdef class PrioritizedReplayBuffer(ReplayBuffer):
+    """Prioritized replay buffer class to store environments with priorities.
+
+    In this class, these environments are sampled with corresponding priorities.
+    """
+    cdef VectorFloat weights
+    cdef VectorSize_t indexes
+    cdef float alpha
+    cdef CppPrioritizedSampler[float]* per
+    cdef NstepBuffer priorities_nstep
+
+    def __cinit__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,**kwrags):
+        self.alpha = alpha
+        self.per = new CppPrioritizedSampler[float](size,alpha)
+        self.per.set_eps(eps)
+        self.weights = VectorFloat()
+        self.indexes = VectorSize_t()
+
+        if self.use_nstep:
+            self.priorities_nstep = NstepBuffer({"priorities": {"dtype": np.single},
+                                                 "done": {}},
+                                                {"size": Nstep["size"]})
+
+    def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,**kwargs):
+        """Initialize PrioritizedReplayBuffer
+
+        Parameters
+        ----------
+        size : int
+            buffer size
+        env_dict : dict of dict, optional
+            dictionary specifying environments. The keies of env_dict become
+            environment names. The values of env_dict, which are also dict,
+            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+        alpha : float, optional
+            the exponent of the priorities in stored whose default value is 0.6
+        eps : float, optional
+            small positive constant to ensure error-less state will be sampled,
+            whose default value is 1e-4.
+        """
+        pass
+
+    def add(self,*,priorities = None,**kwargs):
+        """Add environment(s) into replay buffer.
+
+        Multiple step environments can be added.
+
+        Parameters
+        ----------
+        priorities : array like or float or int
+            priorities of each environment
+        **kwargs : array like or float or int optional
+            environment(s) to be stored
+
+        Returns
+        -------
+        : int or None
+            the stored first index. If all values store into NstepBuffer and
+            no values store into main buffer, return None.
+        """
+        cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
+
+        if self.use_nstep:
+            if priorities is None:
+                priorities = np.full((N),self.get_max_priority(),dtype=np.single)
+
+            priorities = self.priorities_nstep.add(priorities=priorities,
+                                                   done=np.array(kwargs["done"],
+                                                                 copy=True))
+            if priorities is not None:
+                priorities = priorities["priorities"]
+
+        cdef maybe_index = super().add(**kwargs)
+        if maybe_index is None:
+            return None
+
+        N = np.ravel(kwargs.get("done")).shape[0]
+        cdef size_t index = maybe_index
+        cdef float [:] ps
+
+        if priorities is not None:
+            ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
+            self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
+        else:
+            self.per.set_priorities(index,N,self.get_buffer_size())
+
+        return index
+
+    def sample(self,batch_size,beta = 0.4):
+        """Sample the stored environment depending on correspoinding priorities
+        with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+        beta : float, optional
+            the exponent for discount priority effect whose default value is 0.4
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples which also includes 'weights' and 'indexes'
+
+
+        Notes
+        -----
+        When 'beta' is 0, priorities are ignored.
+        The greater 'beta', the bigger effect of priories.
+
+        The sampling probabilities are propotional to :math:`priorities ^ {-'beta'}`
+        """
+        self.per.sample(batch_size,beta,
+                        self.weights.vec,self.indexes.vec,
+                        self.get_stored_size())
+        cdef idx = self.indexes.as_numpy()
+        samples = self._encode_sample(idx)
+        samples['weights'] = self.weights.as_numpy()
+        samples['indexes'] = idx
+        return samples
+
+    def update_priorities(self,indexes,priorities):
+        """Update priorities
+
+        Parameters
+        ----------
+        indexes : array_like
+            indexes to update priorities
+        priorities : array_like
+            priorities to update
+
+        Returns
+        -------
+        """
+        cdef size_t [:] idx = Csize(indexes)
+        cdef float [:] ps = Cview(priorities)
+        cdef N = idx.shape[0]
+        self.per.update_priorities(&idx[0],&ps[0],N)
+
+    cpdef void clear(self) except *:
+        """Clear replay buffer
+        """
+        super(PrioritizedReplayBuffer,self).clear()
+        clear(self.per)
+        if self.use_nstep:
+            self.priorities_nstep.clear()
+
+    cpdef float get_max_priority(self):
+        """Get the max priority of stored priorities
+
+        Returns
+        -------
+        max_priority : float
+            the max priority of stored priorities
+        """
+        return self.per.get_max_priority()
+
+    cpdef void on_episode_end(self):
+        """Call on episode end
+
+        Notes
+        -----
+        This is necessary for stack compression (stack_compress) mode or next
+        compression (next_of) mode.
+        """
+        if self.use_nstep:
+            self.use_nstep = False
+            self.add(**self.nstep.on_episode_end(),
+                     **self.priorities_nstep.on_episode_end())
+            self.use_nstep = True
+
+        if self.cache is not None:
+            self.add_cache()
+
