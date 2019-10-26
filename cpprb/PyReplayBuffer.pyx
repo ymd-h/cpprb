@@ -5,6 +5,7 @@ import ctypes
 cimport numpy as np
 import numpy as np
 import cython
+from cython.operator cimport dereference
 
 from cpprb.ReplayBuffer cimport *
 
