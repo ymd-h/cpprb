@@ -477,3 +477,251 @@ cdef class StepChecker:
             Added values.
         """
         return np.reshape(kwargs[self.check_str],self.check_shape,order='A').shape[0]
+
+@cython.embedsignature(True)
+cdef class NstepBuffer:
+    """Local buffer class for Nstep reward.
+
+    This buffer temporary stores environment values and returns Nstep-modified
+    environment values for `ReplayBuffer`
+    """
+    cdef buffer
+    cdef buffer_size
+    cdef default_dtype
+    cdef size_t stored_size
+    cdef size_t Nstep_size
+    cdef float Nstep_gamma
+    cdef Nstep_rew
+    cdef Nstep_next
+    cdef env_dict
+    cdef stack_compress
+    cdef StepChecker size_check
+
+    def __cinit__(self,env_dict=None,Nstep=None,*,
+                  stack_compress = None,default_dtype = None,next_of = None):
+        self.env_dict = env_dict.copy() if env_dict else {}
+        self.stored_size = 0
+        self.stack_compress = None # stack_compress is not support yet.
+        self.default_dtype = default_dtype or np.single
+
+        if next_of is not None: # next_of is not support yet.
+            for name in np.array(next_of,copy=False,ndmin=1):
+                self.env_dict[f"next_{name}"] = self.env_dict[name]
+            del self.env_dict["next_of"]
+
+        self.Nstep_size = Nstep["size"]
+        self.Nstep_gamma = Nstep.get("gamma",0.99)
+        self.Nstep_rew = find_array(Nstep,"rew")
+        self.Nstep_next = find_array(Nstep,"next")
+
+        self.buffer_size = self.Nstep_size - 1
+        self.buffer = dict2buffer(self.buffer_size,self.env_dict,
+                                  stack_compress = self.stack_compress,
+                                  default_dtype = self.default_dtype)
+        self.size_check = StepChecker(self.env_dict)
+
+    def __init__(self,env_dict=None,Nstep=None,*,
+                 stack_compress = None,default_dtype = None, next_of = None):
+        """Initialize NstepBuffer class.
+
+        Parameters
+        ----------
+        env_dict : dict
+            Specify environment values to be stored.
+        Nstep : dict
+            `Nstep["size"]` is `int` specifying step size of Nstep reward.
+            `Nstep["rew"]` is `str` or array like of `str` specifying
+            Nstep reward to be summed. `Nstep["gamma"]` is float specifying
+            discount factor, its default is 0.99. `Nstep["next"]` is `str` or
+            list of `str` specifying next values to be moved.
+        stack_compress : str or array like of str, optional
+            compress memory of specified stacked values.
+        default_dtype : numpy.dtype, optional
+            fallback dtype for not specified in `env_dict`. default is numpy.single
+        next_of : str or array like of str, optional
+            next item of specified environemt variables (eg. next_obs for next) are
+            also sampled without duplicated values
+
+        Notes
+        -----
+        Currently, memory compression features (`stack_compress` and `next_of`) are
+        not supported yet. (Fall back to usual storing)
+        """
+        pass
+
+    def add(self,*,**kwargs):
+        """Add envronment into local buffer.
+
+        Paremeters
+        ----------
+        **kwargs : keyword arguments
+            Values to be added.
+
+        Returns
+        -------
+        env : dict or None
+            Values with Nstep reward calculated. When the local buffer does not
+            store enough cache items, returns 'None'.
+        """
+        cdef size_t N = self.size_check.step_size(kwargs)
+        cdef ssize_t end = self.stored_size + N
+
+        cdef ssize_t i
+        cdef ssize_t stored_begin
+        cdef ssize_t stored_end
+        cdef ssize_t ext_begin
+        cdef ssize_t max_slide
+
+        if end <= self.buffer_size:
+            for name, stored_b in self.buffer.items():
+                if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
+                    # Calculate later.
+                    pass
+                elif (self.Nstep_next is not None
+                      and np.isin(name,self.Nstep_next).any()):
+                    # Do nothing.
+                    pass
+                else:
+                    stored_b[self.stored_size:end] = self._extract(kwargs,name)
+
+            # Nstep reward must be calculated after "done" filling
+            gamma = (1.0 - self.buffer["done"][:end]) * self.Nstep_gamma
+
+            if self.Nstep_rew is not None:
+                max_slide = min(self.Nstep_size - self.stored_size,N)
+                max_slide *= -1
+                for name in self.Nstep_rew:
+                    ext_b = self._extract(kwargs,name).copy()
+                    self.buffer[name][self.stored_size:end] = ext_b
+
+                    for i in range(self.stored_size-1,max_slide,-1):
+                        stored_begin = max(i,0)
+                        stored_end = i+N
+                        ext_begin = max(-i,0)
+                        ext_b[ext_begin:] *= gamma[stored_begin:stored_end]
+                        self.buffer[name][stored_begin:stored_end] +=ext_b[ext_begin:]
+
+            self.stored_size = end
+            return None
+
+        cdef size_t diff_N = self.buffer_size - self.stored_size
+        cdef size_t add_N = N - diff_N
+        cdef bool NisBigger = (add_N > self.buffer_size)
+        end = self.buffer_size if NisBigger else add_N
+
+        # Nstep reward must be calculated before "done" filling
+        cdef ssize_t spilled_N
+        gamma = np.ones((self.stored_size + N,1),dtype=np.single)
+        gamma[:self.stored_size] -= self.buffer["done"][:self.stored_size]
+        gamma[self.stored_size:] -= self._extract(kwargs,"done")
+        gamma *= self.Nstep_gamma
+        if self.Nstep_rew is not None:
+            max_slide = min(self.Nstep_size - self.stored_size,N)
+            max_slide *= -1
+            for name in self.Nstep_rew:
+                stored_b = self.buffer[name]
+                ext_b = self._extract(kwargs,name)
+
+                copy_ext = ext_b.copy()
+                if diff_N:
+                    stored_b[self.stored_size:] = ext_b[:diff_N]
+                    ext_b = ext_b[diff_N:]
+
+                for i in range(self.stored_size-1,max_slide,-1):
+                    stored_begin = max(i,0)
+                    stored_end = i+N
+                    ext_begin = max(-i,0)
+                    copy_ext[ext_begin:] *= gamma[stored_begin:stored_end]
+                    if stored_end <= self.buffer_size:
+                        stored_b[stored_begin:stored_end] += copy_ext[ext_begin:]
+                    else:
+                        spilled_N = stored_end - self.buffer_size
+                        stored_b[stored_begin:] += copy_ext[ext_begin:-spilled_N]
+                        ext_b[:spilled_N] += copy_ext[-spilled_N:]
+
+                self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
+
+        for name, stored_b in self.buffer.items():
+            if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
+                # Calculated.
+                pass
+            elif (self.Nstep_next is not None
+                  and np.isin(name,self.Nstep_next).any()):
+                kwargs[name] = self._extract(kwargs,name)[diff_N:]
+            else:
+                ext_b = self._extract(kwargs,name)
+
+                if diff_N:
+                    stored_b[self.stored_size:] = ext_b[:diff_N]
+                    ext_b = ext_b[diff_N:]
+
+                self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
+
+        done = kwargs["done"]
+        kwargs["discount"] = np.where(done,1,self.Nstep_gamma)
+
+        for i in range(1,self.buffer_size):
+            if i <= add_N:
+                done[:-i] += kwargs["done"][i:]
+                done[-i:] += self.buffer["done"][:i]
+            else:
+                done += self.buffer["done"][i-add_N:i]
+
+            kwargs["discount"][done == 0] *= self.Nstep_gamma
+
+
+        self.stored_size = self.buffer_size
+        return kwargs
+
+    cdef _extract(self,kwargs,name):
+        _dict = self.env_dict[name]
+        return np.reshape(np.array(kwargs[name],copy=False,ndmin=2,
+                                   dtype=_dict.get("dtype",self.default_dtype)),
+                          _dict["add_shape"])
+
+    cdef void _roll(self,stored_b,ext_b,
+                    ssize_t end,bool NisBigger,kwargs,name,size_t add_N):
+        # Swap numpy.ndarray
+        # https://stackoverflow.com/a/33362030
+        stored_b[:end], ext_b[-end:] = ext_b[-end:], stored_b[:end].copy()
+        if NisBigger:
+            # buffer: XXXX, add: YYYYY
+            # buffer: YYYY, add: YXXXX
+            ext_b = np.roll(ext_b,end,axis=0)
+            # buffer: YYYY, add: XXXXY
+        else:
+            # buffer: XXXZZZZ, add: YYY
+            # buffer: YYYZZZZ, add: XXX
+            stored_b[:] = np.roll(stored_b,-end,axis=0)[:]
+            # buffer: ZZZZYYY, add: XXX
+        kwargs[name] = ext_b[:add_N]
+
+    cpdef void clear(self):
+        """Clear the bufer.
+        """
+        self.stored_size = 0
+
+    cpdef on_episode_end(self):
+        """Terminate episode.
+        """
+        kwargs = self.buffer.copy()
+        done = kwargs["done"]
+        kwargs["discount"] = np.where(done,1,self.Nstep_gamma)
+
+        for i in range(1,self.buffer_size):
+            done[:-i] += kwargs["done"][i:]
+            kwargs["discount"][done == 0] *= self.Nstep_gamma
+
+        self.clear()
+        return kwargs
+
+    cpdef size_t get_Nstep_size(self):
+        """Get Nstep size
+
+        Returns
+        -------
+        Nstep_size : size_t
+            Nstep size
+        """
+        return self.Nstep_size
+
