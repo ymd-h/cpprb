@@ -725,3 +725,284 @@ cdef class NstepBuffer:
         """
         return self.Nstep_size
 
+@cython.embedsignature(True)
+cdef class ReplayBuffer:
+    """Replay Buffer class to store environments and to sample them randomly.
+
+    The envitonment contains observation (obs), action (act), reward (rew),
+    the next observation (next_obs), and done (done).
+
+    In this class, sampling is random sampling and the same environment can be
+    chosen multiple times.
+    """
+    cdef buffer
+    cdef size_t buffer_size
+    cdef env_dict
+    cdef size_t index
+    cdef size_t stored_size
+    cdef next_of
+    cdef bool has_next_of
+    cdef next_
+    cdef bool compress_any
+    cdef stack_compress
+    cdef cache
+    cdef default_dtype
+    cdef StepChecker size_check
+    cdef NstepBuffer nstep
+    cdef bool use_nstep
+
+    def __cinit__(self,size,env_dict=None,*,
+                  next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
+                  **kwargs):
+        self.env_dict = env_dict or {}
+        self.buffer_size = size
+        self.stored_size = 0
+        self.index = 0
+
+        self.compress_any = stack_compress
+        self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
+
+        self.default_dtype = default_dtype or np.single
+
+        self.use_nstep = Nstep
+        if self.use_nstep:
+            self.nstep = NstepBuffer(self.env_dict,Nstep,
+                                     stack_compress = self.stack_compress,
+                                     next_of = self.next_of,
+                                     default_dtype = self.default_dtype)
+            self.env_dict["discount"] = {"dtype": np.single}
+
+        self.buffer = dict2buffer(self.buffer_size,self.env_dict,
+                                  stack_compress = self.stack_compress,
+                                  default_dtype = self.default_dtype)
+
+        self.size_check = StepChecker(self.env_dict)
+
+        self.next_of = np.array(next_of,ndmin=1,copy=False)
+        self.has_next_of = next_of
+        self.next_ = {}
+        self.cache = {} if (self.has_next_of or self.compress_any) else None
+
+        if self.has_next_of:
+            for name in self.next_of:
+                self.next_[name] = self.buffer[name][0].copy()
+
+    def __init__(self,size,env_dict=None,*,
+                 next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
+                 **kwargs):
+        """Initialize ReplayBuffer
+
+        Parameters
+        ----------
+        size : int
+            buffer size
+        env_dict : dict of dict, optional
+            dictionary specifying environments. The keies of env_dict become
+            environment names. The values of env_dict, which are also dict,
+            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+        next_of : str or array like of str, optional
+            next item of specified environemt variables (eg. next_obs for next) are
+            also sampled without duplicated values
+        stack_compress : str or array like of str, optional
+            compress memory of specified stacked values.
+        default_dtype : numpy.dtype, optional
+            fallback dtype for not specified in `env_dict`. default is numpy.single
+        Nstep : dict, optional
+            `Nstep["size"]` is `int` specifying step size of Nstep reward.
+            `Nstep["rew"]` is `str` or array like of `str` specifying
+            Nstep reward to be summed. `Nstep["gamma"]` is float specifying
+            discount factor, its default is 0.99. `Nstep["next"]` is `str` or
+            list of `str` specifying next values to be moved.
+        """
+        pass
+
+    def add(self,*,**kwargs):
+        """Add environment(s) into replay buffer.
+        Multiple step environments can be added.
+
+        Parameters
+        ----------
+        **kwargs : array like or float or int
+            environments to be stored
+
+        Returns
+        -------
+        : int or None
+            the stored first index. If all values store into NstepBuffer and
+            no values store into main buffer, return None.
+
+        Raises
+        ------
+        KeyError
+            When kwargs don't include all environment variables defined in __cinit__
+            When environment variables don't include "done"
+        """
+        if self.use_nstep:
+            kwargs = self.nstep.add(**kwargs)
+            if kwargs is None:
+                return
+
+        cdef size_t N = self.size_check.step_size(kwargs)
+
+        cdef size_t index = self.index
+        cdef size_t end = index + N
+        cdef size_t remain = 0
+        cdef add_idx = np.arange(index,end)
+
+        if end > self.buffer_size:
+            remain = end - self.buffer_size
+            add_idx[add_idx >= self.buffer_size] -= self.buffer_size
+
+        for name, b in self.buffer.items():
+            b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+                                    self.env_dict[name]["add_shape"])
+
+        if self.has_next_of:
+            for name in self.next_of:
+                self.next_[name][...]=np.reshape(np.array(kwargs[f"next_{name}"],
+                                                          copy=False,
+                                                          ndmin=2),
+                                                 self.env_dict[name]["add_shape"])[-1]
+
+        if (self.cache is not None) and (index in self.cache):
+            del self.cache[index]
+
+        self.stored_size = min(self.stored_size + N,self.buffer_size)
+        self.index = end if end < self.buffer_size else remain
+        return index
+
+    def _encode_sample(self,idx):
+        cdef sample = {}
+        cdef next_idx
+        cdef cache_idx
+        cdef bool use_cache
+
+        idx = np.array(idx,copy=False,ndmin=1)
+        for name, b in self.buffer.items():
+            sample[name] = b[idx]
+
+        if self.has_next_of:
+            next_idx = idx + 1
+            next_idx[next_idx == self.get_buffer_size()] = 0
+            cache_idx = (next_idx == self.get_next_index())
+            use_cache = cache_idx.any()
+
+            for name in self.next_of:
+                sample[f"next_{name}"] = self.buffer[name][next_idx]
+                if use_cache:
+                    sample[f"next_{name}"][cache_idx] = self.next_[name]
+
+        cdef size_t i
+        if self.cache is not None:
+            for i in idx:
+                if i in self.cache:
+                    if self.has_next_of:
+                        for name in self.next_of:
+                            sample[f"next_{name}"][i] = self.cache[i][f"next_{name}"]
+                    if self.compress_any:
+                        for name in self.stack_compress:
+                            sample[name][i] = self.cache[i][name]
+
+        return sample
+
+    def sample(self,batch_size):
+        """Sample the stored environment randomly with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+
+        Returns
+        -------
+        sample : dict of ndarray
+            batch size of samples, which might contains the same event multiple times.
+        """
+        cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
+        return self._encode_sample(idx)
+
+    cpdef void clear(self) except *:
+        """Clear replay buffer.
+
+        Set `index` and `stored_size` to 0.
+
+        Example
+        -------
+        >>> rb = ReplayBuffer(5,{"done",{}})
+        >>> rb.add(1)
+        >>> rb.get_stored_size()
+        1
+        >>> rb.get_next_index()
+        1
+        >>> rb.clear()
+        >>> rb.get_stored_size()
+        0
+        >>> rb.get_next_index()
+        0
+        """
+        self.index = 0
+        self.stored_size = 0
+
+        if self.use_nstep:
+            self.nstep.clear()
+
+    cpdef size_t get_stored_size(self):
+        """Get stored size
+
+        Returns
+        -------
+        size_t
+            stored size
+        """
+        return self.stored_size
+
+    cpdef size_t get_buffer_size(self):
+        """Get buffer size
+
+        Returns
+        -------
+        size_t
+            buffer size
+        """
+        return self.buffer_size
+
+    cpdef size_t get_next_index(self):
+        """Get the next index to store
+
+        Returns
+        -------
+        size_t
+            the next index to store
+        """
+        return self.index
+
+    cdef void add_cache(self):
+        """Add last items into cache
+        """
+        cdef size_t key = (self.index or self.buffer_size) -1
+        self.cache[key] = {}
+
+        if self.has_next_of:
+            for name, value in self.next_.items():
+                self.cache[key][f"next_{name}"] = value
+
+        if self.compress_any:
+            for name in self.stack_compress:
+                self.cache[key][name] = self.buffer[name][key].copy()
+
+    cpdef void on_episode_end(self):
+        """Call on episode end
+
+        Notes
+        -----
+        This is necessary for stack compression (stack_compress) mode or next
+        compression (next_of) mode.
+        """
+        if self.use_nstep:
+            self.use_nstep = False
+            self.add(**self.nstep.on_episode_end())
+            self.use_nstep = True
+
+        if self.cache is not None:
+            self.add_cache()
+
