@@ -21,7 +21,7 @@ cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
-cdef inline float [::1] Cview(array):
+cdef inline float [::1] Cfloat(array):
     return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
@@ -1142,7 +1142,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         -------
         """
         cdef size_t [:] idx = Csize(indexes)
-        cdef float [:] ps = Cview(priorities)
+        cdef float [:] ps = Cfloat(priorities)
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
 
