@@ -12,7 +12,7 @@ from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,
                             VectorInt,VectorSize_t,VectorDouble,PointerDouble)
 
-cdef double [::1] Cview(array):
+cdef double [::1] Cdouble(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
 
 cdef size_t [::1] Csize(array):
@@ -106,7 +106,7 @@ cdef class Environment:
         int
             the stored first index
         """
-        return self._add(Cview(obs),Cview(act),Cview(rew),Cview(next_obs),Cview(done))
+        return self._add(Cdouble(obs),Cdouble(act),Cdouble(rew),Cdouble(next_obs),Cdouble(done))
 
     def _encode_sample(self,idx):
         dtype = np.int if self.is_discrete_action else np.double
