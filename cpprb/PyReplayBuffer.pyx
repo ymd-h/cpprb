@@ -20,6 +20,10 @@ cdef size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
+cdef inline float [::1] Cview(array):
+    return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
+
+@cython.embedsignature(True)
 cdef class Environment:
     """
     Base class to store environment
