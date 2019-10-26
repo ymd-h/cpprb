@@ -6,8 +6,7 @@ import numpy as np
 requires = ["numpy"]
 
 extras = {
-    'gym': ["matplotlib", "pyvirtualdisplay"],
-    'rl': ["scipy","tf-nightly-2.0-preview"]
+    'gym': ["matplotlib", "pyvirtualdisplay"]
 }
 all_deps = []
 for group_name in extras:
@@ -29,8 +28,7 @@ else:
     wrap = lambda x: x
 
 ext = [["cpprb","PyReplayBuffer"],
-       ["cpprb","VectorWrapper"],
-       ["cpprb","experimental","PyReplayBuffer"]]
+       ["cpprb","VectorWrapper"]]
 
 ext_modules = wrap([Extension(".".join(e),
                               sources=["/".join(e) + suffix],
@@ -49,7 +47,7 @@ setup(name="cpprb",
       url="https://ymd_h.gitlab.io/cpprb/",
       ext_modules=ext_modules,
       include_dirs=["cpprb", np.get_include()],
-      packages=["cpprb", "cpprb.gym","cpprb.rl","cpprb.experimental"],
+      packages=["cpprb", "cpprb.gym"],
       classifiers=["Programming Language :: Python",
                    "Programming Language :: Python :: 3",
                    "License :: OSI Approved :: MIT License",
