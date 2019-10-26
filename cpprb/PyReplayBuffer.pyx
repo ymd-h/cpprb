@@ -445,3 +445,35 @@ def find_array(dict,key):
         dimension of 1. Otherwise, returns `None`.
     """
     return None if not key in dict else np.array(dict[key],ndmin=1,copy=False)
+
+@cython.embedsignature(True)
+cdef class StepChecker:
+    """Check the step size of addition
+    """
+    cdef check_str
+    cdef check_shape
+
+    def __cinit__(self,env_dict):
+        for name, defs in env_dict.items():
+            self.check_str = name
+            self.check_shape = defs["add_shape"]
+
+    def __init__(self,env_dict):
+        """Initialize StepChecker class.
+
+        Parameters
+        ----------
+        env_dict : dict
+            Specify the environment values.
+        """
+        pass
+
+    cdef size_t step_size(self,kwargs) except *:
+        """Return step size.
+
+        Parameters
+        ----------
+        kwargs: dict
+            Added values.
+        """
+        return np.reshape(kwargs[self.check_str],self.check_shape,order='A').shape[0]
