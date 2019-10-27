@@ -189,6 +189,7 @@ void test_PrioritizedSampler(){
   constexpr const auto alpha = 0.7;
   constexpr const auto beta = 0.4;
 
+  constexpr const auto LARGE_P = 1e+10;
 
   std::cout << std::endl;
   std::cout << "PrioritizedSampler" << std::endl;
@@ -209,11 +210,13 @@ void test_PrioritizedSampler(){
     ymd::AlmostEqual(w,1.0);
   }
 
-  ps_w[0] = 1e+10;
+  ps_w[0] = LARGE_P;
   ps.update_priorities(ps_i,ps_w);
   ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
   ymd::show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
   ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
+
+  ymd::AlmostEqual(ps.get_max_priority(),LARGE_P);
 }
 
 int main(){
