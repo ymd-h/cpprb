@@ -23,6 +23,80 @@ using Priority = double;
 const auto cores = std::thread::hardware_concurrency();
 using cores_t = std::remove_const_t<decltype(cores)>;
 
+void test_DimensionalBuffer(){
+  constexpr const auto obs_dim = 3ul;
+
+  constexpr const auto N_buffer_size = 1024ul;
+  constexpr const auto N_batch_size = 16ul;
+
+  constexpr const auto N_times = 1000ul;
+
+  auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
+  auto v = std::vector<Observation>{};
+  std::generate_n(std::back_inserter(v),obs_dim,
+		  [i=0ul]()mutable{ return Observation(i++); });
+
+  std::cout << "DimensionalBuffer: " << std::endl;
+  Observation* obs_ptr = nullptr;
+  dm.get_data(0ul,obs_ptr);
+  std::cout << " DimensionalBuffer.data(): " << obs_ptr<< std::endl;
+  std::cout << "*DimensionalBuffer.data(): " << *obs_ptr << std::endl;
+
+  dm.store_data(v.data(),0ul,0ul,1ul);
+  ymd::Equal(obs_ptr[0],0ul);
+  ymd::Equal(obs_ptr[1],1ul);
+  ymd::Equal(obs_ptr[2],2ul);
+
+  for(auto n = 0ul; n < N_times; ++n){
+    auto next_index = std::min(n*obs_dim % N_buffer_size,N_buffer_size-1);
+    dm.store_data(v.data(),0ul,next_index,1ul);
+    ymd::Equal(obs_ptr[next_index + 0],0ul);
+    ymd::Equal(obs_ptr[next_index + 1],1ul);
+    ymd::Equal(obs_ptr[next_index + 2],2ul);
+  }
+}
+
+void test_PrioritizedSampler(){
+  constexpr const auto N_buffer_size = 1024ul;
+  constexpr const auto N_batch_size = 16ul;
+  constexpr const auto N_step = 3 * N_buffer_size;
+
+  constexpr const auto alpha = 0.7;
+  constexpr const auto beta = 0.4;
+
+  constexpr const auto LARGE_P = 1e+10;
+
+  std::cout << std::endl;
+  std::cout << "PrioritizedSampler" << std::endl;
+  auto ps = ymd::CppPrioritizedSampler(N_buffer_size,alpha);
+  for(auto i = 0ul; i < N_step; ++i){
+    ps.set_priorities(i % N_buffer_size,0.5);
+  }
+
+  auto ps_w = std::vector<Priority>{};
+  auto ps_i = std::vector<std::size_t>{};
+
+  ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
+
+  ymd::show_vector(ps_w,"weights [0.5,...,0.5]");
+  ymd::show_vector(ps_i,"indexes [0.5,...,0.5]");
+
+  for(auto& w : ps_w){
+    ymd::AlmostEqual(w,1.0);
+  }
+
+  ps_w[0] = LARGE_P;
+  ps.update_priorities(ps_i,ps_w);
+  ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
+  ymd::show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
+  ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
+
+  ymd::AlmostEqual(ps.get_max_priority(),LARGE_P);
+
+  ymd::AlmostEqual(std::accumulate(ps_w.begin(),ps_w.end(),0.0) / ps_w.size(),
+		   LARGE_P);
+}
+
 void test_SelectiveEnvironment(){
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
@@ -146,80 +220,6 @@ void test_SelectiveEnvironment(){
   ymd::Equal(se.get_next_index(),episode_len - 1ul);
   ymd::Equal(se.get_stored_size(),episode_len - 1ul);
   ymd::Equal(se.get_stored_episode_size(),1ul);
-}
-
-void test_DimensionalBuffer(){
-  constexpr const auto obs_dim = 3ul;
-
-  constexpr const auto N_buffer_size = 1024ul;
-  constexpr const auto N_batch_size = 16ul;
-
-  constexpr const auto N_times = 1000ul;
-
-  auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
-  auto v = std::vector<Observation>{};
-  std::generate_n(std::back_inserter(v),obs_dim,
-		  [i=0ul]()mutable{ return Observation(i++); });
-
-  std::cout << "DimensionalBuffer: " << std::endl;
-  Observation* obs_ptr = nullptr;
-  dm.get_data(0ul,obs_ptr);
-  std::cout << " DimensionalBuffer.data(): " << obs_ptr<< std::endl;
-  std::cout << "*DimensionalBuffer.data(): " << *obs_ptr << std::endl;
-
-  dm.store_data(v.data(),0ul,0ul,1ul);
-  ymd::Equal(obs_ptr[0],0ul);
-  ymd::Equal(obs_ptr[1],1ul);
-  ymd::Equal(obs_ptr[2],2ul);
-
-  for(auto n = 0ul; n < N_times; ++n){
-    auto next_index = std::min(n*obs_dim % N_buffer_size,N_buffer_size-1);
-    dm.store_data(v.data(),0ul,next_index,1ul);
-    ymd::Equal(obs_ptr[next_index + 0],0ul);
-    ymd::Equal(obs_ptr[next_index + 1],1ul);
-    ymd::Equal(obs_ptr[next_index + 2],2ul);
-  }
-}
-
-void test_PrioritizedSampler(){
-  constexpr const auto N_buffer_size = 1024ul;
-  constexpr const auto N_batch_size = 16ul;
-  constexpr const auto N_step = 3 * N_buffer_size;
-
-  constexpr const auto alpha = 0.7;
-  constexpr const auto beta = 0.4;
-
-  constexpr const auto LARGE_P = 1e+10;
-
-  std::cout << std::endl;
-  std::cout << "PrioritizedSampler" << std::endl;
-  auto ps = ymd::CppPrioritizedSampler(N_buffer_size,alpha);
-  for(auto i = 0ul; i < N_step; ++i){
-    ps.set_priorities(i % N_buffer_size,0.5);
-  }
-
-  auto ps_w = std::vector<Priority>{};
-  auto ps_i = std::vector<std::size_t>{};
-
-  ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
-
-  ymd::show_vector(ps_w,"weights [0.5,...,0.5]");
-  ymd::show_vector(ps_i,"indexes [0.5,...,0.5]");
-
-  for(auto& w : ps_w){
-    ymd::AlmostEqual(w,1.0);
-  }
-
-  ps_w[0] = LARGE_P;
-  ps.update_priorities(ps_i,ps_w);
-  ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
-  ymd::show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
-  ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
-
-  ymd::AlmostEqual(ps.get_max_priority(),LARGE_P);
-
-  ymd::AlmostEqual(std::accumulate(ps_w.begin(),ps_w.end(),0.0) / ps_w.size(),
-		   LARGE_P);
 }
 
 int main(){
