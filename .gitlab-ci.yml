@@ -36,7 +36,6 @@ docker_build:
   services:
     - docker:dind
   script:
-    - cd docker_build
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE/build:latest || true
     - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/build:latest -t $CI_REGISTRY_IMAGE/build:latest .
