@@ -284,11 +284,8 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
     @classmethod
     def setUpClass(cls):
         cls.rb = SelectiveReplayBuffer(cls.buffer_size,
-                                       {"obs": {"shape": cls.obs_dim},
-                                        "act": {"shape": cls.act_dim},
-                                        "rew": {},
-                                        "next_obs": {"shape": cls.obs_dim},
-                                        "done": {}},
+                                       cls.obs_dim,
+                                       cls.act_dim,
                                        Nepisodes=10)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
