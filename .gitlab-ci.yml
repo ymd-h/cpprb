@@ -5,8 +5,8 @@ variables:
   COVERAGE_RCFILE: .coveragerc
 
 stages:
-  - build_image
   - page_export
+  - build_image
   - cpp_test
   - py_build
   - page_build
