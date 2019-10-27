@@ -1,6 +1,8 @@
 #ifndef YMD_UNITTEST_HH
 #define YMD_UNITTEST_HH 1
 
+#include <string>
+
 #define EQUAL(a,b) ymd::Equal((a),(b),#a,#b)
 #define ALMOST_EQUAL(a,b) ymd::AlmostEqual((a),(b),1e-5,#a,#b)
 
