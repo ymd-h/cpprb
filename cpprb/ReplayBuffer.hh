@@ -163,10 +163,6 @@ namespace ymd {
   };
 
   template<typename Observation,typename Action,typename Reward,typename Done>
-  using CppThreadSafeRingEnvironment =
-    CppRingEnvironment<Observation,Action,Reward,Done,true>;
-
-  template<typename Observation,typename Action,typename Reward,typename Done>
   class CppSelectiveEnvironment :public Environment<Observation,Action,Reward,Done>{
   public:
     using Env_t = Environment<Observation,Action,Reward,Done>;
