@@ -8,6 +8,7 @@ RUN apt update \
 	python-opengl \
 	tk-dev \
 	wget \
+	x11-utils \
 	xvfb \
 	&& apt clean \
 	&& rm -rf /var/lib/apt/lists/* \
