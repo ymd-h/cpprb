@@ -3,7 +3,12 @@ FROM gcc:latest
 ENV PYTHON_VERSION 3.8.0
 
 RUN apt update \
-	&& apt install -y --no-install-recommends build-essential tk-dev wget \
+	&& apt install -y --no-install-recommends \
+	build-essential \
+	python-opengl \
+	tk-dev \
+	wget \
+	xvfb \
 	&& apt clean \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz \
