@@ -148,6 +148,19 @@ sphinx:
   only:
     - master
 
+annotation:
+  image: *dev_image
+  stage: page_build
+  environment: production
+  script:
+    - mkdir -p public/annotation
+    - mv /cpprb/public/annotation/*.html public/annotation/
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+
 pypi:
   image: *dev_image
   stage: upload
