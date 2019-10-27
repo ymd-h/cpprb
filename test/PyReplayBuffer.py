@@ -237,27 +237,36 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = NstepPrioritizedReplayBuffer(cls.buffer_size,
-                                              {"obs": {"shape": cls.obs_dim},
-                                               "act": {"shape": cls.act_dim},
-                                               "rew": {},
-                                               "next_obs": {"shape": cls.obs_dim},
-                                               "done": {}},
-                                              alpha=cls.alpha)
-        cls.rb2 = NstepPrioritizedReplayBuffer(cls.buffer_size,
-                                               {"obs": {"shape": cls.obs_dim},
-                                                "act": {"shape": cls.act_dim},
-                                                "rew": {},
-                                                "next_obs": {"shape": cls.obs_dim},
-                                                "done": {}},
-                                               alpha=cls.alpha)
-        cls.rb_ui = NstepPrioritizedReplayBuffer(cls.buffer_size,
-                                                 {"obs": {"shape": cls.obs_dim},
-                                                  "act": {"shape": cls.act_dim},
-                                                  "rew": {},
-                                                  "next_obs": {"shape": cls.obs_dim},
-                                                  "done": {}},
-                                                 alpha=cls.alpha)
+        cls.rb = PrioritizedReplayBuffer(cls.buffer_size,
+                                         {"obs": {"shape": cls.obs_dim},
+                                          "act": {"shape": cls.act_dim},
+                                          "rew": {},
+                                          "next_obs": {"shape": cls.obs_dim},
+                                          "done": {}},
+                                         alpha=cls.alpha,
+                                         Nstep={"size": cls.nstep,
+                                                "rew": "rew",
+                                                "gamma": cls.discount})
+        cls.rb2 = PrioritizedReplayBuffer(cls.buffer_size,
+                                          {"obs": {"shape": cls.obs_dim},
+                                           "act": {"shape": cls.act_dim},
+                                           "rew": {},
+                                           "next_obs": {"shape": cls.obs_dim},
+                                           "done": {}},
+                                          alpha=cls.alpha
+                                          Nstep={"size": cls.nstep,
+                                                "rew": "rew",
+                                                "gamma": cls.discount})
+        cls.rb_ui = PrioritizedReplayBuffer(cls.buffer_size,
+                                            {"obs": {"shape": cls.obs_dim},
+                                             "act": {"shape": cls.act_dim},
+                                             "rew": {},
+                                             "next_obs": {"shape": cls.obs_dim},
+                                             "done": {}},
+                                            alpha=cls.alpha,
+                                            Nstep={"size": cls.nstep,
+                                                "rew": "rew",
+                                                "gamma": cls.discount})
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
