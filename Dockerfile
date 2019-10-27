@@ -9,9 +9,10 @@ RUN apt update \
 	&& wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz \
 	&& tar -xf Python-${PYTHON_VERSION}.tar.xz \
 	&& cd Python-${PYTHON_VERSION} \
-	&& ./configure --enable-optimizations \
+	&& ./configure --enable-shared --with-ensurepip --enable-optimizations \
 	&& make -s -j "$(nproc)" \
 	&& make install \
+	&& /sbin/ldconfig -v \
 	&& cd \
 	&& rm -rf Python-${PYTHON_VERSION}{,.tar.xz}
 
