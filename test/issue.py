@@ -104,10 +104,10 @@ class TestIssue43(unittest.TestCase):
                                        "next_obs": {"shape": obs_dim},
                                        "done": {}})
 
-        self.assertEqual(1024,rb.get_buffer_size())
-        self.assertEqual(1024,prb.get_buffer_size())
+        self.assertEqual(1000,rb.get_buffer_size())
+        self.assertEqual(1000,prb.get_buffer_size())
 
-        rb._encode_sample([i for i in range(1024)])
+        rb._encode_sample([i for i in range(1000)])
 
 class TestIssue44(unittest.TestCase):
     def test_cpdef_super(self):
