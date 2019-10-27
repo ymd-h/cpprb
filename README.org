@@ -117,16 +117,12 @@ CLOSED: [2019-02-11 Mon 09:05]
 :END:
 
 #+BEGIN_SRC shell
-git clone https://gitlab.com/ymd_h/cpprb.git cpprb
-cd cpprb
-python setup.py build
-python setup.py install
+pip install cpprb
 #+END_SRC
 
-Depending on your environment, you might need to set =CC= and/or =CXX=
-variables like ~CXX=g++ python setup.py build~.
+You can install cpprb from pypi.
 
-You might need =sudo= for installation.
+You might need =sudo= or ~--user~ for installation.
 
 * DONE Usage
 CLOSED: [2019-02-11 Mon 09:06]
