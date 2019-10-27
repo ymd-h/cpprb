@@ -32,10 +32,10 @@ namespace ymd {
     if(v != expected){
       std::cout << std::endl
 		<< "Fail Equal: "
-		<< lhs.size() ? lhs + " -> ": ""
+		<< (lhs.size() ? lhs + " -> ": "")
 		<< v
 		<< " != "
-		<< rhs.size() ? rhs + " -> ": ""
+		<< (rhs.size() ? rhs + " -> ": "")
 		<< expected
 		<< std::endl;
       assert(v == expected);
@@ -49,10 +49,10 @@ namespace ymd {
     if(std::abs(v - expected) > eps){
       std::cout << std::endl
 		<< "Assert AlmostEqual: "
-		<< lhs.size() ? lhs + " -> ": ""
+		<< (lhs.size() ? lhs + " -> ": "")
 		<< v
 		<< " != "
-		<< rhs.size() ? rhs + " -> ": ""
+		<< (rhs.size() ? rhs + " -> ": "")
 		<< expected
 		<< std::endl;
       assert(std::abs(v - expected) <= eps);
