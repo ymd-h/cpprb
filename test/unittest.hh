@@ -1,6 +1,9 @@
 #ifndef YMD_UNITTEST_HH
 #define YMD_UNITTEST_HH 1
 
+#define EQUAL(a,b) ymd::Equal((a),(b),#a,#b)
+#define ALMOST_EQUAL(a,b) ymd::AlmostEqual((a),(b),1e-5,#a,#b)
+
 namespace ymd {
   template<typename F>
   inline auto timer(F&& f,std::size_t N){
@@ -23,20 +26,33 @@ namespace ymd {
   }
 
   template<typename T1,typename T2>
-  auto Equal(T1&& v,T2&& expected){
+  auto Equal(T1&& v,T2&& expected,std::string lhs="",std::string rhs=""){
     if(v != expected){
       std::cout << std::endl
-		<< "Assert Equal: " << v << " != " << expected << std::endl;
+		<< "Fail Equal: "
+		<< lhs.size() ? lhs + " -> ": ""
+		<< v
+		<< " != "
+		<< rhs.size() ? rhs + " -> ": ""
+		<< expected
+		<< std::endl;
       assert(v == expected);
     }
     return v;
   }
 
   template<typename T1,typename T2>
-  auto AlmostEqual(T1&& v,T2&& expected, std::common_type_t<T1,T2>&& eps = 1e-5){
+  auto AlmostEqual(T1&& v,T2&& expected, std::common_type_t<T1,T2>&& eps = 1e-5,
+		   std::string lhs="",std::strng rhs=""){
     if(std::abs(v - expected) > eps){
       std::cout << std::endl
-		<< "Assert AlmostEqual: " << v << " != " << expected << std::endl;
+		<< "Assert AlmostEqual: "
+		<< lhs.size() ? lhs + " -> ": ""
+		<< v
+		<< " != "
+		<< rhs.size() ? rhs + " -> ": ""
+		<< expected
+		<< std::endl;
       assert(std::abs(v - expected) <= eps);
     }
     return v;
