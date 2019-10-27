@@ -26,6 +26,7 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
+    - mv /cpprb/cpp/*.cpp cpprb/
   artifacts:
     paths:
       - .coverage.*
