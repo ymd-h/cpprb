@@ -230,11 +230,11 @@ namespace ymd {
     }
 
     auto get_episode(std::size_t i) const {
-      Observation *obs,*next_obs;
-      Action* act;
-      Reward* rew;
-      Done* done;
-      std::size_t ep_len;
+      Observation *obs{},*next_obs{};
+      Action* act{};
+      Reward* rew{};
+      Done* done{};
+      std::size_t ep_len{};
       get_episode(i,ep_len,obs,act,rew,next_obs,done);
       return std::make_tuple(obs,act,rew,next_obs,done,ep_len);
     }
