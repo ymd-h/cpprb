@@ -3,6 +3,7 @@
 build
 clean_reinstall.sh
 dist
+site
 *egg-info
 *.so
 *.c
@@ -15,5 +16,4 @@ cpprb/experimental/*.cpp
 test/ReplayBuffer
 test/SegmentTree
 public
-content
 misc
