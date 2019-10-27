@@ -217,6 +217,9 @@ void test_PrioritizedSampler(){
   ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
 
   ymd::AlmostEqual(ps.get_max_priority(),LARGE_P);
+
+  ymd::AlmostEqual(std::accumulate(ps_w.begin(),ps_w.end(),0.0) / ps_w.size(),
+		   LARGE_P);
 }
 
 int main(){
