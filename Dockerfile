@@ -25,6 +25,6 @@ WORKDIR /cpprb
 
 RUN python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL \
 	&& python3 setup.py sdist bdist_wheel \
-	&& pip3 install $(echo dist/cpprb-*whl)['all']
+	&& pip3 install $(echo dist/cpprb-*.whl)['all']
 
 CMD ["/bin/bash"]
