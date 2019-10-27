@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <future>
 #include <thread>
+#include <numeric>
 
 #include <ReplayBuffer.hh>
 
