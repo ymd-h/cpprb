@@ -205,6 +205,10 @@ void test_PrioritizedSampler(){
   ymd::show_vector(ps_w,"weights [0.5,...,0.5]");
   ymd::show_vector(ps_i,"indexes [0.5,...,0.5]");
 
+  for(auto& w : ps_w){
+    ymd::AlmostEqual(w,1.0);
+  }
+
   ps_w[0] = 1e+10;
   ps.update_priorities(ps_i,ps_w);
   ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
