@@ -228,9 +228,5 @@ int main(){
 
   test_SelectiveEnvironment();
 
-  test_MultiThreadRingEnvironment();
-
-  test_MultiThreadPrioritizedSampler();
-
   return 0;
 }
