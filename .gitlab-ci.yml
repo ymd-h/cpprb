@@ -8,7 +8,6 @@ stages:
   - page_export
   - build_image
   - cpp_test
-  - py_build
   - page_build
   - py_test
   - test_coverage
@@ -27,7 +26,6 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - pip3 install $(echo dist/cpprb-*.whl)['all']
   artifacts:
     paths:
       - .coverage.*
@@ -58,18 +56,6 @@ SegmentTree.cpp:
   script:
     - $CXX -o test/SegmentTree test/SegmentTree.cpp
     - test/SegmentTree
-
-py_build:
-  <<: *setup
-  stage: py_build
-  script:
-    - python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL
-    - python3 setup.py sdist bdist_wheel
-  artifacts:
-    paths:
-      - dist
-      - cpprb/*.cpp
-      - cpprb/*/*.cpp
 
 ReplayBuffer:
   <<: *py_setup
