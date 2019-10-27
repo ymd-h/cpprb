@@ -195,10 +195,9 @@ int main(){
   std::cout << "*DimensionalBuffer.data(): " << *obs_ptr << std::endl;
 
   dm.store_data(v.data(),0ul,0ul,1ul);
-  std::cout << " DimensionalBuffer[0]: " << obs_ptr[0] << std::endl;
-  std::cout << "*DimensionalBuffer[1]: " << obs_ptr[1]  << std::endl;
-  std::cout << " DimensionalBuffer[2]: " << obs_ptr[2] << std::endl;
-
+  assert(0ul == obs_ptr[0]);
+  assert(1ul == obs_ptr[1]);
+  assert(2ul == obs_ptr[2]);
 
   for(auto n = 0ul; n < N_times; ++n){
     auto next_index = std::min(n*obs_dim % N_buffer_size,N_buffer_size-1);
