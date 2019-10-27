@@ -74,7 +74,7 @@ class TestIssue40(unittest.TestCase):
         done = 0
 
         for i in range(500):
-            rb.add(obs,act,rew,next_obs,done)
+            rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
 
         batch_size = 32
