@@ -7,9 +7,9 @@ variables:
 stages:
   - page_export
   - build_image
-  - cpp_test
+  - test
   - page_build
-  - py_test
+  - test
   - test_coverage
   - page_deploy
   - upload
@@ -22,7 +22,7 @@ stages:
 
 .test_template: &py_setup
   image: *dev_image
-  stage: py_test
+  stage: test
   before_script:
     - g++ --version
     - python3 --version
@@ -44,14 +44,14 @@ docker_build:
 
 ReplayBuffer.cpp:
   <<: *setup
-  stage: cpp_test
+  stage: test
   script:
     - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
     - test/ReplayBuffer
 
 SegmentTree.cpp:
   <<: *setup
-  stage: cpp_test
+  stage: test
   script:
     - $CXX -o test/SegmentTree test/SegmentTree.cpp
     - test/SegmentTree
