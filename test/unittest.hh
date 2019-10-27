@@ -45,7 +45,7 @@ namespace ymd {
 
   template<typename T1,typename T2>
   auto AlmostEqual(T1&& v,T2&& expected, std::common_type_t<T1,T2>&& eps = 1e-5,
-		   std::string lhs="",std::strng rhs=""){
+		   std::string lhs="",std::string rhs=""){
     if(std::abs(v - expected) > eps){
       std::cout << std::endl
 		<< "Assert AlmostEqual: "
