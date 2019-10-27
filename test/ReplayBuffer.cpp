@@ -42,10 +42,10 @@ void test_SelectiveEnvironment(){
 	    << ",act_dim=" << act_dim
 	    << ")" << std::endl;
 
-  Equal(se.get_next_index(),0ul);
-  Equal(se.get_stored_size(),0ul);
-  Equal(se.get_stored_episode_size(),0ul);
-  Equal(se.get_buffer_size(),episode_len*Nepisodes);
+  ymd::Equal(se.get_next_index(),0ul);
+  ymd::Equal(se.get_stored_size(),0ul);
+  ymd::Equal(se.get_stored_episode_size(),0ul);
+  ymd::Equal(se.get_buffer_size(),episode_len*Nepisodes);
 
   auto obs = std::vector(obs_dim*(episode_len+1),Observation{1});
   auto act = std::vector(act_dim*episode_len,Action{1.5});
@@ -62,10 +62,10 @@ void test_SelectiveEnvironment(){
   ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   ymd::show_pointer(done_,se.get_stored_size(),"done");
 
-  Equal(ep_len,1ul);
-  Equal(se.get_next_index(),1ul);
-  Equal(se.get_stored_size(),1ul);
-  Equal(se.get_stored_episode_size(),1ul);
+  ymd::Equal(ep_len,1ul);
+  ymd::Equal(se.get_next_index(),1ul);
+  ymd::Equal(se.get_stored_size(),1ul);
+  ymd::Equal(se.get_stored_episode_size(),1ul);
 
   // Add remained 3-steps
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
@@ -77,14 +77,14 @@ void test_SelectiveEnvironment(){
   ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   ymd::show_pointer(done_,se.get_stored_size(),"done");
 
-  Equal(ep_len,episode_len);
-  Equal(se.get_next_index(),episode_len);
-  Equal(se.get_stored_size(),episode_len);
-  Equal(se.get_stored_episode_size(),1ul);
+  ymd::Equal(ep_len,episode_len);
+  ymd::Equal(se.get_next_index(),episode_len);
+  ymd::Equal(se.get_stored_size(),episode_len);
+  ymd::Equal(se.get_stored_episode_size(),1ul);
 
   // Try to get non stored episode
   se.get_episode(1,ep_len,obs_,act_,rew_,next_obs_,done_);
-  Equal(ep_len,0ul);
+  ymd::Equal(ep_len,0ul);
 
   // Add shorter epsode
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
@@ -96,18 +96,18 @@ void test_SelectiveEnvironment(){
   ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   ymd::show_pointer(done_,se.get_stored_size(),"done");
 
-  Equal(se.get_next_index(),2*episode_len - 1ul);
-  Equal(se.get_stored_size(),2*episode_len - 1ul);
-  Equal(se.get_stored_episode_size(),2ul);
+  ymd::Equal(se.get_next_index(),2*episode_len - 1ul);
+  ymd::Equal(se.get_stored_size(),2*episode_len - 1ul);
+  ymd::Equal(se.get_stored_episode_size(),2ul);
 
   se.get_episode(1,ep_len,obs_,act_,rew_,next_obs_,done_);
-  Equal(ep_len,episode_len - 1ul);
+  ymd::Equal(ep_len,episode_len - 1ul);
 
   // Delete non existing episode
-  Equal(se.delete_episode(99),0ul);
-  Equal(se.get_next_index(),2*episode_len - 1ul);
-  Equal(se.get_stored_size(),2*episode_len - 1ul);
-  Equal(se.get_stored_episode_size(),2ul);
+  ymd::Equal(se.delete_episode(99),0ul);
+  ymd::Equal(se.get_next_index(),2*episode_len - 1ul);
+  ymd::Equal(se.get_stored_size(),2*episode_len - 1ul);
+  ymd::Equal(se.get_stored_episode_size(),2ul);
 
   // Delete 0
   se.delete_episode(0);
@@ -117,35 +117,35 @@ void test_SelectiveEnvironment(){
   ymd::show_pointer(rew_,se.get_stored_size(),"rew");
   ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   ymd::show_pointer(done_,se.get_stored_size(),"done");
-  Equal(se.get_next_index(),episode_len - 1ul);
-  Equal(se.get_stored_size(),episode_len - 1ul);
-  Equal(se.get_stored_episode_size(),1ul);
+  ymd::Equal(se.get_next_index(),episode_len - 1ul);
+  ymd::Equal(se.get_stored_size(),episode_len - 1ul);
+  ymd::Equal(se.get_stored_episode_size(),1ul);
 
   // Add shorter epsode with not terminating
   se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),
 	   episode_len - 1ul);
-  Equal(se.get_next_index(),2*episode_len - 2ul);
-  Equal(se.get_stored_size(),2*episode_len - 2ul);
-  Equal(se.get_stored_episode_size(),2ul);
+  ymd::Equal(se.get_next_index(),2*episode_len - 2ul);
+  ymd::Equal(se.get_stored_size(),2*episode_len - 2ul);
+  ymd::Equal(se.get_stored_episode_size(),2ul);
 
   // Delete half-open episode
   se.delete_episode(1);
-  Equal(se.get_next_index(),episode_len - 1ul);
-  Equal(se.get_stored_size(),episode_len - 1ul);
-  Equal(se.get_stored_episode_size(),1ul);
+  ymd::Equal(se.get_next_index(),episode_len - 1ul);
+  ymd::Equal(se.get_stored_size(),episode_len - 1ul);
+  ymd::Equal(se.get_stored_episode_size(),1ul);
 
   // Add shorter epsode with not terminating
   se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),
 	   episode_len - 1ul);
-  Equal(se.get_next_index(),2*episode_len - 2ul);
-  Equal(se.get_stored_size(),2*episode_len - 2ul);
-  Equal(se.get_stored_episode_size(),2ul);
+  ymd::Equal(se.get_next_index(),2*episode_len - 2ul);
+  ymd::Equal(se.get_stored_size(),2*episode_len - 2ul);
+  ymd::Equal(se.get_stored_episode_size(),2ul);
 
   // Delete 0 when finishing half-open episode
   se.delete_episode(0);
-  Equal(se.get_next_index(),episode_len - 1ul);
-  Equal(se.get_stored_size(),episode_len - 1ul);
-  Equal(se.get_stored_episode_size(),1ul);
+  ymd::Equal(se.get_next_index(),episode_len - 1ul);
+  ymd::Equal(se.get_stored_size(),episode_len - 1ul);
+  ymd::Equal(se.get_stored_episode_size(),1ul);
 }
 
 void test_DimensionalBuffer(){
@@ -168,16 +168,16 @@ void test_DimensionalBuffer(){
   std::cout << "*DimensionalBuffer.data(): " << *obs_ptr << std::endl;
 
   dm.store_data(v.data(),0ul,0ul,1ul);
-  Equal(obs_ptr[0],0ul);
-  Equal(obs_ptr[1],1ul);
-  Equal(obs_ptr[2],2ul);
+  ymd::Equal(obs_ptr[0],0ul);
+  ymd::Equal(obs_ptr[1],1ul);
+  ymd::Equal(obs_ptr[2],2ul);
 
   for(auto n = 0ul; n < N_times; ++n){
     auto next_index = std::min(n*obs_dim % N_buffer_size,N_buffer_size-1);
     dm.store_data(v.data(),0ul,next_index,1ul);
-    Equal(obs_ptr[next_index + 0],0ul);
-    Equal(obs_ptr[next_index + 1],1ul);
-    Equal(obs_ptr[next_index + 2],2ul);
+    ymd::Equal(obs_ptr[next_index + 0],0ul);
+    ymd::Equal(obs_ptr[next_index + 1],1ul);
+    ymd::Equal(obs_ptr[next_index + 2],2ul);
   }
 }
 
