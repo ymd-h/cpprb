@@ -5,6 +5,7 @@ variables:
   COVERAGE_RCFILE: .coveragerc
 
 stages:
+  - build_image
   - page_export
   - cpp_test
   - py_build
@@ -15,7 +16,7 @@ stages:
   - pypi_upload
 
 .job_template: &setup
-  image: &dev_image registry.gitlab.com/ymd_h/cpprb_build:latest
+  image: &dev_image $CI_REGISTRY_IMAGE/build:latest
   before_script:
     - g++ --version
     - python3 --version
@@ -30,6 +31,18 @@ stages:
   artifacts:
     paths:
       - .coverage.*
+
+docker_build:
+  image: docker:latest
+  stage: build_image
+  services:
+    - docker:dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE/build:latest || true
+    - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/build:latest -t $CI_REGISTRY_IMAGE/build:latest .
+    - docker run $CI_REGISTRY_IMAGE/build:latest
+    - docker push $CI_REGISTRY_IMAGE/build:latest
 
 ReplayBuffer.cpp:
   <<: *setup
