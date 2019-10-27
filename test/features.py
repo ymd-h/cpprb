@@ -7,7 +7,7 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
     def test_RGB_screen_obs(self):
         size = 256
         obs_shape = (84,84,3)
-        act_dim = 3
+        act_dim = 1
 
         rb = create_buffer(size,{"obs": {"shape": obs_shape},
                                  "act": {"shape": act_dim},
@@ -36,7 +36,7 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
     def test_BatchSampling(self):
         size = 256
         obs_shape = (84,84,3)
-        act_dim = 3
+        act_dim = 1
         batch_size = 64
 
         rb = create_buffer(size,
