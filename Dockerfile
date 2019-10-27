@@ -17,4 +17,6 @@ RUN apt update \
 
 RUN pip3 install -U pip setuptools && pip3 install -U coverage cython numpy sphinx twine wheel
 
+COPY . .
+
 CMD ["/bin/bash"]
