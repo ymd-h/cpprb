@@ -3,8 +3,8 @@
 
 #include <string>
 
-#define EQUAL(a,b) ymd::Equal((a),(b),#a,#b)
-#define ALMOST_EQUAL(a,b) ymd::AlmostEqual((a),(b),1e-5,#a,#b)
+#define EQUAL(a,b) ymd::Equal((a),(b),std::to_string(#a),std::to_string(#b))
+#define ALMOST_EQUAL(a,b) ymd::AlmostEqual((a),(b),1e-5,std::to_string(#a),std::to_string(#b))
 
 namespace ymd {
   template<typename F>
