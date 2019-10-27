@@ -218,11 +218,15 @@ class TestNstepReplayBuffer(TestReplayBuffer,TestNstepBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = NstepReplayBuffer(cls.buffer_size,
-                                   cls.obs_dim,
-                                   cls.act_dim,
-                                   nstep = cls.nstep,
-                                   discount = cls.discount)
+        cls.rb = ReplayBuffer(cls.buffer_size,
+                              {"obs": {"shape": cls.obs_dim},
+                               "act": {"shape": cls.act_dim},
+                               "rew": {},
+                               "next_obs": {"shape": cls.obs_dim},
+                               "done": {}},
+                              Nstep={"size": cls.nstep,
+                                     "rew": "rew",
+                                     "gamma": cls.discount})
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
 
