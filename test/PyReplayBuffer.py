@@ -253,7 +253,7 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
                                            "rew": {},
                                            "next_obs": {"shape": cls.obs_dim},
                                            "done": {}},
-                                          alpha=cls.alpha
+                                          alpha=cls.alpha,
                                           Nstep={"size": cls.nstep,
                                                 "rew": "rew",
                                                 "gamma": cls.discount})
