@@ -43,7 +43,6 @@ RUN python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL \
 	&& mkdir -p /tmp \
 	&& mv cpprb/*.html cpprb/*.cpp /tmp/ \
 	&& rm -rf /cpprb/* \
-	&& mkdir -p /cpprb/dist \
 	&& mkdir -p /cpprb/public/annotation \
 	&& mkdir -p /cpprb/cpp \
 	&& mv /tmp/*.html /cpprb/public/annotation/ \
