@@ -1,8 +1,7 @@
 import numpy as np
 import unittest
 
-from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,
-                   ProcessSharedPrioritizedReplayBuffer)
+from cpprb import (ReplayBuffer,PrioritizedReplayBuffer)
 from cpprb import create_buffer
 
 
@@ -102,10 +101,8 @@ class TestIssue44(unittest.TestCase):
         act_dim = 3
 
         prb = PrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
-        pprb = ProcessSharedPrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
 
         prb.clear()
-        pprb.clear()
 
 class TestIssue45(unittest.TestCase):
     def test_large_size(self):
