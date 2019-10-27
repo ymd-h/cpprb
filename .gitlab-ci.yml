@@ -139,7 +139,6 @@ sphinx:
   stage: page_build
   environment: production
   script:
-    - pip3 install $(echo dist/cpprb-*.whl)['all']
     - sphinx-apidoc -F -M -o sphinx cpprb
     - sphinx-build -b html sphinx public/api
   artifacts:
