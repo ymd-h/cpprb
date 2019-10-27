@@ -12,7 +12,7 @@ stages:
   - py_test
   - test_coverage
   - page_deploy
-  - pypi_upload
+  - upload
 
 .job_template: &setup
   image: &dev_image $CI_REGISTRY_IMAGE/build:latest
@@ -149,10 +149,25 @@ sphinx:
 
 pypi:
   image: *dev_image
-  stage: pypi_upload
+  stage: upload
   environment: production
   script:
     - twine upload dist/*.tar.gz
+  only:
+    - tags
+  except:
+    - branches
+
+repo:
+  image: docker:latest
+  stage: upload
+  services:
+    - docker:dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE/build:latest
+    - docker tag $CI_REGISTRY_IMAGE/build:latest $CI_REGISTRY_IMAGE/build:$CI_COMMIT_TAG
+    - docker push $CI_REGISTRY_IMAGE/build:$CI_COMMIT_TAG
   only:
     - tags
   except:
