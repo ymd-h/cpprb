@@ -27,8 +27,6 @@ void test_DimensionalBuffer(){
   constexpr const auto obs_dim = 3ul;
 
   constexpr const auto N_buffer_size = 1024ul;
-  constexpr const auto N_batch_size = 16ul;
-
   constexpr const auto N_times = 1000ul;
 
   auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
