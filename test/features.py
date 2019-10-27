@@ -9,9 +9,12 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
         obs_shape = (84,84,3)
         act_dim = 3
 
-        rb = create_buffer(size,obs_shape=obs_shape,act_dim=act_dim,
-                           prioritized = True,
-                           is_discrete_action = True)
+        rb = create_buffer(size,{"obs": {"shape": obs_shape},
+                                 "act": {"shape": act_dim},
+                                 "rew": {},
+                                 "next_obs": {"shape": obs_shape},
+                                 "done": {}},
+                           prioritized = True)
 
         obs = np.ones(obs_shape,dtype=np.double)
         act = 2
@@ -19,7 +22,7 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
         next_obs = np.zeros_like(obs)
         done = 0
 
-        rb.add(obs,act,rew,next_obs,done)
+        rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
         _o = rb._encode_sample(np.array((0)))["obs"]
         _no = rb._encode_sample(np.array((0)))["next_obs"]
