@@ -168,20 +168,13 @@ void test_SelectiveEnvironment(){
   assert(1ul == se.get_stored_episode_size());
 }
 
-int main(){
-
+void test_DimensionalBuffer(){
   constexpr const auto obs_dim = 3ul;
-  constexpr const auto act_dim = 1ul;
-  constexpr const auto rew_dim = 1ul;
 
   constexpr const auto N_buffer_size = 1024ul;
-  constexpr const auto N_step = 3 * N_buffer_size;
   constexpr const auto N_batch_size = 16ul;
 
   constexpr const auto N_times = 1000ul;
-
-  auto alpha = 0.7;
-  auto beta = 0.5;
 
   auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
   auto v = std::vector<Observation>{};
@@ -202,7 +195,26 @@ int main(){
   for(auto n = 0ul; n < N_times; ++n){
     auto next_index = std::min(n*obs_dim % N_buffer_size,N_buffer_size-1);
     dm.store_data(v.data(),0ul,next_index,1ul);
+    assert(0ul == obs_ptr[next_index + 0]);
+    assert(1ul == obs_ptr[next_index + 1]);
+    assert(2ul == obs_ptr[next_index + 2]);
   }
+}
+
+int main(){
+
+  constexpr const auto obs_dim = 3ul;
+  constexpr const auto act_dim = 1ul;
+  constexpr const auto rew_dim = 1ul;
+
+  constexpr const auto N_buffer_size = 1024ul;
+  constexpr const auto N_batch_size = 16ul;
+
+  constexpr const auto N_times = 1000ul;
+
+  auto alpha = 0.7;
+  auto beta = 0.5;
+
 
   std::cout << std::endl;
   std::cout << "PrioritizedSampler" << std::endl;
