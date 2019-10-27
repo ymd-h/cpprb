@@ -48,9 +48,9 @@ void test_DimensionalBuffer(){
   for(auto n = 0ul; n < N_times; ++n){
     auto next_index = std::min(n*obs_dim % N_buffer_size,N_buffer_size-1);
     dm.store_data(v.data(),0ul,next_index,1ul);
-    ymd::AlmostEqual(obs_ptr[next_index + 0],0ul);
-    ymd::AlmostEqual(obs_ptr[next_index + 1],1ul);
-    ymd::AlmostEqual(obs_ptr[next_index + 2],2ul);
+    ymd::AlmostEqual(obs_ptr[next_index * obs_dim + 0],0ul);
+    ymd::AlmostEqual(obs_ptr[next_index * obs_dim + 1],1ul);
+    ymd::AlmostEqual(obs_ptr[next_index * obs_dim + 2],2ul);
   }
 }
 
