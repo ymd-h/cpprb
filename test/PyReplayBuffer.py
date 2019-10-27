@@ -183,24 +183,24 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
     def setUpClass(cls):
         cls.rb = PrioritizedReplayBuffer(cls.buffer_size,
                                          {"obs": {"shape": cls.obs_dim},
-                                          "act": {"shape": cls.act_dim}.
+                                          "act": {"shape": cls.act_dim},
                                           "rew": {},
                                           "next_obs": {"shape": cls.obs_dim},
                                           "done": {}},
                                          alpha=cls.alpha)
         cls.rb2 = PrioritizedReplayBuffer(cls.buffer_size,
                                           {"obs": {"shape": cls.obs_dim},
-                                          "act": {"shape": cls.act_dim}.
-                                          "rew": {},
-                                          "next_obs": {"shape": cls.obs_dim},
-                                          "done": {}},
+                                           "act": {"shape": cls.act_dim},
+                                           "rew": {},
+                                           "next_obs": {"shape": cls.obs_dim},
+                                           "done": {}},
                                           alpha=cls.alpha)
         cls.rb_ui = PrioritizedReplayBuffer(cls.buffer_size,
                                             {"obs": {"shape": cls.obs_dim},
-                                          "act": {"shape": cls.act_dim}.
-                                          "rew": {},
-                                          "next_obs": {"shape": cls.obs_dim},
-                                          "done": {}},
+                                             "act": {"shape": cls.act_dim},
+                                             "rew": {},
+                                             "next_obs": {"shape": cls.obs_dim},
+                                             "done": {}},
                                             alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
@@ -235,21 +235,21 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
     def setUpClass(cls):
         cls.rb = NstepPrioritizedReplayBuffer(cls.buffer_size,
                                               {"obs": {"shape": cls.obs_dim},
-                                               "act": {"shape": cls.act_dim}.
+                                               "act": {"shape": cls.act_dim},
                                                "rew": {},
                                                "next_obs": {"shape": cls.obs_dim},
                                                "done": {}},
                                               alpha=cls.alpha)
         cls.rb2 = NstepPrioritizedReplayBuffer(cls.buffer_size,
                                                {"obs": {"shape": cls.obs_dim},
-                                                "act": {"shape": cls.act_dim}.
+                                                "act": {"shape": cls.act_dim},
                                                 "rew": {},
                                                 "next_obs": {"shape": cls.obs_dim},
                                                 "done": {}},
                                                alpha=cls.alpha)
         cls.rb_ui = NstepPrioritizedReplayBuffer(cls.buffer_size,
                                                  {"obs": {"shape": cls.obs_dim},
-                                                  "act": {"shape": cls.act_dim}.
+                                                  "act": {"shape": cls.act_dim},
                                                   "rew": {},
                                                   "next_obs": {"shape": cls.obs_dim},
                                                   "done": {}},
@@ -272,7 +272,7 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
     def setUpClass(cls):
         cls.rb = SelectiveReplayBuffer(cls.buffer_size,
                                        {"obs": {"shape": cls.obs_dim},
-                                        "act": {"shape": cls.act_dim}.
+                                        "act": {"shape": cls.act_dim},
                                         "rew": {},
                                         "next_obs": {"shape": cls.obs_dim},
                                         "done": {}},
