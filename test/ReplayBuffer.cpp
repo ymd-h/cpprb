@@ -201,26 +201,18 @@ void test_DimensionalBuffer(){
   }
 }
 
-int main(){
-
-  constexpr const auto obs_dim = 3ul;
-  constexpr const auto act_dim = 1ul;
-  constexpr const auto rew_dim = 1ul;
-
+void test_PrioritizedSampler(){
   constexpr const auto N_buffer_size = 1024ul;
   constexpr const auto N_batch_size = 16ul;
+  constexpr const auto N_step = 3 * N_buffer_size;
 
-  constexpr const auto N_times = 1000ul;
-
-  auto alpha = 0.7;
-  auto beta = 0.5;
-
-  test_DimensionalBuffer();
+  constexpr const auto alpha = 0.7;
+  constexpr const auto beta = 0.4;
 
 
   std::cout << std::endl;
   std::cout << "PrioritizedSampler" << std::endl;
-  auto ps = ymd::CppPrioritizedSampler(N_buffer_size,0.7);
+  auto ps = ymd::CppPrioritizedSampler(N_buffer_size,alpha);
   for(auto i = 0ul; i < N_step; ++i){
     ps.set_priorities(i % N_buffer_size,0.5);
   }
@@ -228,17 +220,22 @@ int main(){
   auto ps_w = std::vector<Priority>{};
   auto ps_i = std::vector<std::size_t>{};
 
-  ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
+  ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
 
   ymd::show_vector(ps_w,"weights [0.5,...,0.5]");
   ymd::show_vector(ps_i,"indexes [0.5,...,0.5]");
 
   ps_w[0] = 1e+10;
   ps.update_priorities(ps_i,ps_w);
-  ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
+  ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
   ymd::show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
   ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
+}
 
+int main(){
+
+  test_DimensionalBuffer();
+  test_PrioritizedSampler();
   test_SelectiveEnvironment();
 
   return 0;
