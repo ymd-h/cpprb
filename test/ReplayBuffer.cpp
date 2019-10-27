@@ -215,6 +215,8 @@ int main(){
   auto alpha = 0.7;
   auto beta = 0.5;
 
+  test_DimensionalBuffer();
+
 
   std::cout << std::endl;
   std::cout << "PrioritizedSampler" << std::endl;
