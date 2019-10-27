@@ -16,7 +16,8 @@ RUN apt update \
 	&& cd / \
 	&& rm -rf Python-${PYTHON_VERSION}{,.tar.xz}
 
-RUN pip3 install -U pip setuptools && pip3 install -U coverage cython numpy sphinx twine wheel
+RUN pip3 install -U pip setuptools \
+	&& pip3 install -U coverage cython matplotlib numpy sphinx twine wheel
 
 COPY . /cpprb
 
