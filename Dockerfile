@@ -22,7 +22,15 @@ RUN apt update \
 	&& rm -rf Python-${PYTHON_VERSION}{,.tar.xz}
 
 RUN pip3 install -U pip setuptools \
-	&& pip3 install -U coverage cython matplotlib numpy sphinx twine wheel
+	&& pip3 install -U \
+	coverage \
+	cython \
+	matplotlib \
+	numpy \
+	pyvirtualdisplay \
+	sphinx \
+	twine \
+	wheel
 
 COPY . /cpprb
 
