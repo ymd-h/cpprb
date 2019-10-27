@@ -9,7 +9,12 @@ class TestIssue39(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer(obs_dim=3, act_dim=3, size=10)
+        cls.rb = ReplayBuffer(10,
+                              {"obs": {"shape": 3},
+                               "act": {"shape": 3},
+                               "rew": {},
+                               "next_obs": {"shape": 3},
+                               "done": {}})
         for i in range(10):
             obs_act = np.array([i for _ in range(3)], dtype=np.float64)
             cls.rb.add(obs=obs_act,
