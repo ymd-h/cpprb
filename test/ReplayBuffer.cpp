@@ -43,67 +43,6 @@ inline auto timer(F&& f,std::size_t N){
 	    << std::endl;
 }
 
-void test_NstepReward(){
-  constexpr const auto buffer_size = 16ul;
-  constexpr const auto obs_dim = 3ul;
-  constexpr const auto nstep = 4;
-  constexpr const auto gamma = 0.99;
-
-  auto rb = ymd::CppNstepRewardBuffer<Observation,Reward>(buffer_size,
-							  obs_dim,nstep,gamma);
-
-  auto rew = std::vector(buffer_size,Reward{1});
-  auto next_obs = std::vector(buffer_size * obs_dim,Observation{0});
-  std::iota(next_obs.begin(),next_obs.end(),Observation{1});
-
-  auto done = std::vector(buffer_size,Done{0});
-  done.back() = Done{1};
-  done[buffer_size / 2] = Done{1};
-
-  auto indexes = std::vector(buffer_size,0ul);
-  std::iota(indexes.begin(),indexes.end(),0ul);
-
-  Reward *discounts, *ret;
-  Observation* nstep_next_obs;
-
-  rb.sample(indexes,rew.data(),next_obs.data(),done.data());
-  rb.get_buffer_pointers(discounts,ret,nstep_next_obs);
-
-  std::cout << std::endl
-	    << "NstepRewardBuffer "
-	    << "(buffer_size=" << buffer_size
-	    << ",nstep=" << nstep
-	    << ",gamma=" << gamma
-	    << ")" << std::endl;
-
-  std::cout << "[Input]" << std::endl;
-  ymd::show_vector(rew,"rew");
-  ymd::show_vector(next_obs,"next_obs (obs_dim="s + std::to_string(obs_dim) + ")");
-  ymd::show_vector(done,"done");
-
-  std::cout << "[Output]" << std::endl;
-  ymd::show_pointer(discounts,buffer_size,"discounts");
-  ymd::show_pointer(ret,buffer_size,"ret");
-  ymd::show_pointer(nstep_next_obs,buffer_size*obs_dim,"nstep_next_obs");
-
-  auto r =std::vector<Reward>{};
-  std::generate_n(std::back_inserter(r),nstep,
-		  [=,i=0ul]() mutable { return std::pow(gamma,i++); });
-
-  for(auto i = 0ul; i < buffer_size; ++i){
-    std::size_t end = std::distance(done.begin(),
-				    std::find_if(done.begin()+i,done.end(),
-						 [last=0.0](auto v) mutable {
-						   return std::exchange(last,v) > 0.5;
-						 }));
-    auto exp_d = (i + nstep -1 < end ? r.back(): r[end - i -1]);
-    if(std::abs(discounts[i] - exp_d) > exp_d * 0.001){
-      std::cout << "discounts["<< i << "] != " << exp_d << std::endl;
-      assert(!(std::abs(discounts[i] - exp_d) > exp_d * 0.001));
-    }
-  }
-}
-
 void test_SelectiveEnvironment(){
   constexpr const auto obs_dim = 3ul;
   constexpr const auto act_dim = 1ul;
@@ -287,7 +226,6 @@ int main(){
   ymd::show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
   ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
 
-  test_NstepReward();
   test_SelectiveEnvironment();
 
   test_MultiThreadRingEnvironment();
