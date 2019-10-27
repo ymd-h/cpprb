@@ -95,7 +95,8 @@ coverage:
   <<: *setup
   stage: test_coverage
   script:
-    - ls cpp
+    - pwd
+    - ls
     - mv cpp/*.cpp cpprb/
     - python3 -m coverage combine
     - python3 -m coverage report
