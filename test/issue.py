@@ -65,7 +65,7 @@ class TestIssue40(unittest.TestCase):
         buffer_size = 256
         obs_dim = 3
         act_dim = 1
-        rb = ReplayBuffer(buffer_size,obs_dim,act_dim)
+        rb = ReplayBuffer(buffer_size,{"obs": {"shape": obs_dim}, "act": {"shape": act_dim}, "rew": {}, "next_obs": {"shape": obs_dim}, "done": {}})
 
         obs = np.ones(shape=(obs_dim))
         act = np.ones(shape=(act_dim))
@@ -86,8 +86,18 @@ class TestIssue43(unittest.TestCase):
         obs_dim = 3
         act_dim = 1
 
-        rb = ReplayBuffer(buffer_size,obs_dim,act_dim)
-        prb = PrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
+        rb = ReplayBuffer(buffer_size,
+                          {"obs": {"shape": obs_dim},
+                           "act": {"shape": act_dim},
+                           "rew": {},
+                           "next_obs": {"shape": obs_dim},
+                           "done": {}})
+        prb = PrioritizedReplayBuffer(buffer_size,
+                                      {"obs": {"shape": obs_dim},
+                                       "act": {"shape": act_dim},
+                                       "rew": {},
+                                       "next_obs": {"shape": obs_dim},
+                                       "done": {}})
 
         self.assertEqual(1024,rb.get_buffer_size())
         self.assertEqual(1024,prb.get_buffer_size())
@@ -100,7 +110,12 @@ class TestIssue44(unittest.TestCase):
         obs_dim = 15
         act_dim = 3
 
-        prb = PrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
+        prb = PrioritizedReplayBuffer(buffer_size,
+                                      {"obs": {"shape": obs_dim},
+                                       "act": {"shape": act_dim},
+                                       "rew": {},
+                                       "next_obs": {"shape": obs_dim},
+                                       "done": {}})
 
         prb.clear()
 
