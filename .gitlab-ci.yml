@@ -153,6 +153,9 @@ pypi:
   stage: upload
   environment: production
   script:
+    - rm -rf cpprb/*.cpp
+    - python3 setup.py clean
+    - python3 setup.py build_ext sdist
     - twine upload dist/*.tar.gz
   only:
     - tags
