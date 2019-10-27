@@ -42,7 +42,7 @@ RUN python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL \
 	&& pip3 install $(echo dist/cpprb-*.whl)['all'] \
 	&& mkdir -p /tmp \
 	&& mv dist/cpprb-*.whl /tmp/ \
-	&& mv cpprb/*.{html,cpp} /tmp/ \
+	&& mv cpprb/*.html cpprb/*.cpp /tmp/ \
 	&& rm -rf /cpprb/* \
 	&& mkdir -p /cpprb/dist \
 	&& mkdir -p /cpprb/public/annotation \
