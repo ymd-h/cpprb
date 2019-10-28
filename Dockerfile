@@ -30,6 +30,7 @@ RUN pip3 install -U pip setuptools \
 	numpy \
 	pyvirtualdisplay \
 	sphinx \
+	sphinx_rtd_theme \
 	twine \
 	wheel
 
