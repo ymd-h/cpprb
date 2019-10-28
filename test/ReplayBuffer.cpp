@@ -1,12 +1,12 @@
 #include <iostream>
 #include <chrono>
 #include <tuple>
-#include <string>
 #include <cassert>
 #include <cmath>
 #include <type_traits>
 #include <future>
 #include <thread>
+#include <numeric>
 
 #include <ReplayBuffer.hh>
 
@@ -23,85 +23,73 @@ using Priority = double;
 const auto cores = std::thread::hardware_concurrency();
 using cores_t = std::remove_const_t<decltype(cores)>;
 
-template<typename F>
-inline auto timer(F&& f,std::size_t N){
-  auto start = std::chrono::high_resolution_clock::now();
+void test_DimensionalBuffer(){
+  constexpr const auto obs_dim = 3ul;
 
-  for(std::size_t i = 0ul; i < N; ++i){ f(); }
+  constexpr const auto N_buffer_size = 1024ul;
+  constexpr const auto N_times = 1000ul;
 
-  auto end = std::chrono::high_resolution_clock::now();
-  auto elapsed = end - start;
+  auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
+  auto v = std::vector<Observation>{};
+  std::generate_n(std::back_inserter(v),obs_dim,
+		  [i=0ul]()mutable{ return Observation(i++); });
 
-  auto s = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
-  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
-  auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-  auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed);
-  std::cout << s.count() << "s "
-	    << ms.count() - s.count() * 1000 << "ms "
-	    << us.count() - ms.count() * 1000 << "us "
-	    << ns.count() - us.count() * 1000 << "ns"
-	    << std::endl;
+  std::cout << "DimensionalBuffer: " << std::endl;
+  Observation* obs_ptr = nullptr;
+  dm.get_data(0ul,obs_ptr);
+  std::cout << " DimensionalBuffer.data(): " << obs_ptr<< std::endl;
+  std::cout << "*DimensionalBuffer.data(): " << *obs_ptr << std::endl;
+
+  dm.store_data(v.data(),0ul,0ul,1ul);
+  ALMOST_EQUAL(obs_ptr[0],0ul);
+  ALMOST_EQUAL(obs_ptr[1],1ul);
+  ALMOST_EQUAL(obs_ptr[2],2ul);
+
+  for(auto n = 0ul; n < N_times; ++n){
+    auto next_index = std::min(n*obs_dim % N_buffer_size,N_buffer_size-1);
+    dm.store_data(v.data(),0ul,next_index,1ul);
+    ALMOST_EQUAL(obs_ptr[next_index * obs_dim + 0],0ul);
+    ALMOST_EQUAL(obs_ptr[next_index * obs_dim + 1],1ul);
+    ALMOST_EQUAL(obs_ptr[next_index * obs_dim + 2],2ul);
+  }
 }
 
-void test_NstepReward(){
-  constexpr const auto buffer_size = 16ul;
-  constexpr const auto obs_dim = 3ul;
-  constexpr const auto nstep = 4;
-  constexpr const auto gamma = 0.99;
+void test_PrioritizedSampler(){
+  constexpr const auto N_buffer_size = 1024ul;
+  constexpr const auto N_batch_size = 16ul;
+  constexpr const auto N_step = 3 * N_buffer_size;
 
-  auto rb = ymd::CppNstepRewardBuffer<Observation,Reward>(buffer_size,
-							  obs_dim,nstep,gamma);
+  constexpr const auto alpha = 0.7;
+  constexpr const auto beta = 0.4;
 
-  auto rew = std::vector(buffer_size,Reward{1});
-  auto next_obs = std::vector(buffer_size * obs_dim,Observation{0});
-  std::iota(next_obs.begin(),next_obs.end(),Observation{1});
+  constexpr const auto LARGE_P = 1e+10;
 
-  auto done = std::vector(buffer_size,Done{0});
-  done.back() = Done{1};
-  done[buffer_size / 2] = Done{1};
-
-  auto indexes = std::vector(buffer_size,0ul);
-  std::iota(indexes.begin(),indexes.end(),0ul);
-
-  Reward *discounts, *ret;
-  Observation* nstep_next_obs;
-
-  rb.sample(indexes,rew.data(),next_obs.data(),done.data());
-  rb.get_buffer_pointers(discounts,ret,nstep_next_obs);
-
-  std::cout << std::endl
-	    << "NstepRewardBuffer "
-	    << "(buffer_size=" << buffer_size
-	    << ",nstep=" << nstep
-	    << ",gamma=" << gamma
-	    << ")" << std::endl;
-
-  std::cout << "[Input]" << std::endl;
-  ymd::show_vector(rew,"rew");
-  ymd::show_vector(next_obs,"next_obs (obs_dim="s + std::to_string(obs_dim) + ")");
-  ymd::show_vector(done,"done");
-
-  std::cout << "[Output]" << std::endl;
-  ymd::show_pointer(discounts,buffer_size,"discounts");
-  ymd::show_pointer(ret,buffer_size,"ret");
-  ymd::show_pointer(nstep_next_obs,buffer_size*obs_dim,"nstep_next_obs");
-
-  auto r =std::vector<Reward>{};
-  std::generate_n(std::back_inserter(r),nstep,
-		  [=,i=0ul]() mutable { return std::pow(gamma,i++); });
-
-  for(auto i = 0ul; i < buffer_size; ++i){
-    std::size_t end = std::distance(done.begin(),
-				    std::find_if(done.begin()+i,done.end(),
-						 [last=0.0](auto v) mutable {
-						   return std::exchange(last,v) > 0.5;
-						 }));
-    auto exp_d = (i + nstep -1 < end ? r.back(): r[end - i -1]);
-    if(std::abs(discounts[i] - exp_d) > exp_d * 0.001){
-      std::cout << "discounts["<< i << "] != " << exp_d << std::endl;
-      assert(!(std::abs(discounts[i] - exp_d) > exp_d * 0.001));
-    }
+  std::cout << std::endl;
+  std::cout << "PrioritizedSampler" << std::endl;
+  auto ps = ymd::CppPrioritizedSampler(N_buffer_size,alpha);
+  for(auto i = 0ul; i < N_step; ++i){
+    ps.set_priorities(i % N_buffer_size,0.5);
   }
+
+  auto ps_w = std::vector<Priority>{};
+  auto ps_i = std::vector<std::size_t>{};
+
+  ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
+
+  ymd::show_vector(ps_w,"weights [0.5,...,0.5]");
+  ymd::show_vector(ps_i,"indexes [0.5,...,0.5]");
+
+  for(auto& w : ps_w){
+    ALMOST_EQUAL(w,1.0);
+  }
+
+  ps_w[0] = LARGE_P;
+  ps.update_priorities(ps_i,ps_w);
+  ps.sample(N_batch_size,beta,ps_w,ps_i,N_buffer_size);
+  ymd::show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
+  ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
+
+  ALMOST_EQUAL(ps.get_max_priority(),LARGE_P);
 }
 
 void test_SelectiveEnvironment(){
@@ -123,10 +111,10 @@ void test_SelectiveEnvironment(){
 	    << ",act_dim=" << act_dim
 	    << ")" << std::endl;
 
-  assert(0ul == se.get_next_index());
-  assert(0ul == se.get_stored_size());
-  assert(0ul == se.get_stored_episode_size());
-  assert(episode_len*Nepisodes == se.get_buffer_size());
+  EQUAL(se.get_next_index(),0ul);
+  EQUAL(se.get_stored_size(),0ul);
+  EQUAL(se.get_stored_episode_size(),0ul);
+  EQUAL(se.get_buffer_size(),episode_len*Nepisodes);
 
   auto obs = std::vector(obs_dim*(episode_len+1),Observation{1});
   auto act = std::vector(act_dim*episode_len,Action{1.5});
@@ -143,10 +131,10 @@ void test_SelectiveEnvironment(){
   ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   ymd::show_pointer(done_,se.get_stored_size(),"done");
 
-  assert(1ul == ep_len);
-  assert(1ul == se.get_next_index());
-  assert(1ul == se.get_stored_size());
-  assert(1ul == se.get_stored_episode_size());
+  EQUAL(ep_len,1ul);
+  EQUAL(se.get_next_index(),1ul);
+  EQUAL(se.get_stored_size(),1ul);
+  EQUAL(se.get_stored_episode_size(),1ul);
 
   // Add remained 3-steps
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
@@ -158,14 +146,14 @@ void test_SelectiveEnvironment(){
   ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   ymd::show_pointer(done_,se.get_stored_size(),"done");
 
-  assert(episode_len == ep_len);
-  assert(episode_len == se.get_next_index());
-  assert(episode_len == se.get_stored_size());
-  assert(1ul == se.get_stored_episode_size());
+  EQUAL(ep_len,episode_len);
+  EQUAL(se.get_next_index(),episode_len);
+  EQUAL(se.get_stored_size(),episode_len);
+  EQUAL(se.get_stored_episode_size(),1ul);
 
   // Try to get non stored episode
   se.get_episode(1,ep_len,obs_,act_,rew_,next_obs_,done_);
-  assert(0ul == ep_len);
+  EQUAL(ep_len,0ul);
 
   // Add shorter epsode
   se.store(obs.data()+1,act.data()+1,rew.data()+1,obs.data()+2,done.data()+1,
@@ -177,18 +165,18 @@ void test_SelectiveEnvironment(){
   ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   ymd::show_pointer(done_,se.get_stored_size(),"done");
 
-  assert(2*episode_len - 1ul == se.get_next_index());
-  assert(2*episode_len - 1ul == se.get_stored_size());
-  assert(2ul == se.get_stored_episode_size());
+  EQUAL(se.get_next_index(),2*episode_len - 1ul);
+  EQUAL(se.get_stored_size(),2*episode_len - 1ul);
+  EQUAL(se.get_stored_episode_size(),2ul);
 
   se.get_episode(1,ep_len,obs_,act_,rew_,next_obs_,done_);
-  assert(episode_len - 1ul == ep_len);
+  EQUAL(ep_len,episode_len - 1ul);
 
   // Delete non existing episode
-  assert(0ul == se.delete_episode(99));
-  assert(2*episode_len - 1ul == se.get_next_index());
-  assert(2*episode_len - 1ul == se.get_stored_size());
-  assert(2ul == se.get_stored_episode_size());
+  EQUAL(se.delete_episode(99),0ul);
+  EQUAL(se.get_next_index(),2*episode_len - 1ul);
+  EQUAL(se.get_stored_size(),2*episode_len - 1ul);
+  EQUAL(se.get_stored_episode_size(),2ul);
 
   // Delete 0
   se.delete_episode(0);
@@ -198,352 +186,42 @@ void test_SelectiveEnvironment(){
   ymd::show_pointer(rew_,se.get_stored_size(),"rew");
   ymd::show_pointer(next_obs_,se.get_stored_size()*obs_dim,"next_obs");
   ymd::show_pointer(done_,se.get_stored_size(),"done");
-  assert(episode_len - 1ul == se.get_next_index());
-  assert(episode_len - 1ul == se.get_stored_size());
-  assert(1ul == se.get_stored_episode_size());
+  EQUAL(se.get_next_index(),episode_len - 1ul);
+  EQUAL(se.get_stored_size(),episode_len - 1ul);
+  EQUAL(se.get_stored_episode_size(),1ul);
 
   // Add shorter epsode with not terminating
   se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),
 	   episode_len - 1ul);
-  assert(2*episode_len - 2ul == se.get_next_index());
-  assert(2*episode_len - 2ul == se.get_stored_size());
-  assert(2ul == se.get_stored_episode_size());
+  EQUAL(se.get_next_index(),2*episode_len - 2ul);
+  EQUAL(se.get_stored_size(),2*episode_len - 2ul);
+  EQUAL(se.get_stored_episode_size(),2ul);
 
   // Delete half-open episode
   se.delete_episode(1);
-  assert(episode_len - 1ul == se.get_next_index());
-  assert(episode_len - 1ul == se.get_stored_size());
-  assert(1ul == se.get_stored_episode_size());
+  EQUAL(se.get_next_index(),episode_len - 1ul);
+  EQUAL(se.get_stored_size(),episode_len - 1ul);
+  EQUAL(se.get_stored_episode_size(),1ul);
 
   // Add shorter epsode with not terminating
   se.store(obs.data(),act.data(),rew.data(),obs.data()+1,done.data(),
 	   episode_len - 1ul);
-  assert(2*episode_len - 2ul == se.get_next_index());
-  assert(2*episode_len - 2ul == se.get_stored_size());
-  assert(2ul == se.get_stored_episode_size());
+  EQUAL(se.get_next_index(),2*episode_len - 2ul);
+  EQUAL(se.get_stored_size(),2*episode_len - 2ul);
+  EQUAL(se.get_stored_episode_size(),2ul);
 
   // Delete 0 when finishing half-open episode
   se.delete_episode(0);
-  assert(episode_len - 1ul == se.get_next_index());
-  assert(episode_len - 1ul == se.get_stored_size());
-  assert(1ul == se.get_stored_episode_size());
-}
-
-void test_MultiThreadRingEnvironment(){
-  constexpr const auto buffer_size = 1024ul * 256ul;
-  constexpr const auto obs_dim = 3ul;
-  constexpr const auto act_dim = 1ul;
-  constexpr const auto add_dim = 100ul;
-  constexpr const auto N_step = buffer_size * 3;
-  constexpr const auto N_times = 10;
-
-  std::cout << std::endl << "Multi-Thread RingEnvironment("
-	    << "buffer_size=" << buffer_size
-	    << ",obs_dim=" << obs_dim
-	    << ",act_dim=" << act_dim
-	    << ")" << std::endl;
-
-  using NoLock_t = ymd::CppRingEnvironment<Observation,Action,Reward,Done,false>;
-  using Lock_t = ymd::CppThreadSafeRingEnvironment<Observation,Action,Reward,Done>;
-
-  auto single = NoLock_t(buffer_size,obs_dim,act_dim);
-  auto multi  = Lock_t(buffer_size,obs_dim,act_dim);
-  auto multi2 = Lock_t(buffer_size,obs_dim,act_dim);
-
-
-  auto obs = std::vector<Observation>{};
-  auto act = std::vector<Action>{};
-  auto rew = std::vector<Reward>{};
-  auto next_obs = std::vector<Observation>{};
-  auto done = std::vector<Done>{};
-
-  obs.reserve(obs_dim * buffer_size);
-  act.reserve(act_dim * buffer_size);
-  rew.reserve(buffer_size);
-  next_obs.reserve(obs_dim * buffer_size);
-  done.reserve(buffer_size);
-
-  for(auto i = 0ul; i < N_step; ++i){
-    std::fill_n(std::back_inserter(obs),obs_dim,1.0*i);
-    std::fill_n(std::back_inserter(act),act_dim,0.5*i);
-    rew.push_back(0.1*i);
-    std::fill_n(std::back_inserter(next_obs),obs_dim,1.0*(i+1));
-    done.push_back(i % 25 == 0 ? 1: 0);
-  }
-
-  std::cout << N_times << " times execution" << std::endl;
-
-  auto f_core =
-    [&](auto& b, std::size_t N_add,std::size_t start,std::size_t stop){
-      for(auto i = start; i < stop; i += N_add){
-	b.store(obs.data() + i*obs_dim,
-		act.data() + i*act_dim,
-		rew.data() + i,
-		next_obs.data() + i*obs_dim,
-		done.data() + i,
-		std::min(N_add,stop-i));
-      }
-    };
-
-  auto f =
-    [&](auto& b,std::size_t N_add){
-      std::cout << "Adding " << N_add << " time-points at once" << std::endl;
-      timer([&]() mutable {
-	      f_core(b,N_add,0ul,N_step);
-	    },N_times);
-    };
-
-  auto multi_f =
-    [&](auto& b,std::size_t N_add,auto cores){
-
-      const std::size_t n = N_step/cores;
-
-      auto v = std::vector<std::future<void>>{};
-      v.reserve(cores-1);
-
-      std::cout << "Adding " << N_add << " time-points at once" << std::endl;
-      timer([&]() mutable {
-	      for(cores_t i = 0; i < cores-1; ++i){
-		v.push_back(std::async(std::launch::async,
-				       [&](){ f_core(b,N_add,n*i,n*(i+1)); }));
-	      }
-	      f_core(b,N_add,n*(cores-1),N_step);
-
-	      for(auto& ve: v){ ve.wait(); }
-	    },N_times);
-    };
-
-  std::cout << "Single-thread without lock" << std::endl;
-  f(single,1);
-  std::cout << std::endl;
-  single.clear();
-  f(single,100);
-  std::cout << std::endl;
-
-  std::cout << "Single-thread with lock" << std::endl;
-  f(multi,1);
-  std::cout << std::endl;
-  multi.clear();
-  f(multi,add_dim);
-  std::cout << std::endl;
-
-  std::cout << "Multi-thread with lock" << std::endl;
-  std::cout << cores << " cores execution." << std::endl;
-
-  multi_f(multi2,1,cores);
-  std::cout << std::endl;
-  multi2.clear();
-  multi_f(multi2,add_dim,cores);
-  std::cout << std::endl;
-
-}
-
-void test_MultiThreadPrioritizedSampler(){
-  constexpr const auto buffer_size = 1024ul;
-  constexpr const auto alpha = 0.5;
-  constexpr const auto beta = 0.4;
-  constexpr const auto batch_size = 16ul;
-  std::cout << "Multi-Thread PrioritizedSampler" << std::endl;
-
-  auto per = ymd::CppThreadSafePrioritizedSampler<Priority>(buffer_size,alpha);
-
-
-  std::cout << "Single Thread set_prioriries(index)" << std::endl;
-  for(auto i = 0ul; i < 20ul; ++i){
-    per.set_priorities(i % buffer_size);
-  }
-
-  std::cout << "Single Thread set_prioriries(index,p)" << std::endl;
-  for(auto i = 0ul; i < 20ul; ++i){
-    per.set_priorities((i+20) % buffer_size,0.3*i);
-  }
-
-  std::cout << "cores: " << cores << std::endl;
-  const auto N = buffer_size / std::max((cores - 1),cores_t(1));
-  auto ps = std::vector<Priority>(N,0.5);
-
-  std::cout << "Single Thread set_prioriries(index,p_ptr,N,buffer_size)" << std::endl;
-  for(auto i = 0ul; i < 20ul; ++i){
-    per.set_priorities((i+40) % buffer_size,ps.data(),N,buffer_size);
-  }
-
-  std::cout << "Single Thread set_prioriries(index,N,buffer_size)" << std::endl;
-  for(auto i = 0ul; i < 20ul; ++i){
-    per.set_priorities((i+40) % buffer_size,N,buffer_size);
-  }
-
-  std::vector<std::future<void>> futures{};
-  futures.reserve(cores);
-
-  std::cout << "Multi Thread set_prioriries(index,N,buffer_size)" << std::endl;
-  std::generate_n(std::back_inserter(futures),cores,
-		  [&,index = -N] () mutable {
-		    index += N;
-		    return std::async(std::launch::async,
-				      [&](){
-					per.set_priorities(index,N,buffer_size);
-				      });
-		  });
-  for(auto& f : futures){ f.wait(); }
-  per.clear();
-
-  std::cout << "Multi Thread set_prioriries(index,p_ptr,N,buffer_size)" << std::endl;
-  std::generate_n(std::back_inserter(futures),cores,
-		  [&,index = -N] () mutable {
-		    index += N;
-		    return std::async(std::launch::async,
-				      [&](){
-					per.set_priorities(index,ps.data(),
-							   N,buffer_size);
-				      });
-		  });
-  for(auto& f : futures){ f.wait(); }
-
-  std::vector<std::size_t> indexes{};
-  std::vector<Priority> weights{};
-
-  std::cout << "sample(batch_size,beta,weights,indexes,buffer_size)" << std::endl;
-  per.sample(batch_size,beta,weights,indexes,buffer_size);
-
-  std::cout << "get_max_priority" << std::endl;
-  ymd::AlmostEqual(per.get_max_priority(),1.0);
+  EQUAL(se.get_next_index(),episode_len - 1ul);
+  EQUAL(se.get_stored_size(),episode_len - 1ul);
+  EQUAL(se.get_stored_episode_size(),1ul);
 }
 
 int main(){
 
-  constexpr const auto obs_dim = 3ul;
-  constexpr const auto act_dim = 1ul;
-  constexpr const auto rew_dim = 1ul;
-
-  constexpr const auto N_buffer_size = 1024ul;
-  constexpr const auto N_step = 3 * N_buffer_size;
-  constexpr const auto N_batch_size = 16ul;
-
-  constexpr const auto N_times = 1000ul;
-
-  auto alpha = 0.7;
-  auto beta = 0.5;
-
-  auto dm = ymd::DimensionalBuffer<Observation>{N_buffer_size,obs_dim};
-  auto v = std::vector<Observation>{};
-  std::generate_n(std::back_inserter(v),obs_dim,
-		  [i=0ul]()mutable{ return Observation(i++); });
-
-  std::cout << "DimensionalBuffer: " << std::endl;
-  Observation* obs_ptr = nullptr;
-  dm.get_data(0ul,obs_ptr);
-  std::cout << " DimensionalBuffer.data(): " << obs_ptr<< std::endl;
-  std::cout << "*DimensionalBuffer.data(): " << *obs_ptr << std::endl;
-
-  dm.store_data(v.data(),0ul,0ul,1ul);
-  std::cout << " DimensionalBuffer[0]: " << obs_ptr[0] << std::endl;
-  std::cout << "*DimensionalBuffer[1]: " << obs_ptr[1]  << std::endl;
-  std::cout << " DimensionalBuffer[2]: " << obs_ptr[2] << std::endl;
-
-
-  for(auto n = 0ul; n < N_times; ++n){
-    auto next_index = std::min(n*obs_dim % N_buffer_size,N_buffer_size-1);
-    dm.store_data(v.data(),0ul,next_index,1ul);
-  }
-
-  auto rb = ymd::CppReplayBuffer<Observation,Action,Reward,Done>{N_buffer_size,
-								 obs_dim,
-								 act_dim};
-
-  auto per = ymd::CppPrioritizedReplayBuffer<Observation,Action,
-					     Reward,Done,Priority>{N_buffer_size,
-								   obs_dim,
-								   act_dim,
-								   rew_dim,
-								   alpha};
-
-
-  for(auto i = 0ul; i < N_step; ++i){
-    auto obs = std::vector<Observation>(obs_dim,0.1*i);
-    auto act = std::vector<Action>(act_dim,2.0*i);
-    auto rew = 0.1 * i;
-    auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
-    auto done = (N_step - 1 == i) ? 1.0: 0.0;
-
-    rb.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
-    per.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
-  }
-
-  rb.clear();
-  per.clear();
-
-  for(auto i = 0ul; i < N_step; ++i){
-    auto obs = std::vector<Observation>(obs_dim,0.1*i);
-    auto act = std::vector<Action>(act_dim,2.0*i);
-    auto rew = 0.1 * i;
-    auto next_obs = std::vector<Observation>(obs_dim,0.1*(i+1));
-    auto done = (N_step - 1 == i) ? 1.0: 0.0;
-
-    rb.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
-    per.add(obs.data(),act.data(),&rew,next_obs.data(),&done);
-  }
-
-
-  auto [rb_o,rb_a,rb_r,rb_no,rb_d] = rb.sample(N_batch_size);
-  auto [per_o,per_a,per_r,per_no,per_d,per_w,per_i] = per.sample(N_batch_size,beta);
-
-  std::cout << "ReplayBuffer" << std::endl;
-  ymd::show_vector_of_vector(rb_o,"obs");
-  ymd::show_vector_of_vector(rb_a,"act");
-  ymd::show_vector(rb_r,"rew");
-  ymd::show_vector_of_vector(rb_no,"next_obs");
-  ymd::show_vector(rb_d,"done");
-
-  std::cout << std::endl;
-
-  std::cout << "PrioritizedReplayBuffer" << std::endl;
-  ymd::show_vector_of_vector(per_o,"obs");
-  ymd::show_vector_of_vector(per_a,"act");
-  ymd::show_vector(per_r,"rew");
-  ymd::show_vector_of_vector(per_no,"next_obs");
-  ymd::show_vector(per_d,"done");
-  ymd::show_vector(per_w,"weights");
-  ymd::show_vector(per_i,"indexes");
-
-  per.update_priorities(per_i,per_w);
-
-  rb.sample(N_batch_size,rb_o,rb_a,rb_r,rb_no,rb_d);
-
-  per.sample(N_batch_size,beta,per_o,per_a,per_r,per_no,per_d,per_w,per_i);
-
-  std::cout << std::endl;
-  std::cout << "PER Sample: " << N_times << " times execution" << std::endl;
-  timer([&](){ per.sample(N_batch_size,beta,
-			  per_o,per_a,per_r,per_no,per_d,per_w,per_i); },N_times);
-
-
-  std::cout << std::endl;
-  std::cout << "PrioritizedSampler" << std::endl;
-  auto ps = ymd::CppPrioritizedSampler(N_buffer_size,0.7);
-  for(auto i = 0ul; i < N_step; ++i){
-    ps.set_priorities(i % N_buffer_size,0.5);
-  }
-
-  auto ps_w = std::vector<Priority>{};
-  auto ps_i = std::vector<std::size_t>{};
-
-  ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
-
-  ymd::show_vector(ps_w,"weights [0.5,...,0.5]");
-  ymd::show_vector(ps_i,"indexes [0.5,...,0.5]");
-
-  ps_w[0] = 1e+10;
-  ps.update_priorities(ps_i,ps_w);
-  ps.sample(N_batch_size,0.4,ps_w,ps_i,N_buffer_size);
-  ymd::show_vector(ps_w,"weights [0.5,.,1e+10,..,0.5]");
-  ymd::show_vector(ps_i,"indexes [0.5,.,1e+10,..,0.5]");
-
-  test_NstepReward();
+  test_DimensionalBuffer();
+  test_PrioritizedSampler();
   test_SelectiveEnvironment();
-
-  test_MultiThreadRingEnvironment();
-
-  test_MultiThreadPrioritizedSampler();
 
   return 0;
 }

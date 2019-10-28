@@ -1,8 +1,7 @@
 import numpy as np
 import unittest
 
-from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,
-                   ProcessSharedPrioritizedReplayBuffer)
+from cpprb import (ReplayBuffer,PrioritizedReplayBuffer)
 from cpprb import create_buffer
 
 
@@ -10,7 +9,12 @@ class TestIssue39(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = ReplayBuffer(obs_dim=3, act_dim=3, size=10)
+        cls.rb = ReplayBuffer(10,
+                              {"obs": {"shape": 3},
+                               "act": {"shape": 3},
+                               "rew": {},
+                               "next_obs": {"shape": 3},
+                               "done": {}})
         for i in range(10):
             obs_act = np.array([i for _ in range(3)], dtype=np.float64)
             cls.rb.add(obs=obs_act,
@@ -66,7 +70,7 @@ class TestIssue40(unittest.TestCase):
         buffer_size = 256
         obs_dim = 3
         act_dim = 1
-        rb = ReplayBuffer(buffer_size,obs_dim,act_dim)
+        rb = ReplayBuffer(buffer_size,{"obs": {"shape": obs_dim}, "act": {"shape": act_dim}, "rew": {}, "next_obs": {"shape": obs_dim}, "done": {}})
 
         obs = np.ones(shape=(obs_dim))
         act = np.ones(shape=(act_dim))
@@ -75,7 +79,7 @@ class TestIssue40(unittest.TestCase):
         done = 0
 
         for i in range(500):
-            rb.add(obs,act,rew,next_obs,done)
+            rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
 
         batch_size = 32
@@ -87,13 +91,23 @@ class TestIssue43(unittest.TestCase):
         obs_dim = 3
         act_dim = 1
 
-        rb = ReplayBuffer(buffer_size,obs_dim,act_dim)
-        prb = PrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
+        rb = ReplayBuffer(buffer_size,
+                          {"obs": {"shape": obs_dim},
+                           "act": {"shape": act_dim},
+                           "rew": {},
+                           "next_obs": {"shape": obs_dim},
+                           "done": {}})
+        prb = PrioritizedReplayBuffer(buffer_size,
+                                      {"obs": {"shape": obs_dim},
+                                       "act": {"shape": act_dim},
+                                       "rew": {},
+                                       "next_obs": {"shape": obs_dim},
+                                       "done": {}})
 
-        self.assertEqual(1024,rb.get_buffer_size())
-        self.assertEqual(1024,prb.get_buffer_size())
+        self.assertEqual(1000,rb.get_buffer_size())
+        self.assertEqual(1000,prb.get_buffer_size())
 
-        rb._encode_sample([i for i in range(1024)])
+        rb._encode_sample([i for i in range(1000)])
 
 class TestIssue44(unittest.TestCase):
     def test_cpdef_super(self):
@@ -101,11 +115,14 @@ class TestIssue44(unittest.TestCase):
         obs_dim = 15
         act_dim = 3
 
-        prb = PrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
-        pprb = ProcessSharedPrioritizedReplayBuffer(buffer_size,obs_dim,act_dim)
+        prb = PrioritizedReplayBuffer(buffer_size,
+                                      {"obs": {"shape": obs_dim},
+                                       "act": {"shape": act_dim},
+                                       "rew": {},
+                                       "next_obs": {"shape": obs_dim},
+                                       "done": {}})
 
         prb.clear()
-        pprb.clear()
 
 class TestIssue45(unittest.TestCase):
     def test_large_size(self):

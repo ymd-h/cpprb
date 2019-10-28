@@ -2,14 +2,6 @@ import numpy as np
 import unittest, time
 from cpprb import *
 
-def timer(f,N_times,name,*args,**kwargs):
-    start = time.perf_counter()
-    for _ in range(N_times):
-        f(*args,**kwargs)
-    end = time.perf_counter()
-    print("{}: {} time execution".format(name,N_times))
-    print("{} s".format(end - start))
-
 class TestReplayBuffer(unittest.TestCase):
     """=== ReplayBuffer.py ==="""
     class_name = "ER"
@@ -33,39 +25,42 @@ class TestReplayBuffer(unittest.TestCase):
     @classmethod
     def fill_ReplayBuffer(cls):
         for i in range(cls.N_add):
-            cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                       np.zeros(shape=(cls.act_dim)),
-                       0.5,
-                       np.ones(shape=(cls.obs_dim)),
-                       0)
+            cls.rb.add(obs=np.ones(shape=(cls.obs_dim)),
+                       act=np.zeros(shape=(cls.act_dim)),
+                       rew=0.5,
+                       next_obs=np.ones(shape=(cls.obs_dim)),
+                       done=0)
         else:
-            cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                       np.zeros(shape=(cls.act_dim)),
-                       0.5,
-                       np.ones(shape=(cls.obs_dim)),
-                       1)
+            cls.rb.add(obs=np.ones(shape=(cls.obs_dim)),
+                       act=np.zeros(shape=(cls.act_dim)),
+                       rew=0.5,
+                       next_obs=np.ones(shape=(cls.obs_dim)),
+                       done=1)
 
 
         cls.rb.clear()
 
         for i in range(cls.N_add):
-            cls.rb.add(np.ones(shape=(cls.add_dim,cls.obs_dim))*i,
-                       np.zeros(shape=(cls.add_dim,cls.act_dim)),
-                       np.ones((cls.add_dim)) * 0.5*i,
-                       np.ones(shape=(cls.add_dim,cls.obs_dim))*(i+1),
-                       np.zeros((cls.add_dim)))
+            cls.rb.add(obs=np.ones(shape=(cls.add_dim,cls.obs_dim))*i,
+                       act=np.zeros(shape=(cls.add_dim,cls.act_dim)),
+                       rew=np.ones((cls.add_dim)) * 0.5*i,
+                       next_obs=np.ones(shape=(cls.add_dim,cls.obs_dim))*(i+1),
+                       done=np.zeros((cls.add_dim)))
         else:
-            cls.rb.add(np.ones(shape=(cls.obs_dim)),
-                       np.zeros(shape=(cls.act_dim)),
-                       0.5,
-                       np.ones(shape=(cls.obs_dim)),
-                       1)
+            cls.rb.add(obs=np.ones(shape=(cls.obs_dim)),
+                       act=np.zeros(shape=(cls.act_dim)),
+                       rew=0.5,
+                       next_obs=np.ones(shape=(cls.obs_dim)),
+                       done=1)
 
     @classmethod
     def setUpClass(cls):
         cls.rb = ReplayBuffer(cls.buffer_size,
-                              cls.obs_dim,
-                              cls.act_dim)
+                              {"obs": {"shape": cls.obs_dim},
+                               "act": {"shape": cls.act_dim},
+                               "rew": {},
+                               "next_obs":{"shape": cls.obs_dim},
+                               "done": {}})
 
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
@@ -109,26 +104,26 @@ class TestPrioritizedBase:
 
     def test_priority_add(self):
         for i in range(self.N_add):
-            self.rb2.add(np.ones(shape=(self.obs_dim))*i,
-                         np.zeros(shape=(self.act_dim)),
-                         0.5*i,
-                         np.ones(shape=(self.obs_dim))*(i+1),
-                         0.0,
-                         0.0 + 1e-6)
+            self.rb2.add(obs=np.ones(shape=(self.obs_dim))*i,
+                         act=np.zeros(shape=(self.act_dim)),
+                         rew=0.5*i,
+                         next_obs=np.ones(shape=(self.obs_dim))*(i+1),
+                         done=0.0,
+                         priorities=0.0 + 1e-6)
         for i in range(self.N_add):
-            self.rb2.add(np.ones(shape=(self.add_dim,self.obs_dim))*i,
-                         np.zeros(shape=(self.add_dim,self.act_dim)),
-                         np.ones((self.add_dim)) * 0.5*i,
-                         np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
-                         np.zeros(shape=(self.add_dim)),
-                         np.zeros(shape=(self.add_dim)))
+            self.rb2.add(obs=np.ones(shape=(self.add_dim,self.obs_dim))*i,
+                         act=np.zeros(shape=(self.add_dim,self.act_dim)),
+                         rew=np.ones((self.add_dim)) * 0.5*i,
+                         next_obs=np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
+                         done=np.zeros(shape=(self.add_dim)),
+                         priorities=np.zeros(shape=(self.add_dim)))
         else:
-            self.rb2.add(np.ones(shape=(self.obs_dim)),
-                         np.zeros(shape=(self.act_dim)),
-                         0.5,
-                         np.ones(shape=(self.obs_dim)),
-                         1,
-                         0.1)
+            self.rb2.add(obs=np.ones(shape=(self.obs_dim)),
+                         act=np.zeros(shape=(self.act_dim)),
+                         rew=0.5,
+                         next_obs=np.ones(shape=(self.obs_dim)),
+                         done=1,
+                         priorities=0.1)
 
         self.s2 = self.rb2.sample(self.batch_size)
         self._check_ndarray(self.s2['indexes'],1,(self.batch_size,),
@@ -146,19 +141,19 @@ class TestPrioritizedBase:
 
     def test_update_indexes(self):
         for i in range(self.N_add):
-            self.rb_ui.add(np.ones(shape=(self.add_dim,self.obs_dim))*i,
-                           np.zeros(shape=(self.add_dim,self.act_dim)),
-                           np.ones((self.add_dim)) * 0.5*i,
-                           np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
-                           np.zeros(shape=(self.add_dim)),
-                           np.zeros(shape=(self.add_dim)))
+            self.rb_ui.add(obs=np.ones(shape=(self.add_dim,self.obs_dim))*i,
+                           act=np.zeros(shape=(self.add_dim,self.act_dim)),
+                           rew=np.ones((self.add_dim)) * 0.5*i,
+                           next_obs=np.ones(shape=(self.add_dim,self.obs_dim))*(i+1),
+                           done=np.zeros(shape=(self.add_dim)),
+                           priorities=np.zeros(shape=(self.add_dim)))
         else:
-            self.rb_ui.add(np.ones(shape=(self.obs_dim)),
-                           np.zeros(shape=(self.act_dim)),
-                           0.5,
-                           np.ones(shape=(self.obs_dim)),
-                           1,
-                           0.1)
+            self.rb_ui.add(obs=np.ones(shape=(self.obs_dim)),
+                           act=np.zeros(shape=(self.act_dim)),
+                           rew=0.5,
+                           next_obs=np.ones(shape=(self.obs_dim)),
+                           done=1,
+                           priorities=0.1)
 
         for i,type in enumerate([np.byte,np.ubyte,
                                  np.short,np.ushort,
@@ -187,32 +182,33 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
     @classmethod
     def setUpClass(cls):
         cls.rb = PrioritizedReplayBuffer(cls.buffer_size,
-                                         cls.obs_dim,
-                                         cls.act_dim,
+                                         {"obs": {"shape": cls.obs_dim},
+                                          "act": {"shape": cls.act_dim},
+                                          "rew": {},
+                                          "next_obs": {"shape": cls.obs_dim},
+                                          "done": {}},
                                          alpha=cls.alpha)
         cls.rb2 = PrioritizedReplayBuffer(cls.buffer_size,
-                                          cls.obs_dim,
-                                          cls.act_dim,
+                                          {"obs": {"shape": cls.obs_dim},
+                                           "act": {"shape": cls.act_dim},
+                                           "rew": {},
+                                           "next_obs": {"shape": cls.obs_dim},
+                                           "done": {}},
                                           alpha=cls.alpha)
         cls.rb_ui = PrioritizedReplayBuffer(cls.buffer_size,
-                                            cls.obs_dim,
-                                            cls.act_dim,
+                                            {"obs": {"shape": cls.obs_dim},
+                                             "act": {"shape": cls.act_dim},
+                                             "rew": {},
+                                             "next_obs": {"shape": cls.obs_dim},
+                                             "done": {}},
                                             alpha=cls.alpha)
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
-        start = time.perf_counter()
-        for _ in range(cls.N_time):
-            cls.rb.sample(cls.batch_size,cls.beta)
-        end = time.perf_counter()
-        print("PER Sample {} time execution".format(cls.N_time))
-        print("{} s".format(end - start))
-
-
 class TestNstepBase:
     def test_discounts(self):
-        self._check_ndarray(self.s['discounts'],2,(self.batch_size,1),"discounts")
-        for g,d in zip(self.s['discounts'],self.s['done']):
+        self._check_ndarray(self.s['discount'],2,(self.batch_size,1),"discount")
+        for g,d in zip(self.s['discount'],self.s['done']):
             if(d > 0.0):
                 self.assertAlmostEqual(g,1.0)
 
@@ -222,11 +218,15 @@ class TestNstepReplayBuffer(TestReplayBuffer,TestNstepBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = NstepReplayBuffer(cls.buffer_size,
-                                   cls.obs_dim,
-                                   cls.act_dim,
-                                   nstep = cls.nstep,
-                                   discount = cls.discount)
+        cls.rb = ReplayBuffer(cls.buffer_size,
+                              {"obs": {"shape": cls.obs_dim},
+                               "act": {"shape": cls.act_dim},
+                               "rew": {},
+                               "next_obs": {"shape": cls.obs_dim},
+                               "done": {}},
+                              Nstep={"size": cls.nstep,
+                                     "rew": "rew",
+                                     "gamma": cls.discount})
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size)
 
@@ -237,18 +237,36 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
 
     @classmethod
     def setUpClass(cls):
-        cls.rb = NstepPrioritizedReplayBuffer(cls.buffer_size,
-                                              cls.obs_dim,
-                                              cls.act_dim,
-                                              alpha=cls.alpha)
-        cls.rb2 = NstepPrioritizedReplayBuffer(cls.buffer_size,
-                                               cls.obs_dim,
-                                               cls.act_dim,
-                                               alpha=cls.alpha)
-        cls.rb_ui = NstepPrioritizedReplayBuffer(cls.buffer_size,
-                                                 cls.obs_dim,
-                                                 cls.act_dim,
-                                                 alpha=cls.alpha)
+        cls.rb = PrioritizedReplayBuffer(cls.buffer_size,
+                                         {"obs": {"shape": cls.obs_dim},
+                                          "act": {"shape": cls.act_dim},
+                                          "rew": {},
+                                          "next_obs": {"shape": cls.obs_dim},
+                                          "done": {}},
+                                         alpha=cls.alpha,
+                                         Nstep={"size": cls.nstep,
+                                                "rew": "rew",
+                                                "gamma": cls.discount})
+        cls.rb2 = PrioritizedReplayBuffer(cls.buffer_size,
+                                          {"obs": {"shape": cls.obs_dim},
+                                           "act": {"shape": cls.act_dim},
+                                           "rew": {},
+                                           "next_obs": {"shape": cls.obs_dim},
+                                           "done": {}},
+                                          alpha=cls.alpha,
+                                          Nstep={"size": cls.nstep,
+                                                "rew": "rew",
+                                                "gamma": cls.discount})
+        cls.rb_ui = PrioritizedReplayBuffer(cls.buffer_size,
+                                            {"obs": {"shape": cls.obs_dim},
+                                             "act": {"shape": cls.act_dim},
+                                             "rew": {},
+                                             "next_obs": {"shape": cls.obs_dim},
+                                             "done": {}},
+                                            alpha=cls.alpha,
+                                            Nstep={"size": cls.nstep,
+                                                "rew": "rew",
+                                                "gamma": cls.discount})
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
@@ -292,54 +310,6 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
         s = self.srb.get_episode(2)
         delete_len = self.srb.delete_episode(2)
         self.assertEqual(self.srb.get_next_index(), old_index - delete_len)
-
-class TestProcessSharedReplayBuffer(TestReplayBuffer):
-    """=== ProcessSharedReplayBuffer ==="""
-    class_name = "PS-ER"
-
-    @classmethod
-    def setUpClass(cls):
-        cls.rb = ProcessSharedReplayBuffer(cls.buffer_size,
-                                           cls.obs_dim,
-                                           cls.act_dim)
-        cls.fill_ReplayBuffer()
-        cls.s = cls.rb.sample(cls.batch_size)
-
-class TestProcessSharedPrioritizedReplayBuffer(TestPrioritizedReplayBuffer):
-    """=== ProcessSharedPrioritizedReplayBuffer.py ==="""
-    class_name = "PS-PER"
-
-    @classmethod
-    def setUpClass(cls):
-        cls.rb = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
-                                                      cls.obs_dim,
-                                                      cls.act_dim,
-                                                      alpha=cls.alpha)
-        cls.rb2 = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
-                                                       cls.obs_dim,
-                                                       cls.act_dim,
-                                                       alpha=cls.alpha)
-        cls.rb_ui = ProcessSharedPrioritizedReplayBuffer(cls.buffer_size,
-                                                         cls.obs_dim,
-                                                         cls.act_dim,
-                                                         alpha=cls.alpha)
-        cls.fill_ReplayBuffer()
-        cls.s = cls.rb.sample(cls.batch_size,cls.beta)
-
-        start = time.perf_counter()
-        for _ in range(cls.N_time):
-            cls.rb.sample(cls.batch_size,cls.beta)
-        end = time.perf_counter()
-        print("PER Sample {} time execution".format(cls.N_time))
-        print("{} s".format(end - start))
-
-    def test_initial_state(self):
-        rb_init = ProcessSharedPrioritizedReplayBuffer(self.buffer_size,
-                                                       self.obs_dim,
-                                                       self.act_dim,
-                                                       alpha = self.alpha)
-        self.assertEqual(0,rb_init.get_next_index())
-        self.assertEqual(0,rb_init.get_stored_size())
 
 if __name__ == '__main__':
     unittest.main()

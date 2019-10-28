@@ -117,16 +117,12 @@ CLOSED: [2019-02-11 Mon 09:05]
 :END:
 
 #+BEGIN_SRC shell
-git clone https://gitlab.com/ymd_h/cpprb.git cpprb
-cd cpprb
-python setup.py build
-python setup.py install
+pip install cpprb
 #+END_SRC
 
-Depending on your environment, you might need to set =CC= and/or =CXX=
-variables like ~CXX=g++ python setup.py build~.
+You can install cpprb from pypi.
 
-You might need =sudo= for installation.
+You might need =sudo= or ~--user~ for installation.
 
 * DONE Usage
 CLOSED: [2019-02-11 Mon 09:06]
@@ -139,18 +135,23 @@ A simple example is following;
 from cpprb import ReplayBuffer
 
 buffer_size = 256
-obs_dim = 3
+obs_shape = 3
 act_dim = 1
-rb = ReplayBuffer(buffer_size,obs_dim,act_dim)
+rb = ReplayBuffer(buffer_size,
+                  {"obs": {"shape": obs_shape},
+                   "act": {"shape": act_dim},
+                   "rew": {},
+                   "next_obs": {"shape": obs_shape},
+                   "done": {}})
 
-obs = np.ones(shape=(obs_dim))
+obs = np.ones(shape=(obs_shape))
 act = np.ones(shape=(act_dim))
 rew = 0
-next_obs = np.ones(shape=(obs_dim))
+next_obs = np.ones(shape=(obs_shape))
 done = 0
 
 for i in range(500):
-    rb.add(obs,act,rew,next_obs,done)
+    rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
 
 batch_size = 32
@@ -159,8 +160,7 @@ sample = rb.sample(batch_size)
 #+END_SRC
 
 * Classes
-=ReplayBuffer=, =PrioritizedReplayBuffer=, =NstepReplayBuffer=,
-and =NstepPrioritizedReplayBuffer= are supported.
+=ReplayBuffer= and =PrioritizedReplayBuffer= are supported.
 
 The other classes (including C++ classes) are considered as internal
 classes, whose interfaces can change frequently.
@@ -177,19 +177,7 @@ can set importance (e.g. TD error) to each time point by calling
 The constructor also take =alpha= parameter, whose default value is =0.6=.
 For sampling, you need to pass =beata= argument as well as =batch_size=.
 
-** NstepReplayBuffer
-=NstepReplayBuffer= is a N-step reward version of replay buffer. Its
-usage is same as =ReplayBuffer=, except whose return value has
-=discounts= key. The step size and discount rate are passed to its
-constructor as =n_step= (default =4=) and =discount= (default 0.99),
-respectively.
-
-** NstepPrioritizedReplayBuffer
-=NstepPrioritizedReplayBuffer= is a N-step reward version of
-prioritized replay buffer.  The usage is a mixture of
-=PrioritizedReplayBuffer= and =NstepReplayBuffer=.
-
 * Test Environment
-- GCC 8.2.0
-- Python 3.7.2
-- Cython 0.29.3
+- GCC 9.2.0
+- Python 3.8.0
+- Cython 0.29.13

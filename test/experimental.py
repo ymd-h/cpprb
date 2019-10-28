@@ -2,13 +2,12 @@ import unittest
 
 import numpy as np
 
-from cpprb import ReplayBuffer as nowReplayBuffer
-from cpprb.experimental import ReplayBuffer,PrioritizedReplayBuffer
-from cpprb.experimental import create_buffer
+from cpprb import ReplayBuffer,PrioritizedReplayBuffer
+from cpprb import create_buffer
 
-from cpprb.experimental.PyReplayBuffer import NstepBuffer
+from cpprb.PyReplayBuffer import NstepBuffer
 
-class TestExperimentalReplayBuffer(unittest.TestCase):
+class TestReplayBuffer(unittest.TestCase):
     def test_buffer(self):
 
         buffer_size = 256
@@ -17,7 +16,6 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
 
         N = 512
 
-        rb = nowReplayBuffer(buffer_size,obs_shape=obs_shape,act_dim=act_dim)
         erb = ReplayBuffer(buffer_size,{"obs":{"shape": obs_shape},
                                         "act":{"shape": act_dim},
                                         "rew":{},
@@ -31,17 +29,9 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
             next_obs = obs + 1
             done = 0
 
-            rb.add(obs,act,rew,next_obs,done)
             erb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
-        s = rb._encode_sample(range(buffer_size))
         es = erb._encode_sample(range(buffer_size))
-
-        np.testing.assert_allclose(s["obs"],es["obs"])
-        np.testing.assert_allclose(s["act"],es["act"])
-        np.testing.assert_allclose(s["rew"],es["rew"])
-        np.testing.assert_allclose(s["next_obs"],es["next_obs"])
-        np.testing.assert_allclose(s["done"],es["done"])
 
         erb.sample(32)
 
@@ -219,7 +209,7 @@ class TestExperimentalReplayBuffer(unittest.TestCase):
         for o in s["obs"]:
             self.assertTrue(np.array_equiv(o,o[0]))
 
-class TestExperimentalPrioritizedReplayBuffer(unittest.TestCase):
+class TestPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
         buffer_size = 500
         obs_shape = (84,84,3)

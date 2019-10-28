@@ -1,0 +1,6 @@
+.coveragerc
+.git*
+build
+clean_reinstall.sh
+cpprb.egg-info
+site
