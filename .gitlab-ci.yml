@@ -87,10 +87,10 @@ features:
   script:
     - python3 -m coverage run test/features.py
 
-experimental:
+v8:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/experimental.py
+    - python3 -m coverage run test/v8.py
 
 coverage:
   <<: *setup
