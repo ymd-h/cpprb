@@ -486,7 +486,7 @@ cdef class NstepBuffer:
     environment values for `ReplayBuffer`
     """
     cdef buffer
-    cdef buffer_size
+    cdef size_t buffer_size
     cdef default_dtype
     cdef size_t stored_size
     cdef size_t Nstep_size
