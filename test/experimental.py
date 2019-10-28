@@ -459,7 +459,7 @@ class TestNstepBuffer(unittest.TestCase):
 
         for i in range(5):
             with self.subTest(i=i):
-                np.testing.assert_allclose(nb.add(rew=1,done=0)["discount"],
+                np.testing.assert_allclose(nb.add(rew=1,done=0)["discounts"],
                                            0.5*0.5*0.5)
 
     def test_gamma_with_done(self):
@@ -470,11 +470,11 @@ class TestNstepBuffer(unittest.TestCase):
         self.assertIs(nb.add(rew=1,done=1),None)
         self.assertIs(nb.add(rew=1,done=0),None)
 
-        np.testing.assert_allclose(nb.add(rew=1,done=0)["discount"],
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["discounts"],
                                    0.5)
-        np.testing.assert_allclose(nb.add(rew=1,done=0)["discount"],
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["discounts"],
                                    1)
-        np.testing.assert_allclose(nb.add(rew=1,done=0)["discount"],
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["discounts"],
                                    0.5*0.5*0.5)
 
     def test_gamma_multi_step(self):
@@ -484,7 +484,7 @@ class TestNstepBuffer(unittest.TestCase):
         self.assertIs(nb.add(rew=(1,1),done=(0,0)),None)
 
         np.testing.assert_allclose(nb.add(rew=(1,1),
-                                          done=(0,0))['discount'],
+                                          done=(0,0))['discounts'],
                                    np.array((0.5*0.5*0.5),
                                             dtype=np.float32))
 
@@ -493,7 +493,7 @@ class TestNstepBuffer(unittest.TestCase):
                          {"size": 4, "rew": "rew", "gamma": 0.5})
 
         np.testing.assert_allclose(nb.add(rew=(1,1,1,1,1),
-                                          done=(0,0,0,0,0))['discount'],
+                                          done=(0,0,0,0,0))['discounts'],
                                    np.array((0.5*0.5*0.5,
                                              0.5*0.5*0.5),
                                             dtype=np.float32).reshape(-1,1))
