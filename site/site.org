@@ -67,8 +67,7 @@ replay buffer classes for reinforcement learning.
 :EXPORT_HUGO_SECTION*: features
 :END:
 
-** DONE Multi-Processing
-CLOSED: [2019-03-02 Sat 12:16]
+** TODO Multi-Processing
 :PROPERTIES:
 :EXPORT_FILE_NAME: multiprocessing
 :END:
