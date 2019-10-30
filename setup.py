@@ -1,6 +1,6 @@
 import os
 from setuptools import setup, Extension, find_packages
-import numpy as np
+from setuptools.command.build_ext import build_ext
 
 
 requires = ["numpy"]
@@ -37,6 +37,18 @@ ext_modules = wrap([Extension(".".join(e),
                               extra_link_args=["-std=c++17", "-pthread"],
                               language="c++") for e in ext])
 
+
+class LazyImportBuildExtCommand(build_ext):
+    """
+    build_ext command class for lazy numpy import
+    """
+    def run(self):
+        import numpy as np
+
+        self.include_dirs.append(np.get_include())
+
+        build_ext.run(self)
+
 setup(name="cpprb",
       author="Yamada Hiroyuki",
       author_email="incoming+ymd-h-cpprb-10328285-issue-@incoming.gitlab.com",
@@ -44,9 +56,10 @@ setup(name="cpprb",
       version="8.0.0",
       install_requires=requires,
       extras_require=extras,
+      cmdclass={'build_ext': LazyImportBuildExtCommand},
       url="https://ymd_h.gitlab.io/cpprb/",
       ext_modules=ext_modules,
-      include_dirs=["cpprb", np.get_include()],
+      include_dirs=["cpprb"],
       packages=["cpprb", "cpprb.gym"],
       classifiers=["Programming Language :: Python",
                    "Programming Language :: Python :: 3",
