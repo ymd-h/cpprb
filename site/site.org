@@ -86,6 +86,11 @@ For example, you can add ~next_next_obs~, ~second_reward~, and so on.
 
 *** Notes
 
+** TODO Memory Compression
+:PROPERTIES:
+:EXPORT_FILE_NAME: memory_compression
+:END:
+
 ** TODO Multi-Processing
 :PROPERTIES:
 :EXPORT_FILE_NAME: multiprocessing
