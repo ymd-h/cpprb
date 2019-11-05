@@ -67,6 +67,25 @@ replay buffer classes for reinforcement learning.
 :EXPORT_HUGO_SECTION*: features
 :END:
 
+** TODO Flexible Environment
+:PROPERTIES:
+:EXPORT_FILE_NAME: flexible_environment
+:END:
+
+*** Overview
+
+In ~cpprb~ version 8 and newer, you can store any number of
+environments (aka. observation, action, etc.).
+
+For example, you can add ~next_next_obs~, ~second_reward~, and so on.
+
+
+*** Example Usage
+
+*** Technical Detail
+
+*** Notes
+
 ** TODO Multi-Processing
 :PROPERTIES:
 :EXPORT_FILE_NAME: multiprocessing
