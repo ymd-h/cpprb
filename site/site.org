@@ -77,11 +77,51 @@ replay buffer classes for reinforcement learning.
 In ~cpprb~ version 8 and newer, you can store any number of
 environments (aka. observation, action, etc.).
 
-For example, you can add ~next_next_obs~, ~second_reward~, and so on.
+For example, you can add your special environments like
+~next_next_obs~, ~second_reward~, and so on.
+
+These environments can take multi-dimensional shape (e.g. ~3~,
+~(4,4)~, ~(84,84,4)~), and any [[https://numpy.org/devdocs/user/basics.types.html][numpy data type]].
+
+
+In order to construct replay buffers, you need to specify the second
+parameter of their constructor, ~env_dict~.
+
+The ~env_dict~ is a ~dict~ whose keys are environment name and whose
+values are ~dict~ describing their properties.
+
+The following table is supported properties and their default values.
+
+| key   | description                    | type                         | default value                                    |
+|-------+--------------------------------+------------------------------+--------------------------------------------------|
+| shape | shape (size of each dimension) | ~int~ or array like of ~int~ | ~1~                                              |
+| dtype | data type                      | ~numpy.dtype~                | ~default_dtype~ in constructor or ~numpy.single~ |
 
 
 *** Example Usage
 
+#+begin_src python
+from cpprb import ReplayBuffer
+import numpy as np
+
+buffer_size = 32
+
+rb = ReplayBuffer(buffer_size,{"obs": {"shape": (4,4)},
+                               "act": {"shape": 1},
+                               "rew": {},
+                               "next_obs": {"shape": (4,4)},
+                               "next_next_obs": {"shape": (4,4)},
+                               "done": {},
+                               "my_important_info": {"dtype": {np.short}}})
+
+rb.add(obs=np.zeros((4,4)),
+       act=1.5,
+       rew=0.0,
+       next_obs=np.zeros((4,4)),
+       next_next_obs=np.zeros((4,4)),
+       done=0,
+       my_important_info=2)
+#+end_src
 *** Technical Detail
 
 *** Notes
