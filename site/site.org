@@ -98,6 +98,12 @@ The following table is supported properties and their default values.
 | dtype | data type                      | ~numpy.dtype~                | ~default_dtype~ in constructor or ~numpy.single~ |
 
 
+When ~add~ -ing environments to the replay buffer, you have to pass
+them by keyword arguments (aka. ~key=value~ style). If your
+environment name is not a syntactically valid identifier, you can
+still create dictionary first, then unpack the dictionary by ~**~
+operator (e.g. ~rb.add(**kwargs)~).
+
 *** Example Usage
 
 #+begin_src python
