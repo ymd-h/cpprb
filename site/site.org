@@ -84,6 +84,7 @@ These environments can take multi-dimensional shape (e.g. ~3~,
 ~(4,4)~, ~(84,84,4)~), and any [[https://numpy.org/devdocs/user/basics.types.html][numpy data type]].
 
 
+**** ~__init__~
 In order to construct replay buffers, you need to specify the second
 parameter of their constructor, ~env_dict~.
 
@@ -97,12 +98,14 @@ The following table is supported properties and their default values.
 | shape | shape (size of each dimension) | ~int~ or array like of ~int~ | ~1~                                              |
 | dtype | data type                      | ~numpy.dtype~                | ~default_dtype~ in constructor or ~numpy.single~ |
 
-
+**** ~add~
 When ~add~ -ing environments to the replay buffer, you have to pass
 them by keyword arguments (aka. ~key=value~ style). If your
 environment name is not a syntactically valid identifier, you can
 still create dictionary first, then unpack the dictionary by ~**~
 operator (e.g. ~rb.add(**kwargs)~).
+
+**** ~sample~
 
 *** Example Usage
 
