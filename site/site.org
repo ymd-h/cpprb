@@ -153,6 +153,72 @@ extra environments into ~act~ which was not treat specially.)
 :EXPORT_FILE_NAME: memory_compression
 :END:
 
+Since replay buffer stores a large number of data set, memory
+efficiency is one of the most important point.
+
+In cpprb, there are two functionalities named ~next_of~ and
+~stack_compress~, which you can turn on manually when constructing
+replay buffer.
+
+*** ~next_of~
+
+**** Overview
+In reinforcement learning, usually a set of observations before and
+after a certain action are used for training, so that you save the set
+in your replay buffer together. Naively speaking, all observations are
+stored twice.
+
+As you know, replay buffer is a ring buffer and the next value should
+be stored at next index, except for the newest edge.
+
+If you specify ~next_of~ argument (its type is ~str~ or array like of
+~str~), the "next value" of specified values are also set in the
+replay buffer and they share the memory location.
+
+The name of the next value adds prefix ~next_~ to the original name
+(e.g. ~next_obs~ for ~obs~, ~next_rew~ for ~rew~, and so on).
+
+This functionality has small penalties for manipulating sampled index
+and checking the cache for the newest index. (As far as I know, this
+penalty is not significant, and you might not notice.)
+
+**** Example Usage
+#+begin_src python
+from cpprb import ReplayBuffer
+
+buffer_size = 256
+
+rb = ReplayBuffer(buffer_size,{"obs": {"shape": (84,84)},
+                               "act": {"shape": 3},
+                               "rew": {},
+                               "done": {}},
+                  next_of=("obs","rew"))
+
+rb.add(obs=np.ones((84,84)),
+       act=np.ones(3),
+       next_obs=np.ones((84,84)),
+       rew=1,
+       next_rew=1,
+       done=0)
+#+end_src
+
+**** Notes
+cpprb does not check the consistance of i-th ~next_foo~ and (i+1)-th
+~foo~. This is user responsibility.
+
+
+**** Technical Detail
+Internally, ~next_foo~ is not stored into a ring buffer, but into its chache.
+(So still raising error if you don't pass them to ~add~.)
+
+When sampling, indices (which is ~numpy.ndarray~) are shifted (and
+wraparounded if necessary), then are checked whether they are on the
+newest edge of the ring buffer.
+
+*** ~stack_compress~
+
+
+
 ** TODO Multi-Processing
 :PROPERTIES:
 :EXPORT_FILE_NAME: multiprocessing
