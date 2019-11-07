@@ -67,7 +67,8 @@ replay buffer classes for reinforcement learning.
 :EXPORT_HUGO_SECTION*: features
 :END:
 
-** TODO Flexible Environment
+** DONE Flexible Environment
+CLOSED: [2019-11-08 Fri 05:58]
 :PROPERTIES:
 :EXPORT_FILE_NAME: flexible_environment
 :END:
