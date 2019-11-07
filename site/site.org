@@ -134,11 +134,17 @@ rb.add(obs=np.zeros((4,4)),
        done=0,
        my_important_info=2)
 #+end_src
-*** Technical Detail
-
 *** Notes
 ~priorities~, ~weights~, and ~indexes~ for ~PrioritizedReplayBuffer~
 are special environments and are automatically set.
+
+
+*** Technical Detail
+Internally, these flexible environments are implemented with (cython
+version of) ~numpy.ndarray~. They were implemented with C++ code in
+older than version 8, which had trouble in flexibilities of data type
+and the number of environment. (There was a dirty hack to put all
+extra environments into ~act~ which was not treat specially.)
 
 
 ** TODO Memory Compression
