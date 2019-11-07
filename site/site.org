@@ -137,6 +137,9 @@ rb.add(obs=np.zeros((4,4)),
 *** Technical Detail
 
 *** Notes
+~priorities~, ~weights~, and ~indexes~ for ~PrioritizedReplayBuffer~
+are special environments and are automatically set.
+
 
 ** TODO Memory Compression
 :PROPERTIES:
