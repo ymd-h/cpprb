@@ -106,6 +106,9 @@ still create dictionary first, then unpack the dictionary by ~**~
 operator (e.g. ~rb.add(**kwargs)~).
 
 **** ~sample~
+~sample~ returns ~dict~ with keys of environments' name and with
+values of sampled ones.
+
 
 *** Example Usage
 
