@@ -440,3 +440,31 @@ verify the situation. If it turns out to be useful, I will clarify the
 use case and design the archtechure.
 
 Any information and/or pull request are welcome.
+* Known Issue
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: known_issue
+:END:
+** DONE ~ModuleNotFoundError~ in installation
+CLOSED: [2019-11-09 Sat 01:18]
+:PROPERTIES:
+:EXPORT_FILE_NAME: module_not_found_error
+:END:
+
+There is a known issue for installing process. If you don't have numpy
+beforehand, ~pip install cpprb~ might encounter the error message
+~ModuleNotFoundError~ together with stack trace, even though cpprb are
+successfully installed.
+
+The result is OK, but showing error message is quite confusing for user.
+
+This seems to come from the order of subcommand: download requirements
+and target, then build wheel of requirements and target (if possible),
+finally install requirements and target (literally). In short,
+building wheel of target (aka. cpprb) precede installing requirements
+(aka. numpy).
+
+cpprb requires numpy header files when compiling C++ code, so that
+numpy package is necessary inside ~setup.py~ to detect the location
+of numpy header file. By making custom ~build_ext~ command class,
+numpy package is imported lazily, but importing sitll fails at building wheel
+phase, and successfully retrys at litral installation phase.
