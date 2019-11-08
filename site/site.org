@@ -148,6 +148,30 @@ and the number of environment. (There was a dirty hack to put all
 extra environments into ~act~ which was not treat specially.)
 
 
+** TODO Prioritized Experience Replay
+:PROPERTIES:
+:EXPORT_FILE_NAME: PER
+:END:
+
+*** Overview
+
+*** Example Usage
+
+*** Notes
+
+*** Technical Detail
+** TODO Nstep Experience Replay
+:PROPERTIES:
+:EXPORT_FILE_NAME: nstep
+:END:
+*** Overview
+
+*** Example Usage
+
+*** Notes
+
+*** Technical Detail
+
 ** TODO Memory Compression
 :PROPERTIES:
 :EXPORT_FILE_NAME: memory_compression
