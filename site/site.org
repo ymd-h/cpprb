@@ -154,6 +154,34 @@ extra environments into ~act~ which was not treat specially.)
 :END:
 
 *** Overview
+Prioritized experience replay was proposed by [[https://arxiv.org/abs/1511.05952][T. Schaul et. al.]], and
+is widely used to speed up reinforcement learning (as far as I know).
+
+Roughly speaking, mis-predicted observations will be learned more
+frequently. To compensate distorted probability, weight of learning is
+scaled to the opposite direction (cf. importance sampling).
+
+In cpprb, ~PrioritizedReplayBuffer~ class implements these
+functionalities with proportional base (instead of rank base)
+priorities.
+
+
+You can ~add~ ~priorities~ together with other environment. If no
+~prioroties~ are passed, the stored maximum priority is used.
+
+
+The ~dict~ returned by ~sample~ also has special key-values of
+~indexes~ and ~weights~. The ~indexes~ are intended to be passed to
+~update_priorities~ to update their priorities after comparison with new
+prediction.
+
+
+~PrioritizedReplayBuffer~ has hyperparameters ~alpha~ and ~eps~ at
+constructor and ~beta~ at ~sample~, and their default values are
+~0.6~, ~1e-4~, and ~0.4~, respectively. The detail is described in the
+original paper above.
+
+
 
 *** Example Usage
 
