@@ -399,3 +399,36 @@ proper ~std::atomic~ type (e.g. ~std::atomic<std::size_t>~).
 Fortunately, the size of ~std::atomic<T>~ is equal to that of ~T~, as
 long as we checked. (We haven't fully confirmed yet.)
 
+
+* Future Plans
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: plans
+:END:
+
+** DONE Multi-Processing
+CLOSED: [2019-11-09 Sat 00:37]
+:PROPERTIES:
+:EXPORT_FILE_NAME: multiprocessing_plan
+:END:
+
+One of the most exciting plan is suppprting learner-explorer style in
+multiprocessing. The biggest challenge is data consistence with
+minimum lock and copy.
+
+In replay buffer all the environment at the same index should be
+"atomic", which means no process (thread) must not update the
+environment during sampling.
+
+The naive approach locks entire buffer when adding and/or
+sampling. Locking huge amount memory reagion all at once is quite
+inefficient, since wrting (adding) are localized and usually not
+overlapped. Making loacal buffer like [[https://arxiv.org/abs/1803.00933][ApeX]] mitigates the lock
+inefficiency (but not perfect).
+
+In developing code, which could acheive adding from multiprocess (but
+sample yet), atomically manipulate index of ring buffer and wright
+operations can be done parallely.
+
+Moreover, if we restrict the ring buffer size to power of 2, we can
+utilize lockless atomic operations.
+
