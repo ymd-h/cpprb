@@ -218,6 +218,15 @@ newest edge of the ring buffer.
 *** ~stack_compress~
 
 **** Overview
+~stack_compress~ is designed for compressing stacked (or sliding
+windowed) observation. A famous use case is Atari video game, where 4
+frames of display window are treated as single observation and the
+next observation is the one slided by only 1 frame. For this example,
+a straight forward approach stores all the frames 4 times.
+
+cpprb stores such stacked observation like non stacked observation
+(except for the end edge of the ring buffer) by utilizing numpy
+sliding trick.
 
 **** Sample Usage
 
