@@ -238,6 +238,10 @@ array like of ~str~, at constructor.
 **** Sample Usage
 
 **** Notes
+In order to make compatible with [[https://github.com/openai/gym][OpenAI gym]], the last dimension is
+considered as stack dimension (which is not fit to C array memory
+order).
+
 
 **** Technical Detail
 Technically speaking ~numpy.ndarray~ (and other data type supporting
