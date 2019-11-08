@@ -160,6 +160,10 @@ In cpprb, there are two functionalities named ~next_of~ and
 ~stack_compress~, which you can turn on manually when constructing
 replay buffer.
 
+~next_of~ and ~stack_compress~ can be used together, but currently
+none of them are compatible with N-step replay buffer.
+
+
 *** ~next_of~
 
 **** Overview
