@@ -432,3 +432,11 @@ operations can be done parallely.
 Moreover, if we restrict the ring buffer size to power of 2, we can
 utilize lockless atomic operations.
 
+** DONE TensorFlow Wrapping
+CLOSED: [2019-11-09 Sat 00:40]
+There is non-confirmed unclear information that wrapping replay buffer
+by TensorFlow speeds up (for something). I need to investigate and
+verify the situation. If it turns out to be useful, I will clarify the
+use case and design the archtechure.
+
+Any information and/or pull request are welcome.
