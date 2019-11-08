@@ -194,6 +194,24 @@ original paper above.
 :END:
 *** Overview
 
+To reduce fluctuation of random sampling effect especially at
+bootstrap phase, N-step reward (discounted summation) are useful.
+
+You can create N-step version replay buffer by specifying ~Nstep~
+parameter at constructors of ~ReplayBuffer~ or
+~PrioritizedReplayBuffer~.
+
+~Nstep~ parameter is a ~dict~ with keys of ~"size"~ , ~"gamma"~ , and
+~"next"~ . ~Nstep["size"]~ is a N-step size and 1-step is identical
+with ordinary replay buffer (but inefficient). ~Nstep["gamma"]~ is a
+discount factor for reward summation.  ~Nstep["next"]~ , whose type is
+~str~ or array like of ~str~, specifies (the set of) next type value(s),
+then sample returns (i+N)-th value instead of (i+1)-th one.
+
+
+~sample~ also adds ~"discount"~ into returned ~dict~.
+
+
 *** Example Usage
 
 *** Notes
