@@ -232,6 +232,9 @@ cpprb stores such stacked observation like non stacked observation
 (except for the end edge of the ring buffer) by utilizing numpy
 sliding trick.
 
+You can specify ~stack_compress~ parameter, whose type is ~str~ or
+array like of ~str~, at constructor.
+
 **** Sample Usage
 
 **** Notes
