@@ -237,7 +237,12 @@ sliding trick.
 **** Notes
 
 **** Technical Detail
-
+Technically speaking ~numpy.ndarray~ (and other data type supporting
+buffer protocol) has properties of item data type, the number of
+dimensions, length of each dimension, memory step size of each
+dimension, and so on. Usually, no data should overlap memory address,
+however, ~stack_compress~ intentionally overlaps the memory addresses
+in the stacked dimension.
 
 ** TODO Multi-Processing
 :PROPERTIES:
