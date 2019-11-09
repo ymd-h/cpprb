@@ -184,7 +184,38 @@ original paper above.
 
 
 *** Example Usage
+#+begin_src python
+from cpprb import PrioritizedReplayBuffer
 
+buffer_size = 256
+
+prb = PrioritizedReplayBuffer(buffer_size,
+                              {"obs": {"shape": (4,4)},
+                               "act": {"shape": 3},
+                               "rew": {},
+                               "next_obs": {"shape": (4,4)},
+                               "done": {}},
+                              alpha=0.5)
+
+for i in range(1000):
+    prb.add(obs=np.zeros((4,4)),
+            act=np.ones(3),
+            rew=0.5,
+            next_obs=np.zeros(4,4),
+            done=0)
+
+batch_size = 32
+s = prb.sample(batch_size,beta=0.5)
+
+indexes = s["indexes"]
+weights = s["weights"]
+
+#  train
+#  ...
+
+
+per.update_priorities(indexes,new_priorities)
+#+end_src
 *** Notes
 
 *** Technical Detail
