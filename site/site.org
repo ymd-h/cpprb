@@ -253,7 +253,31 @@ then sample returns (i+N)-th value instead of (i+1)-th one.
 ~sample~ also adds ~"discount"~ into returned ~dict~.
 
 
+Since N-step buffer temporary store the values into local storage, you
+need to call ~on_episode_end~ member function at the end of the every
+episode end to flush into main storage correctly.
+
 *** Example Usage
+#+begin_src python
+import numpy as np
+from cpprb import ReplayBuffer
+
+rb = ReplayBuffer(32,{'obs': {"shape": (4,4)},
+                      'act': {"shape": 3}
+                      'rew': {},
+                      'next_obs': {"shape": (4,4)}
+                      'done': {}},
+                  Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
+
+rb.add(obs=np.zeros((4,4)),
+       act=np.ones((3)),
+       rew=1.0,
+       next_obs=np.zeros((4,4)),
+       done=0.0)
+
+
+rb.on_episode_end()
+#+end_src
 
 *** Notes
 
