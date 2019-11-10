@@ -148,6 +148,52 @@ and the number of environment. (There was a dirty hack to put all
 extra environments into ~act~ which was not treat specially.)
 
 
+** TODO Multistep-add
+:PROPERTIES:
+:EXPORT_FILE_NAME: multistep_add
+:END:
+
+*** Overview
+In cpprb, you can add multistep environment to replay buffer simultaneously.
+
+
+*** Example Usage
+#+begin_src python
+import numpy as np
+from cpprb import ReplayBuffer
+
+rb = ReplayBuffer(32,{"obs": {"shape": 5},
+                      "act": {"shape": 3},
+                      "rew": {},
+                      "next_obs": {"shape": 5},
+                      "done": {}})
+
+steps = 10
+
+rb.get_stored_size() # -> 0
+
+
+rb.add(obs=np.ones(steps,5),
+       act=np.zeros(steps,3),
+       rew=np.ones(steps),
+       next_obs=np.ones(steps,5),
+       done=np.zeros(steps))
+
+
+rb.get_stored_size() # -> steps
+#+end_src
+*** Notes
+The dimension for step must be 0th dimension
+
+*** Technical Detail
+The shapes for ~add~ for every environments are stored as
+~add_shape=(-1,*env_shape)~ at constructor, s.t. ~env_shape~ is the environment
+shape.
+
+Only one environment (usually ~done~) is used to determine the step
+size by reshaping to ~add_shape~.
+
+
 ** DONE Prioritized Experience Replay
 CLOSED: [2019-11-10 Sun 13:26]
 :PROPERTIES:
