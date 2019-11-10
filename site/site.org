@@ -347,7 +347,18 @@ You can specify ~stack_compress~ parameter, whose type is ~str~ or
 array like of ~str~, at constructor.
 
 **** Sample Usage
+#+begin_src python
+from cpprb import ReplayBuffer
 
+rb = ReplayBuffer(32,{"obs":{"shape": (16,16)}, 'rew': {}, 'done': {}},
+                  next_of = "obs", stack_compress = "obs")
+
+rb.add(obs=(np.ones((16,16))),
+       next_obs=(np.ones((16,16))),
+       rew=1,
+       done=0)
+
+#+end_src
 **** Notes
 In order to make compatible with [[https://github.com/openai/gym][OpenAI gym]], the last dimension is
 considered as stack dimension (which is not fit to C array memory
