@@ -67,6 +67,385 @@ replay buffer classes for reinforcement learning.
 :EXPORT_HUGO_SECTION*: features
 :END:
 
+** DONE Flexible Environment
+CLOSED: [2019-11-08 Fri 05:58]
+:PROPERTIES:
+:EXPORT_FILE_NAME: flexible_environment
+:END:
+
+*** Overview
+
+In ~cpprb~ version 8 and newer, you can store any number of
+environments (aka. observation, action, etc.).
+
+For example, you can add your special environments like
+~next_next_obs~, ~second_reward~, and so on.
+
+These environments can take multi-dimensional shape (e.g. ~3~,
+~(4,4)~, ~(84,84,4)~), and any [[https://numpy.org/devdocs/user/basics.types.html][numpy data type]].
+
+
+**** ~__init__~
+In order to construct replay buffers, you need to specify the second
+parameter of their constructor, ~env_dict~.
+
+The ~env_dict~ is a ~dict~ whose keys are environment name and whose
+values are ~dict~ describing their properties.
+
+The following table is supported properties and their default values.
+
+| key   | description                    | type                         | default value                                    |
+|-------+--------------------------------+------------------------------+--------------------------------------------------|
+| shape | shape (size of each dimension) | ~int~ or array like of ~int~ | ~1~                                              |
+| dtype | data type                      | ~numpy.dtype~                | ~default_dtype~ in constructor or ~numpy.single~ |
+
+**** ~add~
+When ~add~ -ing environments to the replay buffer, you have to pass
+them by keyword arguments (aka. ~key=value~ style). If your
+environment name is not a syntactically valid identifier, you can
+still create dictionary first, then unpack the dictionary by ~**~
+operator (e.g. ~rb.add(**kwargs)~).
+
+**** ~sample~
+~sample~ returns ~dict~ with keys of environments' name and with
+values of sampled ones.
+
+
+*** Example Usage
+
+#+begin_src python
+from cpprb import ReplayBuffer
+import numpy as np
+
+buffer_size = 32
+
+rb = ReplayBuffer(buffer_size,{"obs": {"shape": (4,4)},
+                               "act": {"shape": 1},
+                               "rew": {},
+                               "next_obs": {"shape": (4,4)},
+                               "next_next_obs": {"shape": (4,4)},
+                               "done": {},
+                               "my_important_info": {"dtype": {np.short}}})
+
+rb.add(obs=np.zeros((4,4)),
+       act=1.5,
+       rew=0.0,
+       next_obs=np.zeros((4,4)),
+       next_next_obs=np.zeros((4,4)),
+       done=0,
+       my_important_info=2)
+#+end_src
+*** Notes
+~priorities~, ~weights~, and ~indexes~ for ~PrioritizedReplayBuffer~
+are special environments and are automatically set.
+
+
+*** Technical Detail
+Internally, these flexible environments are implemented with (cython
+version of) ~numpy.ndarray~. They were implemented with C++ code in
+older than version 8, which had trouble in flexibilities of data type
+and the number of environment. (There was a dirty hack to put all
+extra environments into ~act~ which was not treat specially.)
+
+
+** DONE Multistep-add
+CLOSED: [2019-11-10 Sun 14:08]
+:PROPERTIES:
+:EXPORT_FILE_NAME: multistep_add
+:END:
+
+*** Overview
+In cpprb, you can add multistep environment to replay buffer simultaneously.
+
+
+*** Example Usage
+#+begin_src python
+import numpy as np
+from cpprb import ReplayBuffer
+
+rb = ReplayBuffer(32,{"obs": {"shape": 5},
+                      "act": {"shape": 3},
+                      "rew": {},
+                      "next_obs": {"shape": 5},
+                      "done": {}})
+
+steps = 10
+
+rb.get_stored_size() # -> 0
+
+
+rb.add(obs=np.ones(steps,5),
+       act=np.zeros(steps,3),
+       rew=np.ones(steps),
+       next_obs=np.ones(steps,5),
+       done=np.zeros(steps))
+
+
+rb.get_stored_size() # -> steps
+#+end_src
+*** Notes
+The dimension for step must be 0th dimension
+
+*** Technical Detail
+The shapes for ~add~ for every environments are stored as
+~add_shape=(-1,*env_shape)~ at constructor, s.t. ~env_shape~ is the environment
+shape.
+
+Only one environment (usually ~done~) is used to determine the step
+size by reshaping to ~add_shape~.
+
+
+** DONE Prioritized Experience Replay
+CLOSED: [2019-11-10 Sun 13:26]
+:PROPERTIES:
+:EXPORT_FILE_NAME: PER
+:END:
+
+*** Overview
+Prioritized experience replay was proposed by [[https://arxiv.org/abs/1511.05952][T. Schaul et. al.]], and
+is widely used to speed up reinforcement learning (as far as I know).
+
+Roughly speaking, mis-predicted observations will be learned more
+frequently. To compensate distorted probability, weight of learning is
+scaled to the opposite direction (cf. importance sampling).
+
+In cpprb, ~PrioritizedReplayBuffer~ class implements these
+functionalities with proportional base (instead of rank base)
+priorities.
+
+
+You can ~add~ ~priorities~ together with other environment. If no
+~prioroties~ are passed, the stored maximum priority is used.
+
+
+The ~dict~ returned by ~sample~ also has special key-values of
+~indexes~ and ~weights~. The ~indexes~ are intended to be passed to
+~update_priorities~ to update their priorities after comparison with new
+prediction.
+
+
+~PrioritizedReplayBuffer~ has hyperparameters ~alpha~ and ~eps~ at
+constructor and ~beta~ at ~sample~, and their default values are
+~0.6~, ~1e-4~, and ~0.4~, respectively. The detail is described in the
+original paper above.
+
+
+
+*** Example Usage
+#+begin_src python
+from cpprb import PrioritizedReplayBuffer
+
+buffer_size = 256
+
+prb = PrioritizedReplayBuffer(buffer_size,
+                              {"obs": {"shape": (4,4)},
+                               "act": {"shape": 3},
+                               "rew": {},
+                               "next_obs": {"shape": (4,4)},
+                               "done": {}},
+                              alpha=0.5)
+
+for i in range(1000):
+    prb.add(obs=np.zeros((4,4)),
+            act=np.ones(3),
+            rew=0.5,
+            next_obs=np.zeros(4,4),
+            done=0)
+
+batch_size = 32
+s = prb.sample(batch_size,beta=0.5)
+
+indexes = s["indexes"]
+weights = s["weights"]
+
+#  train
+#  ...
+
+
+per.update_priorities(indexes,new_priorities)
+#+end_src
+*** Notes
+
+*** Technical Detail
+To choose prioritized sample efficiently, partial summation and
+minimum of pre-calculated weights are stored in Segment Tree data
+structure, which is written by C++ and which was an initial main
+motivation of this project.
+
+To support multiprocessing, the Segment Tree can be lazily updated,
+too.
+
+
+** DONE Nstep Experience Replay
+CLOSED: [2019-11-10 Sun 13:46]
+:PROPERTIES:
+:EXPORT_FILE_NAME: nstep
+:END:
+*** Overview
+
+To reduce fluctuation of random sampling effect especially at
+bootstrap phase, N-step reward (discounted summation) are useful.
+
+You can create N-step version replay buffer by specifying ~Nstep~
+parameter at constructors of ~ReplayBuffer~ or
+~PrioritizedReplayBuffer~.
+
+~Nstep~ parameter is a ~dict~ with keys of ~"size"~ , ~"gamma"~ , and
+~"next"~ . ~Nstep["size"]~ is a N-step size and 1-step is identical
+with ordinary replay buffer (but inefficient). ~Nstep["gamma"]~ is a
+discount factor for reward summation.  ~Nstep["next"]~ , whose type is
+~str~ or array like of ~str~, specifies (the set of) next type value(s),
+then sample returns (i+N)-th value instead of (i+1)-th one.
+
+
+~sample~ also adds ~"discount"~ into returned ~dict~.
+
+
+Since N-step buffer temporary store the values into local storage, you
+need to call ~on_episode_end~ member function at the end of the every
+episode end to flush into main storage correctly.
+
+*** Example Usage
+#+begin_src python
+import numpy as np
+from cpprb import ReplayBuffer
+
+rb = ReplayBuffer(32,{'obs': {"shape": (4,4)},
+                      'act': {"shape": 3}
+                      'rew': {},
+                      'next_obs': {"shape": (4,4)}
+                      'done': {}},
+                  Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
+
+rb.add(obs=np.zeros((4,4)),
+       act=np.ones((3)),
+       rew=1.0,
+       next_obs=np.zeros((4,4)),
+       done=0.0)
+
+
+rb.on_episode_end()
+#+end_src
+
+*** Notes
+
+*** Technical Detail
+
+** DONE Memory Compression
+CLOSED: [2019-11-10 Sun 13:33]
+:PROPERTIES:
+:EXPORT_FILE_NAME: memory_compression
+:END:
+
+Since replay buffer stores a large number of data set, memory
+efficiency is one of the most important point.
+
+In cpprb, there are two functionalities named ~next_of~ and
+~stack_compress~, which you can turn on manually when constructing
+replay buffer.
+
+~next_of~ and ~stack_compress~ can be used together, but currently
+none of them are compatible with N-step replay buffer.
+
+
+*** ~next_of~
+
+**** Overview
+In reinforcement learning, usually a set of observations before and
+after a certain action are used for training, so that you save the set
+in your replay buffer together. Naively speaking, all observations are
+stored twice.
+
+As you know, replay buffer is a ring buffer and the next value should
+be stored at next index, except for the newest edge.
+
+If you specify ~next_of~ argument (its type is ~str~ or array like of
+~str~), the "next value" of specified values are also set in the
+replay buffer and they share the memory location.
+
+The name of the next value adds prefix ~next_~ to the original name
+(e.g. ~next_obs~ for ~obs~, ~next_rew~ for ~rew~, and so on).
+
+This functionality has small penalties for manipulating sampled index
+and checking the cache for the newest index. (As far as I know, this
+penalty is not significant, and you might not notice.)
+
+**** Example Usage
+#+begin_src python
+from cpprb import ReplayBuffer
+
+buffer_size = 256
+
+rb = ReplayBuffer(buffer_size,{"obs": {"shape": (84,84)},
+                               "act": {"shape": 3},
+                               "rew": {},
+                               "done": {}},
+                  next_of=("obs","rew"))
+
+rb.add(obs=np.ones((84,84)),
+       act=np.ones(3),
+       next_obs=np.ones((84,84)),
+       rew=1,
+       next_rew=1,
+       done=0)
+#+end_src
+
+**** Notes
+cpprb does not check the consistance of i-th ~next_foo~ and (i+1)-th
+~foo~. This is user responsibility.
+
+
+**** Technical Detail
+Internally, ~next_foo~ is not stored into a ring buffer, but into its chache.
+(So still raising error if you don't pass them to ~add~.)
+
+When sampling, indices (which is ~numpy.ndarray~) are shifted (and
+wraparounded if necessary), then are checked whether they are on the
+newest edge of the ring buffer.
+
+*** ~stack_compress~
+
+**** Overview
+~stack_compress~ is designed for compressing stacked (or sliding
+windowed) observation. A famous use case is Atari video game, where 4
+frames of display window are treated as single observation and the
+next observation is the one slided by only 1 frame. For this example,
+a straight forward approach stores all the frames 4 times.
+
+cpprb stores such stacked observation like non stacked observation
+(except for the end edge of the ring buffer) by utilizing numpy
+sliding trick.
+
+You can specify ~stack_compress~ parameter, whose type is ~str~ or
+array like of ~str~, at constructor.
+
+**** Sample Usage
+#+begin_src python
+from cpprb import ReplayBuffer
+
+rb = ReplayBuffer(32,{"obs":{"shape": (16,16)}, 'rew': {}, 'done': {}},
+                  next_of = "obs", stack_compress = "obs")
+
+rb.add(obs=(np.ones((16,16))),
+       next_obs=(np.ones((16,16))),
+       rew=1,
+       done=0)
+
+#+end_src
+**** Notes
+In order to make compatible with [[https://github.com/openai/gym][OpenAI gym]], the last dimension is
+considered as stack dimension (which is not fit to C array memory
+order).
+
+
+**** Technical Detail
+Technically speaking ~numpy.ndarray~ (and other data type supporting
+buffer protocol) has properties of item data type, the number of
+dimensions, length of each dimension, memory step size of each
+dimension, and so on. Usually, no data should overlap memory address,
+however, ~stack_compress~ intentionally overlaps the memory addresses
+in the stacked dimension.
+
 ** TODO Multi-Processing
 :PROPERTIES:
 :EXPORT_FILE_NAME: multiprocessing
@@ -145,3 +524,72 @@ proper ~std::atomic~ type (e.g. ~std::atomic<std::size_t>~).
 Fortunately, the size of ~std::atomic<T>~ is equal to that of ~T~, as
 long as we checked. (We haven't fully confirmed yet.)
 
+
+* Future Plans
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: plans
+:END:
+
+** DONE Multi-Processing
+CLOSED: [2019-11-09 Sat 00:37]
+:PROPERTIES:
+:EXPORT_FILE_NAME: multiprocessing_plan
+:END:
+
+One of the most exciting plan is suppprting learner-explorer style in
+multiprocessing. The biggest challenge is data consistence with
+minimum lock and copy.
+
+In replay buffer all the environment at the same index should be
+"atomic", which means no process (thread) must not update the
+environment during sampling.
+
+The naive approach locks entire buffer when adding and/or
+sampling. Locking huge amount memory reagion all at once is quite
+inefficient, since wrting (adding) are localized and usually not
+overlapped. Making loacal buffer like [[https://arxiv.org/abs/1803.00933][ApeX]] mitigates the lock
+inefficiency (but not perfect).
+
+In developing code, which could acheive adding from multiprocess (but
+sample yet), atomically manipulate index of ring buffer and wright
+operations can be done parallely.
+
+Moreover, if we restrict the ring buffer size to power of 2, we can
+utilize lockless atomic operations.
+
+** DONE TensorFlow Wrapping
+CLOSED: [2019-11-09 Sat 00:40]
+There is non-confirmed unclear information that wrapping replay buffer
+by TensorFlow speeds up (for something). I need to investigate and
+verify the situation. If it turns out to be useful, I will clarify the
+use case and design the archtechure.
+
+Any information and/or pull request are welcome.
+* Known Issue
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: known_issue
+:END:
+** DONE ~ModuleNotFoundError~ in installation
+CLOSED: [2019-11-09 Sat 01:18]
+:PROPERTIES:
+:EXPORT_FILE_NAME: module_not_found_error
+:END:
+
+There is a known issue for installing process. If you don't have numpy
+beforehand, ~pip install cpprb~ might encounter the error message
+~ModuleNotFoundError~ together with stack trace, even though cpprb are
+successfully installed.
+
+The result is OK, but showing error message is quite confusing for user.
+
+This seems to come from the order of subcommand: download requirements
+and target, then build wheel of requirements and target (if possible),
+finally install requirements and target (literally). In short,
+building wheel of target (aka. cpprb) precede installing requirements
+(aka. numpy).
+
+cpprb requires numpy header files when compiling C++ code, so that
+numpy package is necessary inside ~setup.py~ to detect the location
+of numpy header file. By making custom ~build_ext~ command class,
+numpy package is imported lazily, but importing sitll fails at building wheel
+phase, and successfully retrys at litral installation phase.
