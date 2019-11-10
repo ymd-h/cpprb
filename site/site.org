@@ -219,6 +219,15 @@ per.update_priorities(indexes,new_priorities)
 *** Notes
 
 *** Technical Detail
+To choose prioritized sample efficiently, partial summation and
+minimum of pre-calculated weights are stored in Segment Tree data
+structure, which is written by C++ and which was an initial main
+motivation of this project.
+
+To support multiprocessing, the Segment Tree can be lazily updated,
+too.
+
+
 ** TODO Nstep Experience Replay
 :PROPERTIES:
 :EXPORT_FILE_NAME: nstep
