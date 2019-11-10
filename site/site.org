@@ -259,7 +259,8 @@ then sample returns (i+N)-th value instead of (i+1)-th one.
 
 *** Technical Detail
 
-** TODO Memory Compression
+** DONE Memory Compression
+CLOSED: [2019-11-10 Sun 13:33]
 :PROPERTIES:
 :EXPORT_FILE_NAME: memory_compression
 :END:
