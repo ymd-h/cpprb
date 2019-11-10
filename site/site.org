@@ -229,7 +229,8 @@ To support multiprocessing, the Segment Tree can be lazily updated,
 too.
 
 
-** TODO Nstep Experience Replay
+** DONE Nstep Experience Replay
+CLOSED: [2019-11-10 Sun 13:46]
 :PROPERTIES:
 :EXPORT_FILE_NAME: nstep
 :END:
