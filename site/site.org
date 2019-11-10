@@ -148,7 +148,8 @@ and the number of environment. (There was a dirty hack to put all
 extra environments into ~act~ which was not treat specially.)
 
 
-** TODO Prioritized Experience Replay
+** DONE Prioritized Experience Replay
+CLOSED: [2019-11-10 Sun 13:26]
 :PROPERTIES:
 :EXPORT_FILE_NAME: PER
 :END:
