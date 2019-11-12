@@ -3,7 +3,7 @@ from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 
 
-requires = ["numpy"]
+requires = []
 
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"]
@@ -55,6 +55,7 @@ setup(name="cpprb",
       description="ReplayBuffer for Reinforcement Learning written by C++",
       version="8.0.1",
       install_requires=requires,
+      setup_requires=["numpy"],
       extras_require=extras,
       cmdclass={'build_ext': LazyImportBuildExtCommand},
       url="https://ymd_h.gitlab.io/cpprb/",
