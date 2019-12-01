@@ -5,7 +5,6 @@ RUN apt update \
 	build-essential \
 	python-opengl \
 	tk-dev \
-	wget \
 	x11-utils \
 	xvfb \
 	&& apt clean \
