@@ -205,6 +205,16 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
+    def test_singe_size_buffer(self):
+        _rb = PrioritizedReplayBuffer(1,{"done":{}})
+        _rb.add(done=1)
+        s = _rb.sample(1)
+
+        self.assertEqual(s["indexes"][0],0)
+        self.assertAlmostEqual(s["weights"][0],1.0)
+        self.assertAlmostEqual(s["done"][0],1.0)
+
+
     def test_unchange(self):
         unchange_rb = PrioritizedReplayBuffer(1,
                                               {"done": {}},
