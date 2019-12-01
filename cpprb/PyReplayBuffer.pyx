@@ -1165,11 +1165,16 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         cdef size_t [:] idx = Csize(indexes)
         cdef float [:] ps = Cfloat(priorities)
 
-        cdef bool [:] unchange
+        cdef size_t _idx = 0
         if self.check_for_update:
-            unchange = self.unchange_since_sample[idx]
-            idx = idx[unchange]
-            ps = ps[unchange]
+            for _i in range(idx.shape[0]):
+                if self.unchange_since_sample[idx[_i]]:
+                    idx[_idx] = idx[_i]
+                    ps[_idx] = ps[_i]
+                    _idx += 1
+            idx = idx[:_idx]
+            ps = ps[:_idx]
+
 
         cdef N = idx.shape[0]
         self.per.update_priorities(&idx[0],&ps[0],N)
