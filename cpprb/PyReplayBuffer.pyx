@@ -1144,7 +1144,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         samples['weights'] = self.weights.as_numpy()
         samples['indexes'] = idx
 
-        if self.update_priorities:
+        if self.check_for_update:
             self.unchange_since_sample[:] = True
 
         return samples
