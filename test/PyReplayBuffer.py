@@ -237,11 +237,12 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
         self.assertEqual(i.shape[0],1)
         self.assertEqual(i[0],0)
         self.assertEqual(p.shape[0],1)
-        self.assertAlmostEqual(p[0],2.0)
+        self.assertAlmostEqual(p[0],1.0)
+        self.assertAlmostEqual(unchange_rb.get_max_priority(),2.0)
 
         # Update is ignored, since i=0 changed after sample.
         unchange_rb.add(done=1.0)
-        unchange_rb.update_priorities(i,[2.0])
+        unchange_rb.update_priorities(i,[3.0])
         sample = unchange_rb.sample(1)
         i = sample['indexes']
         p = sample['weights']
@@ -249,6 +250,7 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
         self.assertEqual(i[0],0)
         self.assertEqual(p.shape[0],1)
         self.assertAlmostEqual(p[0],1.0)
+        self.assertAlmostEqual(unchange_rb.get_max_priority(),2.0)
 
 
 class TestNstepBase:
