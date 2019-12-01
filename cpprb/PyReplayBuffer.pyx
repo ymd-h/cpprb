@@ -1177,7 +1177,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
 
         cdef N = idx.shape[0]
-        self.per.update_priorities(&idx[0],&ps[0],N)
+        if N > 0:
+            self.per.update_priorities(&idx[0],&ps[0],N)
 
     cpdef void clear(self) except *:
         """Clear replay buffer
