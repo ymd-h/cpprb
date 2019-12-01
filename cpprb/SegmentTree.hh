@@ -162,10 +162,10 @@ namespace ymd {
 	changed[i].store(true,std::memory_order_release);
       }else{
 	constexpr const std::size_t zero = 0;
-	do {
+	while(n != zero){
 	  n = parent(n);
 	  update_buffer(n);
-	} while(n != zero);
+	}
       }
     }
 
@@ -192,7 +192,10 @@ namespace ymd {
 			[](auto& c){ c.store(true,std::memory_order_release); });
 	}else{
 	  for(auto n = std::size_t(0); n < copy_N; ++n){
-	    will_update.insert(parent(access_index(i+n)));
+	    auto _i = access_index(i+n);
+	    if(_i != 0){
+	      will_update.insert(parent(_i));
+	    }
 	  }
 	}
 

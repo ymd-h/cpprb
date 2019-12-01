@@ -1017,8 +1017,11 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     cdef float alpha
     cdef CppPrioritizedSampler[float]* per
     cdef NstepBuffer priorities_nstep
+    cdef bool check_for_update
+    cdef bool [:] unchange_since_sample
 
-    def __cinit__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,**kwrags):
+    def __cinit__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
+                  check_for_update=False,**kwrags):
         self.alpha = alpha
         self.per = new CppPrioritizedSampler[float](size,alpha)
         self.per.set_eps(eps)
@@ -1030,7 +1033,12 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
                                                  "done": {}},
                                                 {"size": Nstep["size"]})
 
-    def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,**kwargs):
+        self.check_for_update = check_for_update
+        if self.check_for_update:
+            self.unchange_since_sample = np.ones(size,dtype=np.dtype('?'))
+
+    def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
+                 check_for_update=False,**kwargs):
         """Initialize PrioritizedReplayBuffer
 
         Parameters
@@ -1046,6 +1054,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         eps : float, optional
             small positive constant to ensure error-less state will be sampled,
             whose default value is 1e-4.
+        check_for_update : bool
+            Whether check update for `update_priorities`. The default value is `False`
         """
         pass
 
@@ -1093,6 +1103,13 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         else:
             self.per.set_priorities(index,N,self.get_buffer_size())
 
+        if self.check_for_update:
+            if index+N <= self.buffer_size:
+                self.unchange_since_sample[index:index+N] = False
+            else:
+                self.unchange_since_sample[index:] = False
+                self.unchange_since_sample[:index+N-self.buffer_size] = False
+
         return index
 
     def sample(self,batch_size,beta = 0.4):
@@ -1126,6 +1143,10 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         samples = self._encode_sample(idx)
         samples['weights'] = self.weights.as_numpy()
         samples['indexes'] = idx
+
+        if self.check_for_update:
+            self.unchange_since_sample[:] = True
+
         return samples
 
     def update_priorities(self,indexes,priorities):
@@ -1143,8 +1164,21 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         cdef size_t [:] idx = Csize(indexes)
         cdef float [:] ps = Cfloat(priorities)
+
+        cdef size_t _idx = 0
+        if self.check_for_update:
+            for _i in range(idx.shape[0]):
+                if self.unchange_since_sample[idx[_i]]:
+                    idx[_idx] = idx[_i]
+                    ps[_idx] = ps[_i]
+                    _idx += 1
+            idx = idx[:_idx]
+            ps = ps[:_idx]
+
+
         cdef N = idx.shape[0]
-        self.per.update_priorities(&idx[0],&ps[0],N)
+        if N > 0:
+            self.per.update_priorities(&idx[0],&ps[0],N)
 
     cpdef void clear(self) except *:
         """Clear replay buffer
@@ -1221,4 +1255,3 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
         return buffer(size,env_dict,**kwargs)
 
     raise NotImplementedError(f"{buffer_name} is not Implemented")
-

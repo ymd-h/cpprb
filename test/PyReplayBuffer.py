@@ -205,6 +205,54 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
+    def test_singe_size_buffer(self):
+        _rb = PrioritizedReplayBuffer(1,{"done":{}})
+        _rb.add(done=1)
+        s = _rb.sample(1)
+
+        self.assertEqual(s["indexes"][0],0)
+        self.assertAlmostEqual(s["weights"][0],1.0)
+        self.assertAlmostEqual(s["done"][0],1.0)
+
+
+    def test_unchange(self):
+        unchange_rb = PrioritizedReplayBuffer(1,
+                                              {"done": {}},
+                                              check_for_update=True)
+
+        unchange_rb.add(done=1.0)
+        sample = unchange_rb.sample(1)
+        i = sample['indexes']
+        p = sample['weights']
+        self.assertEqual(i.shape[0],1)
+        self.assertEqual(i[0],0)
+        self.assertEqual(p.shape[0],1)
+        self.assertAlmostEqual(p[0],1.0)
+
+        # Update priority
+        unchange_rb.update_priorities(i,[2.0])
+        sample = unchange_rb.sample(1)
+        i = sample['indexes']
+        p = sample['weights']
+        self.assertEqual(i.shape[0],1)
+        self.assertEqual(i[0],0)
+        self.assertEqual(p.shape[0],1)
+        self.assertAlmostEqual(p[0],1.0)
+        self.assertAlmostEqual(unchange_rb.get_max_priority(),2.0)
+
+        # Update is ignored, since i=0 changed after sample.
+        unchange_rb.add(done=1.0)
+        unchange_rb.update_priorities(i,[3.0])
+        sample = unchange_rb.sample(1)
+        i = sample['indexes']
+        p = sample['weights']
+        self.assertEqual(i.shape[0],1)
+        self.assertEqual(i[0],0)
+        self.assertEqual(p.shape[0],1)
+        self.assertAlmostEqual(p[0],1.0)
+        self.assertAlmostEqual(unchange_rb.get_max_priority(),2.0)
+
+
 class TestNstepBase:
     def test_discounts(self):
         self._check_ndarray(self.s['discounts'],2,(self.batch_size,1),"discounts")
