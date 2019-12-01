@@ -1035,7 +1035,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         self.check_for_update = check_for_update
         if self.check_for_update:
-            self.unchange_since_sample = np.once(size,dtype=np.dtype('?'))
+            self.unchange_since_sample = np.ones(size,dtype=np.dtype('?'))
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
                  check_for_update=False,**kwargs):
