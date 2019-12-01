@@ -162,10 +162,10 @@ namespace ymd {
 	changed[i].store(true,std::memory_order_release);
       }else{
 	constexpr const std::size_t zero = 0;
-	do {
+	while(n != zero){
 	  n = parent(n);
 	  update_buffer(n);
-	} while(n != zero);
+	}
       }
     }
 
