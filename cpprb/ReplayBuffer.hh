@@ -461,7 +461,7 @@ namespace ymd {
 						   std::memory_order_acquire),
 			[=,p=priorities]
 			(auto max_p, auto index) mutable {
-			  Priority v = std::pow(*p,this->alpha);
+			  Priority v = std::pow(*p + this->eps,this->alpha);
 			  this->sum.set(index,v);
 			  this->min.set(index,v);
 
