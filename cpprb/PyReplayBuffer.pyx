@@ -1166,7 +1166,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         cdef float [:] ps = Cfloat(priorities)
 
         cdef bool [:] unchange
-        if.self.check_for_update:
+        if self.check_for_update:
             unchange = self.unchange_since_sample[idx]
             idx = idx[unchange]
             ps = ps[unchange]
