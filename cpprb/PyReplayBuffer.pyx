@@ -1104,7 +1104,11 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             self.per.set_priorities(index,N,self.get_buffer_size())
 
         if self.check_for_update:
-            self.unchange_since_sample[index:index+N] = False
+            if index+N <= self.buffer_size:
+                self.unchange_since_sample[index:index+N] = False
+            else:
+                self.unchange_since_sample[index:] = False
+                self.unchange_since_sample[:index+N-self.buffer_size] = False
 
         return index
 
