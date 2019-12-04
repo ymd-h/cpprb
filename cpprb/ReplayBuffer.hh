@@ -13,6 +13,7 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <numeric>
 
 #include "SegmentTree.hh"
 
