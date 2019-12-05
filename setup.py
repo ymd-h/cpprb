@@ -15,7 +15,7 @@ for group_name in extras:
 extras['all'] = all_deps
 
 if platform.system() == 'Windows':
-    extra_compile_args = ["-std:c++17"]
+    extra_compile_args = ["/std:c++17"]
     extra_link_args = None
 else:
     extra_compile_args = ["-std=c++17","-march=native"]
