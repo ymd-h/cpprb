@@ -1,4 +1,5 @@
 import os
+import platform
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 
@@ -13,6 +14,12 @@ for group_name in extras:
     all_deps += extras[group_name]
 extras['all'] = all_deps
 
+if platform.system() == 'Windows':
+    extra_compile_args = ["/std:c++17"]
+    extra_link_args = None
+else:
+    extra_compile_args = ["-std=c++17","-march=native"]
+    extra_link_args = ["-std=c++17", "-pthread"]
 
 if os.path.exists("cpprb/PyReplayBuffer.pyx"):
     from Cython.Build import cythonize
@@ -32,9 +39,8 @@ ext = [["cpprb","PyReplayBuffer"],
 
 ext_modules = wrap([Extension(".".join(e),
                               sources=["/".join(e) + suffix],
-                              extra_compile_args=["-std=c++17",
-                                                  "-march=native"],
-                              extra_link_args=["-std=c++17", "-pthread"],
+                              extra_compile_args=extra_compile_args,
+                              extra_link_args=extra_link_args,
                               language="c++") for e in ext])
 
 
@@ -53,7 +59,7 @@ setup(name="cpprb",
       author="Yamada Hiroyuki",
       author_email="incoming+ymd-h-cpprb-10328285-issue-@incoming.gitlab.com",
       description="ReplayBuffer for Reinforcement Learning written by C++",
-      version="8.1.1",
+      version="8.1.3",
       install_requires=requires,
       setup_requires=["numpy"],
       extras_require=extras,
