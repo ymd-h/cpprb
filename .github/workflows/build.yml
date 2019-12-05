@@ -10,5 +10,5 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@master
-      - run: pip3 install -U cython pip setuptools
+      - run: pip3 install cython setuptools
       - run: pip3 install .
