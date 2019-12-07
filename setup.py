@@ -3,6 +3,7 @@ import platform
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 
+debug = os.getenv('DEBUG_CPPRB')
 
 requires = ["numpy"]
 
@@ -17,9 +18,13 @@ extras['all'] = all_deps
 if platform.system() == 'Windows':
     extra_compile_args = ["/std:c++17"]
     extra_link_args = None
+    if debug:
+        extra_compile_args.append('/DCYTHON_TRACE_NOGIL=1')
 else:
     extra_compile_args = ["-std=c++17","-march=native"]
     extra_link_args = ["-std=c++17", "-pthread"]
+    if debug:
+        extra_compile_args.append('-DCYTHON_TRACE_NOGIL=1')
 
 if os.path.exists("cpprb/PyReplayBuffer.pyx"):
     from Cython.Build import cythonize
