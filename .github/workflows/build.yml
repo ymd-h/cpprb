@@ -12,5 +12,5 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - run: pip3 install cython setuptools
-      - run: pip3 install .
+      - run: pip3 install '.[gym]'
       - run: cd test && python3 -m unittest discover . '*.py'
