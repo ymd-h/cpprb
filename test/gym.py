@@ -1,3 +1,4 @@
+import pplatform
 import numpy as np
 import unittest
 
@@ -5,11 +6,14 @@ from cpprb import gym
 
 
 class TestGym(unittest.TestCase):
-
+    @unittest.skipIf(platform.system() == 'Windows',
+                     'Unsupport Platform')
     def test_NoteBookAnimation(self):
         a = gym.NotebookAnimation()
         a.display()
 
+    @unittest.skipIf(platform.system() == 'Windows',
+                     'Unsupport Platform')
     def test_Animation(self):
         with self.assertRaises(TypeError):
             gym.Animation()
