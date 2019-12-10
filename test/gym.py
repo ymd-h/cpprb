@@ -1,4 +1,4 @@
-import pplatform
+import platform
 import unittest
 
 import numpy as np
