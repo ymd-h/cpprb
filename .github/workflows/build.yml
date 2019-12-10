@@ -11,7 +11,9 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@master
-      - run: pip3 install cython setuptools
-      - run: pip3 install '.[gym]'
-      - run: python3 -m unittest discover . '*.py'
+      - uses: actions/setup-python@v1
+        with: python-version: '3.7'
+      - run: pip install cython setuptools
+      - run: pip install '.[gym]'
+      - run: python -m unittest discover . '*.py'
         working-directory: './test'
