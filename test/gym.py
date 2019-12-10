@@ -1,6 +1,7 @@
 import pplatform
-import numpy as np
 import unittest
+
+import numpy as np
 
 from cpprb import gym
 
