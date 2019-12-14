@@ -23,7 +23,7 @@ jobs:
           rm -rf dist/*
           pip install wheel twine
           python setup.py bdst_wheel
-      - use: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v1
         with:
           name: dist
           path: dist/*.whl
