@@ -91,7 +91,7 @@ class NotebookAnimation(Animation):
         -------
         """
 
-        if len(self.frames) is 0:
+        if len(self.frames) == 0:
             return
 
         import matplotlib.pyplot as plt
