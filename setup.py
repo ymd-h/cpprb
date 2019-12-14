@@ -6,7 +6,7 @@ from setuptools.command.build_ext import build_ext
 debug = os.getenv('DEBUG_CPPRB')
 
 requires = ["numpy"]
-setup_requires = None
+setup_requires = ["numpy"]
 
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"]
@@ -36,7 +36,7 @@ use_cython = (not os.path.exists(cpp_file)
                   and (os.path.getmtime(cpp_file) < os.path.getmtime(pyx_file))))
 if use_cython:
     suffix = ".pyx"
-    setup_requires = ["numpy","cython>=0.29"]
+    setup_requires.extend(["cython>=0.29"])
 else:
     suffix = ".cpp"
 
