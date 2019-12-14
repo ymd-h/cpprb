@@ -29,8 +29,8 @@ else:
         extra_compile_args.append('-DCYTHON_TRACE_NOGIL=1')
 
 # Check cythonize or not
-cpp_file = "cpprb/ReplayBuffer.cpp"
-pyx_file = "cpprb/ReplayBuffer.pyx"
+cpp_file = "cpprb/PyReplayBuffer.cpp"
+pyx_file = "cpprb/PyReplayBuffer.pyx"
 use_cython = (not os.path.exists(cpp_file)
               or (os.path.exists(pyx_file)
                   and (os.path.getmtime(cpp_file) < os.path.getmtime(pyx_file))))
