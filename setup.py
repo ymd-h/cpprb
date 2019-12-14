@@ -27,7 +27,11 @@ else:
     if debug:
         extra_compile_args.append('-DCYTHON_TRACE_NOGIL=1')
 
-if os.path.exists("cpprb/PyReplayBuffer.pyx"):
+cpp_file = "cpprb/ReplayBuffer.cpp"
+pyx_file = "cpprb/ReplayBuffer.pyx"
+if (not os.path.exists(cpp_file)
+    or (os.path.exists(pyx_file)
+        and (os.path.getmtime(cpp_file) < os.path.getmtime(pyx_file)))):
     suffix = ".pyx"
     setup_requires = ["numpy","cython>=0.29"]
 else:
