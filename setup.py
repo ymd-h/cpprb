@@ -31,9 +31,10 @@ else:
 # Check cythonize or not
 cpp_file = "cpprb/ReplayBuffer.cpp"
 pyx_file = "cpprb/ReplayBuffer.pyx"
-if (not os.path.exists(cpp_file)
-    or (os.path.exists(pyx_file)
-        and (os.path.getmtime(cpp_file) < os.path.getmtime(pyx_file)))):
+use_cython = (not os.path.exists(cpp_file)
+              or (os.path.exists(pyx_file)
+                  and (os.path.getmtime(cpp_file) < os.path.getmtime(pyx_file))))
+if use_cython:
     suffix = ".pyx"
     setup_requires = ["numpy","cython>=0.29"]
 else:
@@ -55,15 +56,15 @@ class LazyImportBuildExtCommand(build_ext):
     """
     def run(self):
         import numpy as np
-        from Cython.Build import cythonize
 
-        self.extensions = cythonize(self.extensions,
-                                    compiler_directives={'language_level': "3"},
-                                    include_path=["."],
-                                    annotate=True)
+        if use_cython:
+            from Cython.Build import cythonize
+            self.extensions = cythonize(self.extensions,
+                                        compiler_directives={'language_level': "3"},
+                                        include_path=["."],
+                                        annotate=True)
 
         self.include_dirs.append(np.get_include())
-
         build_ext.run(self)
 
 setup(name="cpprb",
