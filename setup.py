@@ -57,15 +57,18 @@ class LazyImportBuildExtCommand(build_ext):
     def run(self):
         import numpy as np
 
-        if use_cython:
-            from Cython.Build import cythonize
-            self.extensions = cythonize(self.extensions,
-                                        compiler_directives={'language_level': "3"},
-                                        include_path=["."],
-                                        annotate=True)
-
         self.include_dirs.append(np.get_include())
         build_ext.run(self)
+
+    def finalize_options(self):
+        if use_cython:
+            from Cython.Build import cythonize
+            self.distribution.ext_modules = cythonize(self.distribution.ext_modules,
+                                                      compiler_directives={'language_level': "3"},
+                                                      include_path=["."],
+                                                      annotate=True)
+        super().finalize_options()
+
 
 setup(name="cpprb",
       author="Yamada Hiroyuki",
