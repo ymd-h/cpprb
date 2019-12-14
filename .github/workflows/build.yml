@@ -20,12 +20,24 @@ jobs:
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - run: rm -rf dist/*
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      - run: python setup.py bdist_wheel
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      - name: Publish package
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@master
+        run: pip install wheel twine
+        run: python setup.py bdst_wheel
+      - use: actions/upload-artifact@v1
+        with:
+          name: dist
+          path: dist/*.whl
+  pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v1
+        with: dist
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.*'
+      - run: pip install wheel twine
+      - uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
           password: ${{ secrets.pypi_password }}
