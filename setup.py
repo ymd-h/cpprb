@@ -8,6 +8,10 @@ debug = os.getenv('DEBUG_CPPRB')
 requires = ["numpy"]
 setup_requires = ["numpy"]
 
+rb_source = "cpprb/PyReplayBuffer"
+cpp_ext = ".cpp"
+pyx_ext = ".pyx"
+
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"]
 }
@@ -29,16 +33,16 @@ else:
         extra_compile_args.append('-DCYTHON_TRACE_NOGIL=1')
 
 # Check cythonize or not
-cpp_file = "cpprb/PyReplayBuffer.cpp"
-pyx_file = "cpprb/PyReplayBuffer.pyx"
+cpp_file = rb_source + cpp_ext
+pyx_file = rb_source + pyx_ext
 use_cython = (not os.path.exists(cpp_file)
               or (os.path.exists(pyx_file)
                   and (os.path.getmtime(cpp_file) < os.path.getmtime(pyx_file))))
 if use_cython:
-    suffix = ".pyx"
+    suffix = pyx_ext
     setup_requires.extend(["cython>=0.29"])
 else:
-    suffix = ".cpp"
+    suffix = cpp_ext
 
 # Set ext_module
 ext = [["cpprb","PyReplayBuffer"],
