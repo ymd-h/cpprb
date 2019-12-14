@@ -6,6 +6,7 @@ from setuptools.command.build_ext import build_ext
 debug = os.getenv('DEBUG_CPPRB')
 
 requires = ["numpy"]
+setup_requires = None
 
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"]
@@ -35,6 +36,7 @@ if os.path.exists("cpprb/PyReplayBuffer.pyx"):
                                include_path=["."],
                                annotate=True)
     requires.extend(["cython>=0.29"])
+    setup_requires = ["numpy"]
 else:
     suffix = ".cpp"
     wrap = lambda x: x
@@ -66,7 +68,7 @@ setup(name="cpprb",
       description="ReplayBuffer for Reinforcement Learning written by C++",
       version="8.2.0",
       install_requires=requires,
-      setup_requires=["numpy"],
+      setup_requires=setup_requires,
       extras_require=extras,
       cmdclass={'build_ext': LazyImportBuildExtCommand},
       url="https://ymd_h.gitlab.io/cpprb/",
