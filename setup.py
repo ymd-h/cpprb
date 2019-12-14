@@ -16,6 +16,7 @@ for group_name in extras:
     all_deps += extras[group_name]
 extras['all'] = all_deps
 
+# Set compiler flags depending on platform
 if platform.system() == 'Windows':
     extra_compile_args = ["/std:c++17"]
     extra_link_args = None
@@ -27,6 +28,7 @@ else:
     if debug:
         extra_compile_args.append('-DCYTHON_TRACE_NOGIL=1')
 
+# Check cythonize or not
 cpp_file = "cpprb/ReplayBuffer.cpp"
 pyx_file = "cpprb/ReplayBuffer.pyx"
 if (not os.path.exists(cpp_file)
@@ -37,6 +39,7 @@ if (not os.path.exists(cpp_file)
 else:
     suffix = ".cpp"
 
+# Set ext_module
 ext = [["cpprb","PyReplayBuffer"],
        ["cpprb","VectorWrapper"]]
 
