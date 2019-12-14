@@ -13,6 +13,7 @@
 #+creator: Emacs 26.3 (Org mode 9.2.3)
 
 * Unreleased
+* v8.2.1
 - Fix: gym module ~is~ comparison with literal
 - Fix: Build without pre-install cython
 
