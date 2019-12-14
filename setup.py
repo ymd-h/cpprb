@@ -6,6 +6,11 @@ from setuptools.command.build_ext import build_ext
 debug = os.getenv('DEBUG_CPPRB')
 
 requires = ["numpy"]
+setup_requires = ["numpy"]
+
+rb_source = "cpprb/PyReplayBuffer"
+cpp_ext = ".cpp"
+pyx_ext = ".pyx"
 
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"]
@@ -15,6 +20,7 @@ for group_name in extras:
     all_deps += extras[group_name]
 extras['all'] = all_deps
 
+# Set compiler flags depending on platform
 if platform.system() == 'Windows':
     extra_compile_args = ["/std:c++17"]
     extra_link_args = None
@@ -26,39 +32,47 @@ else:
     if debug:
         extra_compile_args.append('-DCYTHON_TRACE_NOGIL=1')
 
-if os.path.exists("cpprb/PyReplayBuffer.pyx"):
-    from Cython.Build import cythonize
-
-    suffix = ".pyx"
-    wrap = lambda x: cythonize(x,
-                               compiler_directives={'language_level': "3"},
-                               include_path=["."],
-                               annotate=True)
-    requires.extend(["cython>=0.29"])
+# Check cythonize or not
+cpp_file = rb_source + cpp_ext
+pyx_file = rb_source + pyx_ext
+use_cython = (not os.path.exists(cpp_file)
+              or (os.path.exists(pyx_file)
+                  and (os.path.getmtime(cpp_file) < os.path.getmtime(pyx_file))))
+if use_cython:
+    suffix = pyx_ext
+    setup_requires.extend(["cython>=0.29"])
 else:
-    suffix = ".cpp"
-    wrap = lambda x: x
+    suffix = cpp_ext
 
+# Set ext_module
 ext = [["cpprb","PyReplayBuffer"],
        ["cpprb","VectorWrapper"]]
 
-ext_modules = wrap([Extension(".".join(e),
-                              sources=["/".join(e) + suffix],
-                              extra_compile_args=extra_compile_args,
-                              extra_link_args=extra_link_args,
-                              language="c++") for e in ext])
-
+ext_modules = [Extension(".".join(e),
+                         sources=["/".join(e) + suffix],
+                         extra_compile_args=extra_compile_args,
+                         extra_link_args=extra_link_args,
+                         language="c++") for e in ext]
 
 class LazyImportBuildExtCommand(build_ext):
     """
-    build_ext command class for lazy numpy import
+    build_ext command class for lazy numpy and cython import
     """
     def run(self):
         import numpy as np
 
         self.include_dirs.append(np.get_include())
-
         build_ext.run(self)
+
+    def finalize_options(self):
+        if use_cython:
+            from Cython.Build import cythonize
+            self.distribution.ext_modules = cythonize(self.distribution.ext_modules,
+                                                      compiler_directives={'language_level': "3"},
+                                                      include_path=["."],
+                                                      annotate=True)
+        super().finalize_options()
+
 
 setup(name="cpprb",
       author="Yamada Hiroyuki",
@@ -66,7 +80,7 @@ setup(name="cpprb",
       description="ReplayBuffer for Reinforcement Learning written by C++",
       version="8.2.0",
       install_requires=requires,
-      setup_requires=["numpy"],
+      setup_requires=setup_requires,
       extras_require=extras,
       cmdclass={'build_ext': LazyImportBuildExtCommand},
       url="https://ymd_h.gitlab.io/cpprb/",
