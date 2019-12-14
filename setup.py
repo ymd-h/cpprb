@@ -28,35 +28,32 @@ else:
         extra_compile_args.append('-DCYTHON_TRACE_NOGIL=1')
 
 if os.path.exists("cpprb/PyReplayBuffer.pyx"):
-    from Cython.Build import cythonize
-
     suffix = ".pyx"
-    wrap = lambda x: cythonize(x,
-                               compiler_directives={'language_level': "3"},
-                               include_path=["."],
-                               annotate=True)
-    requires.extend(["cython>=0.29"])
-    setup_requires = ["numpy"]
+    setup_requires = ["numpy","cython>=0.29"]
 else:
     suffix = ".cpp"
-    wrap = lambda x: x
 
 ext = [["cpprb","PyReplayBuffer"],
        ["cpprb","VectorWrapper"]]
 
-ext_modules = wrap([Extension(".".join(e),
-                              sources=["/".join(e) + suffix],
-                              extra_compile_args=extra_compile_args,
-                              extra_link_args=extra_link_args,
-                              language="c++") for e in ext])
-
+ext_modules = [Extension(".".join(e),
+                         sources=["/".join(e) + suffix],
+                         extra_compile_args=extra_compile_args,
+                         extra_link_args=extra_link_args,
+                         language="c++") for e in ext]
 
 class LazyImportBuildExtCommand(build_ext):
     """
-    build_ext command class for lazy numpy import
+    build_ext command class for lazy numpy and cython import
     """
     def run(self):
         import numpy as np
+        from Cython.Build import cythonize
+
+        self.extensions = cythonize(self.extensions,
+                                    compiler_directives={'language_level': "3"},
+                                    include_path=["."],
+                                    annotate=True)
 
         self.include_dirs.append(np.get_include())
 
