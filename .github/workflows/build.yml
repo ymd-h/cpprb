@@ -19,20 +19,22 @@ jobs:
       - run: pip install '.[gym]'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
-      - run: rm -rf dist/*
-        run: pip install wheel twine
-        run: python setup.py bdst_wheel
-      - use: actions/upload-artifact@v1
+      - name: Build wheel
+        run: |
+          pip install wheel twine
+          python setup.py bdist_wheel
+      - uses: actions/upload-artifact@v1
         with:
           name: dist
-          path: dist/*.whl
+          path: dist
   pypi:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     steps:
       - uses: actions/download-artifact@v1
-        with: dist
+        with:
+          name: dist
       - uses: actions/setup-python@v1
         with:
           python-version: '3.*'
