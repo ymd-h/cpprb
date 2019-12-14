@@ -19,7 +19,8 @@ jobs:
       - run: pip install '.[gym]'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
-      - run: |
+      - name: Build wheel
+        run: |
           rm -rf dist/*
           pip install wheel twine
           python setup.py bdist_wheel
