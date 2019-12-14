@@ -18,3 +18,13 @@ jobs:
       - run: pip install '.[gym]'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
+      - run: rm -rf dist/*
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      - run: python setup.py bdist_wheel
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
