@@ -79,45 +79,45 @@ SegmentTree.cpp:
 ReplayBuffer:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/PyReplayBuffer.py
+    - coverage run test/PyReplayBuffer.py
 
 issue:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/issue.py
+    - coverage run test/issue.py
 
 multi_rew:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/multi_rew.py
+    - coverage run test/multi_rew.py
 
 gym:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/gym.py
+    - coverage run test/gym.py
 
 high_level_api:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/HighLevelAPI.py
+    - coverage run test/HighLevelAPI.py
 
 features:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/features.py
+    - coverage run test/features.py
 
 v8:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/v8.py
+    - coverage run test/v8.py
 
 coverage:
   <<: *setup
   stage: test_coverage
   script:
-    - python3 -m coverage combine
-    - python3 -m coverage report
-    - python3 -m coverage html -d public/coverage
+    - coverage combine
+    - coverage report
+    - coverage html -d public/coverage
   artifacts:
     paths:
       - public
