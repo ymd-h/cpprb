@@ -54,7 +54,7 @@ cpprb_build:
   <<: *setup
   stage: build
   script:
-    - python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL=1
+    - DEBUG_CPPRB=1 python3 setup.py build_ext --inplace --force
   artifacts:
     paths:
       - cpprb/*.html
