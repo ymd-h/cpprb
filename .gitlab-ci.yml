@@ -19,6 +19,8 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
+  except:
+    - schedules
 
 .test_template: &py_setup
   image: *dev_image
@@ -27,6 +29,8 @@ stages:
     - g++ --version
     - python3 --version
     - mv /cpprb/cpp/*.cpp cpprb/
+  except:
+    - schedules
   artifacts:
     paths:
       - .coverage.*
@@ -177,6 +181,7 @@ pypi:
     - tags
   except:
     - branches
+    - schedules
 
 repo:
   image: docker:latest
@@ -192,3 +197,4 @@ repo:
     - tags
   except:
     - branches
+    - schedules
