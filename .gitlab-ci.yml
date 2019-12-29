@@ -136,6 +136,8 @@ emacs:
       - README.md
   only:
     - master
+  except:
+    - schedules
 
 pages:
   image: registry.gitlab.com/pages/hugo:latest
@@ -150,6 +152,8 @@ pages:
       - public
   only:
     - master
+  except:
+    - schedules
 
 sphinx:
   image: *dev_image
@@ -177,6 +181,8 @@ annotation:
       - public
   only:
     - master
+  except:
+    - schedules
 
 pypi:
   image: *dev_image
