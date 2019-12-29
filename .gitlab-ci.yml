@@ -175,7 +175,7 @@ annotation:
   environment: production
   script:
     - mkdir -p public/annotation
-    - mv /cpprb/public/annotation/*.html public/annotation/
+    - mv cpprb/*.html public/annotation/
   artifacts:
     paths:
       - public
