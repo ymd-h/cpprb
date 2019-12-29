@@ -7,6 +7,7 @@ variables:
 stages:
   - page_export
   - build_image
+  - build
   - test
   - page_build
   - test
@@ -48,6 +49,18 @@ docker_build:
     - docker push $CI_REGISTRY_IMAGE/build:latest
   only:
     - schedules
+
+cpprb_build:
+  <<: *setup
+  stage: build
+  script:
+    - python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL
+    - python3 setup.py bdist_wheel
+  artifacts:
+    paths:
+      - cpprb/*.html
+      - cpprb/*.cpp
+      - dist/*.whl
 
 ReplayBuffer.cpp:
   <<: *setup
