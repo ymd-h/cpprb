@@ -22,8 +22,4 @@ RUN pip3 install -U pip setuptools \
 	twine \
 	wheel
 
-COPY . /cpprb
-
-WORKDIR /cpprb
-
 CMD ["/bin/bash"]
