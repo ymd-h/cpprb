@@ -7,6 +7,7 @@ variables:
 stages:
   - page_export
   - build_image
+  - build
   - test
   - page_build
   - test
@@ -19,6 +20,8 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
+  except:
+    - schedules
 
 .test_template: &py_setup
   image: *dev_image
@@ -26,7 +29,9 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - mv /cpprb/cpp/*.cpp cpprb/
+    - pip3 install -e .['all']
+  except:
+    - schedules
   artifacts:
     paths:
       - .coverage.*
@@ -42,6 +47,19 @@ docker_build:
     - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/build:latest -t $CI_REGISTRY_IMAGE/build:latest .
     - docker run $CI_REGISTRY_IMAGE/build:latest
     - docker push $CI_REGISTRY_IMAGE/build:latest
+  only:
+    - schedules
+
+cpprb_build:
+  <<: *setup
+  stage: build
+  script:
+    - python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL
+  artifacts:
+    paths:
+      - cpprb/*.html
+      - cpprb/*.cpp
+      - '*.so'
 
 ReplayBuffer.cpp:
   <<: *setup
@@ -60,47 +78,45 @@ SegmentTree.cpp:
 ReplayBuffer:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/PyReplayBuffer.py
+    - coverage run test/PyReplayBuffer.py
 
 issue:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/issue.py
+    - coverage run test/issue.py
 
 multi_rew:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/multi_rew.py
+    - coverage run test/multi_rew.py
 
 gym:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/gym.py
+    - coverage run test/gym.py
 
 high_level_api:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/HighLevelAPI.py
+    - coverage run test/HighLevelAPI.py
 
 features:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/features.py
+    - coverage run test/features.py
 
 v8:
   <<: *py_setup
   script:
-    - python3 -m coverage run test/v8.py
+    - coverage run test/v8.py
 
 coverage:
   <<: *setup
   stage: test_coverage
   script:
-    - mv /cpprb/cpp/*.cpp cpprb/
-    - ls cpprb
-    - python3 -m coverage combine
-    - python3 -m coverage report
-    - python3 -m coverage html -d public/coverage
+    - coverage combine
+    - coverage report
+    - coverage html -d public/coverage
   artifacts:
     paths:
       - public
@@ -120,6 +136,8 @@ emacs:
       - README.md
   only:
     - master
+  except:
+    - schedules
 
 pages:
   image: registry.gitlab.com/pages/hugo:latest
@@ -134,6 +152,8 @@ pages:
       - public
   only:
     - master
+  except:
+    - schedules
 
 sphinx:
   image: *dev_image
@@ -161,6 +181,8 @@ annotation:
       - public
   only:
     - master
+  except:
+    - schedules
 
 pypi:
   image: *dev_image
@@ -175,6 +197,7 @@ pypi:
     - tags
   except:
     - branches
+    - schedules
 
 repo:
   image: docker:latest
@@ -190,3 +213,4 @@ repo:
     - tags
   except:
     - branches
+    - schedules
