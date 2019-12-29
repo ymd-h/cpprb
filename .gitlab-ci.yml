@@ -29,7 +29,7 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - mv /cpprb/cpp/*.cpp cpprb/
+    - pip3 install $(echo dist/cpprb-*.whl)['all']
   except:
     - schedules
   artifacts:
