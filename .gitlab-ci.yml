@@ -59,7 +59,7 @@ cpprb_build:
     paths:
       - cpprb/*.html
       - cpprb/*.cpp
-      - '*.so'
+      - cpprb/*.so
 
 ReplayBuffer.cpp:
   <<: *setup
