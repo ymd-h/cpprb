@@ -26,15 +26,4 @@ COPY . /cpprb
 
 WORKDIR /cpprb
 
-RUN python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL \
-	&& python3 setup.py bdist_wheel \
-	&& pip3 install $(echo dist/cpprb-*.whl)['all'] \
-	&& mkdir -p /tmp \
-	&& mv cpprb/*.html cpprb/*.cpp /tmp/ \
-	&& rm -rf /cpprb/* \
-	&& mkdir -p /cpprb/public/annotation \
-	&& mkdir -p /cpprb/cpp \
-	&& mv /tmp/*.html /cpprb/public/annotation/ \
-	&& mv /tmp/*.cpp /cpprb/cpp/
-
 CMD ["/bin/bash"]
