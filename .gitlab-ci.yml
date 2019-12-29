@@ -168,6 +168,8 @@ sphinx:
       - public
   only:
     - master
+  except:
+    - schedules
 
 annotation:
   image: *dev_image
