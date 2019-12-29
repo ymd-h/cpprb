@@ -115,8 +115,6 @@ coverage:
   <<: *setup
   stage: test_coverage
   script:
-    - mv /cpprb/cpp/*.cpp cpprb/
-    - ls cpprb
     - python3 -m coverage combine
     - python3 -m coverage report
     - python3 -m coverage html -d public/coverage
