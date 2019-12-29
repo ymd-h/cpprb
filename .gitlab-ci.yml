@@ -29,7 +29,7 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - pip3 install -e .['all']
+    - DEBUG_CPPRB=1 pip3 install -e .['all']
   except:
     - schedules
   artifacts:
@@ -54,7 +54,7 @@ cpprb_build:
   <<: *setup
   stage: build
   script:
-    - python3 setup.py build_ext --inplace --force --define CYTHON_TRACE_NOGIL
+    - DEBUG_CPPRB=1 python3 setup.py build_ext --inplace --force
   artifacts:
     paths:
       - cpprb/*.html

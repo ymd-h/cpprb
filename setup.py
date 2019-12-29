@@ -41,6 +41,10 @@ use_cython = (not os.path.exists(cpp_file)
 if use_cython:
     suffix = pyx_ext
     setup_requires.extend(["cython>=0.29"])
+    compiler_directives = {'language_level': "3"}
+
+    if debug:
+        compiler_directives['linetrace'] = True
 else:
     suffix = cpp_ext
 
@@ -68,7 +72,7 @@ class LazyImportBuildExtCommand(build_ext):
         if use_cython:
             from Cython.Build import cythonize
             self.distribution.ext_modules = cythonize(self.distribution.ext_modules,
-                                                      compiler_directives={'language_level': "3"},
+                                                      compiler_directives=compiler_directives,
                                                       include_path=["."],
                                                       annotate=True)
         super().finalize_options()

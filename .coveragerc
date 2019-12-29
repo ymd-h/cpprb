@@ -1,7 +1,7 @@
 [run]
 branch = True
 plugins = Cython.Coverage
-include = cpprb/*
+source = cpprb
 parallel = True
 
 [report]
