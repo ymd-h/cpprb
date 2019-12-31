@@ -25,7 +25,7 @@ cdef class VectorWrapper:
     cdef void set_shape_strides(self):
         self.strides[self.ndim -1] = self.itemsize
 
-        if self.ndim is 2:
+        if self.ndim == 2:
             self.shape[1] = <Py_ssize_t> (self.value_dim)
             self.strides[0] = self.value_dim * self.itemsize
 
