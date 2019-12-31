@@ -36,7 +36,7 @@ stages:
     paths:
       - .coverage.*
       - test/*.xml
-    report:
+    reports:
       junit:
         - test/*.xml
 
