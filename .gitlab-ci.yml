@@ -35,10 +35,10 @@ stages:
   artifacts:
     paths:
       - .coverage.*
-      - *.xml
+      - "*.xml"
     reports:
       junit:
-        - *.xml
+        - "*.xml"
 
 docker_build:
   image: docker:latest
