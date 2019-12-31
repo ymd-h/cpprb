@@ -20,6 +20,7 @@ RUN pip3 install -U pip setuptools \
 	sphinx \
 	sphinx_rtd_theme \
 	twine \
+	unittest-xml-reporting \
 	wheel
 
 CMD ["/bin/bash"]

@@ -35,6 +35,10 @@ stages:
   artifacts:
     paths:
       - .coverage.*
+      - "*.xml"
+    reports:
+      junit:
+        - "*.xml"
 
 docker_build:
   image: docker:latest
@@ -78,37 +82,37 @@ SegmentTree.cpp:
 ReplayBuffer:
   <<: *py_setup
   script:
-    - coverage run test/PyReplayBuffer.py
+    - coverage run -m xmlrunner test/PyReplayBuffer.py
 
 issue:
   <<: *py_setup
   script:
-    - coverage run test/issue.py
+    - coverage run -m xmlrunner test/issue.py
 
 multi_rew:
   <<: *py_setup
   script:
-    - coverage run test/multi_rew.py
+    - coverage run -m xmlrunner test/multi_rew.py
 
 gym:
   <<: *py_setup
   script:
-    - coverage run test/gym.py
+    - coverage run -m xmlrunner test/gym.py
 
 high_level_api:
   <<: *py_setup
   script:
-    - coverage run test/HighLevelAPI.py
+    - coverage run -m xmlrunner test/HighLevelAPI.py
 
 features:
   <<: *py_setup
   script:
-    - coverage run test/features.py
+    - coverage run -m xmlrunner test/features.py
 
 v8:
   <<: *py_setup
   script:
-    - coverage run test/v8.py
+    - coverage run -m xmlrunner test/v8.py
 
 coverage:
   <<: *setup
