@@ -35,6 +35,10 @@ stages:
   artifacts:
     paths:
       - .coverage.*
+      - test/*.xml
+    report:
+      junit:
+        - test/*.xml
 
 docker_build:
   image: docker:latest
