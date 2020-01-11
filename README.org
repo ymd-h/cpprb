@@ -74,13 +74,13 @@ CLOSED: [2019-02-11 Mon 09:02]
 :EXPORT_FILE_NAME: _index
 :END:
 
-Complicated calculation (e.g. Segment Tree) are offloaded onto C++
-which must be much faster than Python.
+cpprb is a python ([[https://github.com/python/cpython/tree/master/Python][CPython]]) module including replay buffer classes for
+reinforcement learning.
 
-Internal C++ classes and corresponding Python wrapper classes share
-memory by [[https://cython.readthedocs.io/en/latest/src/userguide/buffer.html][implementing buffer protocol on cython]] to avoid overhead of
-copying large data.
+cpprb forcus speed, flexibility, and memory efficiency.
 
+By utilizing [[https://cython.org/][Cython]], complicated calculations (e.g. segment tree) are
+offloaded onto C++.
 
 * DONE Requirements
 CLOSED: [2019-02-11 Mon 09:03]
