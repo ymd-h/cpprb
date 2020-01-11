@@ -62,8 +62,6 @@
 
 #+STARTUP: showall logdone
 
-[[https://ymd_h.gitlab.io/cpprb/][Project Site]]
-
 [[https://img.shields.io/gitlab/pipeline/ymd_h/cpprb.svg]]
 [[https://img.shields.io/pypi/v/cpprb.svg]]
 [[https://img.shields.io/pypi/l/cpprb.svg]]
@@ -181,3 +179,9 @@ For sampling, you need to pass =beata= argument as well as =batch_size=.
 - GCC 9.2.0
 - Python 3.8.0
 - Cython 0.29.13
+
+* Links
+- Project Site: https://ymd_h.gitlab.io/cpprb/
+- Main Repositpry: https://gitlab.com/ymd_h/cpprb
+- Github Mirror: https://github.com/yamada-github-account/cpprb
+
