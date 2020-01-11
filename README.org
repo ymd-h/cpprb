@@ -69,7 +69,6 @@
 [[https://ymd_h.gitlab.io/cpprb/coverage/][https://gitlab.com/ymd_h/cpprb/badges/master/coverage.svg]]
 
 * DONE Overview
-CLOSED: [2019-02-11 Mon 09:02]
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
 :END:
@@ -83,7 +82,6 @@ By utilizing [[https://cython.org/][Cython]], complicated calculations (e.g. seg
 offloaded onto C++.
 
 * DONE Installation
-CLOSED: [2019-02-11 Mon 09:05]
 :PROPERTIES:
 :EXPORT_FILE_NAME: installation
 :END:
@@ -140,7 +138,6 @@ from PyPI.
 
 
 * DONE Usage
-CLOSED: [2019-02-11 Mon 09:06]
 :PROPERTIES:
 :EXPORT_FILE_NAME: simple_usage
 :END:
