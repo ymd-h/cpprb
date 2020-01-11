@@ -82,45 +82,62 @@ cpprb forcus speed, flexibility, and memory efficiency.
 By utilizing [[https://cython.org/][Cython]], complicated calculations (e.g. segment tree) are
 offloaded onto C++.
 
-* DONE Requirements
-CLOSED: [2019-02-11 Mon 09:03]
-:PROPERTIES:
-:EXPORT_FILE_NAME: requirements
-:END:
-
-- C++17 (at least GCC 7.2)
-- Python 3
-- Cython (>= 0.29)
-
-We use [[https://cython.org/][Cython]] to write C++ extension for Python, so that you need
-Cython to build our packages on your computer.
-
-We observed a build failure with Cython 0.28.5 ([[https://gitlab.com/ymd_h/cpprb/issues/20][#20]] Japanese).
-
-Cython can be installed by =pip=.
-
-#+BEGIN_SRC shell
-pip install cython
-#+END_SRC
-
-We uses many C++17 features, such as =if constexpr=, structured
-bindings, etc., and we highly recommend to use recent gcc, which we
-use to build and test.
-
-
 * DONE Installation
 CLOSED: [2019-02-11 Mon 09:05]
 :PROPERTIES:
 :EXPORT_FILE_NAME: installation
 :END:
 
+cpprb requires following softwares before installation.
+
+- C++17 compiler
+  - [[https://gcc.gnu.org/][GCC]] (maybe 7.2 and newer)
+  - [[https://visualstudio.microsoft.com/][Visual Studio]] (2017 Enterprise is fine)
+- Python 3
+- pip
+
+Cuurently, [[https://clang.llvm.org/][clang]], which is a default Xcode C/C++ compiler at Apple macOS,
+cannot compile cpprb.
+
+If you are macOS user, you need to install GCC and set environment values
+of =CC= and =CXX= to =g++=, or just use virtual environment (e.g. [[https://www.docker.com/][Docker]]).
+
+
+** Install from [[https://pypi.org/][PyPI]] (Recommended)
+
+The following command installs cpprb together with other dependancies.
+
 #+BEGIN_SRC shell
 pip install cpprb
 #+END_SRC
 
-You can install cpprb from pypi.
+Depending on your environment, you might need =sudo= or =--user= flag
+for installation.
 
-You might need =sudo= or ~--user~ for installation.
+Currently, no binary packages are hosted on PyPI and you need to
+compile by your self, however, I plan to distribute binary packages
+for Windows, macOS, and Linux in future.
+
+** Install from source code
+
+First, download source code manually or clone the repository;
+
+#+begin_src shell
+git clone https://gitlab.com/ymd_h/cpprb.git
+#+end_src
+
+Then you can install same way;
+
+#+begin_src shell
+cd cpprb
+pip install .
+#+end_src
+
+
+For this installation, you need to convert extended Python (.pyx) to
+C++ (.cpp) during installation, it takes longer time than installation
+from PyPI.
+
 
 * DONE Usage
 CLOSED: [2019-02-11 Mon 09:06]
