@@ -200,6 +200,12 @@ cpprb provides buffer classes for building following algorithms.
 | Multi-step Learning           | =ReplayBuffer=, =PrioritizedReplayBuffer= |                   |
 
 
+cpprb features and its usage are described at following pages:
+- [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][Flexible Environment]]
+- [[https://ymd_h.gitlab.io/cpprb/features/multistep_add/][Multi-step add]]
+- [[https://ymd_h.gitlab.io/cpprb/features/per/][Prioritized Experience Replay]]
+- [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Nstep Experience Replay]]
+- [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][Memory Compression]]
 
 
 
