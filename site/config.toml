@@ -17,6 +17,7 @@ publishDir = "../public"
   disableBreadcrumb = false
   disableNextPrev = false
   themeVariant = "blue"
+  disableInlineCopyToClipBoard = true
 
 [outputs]
 home = [ "HTML", "RSS", "JSON"]
