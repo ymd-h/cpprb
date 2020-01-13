@@ -204,6 +204,8 @@ For sampling, you need to pass =beata= argument as well as =batch_size=.
 
 * Links
 - Project Site: https://ymd_h.gitlab.io/cpprb/
+  - Class Reference: https://ymd_h.gitlab.io/cpprb/api/
+  - Unit Test Coverage: https://ymd_h.gitlab.io/cpprb/coverage/
 - Main Repositpry: https://gitlab.com/ymd_h/cpprb
 - Github Mirror: https://github.com/yamada-github-account/cpprb
 
