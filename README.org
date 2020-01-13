@@ -95,7 +95,7 @@ can store the next action and the next next observation, too.
 
 * DONE Installation
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: installation
+:EXPORT_HUGO_SECTION: installation
 :EXPORT_FILE_NAME: _index
 :END:
 
@@ -188,7 +188,7 @@ Flexible environment values are defined by =env_dict= when buffer creation.
 
 * DONE Features
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: features
+:EXPORT_HUGO_SECTION: features
 :EXPORT_FILE_NAME: _index
 :END:
 
