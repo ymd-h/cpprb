@@ -95,7 +95,8 @@ can store the next action and the next next observation, too.
 
 * DONE Installation
 :PROPERTIES:
-:EXPORT_FILE_NAME: installation
+:EXPORT_HUGO_SECTION*: installation
+:EXPORT_FILE_NAME: _index
 :END:
 
 cpprb requires following softwares before installation.

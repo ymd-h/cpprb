@@ -52,6 +52,11 @@
 
 #+STARTUP: showall logdone
 
+* Installation
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: installation
+:END:
+
 * Features
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: features
