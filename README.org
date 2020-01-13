@@ -67,7 +67,7 @@
 [[https://img.shields.io/pypi/status/cpprb.svg]]
 [[https://ymd_h.gitlab.io/cpprb/coverage/][https://gitlab.com/ymd_h/cpprb/badges/master/coverage.svg]]
 
-
+#+attr_html: :width 100px
 [[./site/static/images/logo.png]]
 
 * DONE Overview
