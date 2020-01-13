@@ -208,25 +208,6 @@ cpprb features and its usage are described at following pages:
 - [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][Memory Compression]]
 
 
-
-* Classes
-=ReplayBuffer= and =PrioritizedReplayBuffer= are supported.
-
-The other classes (including C++ classes) are considered as internal
-classes, whose interfaces can change frequently.
-
-** ReplayBuffer
-=ReplayBuffer= is a basic replay buffer, where we pick up each time
-point randomly. (Duplicated pick up is allowed.)
-
-** PrioritizedReplayBuffer
-=PrioritizedReplayBuffer= is a prioritized replay buffer, where you
-can set importance (e.g. TD error) to each time point by calling
-=PrioritizedReplayBuffer.update_priorities(self,ps)= or
-=PrioritizedReplayBuffer.add(self,obs,act,rew,next_obs,done,p)=.
-The constructor also take =alpha= parameter, whose default value is =0.6=.
-For sampling, you need to pass =beata= argument as well as =batch_size=.
-
 * Links
 - Project Site: https://ymd_h.gitlab.io/cpprb/
   - Class Reference: https://ymd_h.gitlab.io/cpprb/api/
