@@ -162,11 +162,11 @@ buffer_size = 256
 obs_shape = 3
 act_dim = 1
 rb = ReplayBuffer(buffer_size,
-                  {"obs": {"shape": obs_shape},
-                   "act": {"shape": act_dim},
-                   "rew": {},
-                   "next_obs": {"shape": obs_shape},
-                   "done": {}})
+                  env_dict ={"obs": {"shape": obs_shape},
+                             "act": {"shape": act_dim},
+                             "rew": {},
+                             "next_obs": {"shape": obs_shape},
+                             "done": {}})
 
 obs = np.ones(shape=(obs_shape))
 act = np.ones(shape=(act_dim))
@@ -182,6 +182,8 @@ batch_size = 32
 sample = rb.sample(batch_size)
 # sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', and 'done'
 #+END_SRC
+
+Flexible environment values are defined by =env_dict= when buffer creation.
 
 * Classes
 =ReplayBuffer= and =PrioritizedReplayBuffer= are supported.
