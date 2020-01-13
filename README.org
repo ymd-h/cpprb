@@ -6,7 +6,6 @@
 #+TITLE: cpprb
 #+DATE: <2019-01-29 Tue>
 #+AUTHOR: Hiroyuki Yamada
-#+EMAIL: yamada@ymdMBP
 #+LANGUAGE: en
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
