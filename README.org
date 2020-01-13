@@ -202,11 +202,6 @@ can set importance (e.g. TD error) to each time point by calling
 The constructor also take =alpha= parameter, whose default value is =0.6=.
 For sampling, you need to pass =beata= argument as well as =batch_size=.
 
-* Test Environment
-- GCC 9.2.0
-- Python 3.8.0
-- Cython 0.29.13
-
 * Links
 - Project Site: https://ymd_h.gitlab.io/cpprb/
 - Main Repositpry: https://gitlab.com/ymd_h/cpprb
