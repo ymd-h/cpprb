@@ -155,6 +155,7 @@ from PyPI.
 
 * DONE Usage
 :PROPERTIES:
+:EXPORT_HUGO_SECTION: features
 :EXPORT_FILE_NAME: simple_usage
 :END:
 
