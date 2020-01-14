@@ -231,6 +231,7 @@ cpprb features and its usage are described at following pages:
   - [[https://ymd_h.gitlab.io/cpprb/coverage/][Unit Test Coverage]]
 - [[https://gitlab.com/ymd_h/cpprb][Main Repository]]
 - [[https://github.com/yamada-github-account/cpprb][Github Mirror]]
+- [[https://pypi.org/project/cpprb/][cpprb on PyPI]]
 
 ** cpprb users' repositories
 - [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]] :: TensorFlow2.0 Reinforcement Learning
