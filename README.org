@@ -218,6 +218,18 @@ cpprb features and its usage are described at following pages:
 - [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Nstep Experience Replay]]
 - [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][Memory Compression]]
 
+* DONE Contributing to cpprb
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: misc
+:EXPORT_FILE_NAME: contributing
+:END:
+
+Any contribution are very welcome!
+
+** Report Issue
+When you have any problems or requests, you can check [[issues on GitLab.com]].
+If you still cannot find any information, you can open your own issue.
+
 
 * DONE Links
 :PROPERTIES:
