@@ -233,7 +233,7 @@ cpprb features and its usage are described at following pages:
 - [[https://github.com/yamada-github-account/cpprb][Github Mirror]]
 
 ** cpprb users' repositories
-- [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]]
+- [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]] :: TensorFlow2.0 Reinforcement Learning
 
 
 * DONE LISENCE
