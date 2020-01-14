@@ -226,4 +226,8 @@ cpprb features and its usage are described at following pages:
 
 
 * LISENCE
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: misc
+:EXPORT_FILE_NAME: lisence
+:END:
 cpprb is available under [[./LISENCE][MIT lisence]]
