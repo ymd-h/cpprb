@@ -214,6 +214,10 @@ cpprb features and its usage are described at following pages:
 
 
 * Links
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: misc
+:EXPORT_FILE_NAME: links
+:END:
 - [[https://ymd_h.gitlab.io/cpprb/][Project Site]]
   - [[https://ymd_h.gitlab.io/cpprb/api/][Class Reference]]
   - [[https://ymd_h.gitlab.io/cpprb/coverage/][Unit Test Coverage]]
