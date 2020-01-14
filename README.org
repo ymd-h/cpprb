@@ -213,9 +213,9 @@ cpprb features and its usage are described at following pages:
 
 
 * Links
-- Project Site: https://ymd_h.gitlab.io/cpprb/
-  - Class Reference: https://ymd_h.gitlab.io/cpprb/api/
-  - Unit Test Coverage: https://ymd_h.gitlab.io/cpprb/coverage/
-- Main Repositpry: https://gitlab.com/ymd_h/cpprb
-- Github Mirror: https://github.com/yamada-github-account/cpprb
+- Project Site: [[https://ymd_h.gitlab.io/cpprb/]]
+  - Class Reference: [[https://ymd_h.gitlab.io/cpprb/api/]]
+  - Unit Test Coverage: [[https://ymd_h.gitlab.io/cpprb/coverage/]]
+- Main Repositpry: [[https://gitlab.com/ymd_h/cpprb]]
+- Github Mirror: [[https://github.com/yamada-github-account/cpprb]]
 
