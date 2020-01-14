@@ -213,7 +213,7 @@ cpprb features and its usage are described at following pages:
 - [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][Memory Compression]]
 
 
-* Links
+* DONE Links
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: misc
 :EXPORT_FILE_NAME: links
@@ -230,7 +230,7 @@ cpprb features and its usage are described at following pages:
 - [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]]
 
 
-* LISENCE
+* DONE LISENCE
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: misc
 :EXPORT_FILE_NAME: lisence
