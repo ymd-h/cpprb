@@ -220,3 +220,6 @@ cpprb features and its usage are described at following pages:
 - [[https://gitlab.com/ymd_h/cpprb][Main Repository]]
 - [[https://github.com/yamada-github-account/cpprb][Github Mirror]]
 
+
+* LISENCE
+cpprb is available under [[./LISENCE][MIT lisence]]
