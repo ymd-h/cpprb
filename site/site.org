@@ -443,6 +443,58 @@ in the stacked dimension.
 
 
 
+* Contributing
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: contributing
+:END:
+
+** DONE Step by Step Merge Request
+:PROPERTIES:
+:EXPORT_FILE_NAME: merge_request
+:END:
+
+The first step of coding contribution is to fork cpprb on GitLab.com.
+
+The detail steps for fork is described at [[https://docs.gitlab.com/ee/gitlab-basics/fork-project.html][official document]].
+
+After fork cpprb on the web, you can clone repository to your local
+machine and set original cpprb as "upstream" by
+
+#+begin_src shell
+git clone https://gitlab.com/<Your GitLab Account>/cpprb.git
+cd cpprb
+git remote add upstream https://gitlab.com/ymd_h/cpprb.git
+#+end_src
+
+To make "master" branch clean, you need to create new branch before you edit.
+
+#+begin_src shell
+git checkout -b <New Branch Name> master
+#+end_src
+
+This process is necessay because "master" and other original branches
+might progress during your working.
+
+
+After finish your work, you must recheck original cpprb and ensure
+there is no cnflict.
+
+#+begin_src shell
+git pull upstream master
+git checkout <Your Branch Name>
+git merge master # Fix confliction here!
+#+end_src
+
+
+If everything is fine, you push to your cpprb.
+
+#+begin_src shell
+git push origin <Your Branch Name>
+#+end_src
+
+Merge request can be created from the web, the detail is described at
+[[https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html][official document]].
+
 * Misc
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: misc
