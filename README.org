@@ -220,8 +220,8 @@ cpprb features and its usage are described at following pages:
 
 * DONE Contributing to cpprb
 :PROPERTIES:
-:EXPORT_HUGO_SECTION: misc
-:EXPORT_FILE_NAME: contributing
+:EXPORT_HUGO_SECTION: contributing
+:EXPORT_FILE_NAME: _index
 :END:
 
 Any contribution are very welcome!
