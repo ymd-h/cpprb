@@ -232,7 +232,7 @@ If you still cannot find any information, you can open your own issue.
 
 ** Merge Request (Pull Request)
 
-cpprb uses following local rules:
+cpprb follows local rules:
 - Branch Name
   - "HotFix_***" for bug fix
   - "Feature_***" for new feature implementation
