@@ -230,6 +230,22 @@ Any contribution are very welcome!
 When you have any problems or requests, you can check [[issues on GitLab.com]].
 If you still cannot find any information, you can open your own issue.
 
+** Merge Request (Pull Request)
+
+cpprb uses following local rules:
+- Branch Name
+  - "HotFix_***" for bug fix
+  - "Feature_***" for new feature implementation
+- docstring
+  - Must for external API
+  - [[https://numpydoc.readthedocs.io/en/latest/format.html][Numpy Style]]
+- Unit Test
+  - Put test code under "test/" directory
+  - Can test by =python -m unittest <Your Test Code>= command
+  - Continuous Integration on GitLab CI configured by ~.gitlab-ci.yaml~
+- Open an issue and associate it to Merge Request
+
+
 
 * DONE Links
 :PROPERTIES:
