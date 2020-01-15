@@ -476,6 +476,9 @@ This process is necessay because "master" and other original branches
 might progress during your working.
 
 
+From here, you can edit codes and make commit as usual.
+
+
 After finish your work, you must recheck original cpprb and ensure
 there is no cnflict.
 
@@ -494,6 +497,10 @@ git push origin <Your Branch Name>
 
 Merge request can be created from the web, the detail is described at
 [[https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html][official document]].
+
+
+There is [[https://stackoverflow.com/a/14681796][a good explanation]] for making good Pull Request (merge
+request equivalent on GitHub.com)
 
 * Misc
 :PROPERTIES:
