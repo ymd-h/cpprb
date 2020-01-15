@@ -245,7 +245,7 @@ cpprb uses following local rules:
   - Continuous Integration on GitLab CI configured by ~.gitlab-ci.yaml~
 - Open an issue and associate it to Merge Request
 
-
+Step by step instruction for beginners is described at [[https://ymd_h.gitlab.io/cpprb/contributing/merge_request][here]].
 
 * DONE Links
 :PROPERTIES:
