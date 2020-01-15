@@ -249,7 +249,7 @@ If you still cannot find any information, you can open your own issue.
 - [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]] :: TensorFlow2.0 Reinforcement Learning
 
 
-* DONE LISENCE
+* DONE Lisence
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: misc
 :EXPORT_FILE_NAME: lisence
