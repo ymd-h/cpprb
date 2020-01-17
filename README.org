@@ -117,6 +117,7 @@ If you are macOS user, you need to install GCC and set environment values
 of =CC= and =CXX= to =g++=, or just use virtual environment (e.g. [[https://www.docker.com/][Docker]]).
 
 Here are user's good feedbacks for installation at [[https://github.com/keiohta/tf2rl/issues/75][macOS]] and [[https://gitlab.com/ymd_h/cpprb/issues/73][Ubuntu]].
+(Thanks!)
 
 
 ** Install from [[https://pypi.org/][PyPI]] (Recommended)
