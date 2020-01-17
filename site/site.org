@@ -470,6 +470,7 @@ in the stacked dimension.
 :END:
 
 ** DONE Step by Step Merge Request
+CLOSED: [2020-01-17 Fri 23:09]
 :PROPERTIES:
 :EXPORT_FILE_NAME: merge_request
 :END:
