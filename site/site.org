@@ -51,16 +51,32 @@
 #+HUGO_WEIGHT: auto
 
 #+STARTUP: showall logdone
-* DONE cpprb (C++ Replay Buffer)
-CLOSED: [2019-02-10 Sun 20:24]
+
+* Installation
 :PROPERTIES:
-:EXPORT_FILE_NAME: _index
-:EXPORT_HUGO_SECTION: .
+:EXPORT_HUGO_SECTION*: installation
 :END:
 
-** cpprb (C++ Replay Buffer)
-~cpprb~ is a python package written by C++. The package provides
-replay buffer classes for reinforcement learning.
+** DONE Step by step installation on macOS
+CLOSED: [2020-01-17 Fri 21:09]
+:PROPERTIES:
+:EXPORT_FILE_NAME: install_on_macos
+:END:
+
+Since clang (libc++) has not implemented array specialization of
+=std::shared_ptr= ([[http://libcxx.llvm.org/cxx1z_status.html][libc++ C++17 Status]], P0414R2 etc.), cpprb cannot be
+compiled by clang.
+
+Here we describe how to install cpprb on macOS using [[https://www.macports.org/][MacPorts]].
+
+#+begin_src shell
+sudo port selfupdate
+sudo port install gcc9
+sudo port select gcc mp-gcc9
+git clone https://gitlab.com/ymd_h/cpprb.git
+cd cpprb
+CC=/opt/local/bin/g++ CXX=/opt/local/bin/g++ pip install .
+#+end_src
 
 * Features
 :PROPERTIES:
@@ -446,150 +462,70 @@ dimension, and so on. Usually, no data should overlap memory address,
 however, ~stack_compress~ intentionally overlaps the memory addresses
 in the stacked dimension.
 
-** TODO Multi-Processing
+
+
+* Contributing
 :PROPERTIES:
-:EXPORT_FILE_NAME: multiprocessing
+:EXPORT_HUGO_SECTION*: contributing
 :END:
 
-#+begin_example
-WARNING: Multi-Processing is beta feature. This might be buggy, and its API can be changed without notice.
-#+end_example
+** DONE Step by Step Merge Request
+:PROPERTIES:
+:EXPORT_FILE_NAME: merge_request
+:END:
 
-*** Overview
-To speed up your exploration task, you might want to run multiple
-workers for a single replay buffer simultanaously. ~cpprb~ has special
-classes named ~ProcessSharedReplayBuffer~ and
-~ProcessSharedPrioritizedReplayBuffer~ to manage such parallel execution.
+The first step of coding contribution is to fork cpprb on GitLab.com.
 
-These classes utilize shared memories allocated by
-~multiprocessing.shraredctypes.RawArray~ ([[https://docs.python.org/3/library/multiprocessing.html#multiprocessing.sharedctypes.RawArray][link]]), and provide the same
-API as ~ReplayBuffer~ and ~PrioritizedReplayBuffer~, respectively,
-except an additional initialization in child processes.
+The detail steps for fork is described at [[https://docs.gitlab.com/ee/gitlab-basics/fork-project.html][official document]].
 
-*** User Responsibility
-~cpprb~ takes care of ~add~-ing from multple processing simultanaouly,
-however, *don't* consider of ~sample~-ing or ~clear~-ing.
+After fork cpprb on the web, you can clone repository to your local
+machine and set original cpprb as "upstream" by
 
-User *must* wait until all sub-processes finish ~add~-ing before call
-~sample~ or ~clear~.
-
-*** Example Usage
-
-#+begin_src python
-import multiprocessing as mp
-from cpprb import ProcessSharedReplayBuffer
-
-buffer_size = 1024
-obs_dim = 3
-act_dim = 1
-
-psrb = ProcessSharedReplayBuffer(buffer_size,obs_dim,act_dim)
-
-def woker():
-    rb = psrb.init_worker() # Here we re-set shared memory addresses
-
-    ...
-
-    rb.add( ... )
-
-q = [mp.Process(target=worker) for _ in range(8)]
-for qe in q:
-    qe.start()
-
-for qe in q:
-    qe.wait()
-
-batch_size = 256
-psrb.sample(batch_size)
+#+begin_src shell
+git clone https://gitlab.com/<Your GitLab Account>/cpprb.git
+cd cpprb
+git remote add upstream https://gitlab.com/ymd_h/cpprb.git
 #+end_src
 
-*** Technical Detail
+To make "master" branch clean, you need to create new branch before you edit.
 
-**** Process Shared Values
-We allocate shared memories by using
-~multiprocessing.sharedctypes.RawArray~ (internally ~mmap~ is used),
-then create [[https://cython.readthedocs.io/en/latest/src/userguide/memoryviews.html][typed memory views]] of them, and pass their addresses to
-C++.
+#+begin_src shell
+git checkout -b <New Branch Name> master
+#+end_src
 
-The (virtual) addresses of the shared memories can be different in
-each process, so that we recreate replay buffer (thin interface of
-shared memories) in ~init_worker~.
-
-**** Lockless Access Contorol
-Some values such as ~next_index~ require access control to avoid data
-race and thay are performance critical (usual lock guard semantic is
-quite expensive), so that we cast their pointers into pointers to
-proper ~std::atomic~ type (e.g. ~std::atomic<std::size_t>~).
-
-Fortunately, the size of ~std::atomic<T>~ is equal to that of ~T~, as
-long as we checked. (We haven't fully confirmed yet.)
+This process is necessay because "master" and other original branches
+might progress during your working.
 
 
-* Future Plans
+From here, you can edit codes and make commit as usual.
+
+
+After finish your work, you must recheck original cpprb and ensure
+there is no cnflict.
+
+#+begin_src shell
+git pull upstream master
+git checkout <Your Branch Name>
+git merge master # Fix confliction here!
+#+end_src
+
+
+If everything is fine, you push to your cpprb.
+
+#+begin_src shell
+git push origin <Your Branch Name>
+#+end_src
+
+Merge request can be created from the web, the detail is described at
+[[https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html][official document]].
+
+
+There is [[https://stackoverflow.com/a/14681796][a good explanation]] for making good Pull Request (merge
+request equivalent on GitHub.com)
+
+* Misc
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: plans
+:EXPORT_HUGO_SECTION*: misc
+:EXPORT_FILE_NAME: _index
 :END:
 
-** DONE Multi-Processing
-CLOSED: [2019-11-09 Sat 00:37]
-:PROPERTIES:
-:EXPORT_FILE_NAME: multiprocessing_plan
-:END:
-
-One of the most exciting plan is suppprting learner-explorer style in
-multiprocessing. The biggest challenge is data consistence with
-minimum lock and copy.
-
-In replay buffer all the environment at the same index should be
-"atomic", which means no process (thread) must not update the
-environment during sampling.
-
-The naive approach locks entire buffer when adding and/or
-sampling. Locking huge amount memory reagion all at once is quite
-inefficient, since wrting (adding) are localized and usually not
-overlapped. Making loacal buffer like [[https://arxiv.org/abs/1803.00933][ApeX]] mitigates the lock
-inefficiency (but not perfect).
-
-In developing code, which could acheive adding from multiprocess (but
-sample yet), atomically manipulate index of ring buffer and wright
-operations can be done parallely.
-
-Moreover, if we restrict the ring buffer size to power of 2, we can
-utilize lockless atomic operations.
-
-** DONE TensorFlow Wrapping
-CLOSED: [2019-11-09 Sat 00:40]
-There is non-confirmed unclear information that wrapping replay buffer
-by TensorFlow speeds up (for something). I need to investigate and
-verify the situation. If it turns out to be useful, I will clarify the
-use case and design the archtechure.
-
-Any information and/or pull request are welcome.
-* Known Issue
-:PROPERTIES:
-:EXPORT_HUGO_SECTION*: known_issue
-:END:
-** DONE ~ModuleNotFoundError~ in installation
-CLOSED: [2019-11-09 Sat 01:18]
-:PROPERTIES:
-:EXPORT_FILE_NAME: module_not_found_error
-:END:
-
-There is a known issue for installing process. If you don't have numpy
-beforehand, ~pip install cpprb~ might encounter the error message
-~ModuleNotFoundError~ together with stack trace, even though cpprb are
-successfully installed.
-
-The result is OK, but showing error message is quite confusing for user.
-
-This seems to come from the order of subcommand: download requirements
-and target, then build wheel of requirements and target (if possible),
-finally install requirements and target (literally). In short,
-building wheel of target (aka. cpprb) precede installing requirements
-(aka. numpy).
-
-cpprb requires numpy header files when compiling C++ code, so that
-numpy package is necessary inside ~setup.py~ to detect the location
-of numpy header file. By making custom ~build_ext~ command class,
-numpy package is imported lazily, but importing sitll fails at building wheel
-phase, and successfully retrys at litral installation phase.

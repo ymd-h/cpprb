@@ -2,11 +2,10 @@
 #+OPTIONS: author:t broken-links:nil c:nil creator:nil
 #+OPTIONS: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
 #+OPTIONS: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
-#+OPTIONS: timestamp:t title:t toc:t todo:nil |:t
-#+TITLE: C++ Replay Buffer (Python module written by C++)
+#+OPTIONS: timestamp:t title:nil toc:t todo:nil |:t
+#+TITLE: cpprb
 #+DATE: <2019-01-29 Tue>
 #+AUTHOR: Hiroyuki Yamada
-#+EMAIL: yamada@ymdMBP
 #+LANGUAGE: en
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
@@ -17,7 +16,7 @@
 #+HUGO_LEVEL_OFFSET: 1
 #+HUGO_PRESERVE_FILLING:
 #+HUGO_DELETE_TRAILING_WS:
-#+HUGO_SECTION: overview
+#+HUGO_SECTION: .
 #+HUGO_BUNDLE:
 #+HUGO_BASE_DIR: ./site
 #+HUGO_CODE_FENCE:
@@ -62,75 +61,112 @@
 
 #+STARTUP: showall logdone
 
-[[https://ymd_h.gitlab.io/cpprb/][Project Site]]
-
 [[https://img.shields.io/gitlab/pipeline/ymd_h/cpprb.svg]]
 [[https://img.shields.io/pypi/v/cpprb.svg]]
 [[https://img.shields.io/pypi/l/cpprb.svg]]
 [[https://img.shields.io/pypi/status/cpprb.svg]]
 [[https://ymd_h.gitlab.io/cpprb/coverage/][https://gitlab.com/ymd_h/cpprb/badges/master/coverage.svg]]
 
+#+attr_html: :width 100px
+[[./site/static/images/favicon.png]]
+
 * DONE Overview
-CLOSED: [2019-02-11 Mon 09:02]
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
 :END:
 
-Complicated calculation (e.g. Segment Tree) are offloaded onto C++
-which must be much faster than Python.
+cpprb is a python ([[https://github.com/python/cpython/tree/master/Python][CPython]]) module providing replay buffer classes for
+reinforcement learning.
 
-Internal C++ classes and corresponding Python wrapper classes share
-memory by [[https://cython.readthedocs.io/en/latest/src/userguide/buffer.html][implementing buffer protocol on cython]] to avoid overhead of
-copying large data.
+Major target users are researchers and library developers.
 
+You can build your own reinforcement learning algorithms together with
+your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
 
-* DONE Requirements
-CLOSED: [2019-02-11 Mon 09:03]
-:PROPERTIES:
-:EXPORT_FILE_NAME: requirements
-:END:
+cpprb forcuses speed, flexibility, and memory efficiency.
 
-- C++17 (at least GCC 7.2)
-- Python 3
-- Cython (>= 0.29)
+By utilizing [[https://cython.org/][Cython]], complicated calculations (e.g. segment tree for
+prioritized experience replay) are offloaded onto C++.
+(The name cpprb comes from "C++ Replay Buffer".)
 
-We use [[https://cython.org/][Cython]] to write C++ extension for Python, so that you need
-Cython to build our packages on your computer.
-
-We observed a build failure with Cython 0.28.5 ([[https://gitlab.com/ymd_h/cpprb/issues/20][#20]] Japanese).
-
-Cython can be installed by =pip=.
-
-#+BEGIN_SRC shell
-pip install cython
-#+END_SRC
-
-We uses many C++17 features, such as =if constexpr=, structured
-bindings, etc., and we highly recommend to use recent gcc, which we
-use to build and test.
+In terms of API, initially cpprb referred to [[https://github.com/openai/baselines][OpenAI Baselines]]'
+implementation. In the current version, cpprb has much more
+flexibility. Any [[https://numpy.org/][NumPy]] compatible types of any numbers of values can
+be stored (as long as memory capacity is sufficient). For example, you
+can store the next action and the next next observation, too.
 
 
 * DONE Installation
-CLOSED: [2019-02-11 Mon 09:05]
 :PROPERTIES:
-:EXPORT_FILE_NAME: installation
+:EXPORT_HUGO_SECTION: installation
+:EXPORT_FILE_NAME: _index
 :END:
+
+cpprb requires following softwares before installation.
+
+- C++17 compiler
+  - [[https://gcc.gnu.org/][GCC]] (maybe 7.2 and newer)
+  - [[https://visualstudio.microsoft.com/][Visual Studio]] (2017 Enterprise is fine)
+- Python 3
+- pip
+
+Cuurently, [[https://clang.llvm.org/][clang]], which is a default Xcode C/C++ compiler at Apple macOS,
+cannot compile cpprb.
+
+If you are macOS user, you need to install GCC and set environment values
+of =CC= and =CXX= to =g++=, or just use virtual environment (e.g. [[https://www.docker.com/][Docker]]).
+
+Step by step installation is described [[https://ymd_h.gitlab.io/cpprb/installation/install_on_macos/][here]].
+
+Additionally, here are user's good feedbacks for installation at [[https://github.com/keiohta/tf2rl/issues/75][macOS]] and [[https://gitlab.com/ymd_h/cpprb/issues/73][Ubuntu]].
+(Thanks!)
+
+
+** Install from [[https://pypi.org/][PyPI]] (Recommended)
+
+The following command installs cpprb together with other dependancies.
 
 #+BEGIN_SRC shell
 pip install cpprb
 #+END_SRC
 
-You can install cpprb from pypi.
+Depending on your environment, you might need =sudo= or =--user= flag
+for installation.
 
-You might need =sudo= or ~--user~ for installation.
+Currently, no binary packages are hosted on PyPI and you need to
+compile by your self, however, I plan to distribute binary packages
+for Windows, macOS, and Linux in future.
+
+** Install from source code
+
+First, download source code manually or clone the repository;
+
+#+begin_src shell
+git clone https://gitlab.com/ymd_h/cpprb.git
+#+end_src
+
+Then you can install same way;
+
+#+begin_src shell
+cd cpprb
+pip install .
+#+end_src
+
+
+For this installation, you need to convert extended Python (.pyx) to
+C++ (.cpp) during installation, it takes longer time than installation
+from PyPI.
+
 
 * DONE Usage
-CLOSED: [2019-02-11 Mon 09:06]
 :PROPERTIES:
+:EXPORT_HUGO_SECTION: features
 :EXPORT_FILE_NAME: simple_usage
 :END:
 
-A simple example is following;
+Here is a simple example for storing standard environment (aka. "obs",
+"act", "rew", "next_obs", and "done").
+
 #+BEGIN_SRC python
 from cpprb import ReplayBuffer
 
@@ -138,11 +174,11 @@ buffer_size = 256
 obs_shape = 3
 act_dim = 1
 rb = ReplayBuffer(buffer_size,
-                  {"obs": {"shape": obs_shape},
-                   "act": {"shape": act_dim},
-                   "rew": {},
-                   "next_obs": {"shape": obs_shape},
-                   "done": {}})
+                  env_dict ={"obs": {"shape": obs_shape},
+                             "act": {"shape": act_dim},
+                             "rew": {},
+                             "next_obs": {"shape": obs_shape},
+                             "done": {}})
 
 obs = np.ones(shape=(obs_shape))
 act = np.ones(shape=(act_dim))
@@ -159,25 +195,92 @@ sample = rb.sample(batch_size)
 # sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', and 'done'
 #+END_SRC
 
-* Classes
-=ReplayBuffer= and =PrioritizedReplayBuffer= are supported.
+Flexible environment values are defined by =env_dict= when buffer creation.
 
-The other classes (including C++ classes) are considered as internal
-classes, whose interfaces can change frequently.
+Since stored values have flexible name, you have to pass to
+=ReplayBuffer.add= member by keyword.
 
-** ReplayBuffer
-=ReplayBuffer= is a basic replay buffer, where we pick up each time
-point randomly. (Duplicated pick up is allowed.)
 
-** PrioritizedReplayBuffer
-=PrioritizedReplayBuffer= is a prioritized replay buffer, where you
-can set importance (e.g. TD error) to each time point by calling
-=PrioritizedReplayBuffer.update_priorities(self,ps)= or
-=PrioritizedReplayBuffer.add(self,obs,act,rew,next_obs,done,p)=.
-The constructor also take =alpha= parameter, whose default value is =0.6=.
-For sampling, you need to pass =beata= argument as well as =batch_size=.
+* DONE Features
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: features
+:EXPORT_FILE_NAME: _index
+:END:
 
-* Test Environment
-- GCC 9.2.0
-- Python 3.8.0
-- Cython 0.29.13
+cpprb provides buffer classes for building following algorithms.
+
+| Algorithms                    | cpprb class                               | Paper             |
+|-------------------------------+-------------------------------------------+-------------------|
+| Experience Replay             | =ReplayBuffer=                            | [[https://link.springer.com/article/10.1007/BF00992699][L. J. Lin]]         |
+| Prioritized Experience Replay | =PrioritizedReplayBuffer=                 | [[https://arxiv.org/abs/1511.05952][T. Schaul et. al.]] |
+| Multi-step Learning           | =ReplayBuffer=, =PrioritizedReplayBuffer= |                   |
+
+
+cpprb features and its usage are described at following pages:
+- [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][Flexible Environment]]
+- [[https://ymd_h.gitlab.io/cpprb/features/multistep_add/][Multi-step add]]
+- [[https://ymd_h.gitlab.io/cpprb/features/per/][Prioritized Experience Replay]]
+- [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Nstep Experience Replay]]
+- [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][Memory Compression]]
+
+* DONE Contributing to cpprb
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: contributing
+:EXPORT_FILE_NAME: _index
+:END:
+
+Any contribution are very welcome!
+
+** Making Community Larger
+Bigger commumity makes development more active and improve cpprb.
+
+- Star this repository (and/or [[https://github.com/yamada-github-account/cpprb][GitHub Mirror]])
+- Publish your code using cpprb
+- Share this repository to your friend and/or followers.
+
+
+** Report Issue
+When you have any problems or requests, you can check [[issues on GitLab.com]].
+If you still cannot find any information, you can open your own issue.
+
+** Merge Request (Pull Request)
+
+cpprb follows local rules:
+- Branch Name
+  - "HotFix_***" for bug fix
+  - "Feature_***" for new feature implementation
+- docstring
+  - Must for external API
+  - [[https://numpydoc.readthedocs.io/en/latest/format.html][Numpy Style]]
+- Unit Test
+  - Put test code under "test/" directory
+  - Can test by =python -m unittest <Your Test Code>= command
+  - Continuous Integration on GitLab CI configured by ~.gitlab-ci.yaml~
+- Open an issue and associate it to Merge Request
+
+Step by step instruction for beginners is described at [[https://ymd_h.gitlab.io/cpprb/contributing/merge_request][here]].
+
+* DONE Links
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: misc
+:EXPORT_FILE_NAME: links
+:END:
+
+** cpprb sites
+- [[https://ymd_h.gitlab.io/cpprb/][Project Site]]
+  - [[https://ymd_h.gitlab.io/cpprb/api/][Class Reference]]
+  - [[https://ymd_h.gitlab.io/cpprb/coverage/][Unit Test Coverage]]
+- [[https://gitlab.com/ymd_h/cpprb][Main Repository]]
+- [[https://github.com/yamada-github-account/cpprb][Github Mirror]]
+- [[https://pypi.org/project/cpprb/][cpprb on PyPI]]
+
+** cpprb users' repositories
+- [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]] :: TensorFlow2.0 Reinforcement Learning
+
+
+* DONE Lisence
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: misc
+:EXPORT_FILE_NAME: lisence
+:END:
+cpprb is available under MIT lisence.
