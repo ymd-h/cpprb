@@ -138,8 +138,6 @@ emacs:
     paths:
       - site/content
       - README.md
-  only:
-    - master
   except:
     - schedules
 
