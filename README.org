@@ -240,7 +240,7 @@ Bigger commumity makes development more active and improve cpprb.
 
 
 ** Report Issue
-When you have any problems or requests, you can check [[issues on GitLab.com]].
+When you have any problems or requests, you can check [[https://gitlab.com/ymd_h/cpprb/issues][issues on GitLab.com]].
 If you still cannot find any information, you can open your own issue.
 
 ** Merge Request (Pull Request)
