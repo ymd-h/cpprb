@@ -57,6 +57,27 @@
 :EXPORT_HUGO_SECTION*: installation
 :END:
 
+** DONE Step by step installation on macOS
+CLOSED: [2020-01-17 Fri 21:09]
+:PROPERTIES:
+:EXPORT_FILE_NAME: install_on_macos
+:END:
+
+Since clang (libc++) has not implemented array specialization of
+=std::shared_ptr= ([[http://libcxx.llvm.org/cxx1z_status.html][libc++ C++17 Status]], P0414R2 etc.), cpprb cannot be
+compiled by clang.
+
+Here we describe how to install cpprb on macOS using [[https://www.macports.org/][MacPorts]].
+
+#+begin_src shell
+sudo port selfupdate
+sudo port install gcc9
+sudo port select gcc mp-gcc9
+git clone https://gitlab.com/ymd_h/cpprb.git
+cd cpprb
+CC=/opt/local/bin/g++ CXX=/opt/local/bin/g++ pip install .
+#+end_src
+
 * Features
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: features
