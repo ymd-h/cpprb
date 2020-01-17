@@ -4,6 +4,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   COVERAGE_RCFILE: .coveragerc
   DOCKER_BUILDKIT: 1
+  GIT_DEPTH: 10
 
 stages:
   - page_export
