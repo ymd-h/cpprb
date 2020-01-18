@@ -14,9 +14,9 @@ publishDir = "../public"
   description = "Site for cpprb (C++ Replay Buffer)"
   author = "Hiroyuki Yamada"
   showVisitedLinks = false
-  disableBreadcrumb = false
-  disableNextPrev = false
-  themeVariant = "blue"
+  disableBreadcrumb = true
+  disableNextPrev = true
+  themeVariant = "cpprb"
   disableInlineCopyToClipBoard = true
 
 [outputs]
