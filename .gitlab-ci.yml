@@ -166,7 +166,7 @@ sphinx:
   environment: production
   script:
     - pip install $(echo dist/*.whl)['all']
-    - sphinx-apidoc -F -M -o sphinx cpprb
+    - sphinx-apidoc -F -M -o sphinx cpprb '*.so'
     - sphinx-build -b html sphinx public/api
   artifacts:
     paths:
