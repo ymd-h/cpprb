@@ -18,6 +18,7 @@ RUN pip3 install -U pip setuptools \
 	numpy \
 	pyvirtualdisplay \
 	sphinx \
+	sphinx-automodapi \
 	sphinx_rtd_theme \
 	twine \
 	unittest-xml-reporting \
