@@ -31,7 +31,7 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - DEBUG_CPPRB=1 pip3 install -e .['all']
+    - DEBUG_CPPRB=1 pip3 install dist/*.whl['all']
   except:
     - schedules
   artifacts:
@@ -61,6 +61,7 @@ cpprb_build:
   stage: build
   script:
     - DEBUG_CPPRB=1 python3 setup.py build_ext --inplace --force
+    - DEBUG_CPPRB=1 python3 setup.py bdist_wheel
   artifacts:
     paths:
       - cpprb/*.html
@@ -164,6 +165,7 @@ sphinx:
   stage: page_build
   environment: production
   script:
+    - pip install dist/*.whl['all']
     - sphinx-apidoc -F -M -o sphinx cpprb
     - sphinx-build -b html sphinx public/api
   artifacts:
