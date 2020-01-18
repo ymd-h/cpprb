@@ -165,7 +165,7 @@ sphinx:
   stage: page_build
   environment: production
   script:
-    - pip install dist/*.whl['all']
+    - pip install $(echo dist/*.whl)['all']
     - sphinx-apidoc -F -M -o sphinx cpprb
     - sphinx-build -b html sphinx public/api
   artifacts:
