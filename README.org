@@ -2,7 +2,7 @@
 #+OPTIONS: author:t broken-links:nil c:nil creator:nil
 #+OPTIONS: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
 #+OPTIONS: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
-#+OPTIONS: timestamp:t title:t toc:t todo:nil |:t
+#+OPTIONS: timestamp:t title:t toc:nil todo:nil |:t
 #+TITLE: cpprb
 #+DATE: <2019-01-29 Tue>
 #+AUTHOR: Hiroyuki Yamada

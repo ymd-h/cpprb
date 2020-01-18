@@ -1,4 +1,4 @@
-#+OPTIONS: ':nil -:nil ^:{} num:nil toc:nil
+#+OPTIONS: ':nil -:nil ^:{} num:t toc:nil
 #+AUTHOR: Hiroyuki Yamada
 #+CREATOR: Emacs 26.1 (Org mode 9.1.14 + ox-hugo)
 #+HUGO_WITH_LOCALE:
