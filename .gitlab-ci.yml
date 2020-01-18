@@ -1,7 +1,6 @@
-variables:
+variables: &global-variables
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
   CC: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
-  GIT_SUBMODULE_STRATEGY: recursive
   COVERAGE_RCFILE: .coveragerc
   DOCKER_BUILDKIT: 1
   GIT_DEPTH: 10
@@ -147,6 +146,9 @@ emacs:
 hugo:
   image: registry.gitlab.com/pages/hugo:latest
   stage: page_build
+  variables:
+    <<: *global-variables
+    GIT_SUBMODULE_STRATEGY: recursive
   environment: production
   script:
     - hugo version
