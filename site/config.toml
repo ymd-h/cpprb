@@ -15,7 +15,7 @@ publishDir = "../public"
   author = "Hiroyuki Yamada"
   showVisitedLinks = false
   disableBreadcrumb = true
-  disableNextPrev = false
+  disableNextPrev = true
   themeVariant = "cpprb"
   disableInlineCopyToClipBoard = true
 
