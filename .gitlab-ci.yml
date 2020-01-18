@@ -143,9 +143,9 @@ emacs:
   except:
     - schedules
 
-pages:
+hugo:
   image: registry.gitlab.com/pages/hugo:latest
-  stage: page_deploy
+  stage: page_build
   environment: production
   script:
     - hugo version
@@ -154,8 +154,8 @@ pages:
   artifacts:
     paths:
       - public
-  only:
-    - master
+  needs:
+    - emacs
   except:
     - schedules
 
@@ -175,9 +175,9 @@ sphinx:
   except:
     - schedules
 
-annotation:
-  image: *dev_image
-  stage: page_build
+pages:
+  image: alpine
+  stage: page_deploy
   environment: production
   script:
     - mkdir -p public/annotation
