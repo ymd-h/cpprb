@@ -67,6 +67,7 @@ cpprb_build:
       - cpprb/*.html
       - cpprb/*.cpp
       - cpprb/*.so
+      - dist/*.whl
 
 ReplayBuffer.cpp:
   <<: *setup
