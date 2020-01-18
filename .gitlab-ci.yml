@@ -207,6 +207,8 @@ pypi:
   except:
     - branches
     - schedules
+  dependancies:
+    - emacs
 
 repo:
   image: docker:latest
