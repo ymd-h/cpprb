@@ -78,10 +78,20 @@ class LazyImportBuildExtCommand(build_ext):
         super().finalize_options()
 
 
+description = "ReplayBuffer for Reinforcement Learning written by C++ and Cython"
+README = os.path.join(os.path.abspath(os.path.dirname(__file__)),'README.md')
+if os.path.exists(README):
+    with open(README,encoding='utf-8') as f:
+        long_description = f.read()
+    long_description_content_type='text/markdown'
+else:
+    long_description =  description
+    long_description_content_type='text/plain'
+
 setup(name="cpprb",
       author="Yamada Hiroyuki",
       author_email="incoming+ymd-h-cpprb-10328285-issue-@incoming.gitlab.com",
-      description="ReplayBuffer for Reinforcement Learning written by C++ and Cython",
+      description=description,
       version="8.2.1",
       install_requires=requires,
       setup_requires=setup_requires,
@@ -101,11 +111,5 @@ setup(name="cpprb",
                    "Topic :: Scientific/Engineering",
                    "Topic :: Scientific/Engineering :: Artificial Intelligence",
                    "Topic :: Software Development :: Libraries"],
-      long_description="""cpprb is a python package written by C++.
-The package provides replay buffer classes for reinforcement learning.
-
-Complicated calculation (e.g. Segment Tree) are offloaded onto C++ which must be much faster than Python.
-
-Internal C++ classes and corresponding Python wrapper classes share memory by implementing buffer protocol on cython to avoid overhead of copying large data.
-
-This package requires C++17 compatible compiler to build.""")
+      long_description=long_description,
+      long_description_content_type=long_description_content_type)
