@@ -13,7 +13,8 @@ cpp_ext = ".cpp"
 pyx_ext = ".pyx"
 
 extras = {
-    'gym': ["matplotlib", "pyvirtualdisplay"]
+    'gym': ["matplotlib", "pyvirtualdisplay"],
+    'dev': ["sphinx-automodapi"]
 }
 all_deps = []
 for group_name in extras:
