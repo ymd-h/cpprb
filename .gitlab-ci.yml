@@ -206,7 +206,7 @@ pypi:
   except:
     - branches
     - schedules
-  dependancies:
+  dependencies:
     - emacs
 
 repo:
