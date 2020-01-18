@@ -170,8 +170,8 @@ sphinx:
     paths:
       - sphinx/*.rst
       - public
-  only:
-    - master
+  needs:
+    - cpprb_build
   except:
     - schedules
 
