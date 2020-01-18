@@ -528,7 +528,7 @@ request equivalent on GitHub.com)
 CLOSED: [2020-01-17 Fri 22:31]
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: misc
-:EXPORT_FILE_NAME: index
+:EXPORT_FILE_NAME: _index
 :END:
 
 In this section, cpprb related miscellaneous information are described.
