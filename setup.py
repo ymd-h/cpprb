@@ -81,7 +81,7 @@ class LazyImportBuildExtCommand(build_ext):
 setup(name="cpprb",
       author="Yamada Hiroyuki",
       author_email="incoming+ymd-h-cpprb-10328285-issue-@incoming.gitlab.com",
-      description="ReplayBuffer for Reinforcement Learning written by C++",
+      description="ReplayBuffer for Reinforcement Learning written by C++ and Cython",
       version="8.2.1",
       install_requires=requires,
       setup_requires=setup_requires,
