@@ -30,7 +30,7 @@ stages:
   before_script:
     - g++ --version
     - python3 --version
-    - DEBUG_CPPRB=1 pip3 install dist/*.whl['all']
+    - DEBUG_CPPRB=1 pip3 install $(echo dist/*.whl)['all']
   except:
     - schedules
   artifacts:
