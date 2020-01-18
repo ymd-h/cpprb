@@ -16,7 +16,7 @@ publishDir = "../public"
   showVisitedLinks = false
   disableBreadcrumb = false
   disableNextPrev = false
-  themeVariant = "blue"
+  themeVariant = "cpprb"
   disableInlineCopyToClipBoard = true
 
 [outputs]
