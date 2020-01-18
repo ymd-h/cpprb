@@ -7,7 +7,6 @@ variables:
   GIT_DEPTH: 10
 
 stages:
-  - page_export
   - build_image
   - build
   - test
@@ -132,7 +131,7 @@ coverage:
 
 emacs:
   image: iquiw/alpine-emacs
-  stage: page_export
+  stage: build
   script:
     - emacs --batch README.org -l site/init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
     - emacs --batch README.org --eval '(org-md-export-to-markdown)'
