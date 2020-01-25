@@ -3,6 +3,7 @@ FROM python:3.7
 RUN apt update \
 	&& apt install -y --no-install-recommends \
 	build-essential \
+	graphviz \
 	python-opengl \
 	tk-dev \
 	x11-utils \
@@ -18,6 +19,7 @@ RUN pip3 install -U pip setuptools \
 	numpy \
 	pyvirtualdisplay \
 	sphinx \
+	sphinx-automodapi \
 	sphinx_rtd_theme \
 	twine \
 	unittest-xml-reporting \

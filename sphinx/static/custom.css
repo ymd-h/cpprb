@@ -1,0 +1,5 @@
+.rst-content dl.method dt:not([class]) {
+    background: #e7f2fa !important;
+    color: #2980B9 !important;
+    border-left: solid 3px #6ab0de !important;
+}
