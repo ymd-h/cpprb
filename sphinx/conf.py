@@ -2,8 +2,7 @@ project = "cpprb"
 author = "Hiroyuki Yamada"
 copyright = "2018, Hiroyuki Yamada"
 
-extensions = ['sphinx.ext.napoleon',
-              'sphinx_automodapi.automodapi','sphinx_automodapi.smart_resolver']
+extensions = ['sphinx.ext.napoleon','sphinx_automodapi.automodapi']
 html_theme = "sphinx_rtd_theme"
 
 html_logo = "../site/static/images/logo.png"
