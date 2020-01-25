@@ -1,5 +1,5 @@
 .rst-content dl.method dt {
-    background: #e7f2fa;
-    color: #2980B9;
-    border-left: solid 3px #6ab0de;
+    background: #e7f2fa !important;
+    color: #2980B9 !important;
+    border-left: solid 3px #6ab0de !important;
 }
