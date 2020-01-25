@@ -3,6 +3,7 @@ FROM python:3.7
 RUN apt update \
 	&& apt install -y --no-install-recommends \
 	build-essential \
+	graphviz \
 	python-opengl \
 	tk-dev \
 	x11-utils \
