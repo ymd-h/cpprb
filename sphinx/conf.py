@@ -25,3 +25,8 @@ autodoc_default_options = {
     'show-inheritance': None,
     'exclude-members': '__dict__, __weakref__, __module__, __new__, __pyx_vtable__, __reduce__, __setstate__'
 }
+
+html_static_path = ['static']
+html_css_files = [
+    'custom.css'
+]
