@@ -40,7 +40,7 @@ stages:
       junit:
         - "*.xml"
 
-docker_build:
+.docker_build_base: &docker_build
   image: docker:latest
   stage: build_image
   services:
@@ -51,7 +51,16 @@ docker_build:
     - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/build:latest -t $CI_REGISTRY_IMAGE/build:latest .
     - docker run $CI_REGISTRY_IMAGE/build:latest
     - docker push $CI_REGISTRY_IMAGE/build:latest
+
+docker_build_schedule:
+  <<: *docker_build
   only:
+    - schedules
+
+docker_build_manual:
+  <<: *docker_build
+  when: manual
+  except:
     - schedules
 
 cpprb_build:
