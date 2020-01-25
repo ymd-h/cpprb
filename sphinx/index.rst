@@ -2,7 +2,7 @@ API reference for cpprb
 ==================
 
 .. automodapi:: cpprb
-   :skip: 'SelectiveReplayBuffer'
+   :skip: SelectiveReplayBuffer
 
 
 
