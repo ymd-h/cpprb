@@ -25,8 +25,6 @@ jobs:
         with:
           name: dist
           path: dist
-      - uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.pypi_password }}
+      - run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
+        continue-on-error: true
