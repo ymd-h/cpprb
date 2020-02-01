@@ -27,3 +27,4 @@ jobs:
           path: dist
       - run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
+        continue-on-error: true
