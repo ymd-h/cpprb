@@ -211,8 +211,8 @@ pypi:
     - rm -rf cpprb/*.cpp
     - python3 setup.py clean
     - python3 setup.py build_ext sdist
-    - twine upload dist/*.tar.gz
-    - twine upload wheelhouse-fix/*.whl
+    - twine upload dist/cpprb-*.tar.gz
+    - twine upload wheelhouse-fix/cpprb-*.whl
   only:
     - tags
   except:
@@ -243,7 +243,7 @@ manylinux:
     - for WHL in wheelhouse/*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
   artifacts:
     paths:
-      - "wheelhouse-fix/*.whl"
+      - "wheelhouse-fix/cpprb-*.whl"
   except:
     - schedules
   dependencies:
