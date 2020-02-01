@@ -239,7 +239,7 @@ manylinux:
   image: quay.io/pypa/manylinux2010_x86_64
   stage: binary_build
   script:
-    - for PIP in /opt/python/cp3*/bin/pip; do ${PIP} wheel . -w wheelhouse/; done
+    - for PIP in /opt/python/cp3{5..8}*/bin/pip; do ${PIP} wheel . -w wheelhouse/; done
     - for WHL in wheelhouse/*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
   artifacts:
     paths:
