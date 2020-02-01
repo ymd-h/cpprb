@@ -5,8 +5,9 @@ on: [push]
 jobs:
   readme:
     container: iquiw/alpine-emacs
+    runs-on: ubuntu-latest
     steps:
-      - emacs --batch README.org --eval '(org-md-export-to-markdown)'
+      - run: emacs --batch README.org --eval '(org-md-export-to-markdown)'
       - uses: actions/upload-artifact@v1
         with:
           name: README
