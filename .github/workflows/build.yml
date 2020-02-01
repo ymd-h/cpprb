@@ -3,7 +3,16 @@ name: CI
 on: [push]
 
 jobs:
+  readme:
+    container: iquiw/alpine-emacs
+    steps:
+      - emacs --batch README.org --eval '(org-md-export-to-markdown)'
+      - uses: actions/upload-artifact@v1
+        with:
+          name: README
+          path: README.md
   build:
+    needs: readme
     strategy:
       matrix:
         runs-on: [ubuntu-latest, macos-latest, windows-latest]
@@ -20,6 +29,9 @@ jobs:
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - run: pip install wheel twine
+      - uses: actions/download-artifact@v1
+        with:
+          name: README
       - run: python setup.py bdist_wheel
       - uses: actions/upload-artifact@v1
         with:
