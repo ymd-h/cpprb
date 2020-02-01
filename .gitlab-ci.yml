@@ -13,6 +13,7 @@ stages:
   - test
   - test_coverage
   - page_deploy
+  - binary_build
   - upload
 
 .job_template: &setup
@@ -211,13 +212,12 @@ pypi:
     - python3 setup.py clean
     - python3 setup.py build_ext sdist
     - twine upload dist/*.tar.gz
+    - twine upload wheelhouse-fix/*.whl
   only:
     - tags
   except:
     - branches
     - schedules
-  dependencies:
-    - emacs
 
 repo:
   image: docker:latest
@@ -234,3 +234,17 @@ repo:
   except:
     - branches
     - schedules
+
+manylinux:
+  image: quay.io/pypa/manylinux2010_x86_64
+  stage: binary_build
+  script:
+    - for PIP in /opt/python/cp3{5..8}*/bin/pip; do ${PIP} wheel . -w wheelhouse/; done
+    - for WHL in wheelhouse/*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
+  artifacts:
+    paths:
+      - "wheelhouse-fix/*.whl"
+  except:
+    - schedules
+  dependencies:
+    - coverage
