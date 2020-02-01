@@ -33,6 +33,7 @@ jobs:
       - uses: actions/download-artifact@v1
         with:
           name: README
+      - run: mv README/README.md README.md
       - run: python setup.py bdist_wheel
       - uses: actions/upload-artifact@v1
         with:
