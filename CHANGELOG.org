@@ -13,6 +13,8 @@
 #+creator: Emacs 26.3 (Org mode 9.2.3)
 
 * Unreleased
+* v8.2.4
+- Fix: README on PyPI (overwritten upload from GitHub)
 * v8.2.3
 - Fix: Binary upload on Github Actions
 * v8.2.2
