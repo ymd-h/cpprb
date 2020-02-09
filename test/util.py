@@ -28,7 +28,10 @@ class TestAlgorithms(unittest.TestCase):
                    rew=rew,
                    done=done)
 
-            obs = next_obs
+            if done:
+                obs = self.env.reset()
+            else:
+                obs = next_obs
 
 
 class TestCopy(TestAlgorithms):
