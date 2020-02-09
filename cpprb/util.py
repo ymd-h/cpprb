@@ -10,6 +10,8 @@ def from_space(space,int_type,float_type):
         return {"dtype": int_type,"shape": space.nvec.shape}
     elif isinstance(space,Box):
         return {"dtype": float_type,"shape": space.shape}
+    elif isinstance(space,MultiBinary):
+        return {"dtype": int_type, "shape": space.n}
     else:
         raise NotImplementedError(f"Error: Unknown Space {space}")
 
