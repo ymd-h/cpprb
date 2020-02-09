@@ -2,8 +2,7 @@ import unittest
 
 import gym
 
-from cpprb import ReplayBuffer
-from cpprb.util import create_env_dict
+from cpprb import ReplayBuffer, create_env_dict, create_before_add_func
 
 class TestAlgorithms:
     def test_create_dict(self):
