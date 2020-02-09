@@ -98,5 +98,37 @@ class TestLunarLanderContinuous(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("LunarLanderContinuous-v2")
 
+class TestBlackjack(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("Blackjack-v0")
+
+class TestFrozenLake(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("FrozenLake-v0")
+
+class TestFrozenLake8x8(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("FrozenLake8x8-v0")
+
+class TestGuessingGame(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("GuessingGame-v0")
+
+class TestHotterColder(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("HotterColder-v0")
+
+class TestNChain(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("NChain-v0")
+
+class TestRoulette(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("Roulette-v0")
+
+class TestTaxi(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("Texi-v3")
+
 if __name__ == "__main__":
     unittest.main()
