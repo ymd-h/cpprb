@@ -21,7 +21,7 @@ def create_env_dict(env,*,int_type = None,float_type = None):
 
     Paremeters
     ----------
-    env : gym.space
+    env : gym.core.env
         Environment
     int_type: np.dtype, optional
         Integer type. Default is `np.int32`
