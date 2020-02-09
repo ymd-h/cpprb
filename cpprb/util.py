@@ -21,7 +21,7 @@ def create_env_dict(env,*,int_type = None,float_type = None):
 
     Paremeters
     ----------
-    env : gym.core.env
+    env : gym.Env
         Environment
     int_type: np.dtype, optional
         Integer type. Default is `np.int32`
@@ -72,7 +72,7 @@ def create_before_add_func(env):
 
     Parameters
     ----------
-    env : gym.core.env
+    env : gym.Env
         Environment for before_func
 
     Returns
