@@ -8,6 +8,8 @@ def from_space(space,int_type,float_type):
         return {"dtype": int_type,"shape": 1}
     elif isinstance(space,MultiDiscrete):
         return {"dtype": int_type,"shape": space.nvec.shape}
+    elif isinstance(space,Box):
+        return {"dtype": float_type,"shape": space.shape}
     else:
         raise NotImplementedError(f"Error: Unknown Space {space}")
 
