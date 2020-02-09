@@ -58,7 +58,25 @@ class TestReversedAddition3(TestAlgorithms,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("ReversedAddition3-v0")
 
+class TestAcrobot(TestEnv):
+    def setUp(self):
+        self.env = gym.make("Acrobot-v1")
 
+class TestCartPole(TestEnv):
+    def setUp(self):
+        self.env = gym.make("CartPole-v1")
+
+class TestMountainCar(TestEnv):
+    def setUp(self):
+        self.env = gym.make("MountainCar-v0")
+
+class TestMountainCarContinuous(TestEnv):
+    def setUp(self):
+        self.env = gym.make("MountainCarContinuous-v0")
+
+class TestPendulum(TestEnv):
+    def setUp(self):
+        self.env = gym.make("Pendulum-v0")
 
 if __name__ == "__main__":
     unittest.main()
