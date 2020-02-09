@@ -84,7 +84,7 @@ class TestBipedalWalker(TestEnv,unittest.TestCase):
 
 class TestBipedalWalkerHardcore(TestEnv,unittest.TestCase):
     def setUp(self):
-        self.env = gym.make("BipedalWalkerHardcore-v2")
+        self.env = gym.make("BipedalWalkerHardcore-v3")
 
 class TestCarRacing(TestEnv,unittest.TestCase):
     def setUp(self):
