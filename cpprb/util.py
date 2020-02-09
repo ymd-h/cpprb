@@ -77,7 +77,7 @@ def create_before_add_func(env):
 
     Returns
     -------
-    before_func : callable
+    before_add : callable
         Function to be used before `ReplayBuffer.add`
     """
     def no_convert(name,v):
@@ -115,4 +115,4 @@ def create_before_add_func(env):
                 "rew": rew,
                 "done": done}
 
-    return before_func
+    return before_add
