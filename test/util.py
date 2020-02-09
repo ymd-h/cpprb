@@ -78,5 +78,25 @@ class TestPendulum(TestEnv):
     def setUp(self):
         self.env = gym.make("Pendulum-v0")
 
+class TestBipedalWalker(TestEnv):
+    def setUp(self):
+        self.env = gym.make("BipedalWalker-v2")
+
+class TestBipedalWalkerHardcore(TestEnv):
+    def setUp(self):
+        self.env = gym.make("BipedalWalkerHardcore-v2")
+
+class TestCarRacing(TestEnv):
+    def setUp(self):
+        self.env = gym.make("CarRacing-v0")
+
+class TestLunarLander(TestEnv):
+    def setUp(self):
+        self.env = gym.make("LunarLander-v2")
+
+class TestLunarLanderContinuous(TestEnv):
+    def setUp(self):
+        self.env = gym.make("LunarLanderContinuous-v2")
+
 if __name__ == "__main__":
     unittest.main()
