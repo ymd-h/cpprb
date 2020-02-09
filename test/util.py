@@ -12,6 +12,25 @@ class TestAlgorithms(unittest.TestCase):
         self.assertIn("obs",env_dict)
         self.assertIn("act",env_dict)
 
+    def test_add(self):
+        env_dict = create_env_dict(self.env)
+        rb = ReplayBuffer(256,env_dict)
+
+        obs = self.env.reset()
+
+        for i in range(100):
+            act = self.env.action_space.sample()
+            next_obs, rew, done, _ = self.env.step(act)
+
+            rb.add(obs=obs,
+                   act=act,
+                   next_obs=obs,
+                   rew=rew,
+                   done=done)
+
+            obs = next_obs
+
+
 class TestCopy(TestAlgorithms):
     def setUp(self):
         self.env = gym.make("Copy-v0")
