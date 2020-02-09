@@ -6,12 +6,16 @@ from cpprb import ReplayBuffer
 from cpprb.util import create_env_dict
 
 class TestAlgorithms(unittest.TestCase):
+    @unittest.skipIf(type(self) == TestAlgorithms,
+                     "TestAlgorithms is abstract class")
     def test_create_dict(self):
         env_dict = create_env_dict(self.env)
 
         self.assertIn("obs",env_dict)
         self.assertIn("act",env_dict)
 
+    @unittest.skipIf(type(self) == TestAlgorithms,
+                     "TestAlgorithms is abstract class")
     def test_add(self):
         env_dict = create_env_dict(self.env)
         rb = ReplayBuffer(256,env_dict)
