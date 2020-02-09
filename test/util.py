@@ -3,9 +3,14 @@ import unittest
 import gym
 
 from cpprb import ReplayBuffer, create_env_dict, create_before_add_func
+from cpprb.gym import NotebookAnimation
 
 
 class TestEnv:
+    @classmethod
+    def setUpClass(cls):
+        cls.display = NotebookAnimation()
+
     def test_add(self):
         env_dict = create_env_dict(self.env)
         before_add_func = create_before_add_func(self.env)
