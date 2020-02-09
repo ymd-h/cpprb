@@ -80,7 +80,7 @@ class TestPendulum(TestEnv,unittest.TestCase):
 
 class TestBipedalWalker(TestEnv,unittest.TestCase):
     def setUp(self):
-        self.env = gym.make("BipedalWalker-v2")
+        self.env = gym.make("BipedalWalker-v3")
 
 class TestBipedalWalkerHardcore(TestEnv,unittest.TestCase):
     def setUp(self):
