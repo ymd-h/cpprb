@@ -12,7 +12,9 @@ class TestAlgorithms(unittest.TestCase):
         env_dict = create_env_dict(self.env)
 
         self.assertIn("obs",env_dict)
-        self.assertIn("act",env_dict)
+        self.assertIn("act0",env_dict)
+        self.assertIn("act1",env_dict)
+        self.assertIn("act2",env_dict)
 
     @unittest.skipIf(type(self) == TestAlgorithms,
                      "TestAlgorithms is abstract class")
@@ -27,7 +29,9 @@ class TestAlgorithms(unittest.TestCase):
             next_obs, rew, done, _ = self.env.step(act)
 
             rb.add(obs=obs,
-                   act=act,
+                   act0=act[0],
+                   act1=act[1],
+                   act2=act[2],
                    next_obs=obs,
                    rew=rew,
                    done=done)
