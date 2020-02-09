@@ -15,7 +15,7 @@ pyx_ext = ".pyx"
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"],
     'api': ["sphinx","sphinx_rtd_theme","sphinx-automodapi"],
-    'dev': ["coverage","cython","gym['box2d']","twine","unittest-xml-reporting","wheel"]
+    'dev': ["coverage","cython","gym[box2d]","twine","unittest-xml-reporting","wheel"]
 }
 all_deps = []
 for group_name in extras:
