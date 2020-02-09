@@ -133,7 +133,7 @@ class TestRoulette(TestEnv,unittest.TestCase):
 
 class TestTaxi(TestEnv,unittest.TestCase):
     def setUp(self):
-        self.env = gym.make("Texi-v3")
+        self.env = gym.make("Taxi-v3")
 
 if __name__ == "__main__":
     unittest.main()
