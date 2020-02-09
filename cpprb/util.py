@@ -65,3 +65,54 @@ def create_env_dict(env,*,int_type = None,float_type = None):
         env_dict["act"] = from_space(action_space,int_type,float_type)
 
     return env_dict
+
+def create_before_add_func(env):
+    """
+    Create function to be used before `ReplayBuffer.add`
+
+    Parameters
+    ----------
+    env : gym.core.env
+        Environment for before_func
+
+    Returns
+    -------
+    before_func : callable
+        Function to be used before `ReplayBuffer.add`
+    """
+    def no_convert(name,v):
+        return {f"{name}": v}
+
+    def convert_from_tuple(name,_tuple):
+        return {f"{name}{i}": v for i,v in enumerate(_tuple)}
+
+    def convert_from_dict(name,_dict):
+        return {f"{name}_{key}":v for key,v in _dict.items()}
+
+
+    observation_space = env.observation_space
+    action_space = env.action_space
+
+
+    if isinstance(observation_space,Tuple):
+        obs_func = convert_from_tuple
+    elif isinstance(observation_space,Dict):
+        obs_func = convert_from_dict
+    else:
+        obs_func = no_convert
+
+    if isinstance(action_space,Tuple):
+        act_func = convert_from_tuple
+    elif isinstance(action_space,Dict):
+        act_func = convert_from_dict
+    else:
+        act_func = no_convert
+
+    def before_add(obs,act,next_obs,rew,done):
+        return {**obs_func("obs",obs),
+                **act_func("act",act),
+                **obs_func("next_obs",next_obs),
+                "rew": rew,
+                "done": done}
+
+    return before_func
