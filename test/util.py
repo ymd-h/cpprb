@@ -4,15 +4,8 @@ import gym
 
 from cpprb import ReplayBuffer, create_env_dict, create_before_add_func
 
-class TestAlgorithms:
-    def test_create_dict(self):
-        env_dict = create_env_dict(self.env)
 
-        self.assertIn("obs",env_dict)
-        self.assertIn("act0",env_dict)
-        self.assertIn("act1",env_dict)
-        self.assertIn("act2",env_dict)
-
+class TestEnv:
     def test_add(self):
         env_dict = create_env_dict(self.env)
         before_add_func = create_before_add_func(self.env)
@@ -32,6 +25,14 @@ class TestAlgorithms:
             else:
                 obs = next_obs
 
+class TestAlgorithms(TestEnv):
+    def test_create_dict(self):
+        env_dict = create_env_dict(self.env)
+
+        self.assertIn("obs",env_dict)
+        self.assertIn("act0",env_dict)
+        self.assertIn("act1",env_dict)
+        self.assertIn("act2",env_dict)
 
 class TestCopy(TestAlgorithms,unittest.TestCase):
     def setUp(self):
