@@ -135,5 +135,17 @@ class TestTaxi(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("Taxi-v3")
 
+class TestKellyCoinflip(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("KellyCoinflip-v0")
+
+class TestKellyCoinflipGeneralized(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("KellyCoinflipGeneralized-v0")
+
+class TestCliffWalking(TestEnv,unittest.TestCase):
+    def setUp(self):
+        self.env = gym.make("CliffWalking-v0")
+
 if __name__ == "__main__":
     unittest.main()
