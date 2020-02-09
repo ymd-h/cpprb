@@ -58,43 +58,43 @@ class TestReversedAddition3(TestAlgorithms,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("ReversedAddition3-v0")
 
-class TestAcrobot(TestEnv):
+class TestAcrobot(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("Acrobot-v1")
 
-class TestCartPole(TestEnv):
+class TestCartPole(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("CartPole-v1")
 
-class TestMountainCar(TestEnv):
+class TestMountainCar(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("MountainCar-v0")
 
-class TestMountainCarContinuous(TestEnv):
+class TestMountainCarContinuous(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("MountainCarContinuous-v0")
 
-class TestPendulum(TestEnv):
+class TestPendulum(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("Pendulum-v0")
 
-class TestBipedalWalker(TestEnv):
+class TestBipedalWalker(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("BipedalWalker-v2")
 
-class TestBipedalWalkerHardcore(TestEnv):
+class TestBipedalWalkerHardcore(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("BipedalWalkerHardcore-v2")
 
-class TestCarRacing(TestEnv):
+class TestCarRacing(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("CarRacing-v0")
 
-class TestLunarLander(TestEnv):
+class TestLunarLander(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("LunarLander-v2")
 
-class TestLunarLanderContinuous(TestEnv):
+class TestLunarLanderContinuous(TestEnv,unittest.TestCase):
     def setUp(self):
         self.env = gym.make("LunarLanderContinuous-v2")
 
