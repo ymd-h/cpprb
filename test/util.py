@@ -15,6 +15,8 @@ class TestAlgorithms:
 
     def test_add(self):
         env_dict = create_env_dict(self.env)
+        before_add_func = create_before_add_func(self.env)
+
         rb = ReplayBuffer(256,env_dict)
 
         obs = self.env.reset()
@@ -23,13 +25,7 @@ class TestAlgorithms:
             act = self.env.action_space.sample()
             next_obs, rew, done, _ = self.env.step(act)
 
-            rb.add(obs=obs,
-                   act0=act[0],
-                   act1=act[1],
-                   act2=act[2],
-                   next_obs=obs,
-                   rew=rew,
-                   done=done)
+            rb.add(**before_add_func(obs,act,next_obs,rew,done))
 
             if done:
                 obs = self.env.reset()
