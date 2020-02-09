@@ -43,8 +43,25 @@ def create_env_dict(env,*,int_type = None,float_type = None):
     observation_space = env.observation_space
     action_space = env.action_space
 
-    env_dict["obs"] = from_space(observation_space,int_type,float_type)
-    env_dict["next_obs"] = from_space(observation_space,int_type,float_type)
-    env_dict["act"] = from_space(action_space,int_type,float_type)
+    if isinstance(observation_space,Tuple):
+        for i,s in enumerate(observation_space.spaces):
+            env_dict[f"obs{i}"] = from_space(s,int_type,float_type)
+            env_dict[f"next_obs{i}"] = from_space(s,int_type,float_type)
+    elif isinstance(observation_space,Dict):
+        for n, s in observation_space.spaces.items():
+            env_dict[n] = from_space(s,int_type,float_type)
+            env_dict[f"next_{n}"] = from_space(s,int_type,float_type)
+    else:
+        env_dict["obs"] = from_space(observation_space,int_type,float_type)
+        env_dict["next_obs"] = from_space(observation_space,int_type,float_type)
+
+    if isinstance(action_space,Tuple):
+        for i,s in enumerate(action_space.spaces):
+            env_dict[f"act{i}"] = from_space(s,int_type,float_type)
+    elif isinstance(action_space,Dict):
+        for n, s in action_space.spaces.items():
+            env_dict[n] = from_space(s,int_type,float_type)
+    else:
+        env_dict["act"] = from_space(action_space,int_type,float_type)
 
     return env_dict
