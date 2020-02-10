@@ -126,6 +126,11 @@ v8:
   script:
     - coverage run -m xmlrunner test/v8.py
 
+util:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/util.py
+
 coverage:
   <<: *setup
   stage: test_coverage
