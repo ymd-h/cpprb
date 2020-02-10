@@ -109,7 +109,7 @@ multi_rew:
 gym:
   <<: *py_setup
   script:
-    - coverage run -m xmlrunner test/gym.py
+    - coverage run -m xmlrunner test/test_gym.py
 
 high_level_api:
   <<: *py_setup
