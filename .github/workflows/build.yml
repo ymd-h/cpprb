@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: pip install cython setuptools
-      - run: pip install '.[all]'
+      - run: pip install '.[gym]'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - run: pip install wheel twine
