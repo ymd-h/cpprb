@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import gym
@@ -5,7 +6,7 @@ import gym
 from cpprb import ReplayBuffer, create_env_dict, create_before_add_func
 from cpprb.gym import NotebookAnimation
 
-
+@unittest.skipIf(os.getenv("GITHUB_ACTIONS"),"Skip on GitHub Actions")
 class TestEnv:
     @classmethod
     def setUpClass(cls):
