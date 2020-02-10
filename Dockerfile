@@ -15,7 +15,7 @@ RUN pip3 install -U pip setuptools \
 	&& pip3 install -U \
 	coverage \
 	cython \
-	gym[box2d,robotics] \
+	gym[box2d] \
 	matplotlib \
 	numpy \
 	pyvirtualdisplay \
