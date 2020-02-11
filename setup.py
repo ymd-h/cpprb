@@ -1,5 +1,6 @@
 import os
 import platform
+import warnings
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 
@@ -87,6 +88,7 @@ if os.path.exists(README):
         long_description = f.read()
     long_description_content_type='text/markdown'
 else:
+    warnings.warn("No README.md")
     long_description =  description
     long_description_content_type='text/plain'
 
