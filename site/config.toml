@@ -39,3 +39,10 @@ name = "<i class='fas fa-fw fa-bug'></i> Unit Test Coverage"
 identifier = "cov"
 url = "https://ymd_h.gitlab.io/cpprb/coverage/"
 weight = 30
+
+
+[[menu.shortcuts]]
+name = "<i class='fas fa-fw fa-blog'></i> Author's Blog"
+identifier = "blg"
+url = "https://ymd_h.gitlab.io/ymd_blog/"
+weight = 40
