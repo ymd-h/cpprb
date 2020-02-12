@@ -6,7 +6,7 @@
     $(document).ready(function(){
 	if(gl){
 	    gl.then((data)=>{
-		$("section#shorcuts a.padding > i.fa-gitlab").parent()
+		$("section#shortcuts a.padding > i.fa-gitlab").parent()
 		    .append("(<i class='fas fa-star fa-fw'></i>"
 			    + data["star_count"]
 			    + "<i class='fas fa-code-branch fa-fw'></i>"
