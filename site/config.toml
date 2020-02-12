@@ -23,7 +23,7 @@ publishDir = "../public"
 home = [ "HTML", "RSS", "JSON"]
 
 [[menu.shortcuts]]
-name = "<i class='fab fa-fw fa-gitlab'></i> Gitlab repo"
+name = "<i class='fab fa-fw fa-gitlab'></i> Gitlab"
 identifier = "ds"
 url = "https://gitlab.com/ymd_h/cpprb"
 weight = 10
@@ -39,3 +39,10 @@ name = "<i class='fas fa-fw fa-bug'></i> Unit Test Coverage"
 identifier = "cov"
 url = "https://ymd_h.gitlab.io/cpprb/coverage/"
 weight = 30
+
+
+[[menu.shortcuts]]
+name = "<i class='fas fa-fw fa-blog'></i> Author's Blog"
+identifier = "blg"
+url = "https://ymd_h.gitlab.io/ymd_blog/"
+weight = 40
