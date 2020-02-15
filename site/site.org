@@ -528,7 +528,7 @@ request equivalent on GitHub.com)
 CLOSED: [2020-02-15 Sat 09:23]
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: examples
-:TABLE_EXPORT_FILE: _index
+:EXPORT_FILE_NAME: _index
 :EXPORT_HUGO_WEIGHT: 800
 :END:
 
