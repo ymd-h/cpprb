@@ -191,7 +191,7 @@ run_bench_mark:
     - python benchmark.py
   artifacts:
     paths:
-      - "*.png"
+      - "benchmark/*.png"
   except:
     - schedules
 
