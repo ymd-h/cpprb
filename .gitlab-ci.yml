@@ -12,6 +12,7 @@ stages:
   - page_build
   - test
   - test_coverage
+  - bench_mark_test
   - page_deploy
   - binary_build
   - upload
@@ -178,6 +179,19 @@ emacs:
     paths:
       - site/content
       - README.md
+  except:
+    - schedules
+
+run_bench_mark:
+  image: $CI_REGISTRY_IMAGE/bench:latest
+  stage: bench_mark_test
+  script:
+    - pip install $(echo dist/*.whl)
+    - cd benchmark
+    - python benchmark.py
+  artifacts:
+    paths:
+      - "*.png"
   except:
     - schedules
 
