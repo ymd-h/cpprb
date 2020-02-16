@@ -574,6 +574,50 @@ also creating brand-new networks and/or algorithms.
 Here, we would like to show that cpprb is enough functional and enough
 efficient compared with others.
 
+** TODO Functionality
+:PROPERTIES:
+:EXPORT_FILE_NAME: functionality
+:EXPORT_HUGO_WEIGHT: 10
+:END:
+
+** DONE Benchmark
+CLOSED: [2020-02-16 Sun 23:24]
+:PROPERTIES:
+:EXPORT_HUGO_WEIGHT: 20
+:EXPORT_FILE_NAME: benchmark
+:END:
+
+*** Settings
+
+We use following docker image to take benchmarks;
+
+#+INCLUDE: "../benchmark/Dockerfile" src dockerfile
+
+- OpenAI Baselines requires TensorFlow 1.14
+- OpenAI Baselines at PyPI seems to be obsolete and requires non-free MuJoCo.
+- RLlib requres Pandas, too.
+
+
+The benchmark script is as follows;
+
+#+INCLUDE: "../benchmark/benchmark.py" src python
+
+Temporary, we excluded Ray/RLlib from =PrioritizedReplayBuffer.sample=
+comparison, since we encountered =IndexError= and couldn't fix it.
+Probably, there is a bug at around =SegmentTree= usage. (We opened an
+[[https://github.com/ray-project/ray/issues/7180][issue]].)
+
+
+*** Results
+[[/cpprb/benchmark/ReplayBuffer_add.png]]
+
+[[/cpprb/benchmark/ReplayBuffer_sample.png]]
+
+[[/cpprb/benchmark/PrioritizedReplayBuffer_add.png]]
+
+
+[[/cpprb/benchmark/PrioritizedReplayBuffer_sample.png]]
+
 
 
 * DONE Misc
