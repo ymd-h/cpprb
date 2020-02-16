@@ -64,6 +64,29 @@ docker_build_manual:
   except:
     - schedules
 
+.bench_mark_base: &bench_mark
+  image: docker:latest
+  stage: build_image
+  services:
+    - docker:dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE/bench:latest || true
+    - cd benchmark
+    - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/bench:latest -t $CI_REGISTRY_IMAGE/bench:latest .
+    - docker push $CI_REGISTRY_IMAGE/bench:latest
+
+bench_mark_schedule:
+  <<: *bench_mark
+  only:
+    - schedules
+
+bench_mark_manual:
+  <<: *bench_mark
+  when: manual
+  except:
+    - schedules
+
 cpprb_build:
   <<: *setup
   stage: build
