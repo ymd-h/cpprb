@@ -105,7 +105,7 @@ def sample_c(_rb):
     """ Force sample from ChainerRL PrioritizedReplayBuffer
     """
     def sample(n):
-        _rb.wait_priority_after_sampling = False
+        _rb.memory.wait_priority_after_sampling = False
         return _rb.sample(n)
 
     return sample
