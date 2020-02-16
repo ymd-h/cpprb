@@ -536,6 +536,46 @@ CLOSED: [2020-02-15 Sat 09:23]
 
 #+INCLUDE: "../example/create_buffer_with_helper_func.py" src python
 
+* Comparison
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: comparison
+:EXPORT_HUGO_WEIGHT: 850
+:END:
+
+** DONE Comparison
+CLOSED: [2020-02-16 Sun 23:08]
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:END:
+
+In this section, we compare cpprb with other replay buffer implementations;
+
+- [[https://github.com/openai/baselines][OpenAI Baselines]]
+  - [[https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py][baselines.deepq.replay_buffer.ReplayBuffer]]
+  - [[https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py][baselines.deepq.replay_buffer.PrioritizedReplayBuffer]]
+- [[https://github.com/ray-project/ray][Ray RLlib]]
+  - [[https://github.com/ray-project/ray/blob/master/rllib/optimizers/replay_buffer.py][ray.rilib.optimizers.replay_buffer.ReplayBuffer]]
+  - [[https://github.com/ray-project/ray/blob/master/rllib/optimizers/replay_buffer.py][ray.rllib.optimizers.replay_buffer.PrioritizedReplayBuffer]]
+- [[https://github.com/chainer/chainerrl][Chainer ChainerRL]]
+  - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/replay_buffer.py][chainerrl.replay_buffers.ReplayBuffer]]
+  - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/prioritized.py][chainerrl.replay_buffers.PrioritizedReplayBuffer]]
+
+
+*Important Notice*
+
+Except cpprb, replay buffers are only a part of their reinforcement
+learning ecosystem. These libraries don't focus on providing greatest
+replay buffers but reinforcement learning.
+
+Our motivation is to provide strong replay buffers to researchers and
+developers who not only use existing networks and/or algorithms but
+also creating brand-new networks and/or algorithms.
+
+Here, we would like to show that cpprb is enough functional and enough
+efficient compared with others.
+
+
+
 * DONE Misc
 CLOSED: [2020-01-17 Fri 22:31]
 :PROPERTIES:
