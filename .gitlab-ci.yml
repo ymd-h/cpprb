@@ -50,7 +50,6 @@ stages:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE/build:latest || true
     - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/build:latest -t $CI_REGISTRY_IMAGE/build:latest .
-    - docker run $CI_REGISTRY_IMAGE/build:latest
     - docker push $CI_REGISTRY_IMAGE/build:latest
 
 docker_build_schedule:
