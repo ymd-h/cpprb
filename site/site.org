@@ -583,13 +583,13 @@ CLOSED: [2020-02-24 Mon 12:49]
 
 The following table summarizes functionalities of replay buffers.
 
-|                         | cpprb                     | OpenAI/Baselines                          | Ray/RLlib                                                  | Chainer/ChainerRL                               |
-|-------------------------+---------------------------+-------------------------------------------+------------------------------------------------------------+-------------------------------------------------|
-| Flexible Environment    | Yes                       | No                                        | No                                                         | Yes                                             |
-| Nstep                   | Yes                       | No                                        | Yes                                                        | Yes                                             |
-| Parellel Exploration    | No ([[https://gitlab.com/ymd_h/cpprb/-/milestones/3][milestone]], [[https://gitlab.com/ymd_h/cpprb/-/milestones/9][milestone]]) | Yes (Avarages gradients of MPI processes) | Yes (Concatenates sample batches from distributed buffers) | No                                              |
-| Sve/Load                | No (Cannot =pickle=)      | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                                             |
-| Deep Learning Framework | Anything                  | TensorFlow 1.14 (only this version)       | Anything (Helper functions for [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-tensorflow][TensorFlow]] and [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-pytorch][PyTorch]])     | [[https://chainer.org/][Cahiner]] ([[https://chainer.org/announcement/2019/12/05/released-v7.html][Finished development and bug fix only]]) |
+|                         | cpprb                     | OpenAI/Baselines                          | Ray/RLlib                                                  | Chainer/ChainerRL              |
+|-------------------------+---------------------------+-------------------------------------------+------------------------------------------------------------+--------------------------------|
+| Flexible Environment    | Yes                       | No                                        | No                                                         | Yes                            |
+| Nstep                   | Yes                       | No                                        | Yes                                                        | Yes                            |
+| Parellel Exploration    | No ([[https://gitlab.com/ymd_h/cpprb/-/milestones/3][milestone]], [[https://gitlab.com/ymd_h/cpprb/-/milestones/9][milestone]]) | Yes (Avarages gradients of MPI processes) | Yes (Concatenates sample batches from distributed buffers) | No                             |
+| Sve/Load                | No (Cannot =pickle=)      | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                            |
+| Deep Learning Framework | Anything                  | TensorFlow 1.14 (only this version)       | Anything (Helper functions for [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-tensorflow][TensorFlow]] and [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-pytorch][PyTorch]])     | [[https://chainer.org/][Cahiner]] ([[https://chainer.org/announcement/2019/12/05/released-v7.html][Finished development]]) |
 
 
 ** DONE Benchmark
