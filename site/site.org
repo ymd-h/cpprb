@@ -574,7 +574,8 @@ also creating brand-new networks and/or algorithms.
 Here, we would like to show that cpprb is enough functional and enough
 efficient compared with others.
 
-** TODO Functionality
+** DONE Functionality
+CLOSED: [2020-02-24 Mon 12:49]
 :PROPERTIES:
 :EXPORT_FILE_NAME: functionality
 :EXPORT_HUGO_WEIGHT: 10
