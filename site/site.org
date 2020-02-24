@@ -616,8 +616,8 @@ The benchmark script is as follows;
 
 Temporary, we excluded Ray/RLlib from =PrioritizedReplayBuffer.sample=
 comparison, since we encountered =IndexError= and couldn't fix it.
-Probably, there is a bug at around =SegmentTree= usage. (We opened an
-[[https://github.com/ray-project/ray/issues/7180][issue]].) After we figured out, we will include it.
+Probably, there is a problem at around =SegmentTree= usage. (We opened
+an [[https://github.com/ray-project/ray/issues/7180][issue]].) After we figure out, we will include it.
 
 
 *** Results
