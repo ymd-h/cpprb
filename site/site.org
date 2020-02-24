@@ -536,6 +536,102 @@ CLOSED: [2020-02-15 Sat 09:23]
 
 #+INCLUDE: "../example/create_buffer_with_helper_func.py" src python
 
+* Comparison
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: comparison
+:EXPORT_HUGO_WEIGHT: 850
+:END:
+
+** DONE Comparison
+CLOSED: [2020-02-16 Sun 23:08]
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:END:
+
+In this section, we compare cpprb with other replay buffer implementations;
+
+- [[https://github.com/openai/baselines][OpenAI Baselines]]
+  - [[https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py][baselines.deepq.replay_buffer.ReplayBuffer]]
+  - [[https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py][baselines.deepq.replay_buffer.PrioritizedReplayBuffer]]
+- [[https://github.com/ray-project/ray][Ray RLlib]]
+  - [[https://github.com/ray-project/ray/blob/master/rllib/optimizers/replay_buffer.py][ray.rilib.optimizers.replay_buffer.ReplayBuffer]]
+  - [[https://github.com/ray-project/ray/blob/master/rllib/optimizers/replay_buffer.py][ray.rllib.optimizers.replay_buffer.PrioritizedReplayBuffer]]
+- [[https://github.com/chainer/chainerrl][Chainer ChainerRL]]
+  - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/replay_buffer.py][chainerrl.replay_buffers.ReplayBuffer]]
+  - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/prioritized.py][chainerrl.replay_buffers.PrioritizedReplayBuffer]]
+
+
+*Important Notice*
+
+Except cpprb, replay buffers are only a part of their reinforcement
+learning ecosystem. These libraries don't focus on providing greatest
+replay buffers but reinforcement learning.
+
+Our motivation is to provide strong replay buffers to researchers and
+developers who not only use existing networks and/or algorithms but
+also creating brand-new networks and/or algorithms.
+
+Here, we would like to show that cpprb is enough functional and enough
+efficient compared with others.
+
+** DONE Functionality
+CLOSED: [2020-02-24 Mon 12:49]
+:PROPERTIES:
+:EXPORT_FILE_NAME: functionality
+:EXPORT_HUGO_WEIGHT: 10
+:END:
+
+The following table summarizes functionalities of replay buffers.
+
+|                           | cpprb                     | OpenAI/Baselines                          | Ray/RLlib                                                  | Chainer/ChainerRL          |
+|---------------------------+---------------------------+-------------------------------------------+------------------------------------------------------------+----------------------------|
+| *Flexible Environment*    | Yes                       | No                                        | No                                                         | Yes                        |
+| *Nstep*                   | Yes                       | No                                        | Yes                                                        | Yes                        |
+| *Parellel Exploration*    | No ([[https://gitlab.com/ymd_h/cpprb/-/milestones/3][milestone]], [[https://gitlab.com/ymd_h/cpprb/-/milestones/9][milestone]]) | Yes (Avarages gradients of MPI processes) | Yes (Concatenates sample batches from distributed buffers) | No                         |
+| *Save/Load*               | No (Cannot =pickle=)      | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                        |
+| *Deep Learning Framework* | Anything                  | TensorFlow 1.14 (only this version)       | Anything (Helper functions for [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-tensorflow][TensorFlow]] and [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-pytorch][PyTorch]])     | [[https://chainer.org/][Chainer]] ([[https://chainer.org/announcement/2019/12/05/released-v7.html][maintenance only]]) |
+
+
+** DONE Benchmark
+CLOSED: [2020-02-16 Sun 23:24]
+:PROPERTIES:
+:EXPORT_HUGO_WEIGHT: 20
+:EXPORT_FILE_NAME: benchmark
+:END:
+
+*** Settings
+
+We use following docker image to take benchmarks;
+
+#+INCLUDE: "../benchmark/Dockerfile" src dockerfile
+
+- OpenAI Baselines requires TensorFlow 1.14
+- OpenAI Baselines at PyPI seems to be obsolete and requires non-free MuJoCo.
+- RLlib requres Pandas, too.
+
+
+The benchmark script is as follows;
+
+#+INCLUDE: "../benchmark/benchmark.py" src python
+
+Temporary, we excluded Ray/RLlib from =PrioritizedReplayBuffer.sample=
+comparison, since we encountered =IndexError= and couldn't fix it.
+Probably, there is a problem at around =SegmentTree= usage. (We opened
+an [[https://github.com/ray-project/ray/issues/7180][issue]].) After we figure out, we will include it.
+
+
+*** Results
+[[/cpprb/benchmark/ReplayBuffer_add.png]]
+
+[[/cpprb/benchmark/ReplayBuffer_sample.png]]
+
+[[/cpprb/benchmark/PrioritizedReplayBuffer_add.png]]
+
+
+[[/cpprb/benchmark/PrioritizedReplayBuffer_sample.png]]
+
+
+
 * DONE Misc
 CLOSED: [2020-01-17 Fri 22:31]
 :PROPERTIES:
