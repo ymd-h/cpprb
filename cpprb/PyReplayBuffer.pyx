@@ -871,6 +871,20 @@ cdef class ReplayBuffer:
         self.index = end if end < self.buffer_size else remain
         return index
 
+    def get_all_transitions(self):
+        """
+        Get all transitions stored in replay buffer.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        transitions : dict of numpy.ndarray
+            All transitions stored in this replay buffer.
+        """
+        return self._encode_sample(np.arange(self.get_stored_size()))
+
     def _encode_sample(self,idx):
         cdef sample = {}
         cdef next_idx
