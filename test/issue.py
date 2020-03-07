@@ -159,7 +159,7 @@ class TestIssue90(unittest.TestCase):
 
         for key in ["obs","act","done"]:
             with self.subTest(key=key):
-                np.testing.assert_allclose(tx[key],np.array([]))
+                self.assertEqual(tx[key].shape[0],0)
 
     def test_with_one(self):
         buffer_size = 32
