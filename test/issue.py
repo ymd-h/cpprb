@@ -145,5 +145,42 @@ class TestIssue46(unittest.TestCase):
                            prioritized = True)
         rb._encode_sample((0))
 
+class TestIssue90(unittest.TestCase):
+    def test_with_empty(self):
+        buffer_size = 32
+        obs_shape = 3
+        act_shape = 4
+
+        rb = ReplayBuffer(buffer_size,{"obs": {"shape": obs_shape},
+                                       "act": {"shape": act_shape},
+                                       "done": {}})
+
+        tx = rb.get_all_transitions()
+
+        for key in ["obs","act","done"]:
+            with subTest(key=key):
+                np.testing.assert_allclose(tx[key],np.array([]))
+
+    def test_with_one(self):
+        buffer_size = 32
+        obs_shape = 3
+        act_shape = 4
+
+        rb = ReplayBuffer(buffer_size,{"obs": {"shape": obs_shape},
+                                       "act": {"shape": act_shape},
+                                       "done": {}})
+
+        v = {"obs": np.ones(shape=obs_shape),
+             "act": np.zeros(shape=act_shape),
+             "done": 0}
+
+        rb.add(**v)
+
+        tx = rb.get_all_transitions()
+
+        for key in ["obs","act","done"]:
+            with subTest(key=key):
+                np.testing.assert_allclose(tx[key],v[key])
+
 if __name__ == '__main__':
     unittest.main()
