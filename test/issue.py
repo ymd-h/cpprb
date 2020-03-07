@@ -180,7 +180,7 @@ class TestIssue90(unittest.TestCase):
 
         for key in ["obs","act","done"]:
             with self.subTest(key=key):
-                np.testing.assert_allclose(tx[key],v[key])
+                np.testing.assert_allclose(tx[key],v[key].reshape((1,-1)))
 
 if __name__ == '__main__':
     unittest.main()
