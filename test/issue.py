@@ -158,7 +158,7 @@ class TestIssue90(unittest.TestCase):
         tx = rb.get_all_transitions()
 
         for key in ["obs","act","done"]:
-            with subTest(key=key):
+            with self.subTest(key=key):
                 np.testing.assert_allclose(tx[key],np.array([]))
 
     def test_with_one(self):
@@ -179,7 +179,7 @@ class TestIssue90(unittest.TestCase):
         tx = rb.get_all_transitions()
 
         for key in ["obs","act","done"]:
-            with subTest(key=key):
+            with self.subTest(key=key):
                 np.testing.assert_allclose(tx[key],v[key])
 
 if __name__ == '__main__':
