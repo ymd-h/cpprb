@@ -211,7 +211,7 @@ perfplot.save(filename="PrioritizedReplayBuffer_sample.png",
               time_unit="ms",
               setup = lambda n: n,
               kernels = [lambda n: bprb.sample(n,beta=beta),
-                         # lambda n: rprb.sample(n,beta=beta), Encounter `IndexError` https://github.com/ray-project/ray/issues/7180
+                         lambda n: rprb.sample(n,beta=beta),
                          sample_c(cprb),
                          lambda n: prb.sample(n,beta=beta)],
               labels = ["OpenAI/Baselines",
