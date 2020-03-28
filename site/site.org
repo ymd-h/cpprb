@@ -614,11 +614,6 @@ The benchmark script is as follows;
 
 #+INCLUDE: "../benchmark/benchmark.py" src python
 
-Temporary, we excluded Ray/RLlib from =PrioritizedReplayBuffer.sample=
-comparison, since we encountered =IndexError= and couldn't fix it.
-Probably, there is a problem at around =SegmentTree= usage. (We opened
-an [[https://github.com/ray-project/ray/issues/7180][issue]].) After we figure out, we will include it.
-
 
 *** Results
 [[/cpprb/benchmark/ReplayBuffer_add.png]]
