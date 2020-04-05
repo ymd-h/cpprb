@@ -13,6 +13,9 @@
 #+creator: Emacs 26.3 (Org mode 9.2.3)
 
 * Unreleased
+- Fix: Unrequire gym
+* v8.4.1
+- Fix: PyPI description
 * v8.4.0
 - Add: =ReplayBuffer.get_all_transitions=
 * v8.3.2
