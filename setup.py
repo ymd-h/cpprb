@@ -6,7 +6,7 @@ from setuptools.command.build_ext import build_ext
 
 debug = os.getenv('DEBUG_CPPRB')
 
-requires = ["numpy","gym"]
+requires = ["numpy"]
 setup_requires = ["numpy"]
 
 rb_source = "cpprb/PyReplayBuffer"
