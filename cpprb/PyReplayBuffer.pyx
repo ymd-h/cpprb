@@ -830,12 +830,6 @@ cdef class ReplayBuffer:
         : int or None
             the stored first index. If all values store into NstepBuffer and
             no values store into main buffer, return None.
-
-        Raises
-        ------
-        KeyError
-            When kwargs don't include all environment variables defined in __cinit__
-            When environment variables don't include "done"
         """
         if self.use_nstep:
             kwargs = self.nstep.add(**kwargs)
@@ -1094,7 +1088,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             the stored first index. If all values store into NstepBuffer and
             no values store into main buffer, return None.
         """
-        cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
+        cdef size_t N = self.size_check.step_size(kwargs)
 
         if self.use_nstep:
             if priorities is None:
@@ -1110,7 +1104,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         if maybe_index is None:
             return None
 
-        N = np.ravel(kwargs.get("done")).shape[0]
+        N = self.size_check.step_size(kwargs)
         cdef size_t index = maybe_index
         cdef float [:] ps
 
