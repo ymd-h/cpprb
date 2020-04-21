@@ -764,6 +764,8 @@ cdef class ReplayBuffer:
 
         self.default_dtype = default_dtype or np.single
 
+        self.size_check = StepChecker(self.env_dict)
+
         self.use_nstep = Nstep
         if self.use_nstep:
             self.nstep = NstepBuffer(self.env_dict,Nstep,
@@ -775,8 +777,6 @@ cdef class ReplayBuffer:
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
                                   default_dtype = self.default_dtype)
-
-        self.size_check = StepChecker(self.env_dict)
 
         self.next_of = np.array(next_of,ndmin=1,copy=False)
         self.has_next_of = next_of
