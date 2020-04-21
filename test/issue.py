@@ -298,7 +298,7 @@ class TestIssue61(unittest.TestCase):
         rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape}})
 
         v = {"obs": np.ones(shape=(step_size,*obs_shape)),
-             "priorities": np.full(shape=(step_size,),0.5)}
+             "priorities": np.full(shape=(step_size,),fill_value=0.5)}
 
         rb.add(**v)
 
