@@ -460,7 +460,7 @@ cdef class StepChecker:
             self.check_str = name
             self.check_shape = defs["add_shape"]
 
-    def __init__(self,env_dict):
+    def __init__(self,env_dict,special_keys):
         """Initialize StepChecker class.
 
         Parameters
