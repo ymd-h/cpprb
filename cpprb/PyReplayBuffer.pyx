@@ -772,6 +772,7 @@ cdef class ReplayBuffer:
                                      default_dtype = self.default_dtype)
             self.env_dict["discounts"] = {"dtype": np.single}
 
+        # side effect: Add "add_shape" key into self.env_dict
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
                                   default_dtype = self.default_dtype)
