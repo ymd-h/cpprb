@@ -453,12 +453,15 @@ cdef class StepChecker:
     cdef check_str
     cdef check_shape
 
-    def __cinit__(self,env_dict):
+    def __cinit__(self,env_dict,special_keys = None):
+        special_keys = special_keys or []
         for name, defs in env_dict.items():
+            if name in special_keys:
+                continue
             self.check_str = name
             self.check_shape = defs["add_shape"]
 
-    def __init__(self,env_dict):
+    def __init__(self,env_dict,special_keys = None):
         """Initialize StepChecker class.
 
         Parameters
@@ -755,6 +758,8 @@ cdef class ReplayBuffer:
                   next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
                   **kwargs):
         self.env_dict = env_dict or {}
+        cdef special_keys = []
+
         self.buffer_size = size
         self.stored_size = 0
         self.index = 0
@@ -771,12 +776,14 @@ cdef class ReplayBuffer:
                                      next_of = self.next_of,
                                      default_dtype = self.default_dtype)
             self.env_dict["discounts"] = {"dtype": np.single}
+            special_keys.append("discounts")
 
+        # side effect: Add "add_shape" key into self.env_dict
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
                                   default_dtype = self.default_dtype)
 
-        self.size_check = StepChecker(self.env_dict)
+        self.size_check = StepChecker(self.env_dict,special_keys)
 
         self.next_of = np.array(next_of,ndmin=1,copy=False)
         self.has_next_of = next_of
@@ -830,12 +837,6 @@ cdef class ReplayBuffer:
         : int or None
             the stored first index. If all values store into NstepBuffer and
             no values store into main buffer, return None.
-
-        Raises
-        ------
-        KeyError
-            When kwargs don't include all environment variables defined in __cinit__
-            When environment variables don't include "done"
         """
         if self.use_nstep:
             kwargs = self.nstep.add(**kwargs)
@@ -1094,7 +1095,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             the stored first index. If all values store into NstepBuffer and
             no values store into main buffer, return None.
         """
-        cdef size_t N = np.ravel(kwargs.get("done")).shape[0]
+        cdef size_t N = self.size_check.step_size(kwargs)
 
         if self.use_nstep:
             if priorities is None:
@@ -1110,7 +1111,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         if maybe_index is None:
             return None
 
-        N = np.ravel(kwargs.get("done")).shape[0]
+        N = self.size_check.step_size(kwargs)
         cdef size_t index = maybe_index
         cdef float [:] ps
 

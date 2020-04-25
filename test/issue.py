@@ -183,5 +183,131 @@ class TestIssue90(unittest.TestCase):
                 np.testing.assert_allclose(tx[key],
                                            np.asarray(v[key]).reshape((1,-1)))
 
+class TestIssue61(unittest.TestCase):
+    """`ReplayBuffer.add` without "done" key
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/61
+
+    `ReplayBuffer.add` can accept multiple step without for-loop.
+    Inside the member function, step size was taken from "done" key.
+
+    Helper class `StepChecker` is introduced to store one of the keys
+    in `self.env_divt` with its "add_shape", and to extract step size
+    from `add`ed environment values.
+    """
+
+    def test_ReplayBuffer_with_single_step(self):
+        buffer_size = 256
+        obs_shape = (3,4)
+        batch_size = 10
+
+        rb = ReplayBuffer(buffer_size,{"obs": {"shape": obs_shape}})
+
+        v = {"obs": np.ones(shape=obs_shape)}
+
+        rb.add(**v)
+
+        rb.sample(batch_size)
+
+        for _ in range(100):
+            rb.add(**v)
+
+        rb.sample(batch_size)
+
+    def test_ReplayBuffer_with_multiple_steps(self):
+        buffer_size = 256
+        obs_shape = (3,4)
+        step_size = 32
+        batch_size = 10
+
+        rb = ReplayBuffer(buffer_size,{"obs": {"shape": obs_shape}})
+
+        v = {"obs": np.ones(shape=(step_size,*obs_shape))}
+
+        rb.add(**v)
+
+        rb.sample(batch_size)
+
+        for _ in range(100):
+            rb.add(**v)
+
+        rb.sample(batch_size)
+
+    def test_PrioritizedReplayBuffer_with_single_step(self):
+        buffer_size = 256
+        obs_shape = (3,4)
+        batch_size = 10
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape}})
+
+        v = {"obs": np.ones(shape=obs_shape)}
+
+        rb.add(**v)
+
+        rb.sample(batch_size)
+
+        for _ in range(100):
+            rb.add(**v)
+
+        rb.sample(batch_size)
+
+    def test_PrioritizedReplayBuffer_with_multiple_steps(self):
+        buffer_size = 256
+        obs_shape = (3,4)
+        step_size = 32
+        batch_size = 10
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape}})
+
+        v = {"obs": np.ones(shape=(step_size,*obs_shape))}
+
+        rb.add(**v)
+
+        rb.sample(batch_size)
+
+        for _ in range(100):
+            rb.add(**v)
+
+        rb.sample(batch_size)
+
+    def test_PrioritizedReplayBuffer_with_single_step_with_priorities(self):
+        buffer_size = 256
+        obs_shape = (3,4)
+        batch_size = 10
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape}})
+
+        v = {"obs": np.ones(shape=obs_shape),
+             "priorities": 0.5}
+
+        rb.add(**v)
+
+        rb.sample(batch_size)
+
+        for _ in range(100):
+            rb.add(**v)
+
+        rb.sample(batch_size)
+
+    def test_PrioritizedReplayBuffer_with_multiple_steps_with_priorities(self):
+        buffer_size = 256
+        obs_shape = (3,4)
+        step_size = 32
+        batch_size = 10
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape}})
+
+        v = {"obs": np.ones(shape=(step_size,*obs_shape)),
+             "priorities": np.full(shape=(step_size,),fill_value=0.5)}
+
+        rb.add(**v)
+
+        rb.sample(batch_size)
+
+        for _ in range(100):
+            rb.add(**v)
+
+        rb.sample(batch_size)
+
 if __name__ == '__main__':
     unittest.main()
