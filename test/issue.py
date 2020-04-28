@@ -309,5 +309,19 @@ class TestIssue61(unittest.TestCase):
 
         rb.sample(batch_size)
 
+class TestIssue96(unittest.TestCase):
+    """
+    Bug: PrioritizedReplayBuffer accepted imcompatible shape priority.
+
+    Expected: Raise ValueError
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/96
+    """
+    def test_raise_imcompatible_priority_shape(self):
+        rb = PrioritizedReplayBuffer(32, env_dict={'a': {'shape': 1}})
+
+        with self.assertRaises(ValueError):
+            rb.add(a=np.ones(5), priorities=np.ones(3))
+
 if __name__ == '__main__':
     unittest.main()
