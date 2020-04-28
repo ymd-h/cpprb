@@ -1105,13 +1105,13 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
                                                    done=np.array(kwargs["done"],
                                                                  copy=True))
             if priorities is not None:
-                priorities = priorities["priorities"]
+                priorities = np.ravel(priorities["priorities"])
+                N = priorities.shape[0]
 
         cdef maybe_index = super().add(**kwargs)
         if maybe_index is None:
             return None
 
-        N = self.size_check.step_size(kwargs)
         cdef size_t index = maybe_index
         cdef float [:] ps
 
