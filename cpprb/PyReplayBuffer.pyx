@@ -1116,7 +1116,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         cdef float [:] ps
 
         if priorities is not None:
-            ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
+            ps = np.reshape(np.array(priorities,copy=False,ndmin=1,dtype=np.single),N)
             self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
         else:
             self.per.set_priorities(index,N,self.get_buffer_size())
