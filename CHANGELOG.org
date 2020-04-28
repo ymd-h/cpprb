@@ -13,6 +13,8 @@
 #+creator: Emacs 26.3 (Org mode 9.2.3)
 
 * Unreleased
+* v8.4.4
+- Fix: PER priority shape mismatch ([[https://gitlab.com/ymd_h/cpprb/-/issues/96][#96]])
 * v8.4.3
 - Fix: Unrequire done ([[https://gitlab.com/ymd_h/cpprb/-/issues/61][#61]])
 * v8.4.2
