@@ -1096,6 +1096,11 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             no values store into main buffer, return None.
         """
         cdef size_t N = self.size_check.step_size(kwargs)
+        if priorities is not None:
+            priorities = np.ravel(np.array(priorities,copy=False,
+                                           ndmin=1,dtype=np.single))
+            if N != priorities.shape[0]:
+                raise ValueError("`priorities` shape is imcompatible")
 
         if self.use_nstep:
             if priorities is None:
@@ -1105,13 +1110,13 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
                                                    done=np.array(kwargs["done"],
                                                                  copy=True))
             if priorities is not None:
-                priorities = priorities["priorities"]
+                priorities = np.ravel(priorities["priorities"])
+                N = priorities.shape[0]
 
         cdef maybe_index = super().add(**kwargs)
         if maybe_index is None:
             return None
 
-        N = self.size_check.step_size(kwargs)
         cdef size_t index = maybe_index
         cdef float [:] ps
 
