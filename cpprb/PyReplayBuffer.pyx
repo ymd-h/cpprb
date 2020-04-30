@@ -964,6 +964,8 @@ cdef class ReplayBuffer:
         self.index = 0
         self.stored_size = 0
 
+        self.cache = {} if (self.has_next_of or self.compress_any) else None
+
         if self.use_nstep:
             self.nstep.clear()
 
