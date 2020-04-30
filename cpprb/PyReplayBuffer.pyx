@@ -1000,16 +1000,19 @@ cdef class ReplayBuffer:
     cdef void add_cache(self):
         """Add last items into cache
         """
-        cdef size_t key = (self.index or self.buffer_size) -1
-        self.cache[key] = {}
+        cdef size_t key_ = (self.index or self.buffer_size) -1
 
-        if self.has_next_of:
-            for name, value in self.next_.items():
-                self.cache[key][f"next_{name}"] = value
+        cdef size_t key = 0
+        for key in range(max(0,key_ - self.cache_size), key_ + 1):
+            self.cache[key] = {}
 
-        if self.compress_any:
-            for name in self.stack_compress:
-                self.cache[key][name] = self.buffer[name][key].copy()
+            if self.has_next_of:
+                for name, value in self.next_.items():
+                    self.cache[key][f"next_{name}"] = value
+
+            if self.compress_any:
+                for name in self.stack_compress:
+                    self.cache[key][name] = self.buffer[name][key].copy()
 
     cpdef void on_episode_end(self):
         """Call on episode end
