@@ -753,6 +753,7 @@ cdef class ReplayBuffer:
     cdef StepChecker size_check
     cdef NstepBuffer nstep
     cdef bool use_nstep
+    cdef size_t cache_size
 
     def __cinit__(self,size,env_dict=None,*,
                   next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
@@ -789,6 +790,11 @@ cdef class ReplayBuffer:
         self.has_next_of = next_of
         self.next_ = {}
         self.cache = {} if (self.has_next_of or self.compress_any) else None
+        self.cache_size = 1 if (self.cache is not None) else 0
+        if self.compress_any:
+            for name in self.stack_compress:
+                self.cache_size = max(self.cache_size,
+                                      self.env_dict[name]["shape"][-1] -1)
 
         if self.has_next_of:
             for name in self.next_of:
