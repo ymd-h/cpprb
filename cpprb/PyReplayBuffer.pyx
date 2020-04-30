@@ -794,7 +794,8 @@ cdef class ReplayBuffer:
         if self.compress_any:
             for name in self.stack_compress:
                 self.cache_size = max(self.cache_size,
-                                      self.env_dict[name]["shape"][-1] -1)
+                                      np.array(self.env_dict[name]["shape"],
+                                               ndmin=1,copy=False)[-1] -1)
 
         if self.has_next_of:
             for name in self.next_of:
