@@ -323,5 +323,35 @@ class TestIssue96(unittest.TestCase):
         with self.assertRaises(ValueError):
             rb.add(a=np.ones(5), priorities=np.ones(3))
 
+class TestIssue97(unittest.TestCase):
+    """
+    Bug: stack_compress does not cache non latest transition.
+
+    Expected: Save compress dimension size -1 step transitions as cache
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/97
+    """
+    def test_save_cache_with_stack_compress(self):
+        rb = PrioritizedReplayBuffer(32, env_dict={'done': {'dtype': 'bool'},
+                                                   'a' : {'shape': (3)}},
+                                     stack_compress='a')
+
+        a = np.array([0, 1, 2])
+        for i in range(3):
+            done = i == 2
+            rb.add(a=a, done=done)
+            if done:
+                rb.on_episode_end()
+            a += 1
+        rb.add(a=np.ones(3), done=False)
+
+        a_ = rb.get_all_transitions()["a"]
+
+        np.testing.assert_allclose(a_,
+                                   np.asarray([[0., 1., 2.],
+                                               [1., 2., 3.],
+                                               [2., 3., 4.],
+                                               [1., 1., 1.]]))
+
 if __name__ == '__main__':
     unittest.main()

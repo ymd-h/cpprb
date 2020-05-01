@@ -753,6 +753,7 @@ cdef class ReplayBuffer:
     cdef StepChecker size_check
     cdef NstepBuffer nstep
     cdef bool use_nstep
+    cdef size_t cache_size
 
     def __cinit__(self,size,env_dict=None,*,
                   next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
@@ -789,6 +790,12 @@ cdef class ReplayBuffer:
         self.has_next_of = next_of
         self.next_ = {}
         self.cache = {} if (self.has_next_of or self.compress_any) else None
+        self.cache_size = 1 if (self.cache is not None) else 0
+        if self.compress_any:
+            for name in self.stack_compress:
+                self.cache_size = max(self.cache_size,
+                                      np.array(self.env_dict[name]["shape"],
+                                               ndmin=1,copy=False)[-1] -1)
 
         if self.has_next_of:
             for name in self.next_of:
@@ -958,6 +965,8 @@ cdef class ReplayBuffer:
         self.index = 0
         self.stored_size = 0
 
+        self.cache = {} if (self.has_next_of or self.compress_any) else None
+
         if self.use_nstep:
             self.nstep.clear()
 
@@ -994,16 +1003,19 @@ cdef class ReplayBuffer:
     cdef void add_cache(self):
         """Add last items into cache
         """
-        cdef size_t key = (self.index or self.buffer_size) -1
-        self.cache[key] = {}
+        cdef size_t key_ = (self.index or self.buffer_size) -1
 
-        if self.has_next_of:
-            for name, value in self.next_.items():
-                self.cache[key][f"next_{name}"] = value
+        cdef size_t key = 0
+        for key in range(max(0,key_ - self.cache_size), key_ + 1):
+            self.cache[key] = {}
 
-        if self.compress_any:
-            for name in self.stack_compress:
-                self.cache[key][name] = self.buffer[name][key].copy()
+            if self.has_next_of:
+                for name, value in self.next_.items():
+                    self.cache[key][f"next_{name}"] = value
+
+            if self.compress_any:
+                for name in self.stack_compress:
+                    self.cache[key][name] = self.buffer[name][key].copy()
 
     cpdef void on_episode_end(self):
         """Call on episode end
