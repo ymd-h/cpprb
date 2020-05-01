@@ -13,6 +13,9 @@
 #+creator: Emacs 26.3 (Org mode 9.2.3)
 
 * Unreleased
+* v8.4.5
+- Fix: Cache non last transitions. ([[https://gitlab.com/ymd_h/cpprb/-/issues/97][#97]])
+- Fix: Clear caches when `ReplayBuffer.clear` ([[https://gitlab.com/ymd_h/cpprb/-/issues/98][#98]])
 * v8.4.4
 - Fix: PER priority shape mismatch ([[https://gitlab.com/ymd_h/cpprb/-/issues/96][#96]])
 * v8.4.3
