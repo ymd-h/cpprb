@@ -13,6 +13,8 @@
 #+creator: Emacs 26.3 (Org mode 9.2.3)
 
 * Unreleased
+* v8.4.6
+- Fix: Windows binary build on GitHub Actions
 * v8.4.5
 - Fix: Cache non last transitions. ([[https://gitlab.com/ymd_h/cpprb/-/issues/97][#97]])
 - Fix: Clear caches when `ReplayBuffer.clear` ([[https://gitlab.com/ymd_h/cpprb/-/issues/98][#98]])
