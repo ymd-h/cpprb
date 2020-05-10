@@ -76,10 +76,6 @@ docker_build_manual:
     - cd benchmark
     - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/bench:latest -t $CI_REGISTRY_IMAGE/bench:latest .
     - docker push $CI_REGISTRY_IMAGE/bench:latest
-  cache:
-    paths:
-      - "$CI_PROJECT_DIR/.pip"
-    key: "${CI_PROJECT_PATH}-BENCH-MARK"
 
 bench_mark_schedule:
   <<: *bench_mark
