@@ -68,7 +68,7 @@ namespace ymd {
     bool update_buffer(std::size_t i){
       auto tmp = buffer[i];
       buffer[i] = f(buffer[child_left(i)],buffer[child_right(i)]);
-      return tmp == buffer[i];
+      return tmp != buffer[i];
     }
 
     void update_all(){
