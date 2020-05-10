@@ -194,6 +194,10 @@ run_bench_mark:
       - "benchmark/*.png"
   except:
     - schedules
+  needs:
+    - job: coverage
+      artifacts: false
+    - job: cpprb_build
 
 hugo:
   image: registry.gitlab.com/pages/hugo:latest
