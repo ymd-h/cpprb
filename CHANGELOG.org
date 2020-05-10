@@ -13,6 +13,8 @@
 #+creator: Emacs 26.3 (Org mode 9.2.3)
 
 * Unreleased
+* v8.4.7
+- Add: Pruning update chain in Segment Tree ([[https://gitlab.com/ymd_h/cpprb/-/issues/103][#103]])
 * v8.4.6
 - Fix: Windows binary build on GitHub Actions
 * v8.4.5
