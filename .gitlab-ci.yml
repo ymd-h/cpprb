@@ -290,8 +290,9 @@ manylinux:
       - "wheelhouse-fix/cpprb-*.whl"
   except:
     - schedules
-  dependencies:
-    - coverage
+  needs:
+    - job: coverage
+      artifacts: false
   cache:
     paths:
       - "$CI_PROJECT_DIR/.pip"
