@@ -293,6 +293,8 @@ manylinux:
   needs:
     - job: coverage
       artifacts: false
+    - job: emacs
+      artifacts: true
   cache:
     paths:
       - "$CI_PROJECT_DIR/.pip"
