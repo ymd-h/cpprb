@@ -159,6 +159,7 @@ coverage:
   <<: *setup
   stage: test_coverage
   script:
+    - mkdir -p public/coverage
     - coverage combine
     - coverage report
     - coverage html -d public/coverage
