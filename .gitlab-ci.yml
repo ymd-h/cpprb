@@ -4,15 +4,15 @@ variables: &global-variables
   COVERAGE_RCFILE: .coveragerc
   DOCKER_BUILDKIT: 1
   GIT_DEPTH: 10
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip"
 
 stages:
   - build_image
   - build
   - test
-  - page_build
-  - test
   - test_coverage
   - bench_mark_test
+  - page_build
   - page_deploy
   - binary_build
   - upload
@@ -158,12 +158,13 @@ coverage:
   <<: *setup
   stage: test_coverage
   script:
+    - mkdir -p public/coverage
     - coverage combine
     - coverage report
     - coverage html -d public/coverage
   artifacts:
     paths:
-      - public
+      - public/coverage
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 emacs:
@@ -171,12 +172,21 @@ emacs:
   stage: build
   script:
     - emacs --batch README.org -l site/init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
-    - emacs --batch README.org --eval '(org-md-export-to-markdown)'
     - cd site
     - emacs --batch site.org -l init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
   artifacts:
     paths:
       - site/content
+  except:
+    - schedules
+
+README_MD:
+  image: iquiw/alpine-emacs
+  stage: build
+  script:
+    - emacs --batch README.org --eval '(org-md-export-to-markdown)'
+  artifacts:
+    paths:
       - README.md
   except:
     - schedules
@@ -193,6 +203,10 @@ run_bench_mark:
       - "benchmark/*.png"
   except:
     - schedules
+  needs:
+    - job: coverage
+      artifacts: false
+    - job: cpprb_build
 
 hugo:
   image: registry.gitlab.com/pages/hugo:latest
@@ -261,6 +275,9 @@ pypi:
   except:
     - branches
     - schedules
+  needs:
+    - manylinux
+    - README_MD
 
 repo:
   image: docker:latest
@@ -289,5 +306,12 @@ manylinux:
       - "wheelhouse-fix/cpprb-*.whl"
   except:
     - schedules
-  dependencies:
-    - coverage
+  needs:
+    - job: coverage
+      artifacts: false
+    - job: README_MD
+      artifacts: true
+  cache:
+    paths:
+      - "$CI_PROJECT_DIR/.pip"
+    key: "${CI_PROJECT_PATH}-BINARY-BUILD"
