@@ -262,6 +262,9 @@ pypi:
   except:
     - branches
     - schedules
+  needs:
+    - manylinux
+    - emacs
 
 repo:
   image: docker:latest
