@@ -42,10 +42,6 @@ stages:
     reports:
       junit:
         - "*.xml"
-  cache:
-    paths:
-      - "$CI_PROJECT_DIR/.pip"
-    key: "${CI_PROJECT_PATH}-PYTHON-TEST"
 
 .docker_build_base: &docker_build
   image: docker:latest
