@@ -292,3 +292,7 @@ manylinux:
     - schedules
   dependencies:
     - coverage
+  cache:
+    paths:
+      - "$CI_PROJECT_DIR/.pip"
+    key: "${CI_PROJECT_PATH}-BINARY-BUILD"
