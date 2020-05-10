@@ -172,12 +172,21 @@ emacs:
   stage: build
   script:
     - emacs --batch README.org -l site/init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
-    - emacs --batch README.org --eval '(org-md-export-to-markdown)'
     - cd site
     - emacs --batch site.org -l init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
   artifacts:
     paths:
       - site/content
+  except:
+    - schedules
+
+README_MD:
+  image: iquiw/alpine-emacs
+  stage: build
+  script:
+    - emacs --batch README.org --eval '(org-md-export-to-markdown)'
+  artifacts:
+    paths:
       - README.md
   except:
     - schedules
@@ -268,7 +277,7 @@ pypi:
     - schedules
   needs:
     - manylinux
-    - emacs
+    - README_MD
 
 repo:
   image: docker:latest
@@ -300,7 +309,7 @@ manylinux:
   needs:
     - job: coverage
       artifacts: false
-    - job: emacs
+    - job: README_MD
       artifacts: true
   cache:
     paths:
