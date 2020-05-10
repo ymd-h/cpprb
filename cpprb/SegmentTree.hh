@@ -94,9 +94,9 @@ namespace ymd {
 
       while(!will_update.empty()){
 	auto i = *(will_update.rbegin());
-	update_buffer(i);
+	auto updated = update_buffer(i);
 	will_update.erase(i);
-	if(i){ will_update.insert(parent(i)); }
+	if(i && updated){ will_update.insert(parent(i)); }
       }
       any_changed->store(false,std::memory_order_release);
     }
@@ -164,9 +164,10 @@ namespace ymd {
 	changed[i].store(true,std::memory_order_release);
       }else{
 	constexpr const std::size_t zero = 0;
-	while(n != zero){
+	auto updated = true;
+	while((n != zero) && updated){
 	  n = parent(n);
-	  update_buffer(n);
+	  updated = update_buffer(n);
 	}
       }
     }
@@ -208,9 +209,9 @@ namespace ymd {
       if constexpr (!MultiThread) {
 	while(!will_update.empty()){
 	  i = *(will_update.rbegin());
-	  update_buffer(i);
+	  auto updated = update_buffer(i);
 	  will_update.erase(i);
-	  if(i){ will_update.insert(parent(i)); }
+	  if(i && updated){ will_update.insert(parent(i)); }
 	}
       }
     }
