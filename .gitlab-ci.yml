@@ -10,10 +10,10 @@ stages:
   - build_image
   - build
   - test
-  - page_build
   - test
   - test_coverage
   - bench_mark_test
+  - page_build
   - page_deploy
   - binary_build
   - upload
