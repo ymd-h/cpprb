@@ -10,7 +10,6 @@ stages:
   - build_image
   - build
   - test
-  - test
   - test_coverage
   - bench_mark_test
   - page_build
