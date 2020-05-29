@@ -1048,9 +1048,22 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     cdef bool [:] unchange_since_sample
 
     def __cinit__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
-                  check_for_update=False,**kwrags):
+                  check_for_update=False,Sequence=None,**kwrags):
         self.alpha = alpha
-        self.per = new CppPrioritizedSampler[float](size,alpha)
+
+        if Sequence is None:
+            self.per = new CppPrioritizedSampler[float](size,alpha)
+        else:
+            self.per = new CppPrioritizedSequenceSampler[float](size,alpha,NULL,
+                                                                NULL,NULL,NULL,
+                                                                NULL,NULL,NULL,
+                                                                True,eps,
+                                                                Sequence.get("W",5),
+                                                                Sequence.get("rho",
+                                                                             0.4),
+                                                                Sequence.get("eta",
+                                                                             0.7))
+
         self.per.set_eps(eps)
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
@@ -1068,7 +1081,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
                                                  dtype='bool')
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
-                 check_for_update=False,**kwargs):
+                 check_for_update=False,Sequence=None,**kwargs):
         """Initialize PrioritizedReplayBuffer
 
         Parameters
@@ -1086,6 +1099,11 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             whose default value is 1e-4.
         check_for_update : bool
             Whether check update for `update_priorities`. The default value is `False`
+        Sequence : dict, optional
+            Dictionary to define Prioritized Seqence Experience Replay.
+            "W" key is window size (int).
+            "rho" key is priority decay parameter (float).
+            "eta" key is priority collapse parameter (float).
         """
         pass
 
