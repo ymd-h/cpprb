@@ -494,6 +494,11 @@ namespace ymd {
   template<typename Priority,bool MultiThread = false>
   class CppPrioritizedSequenceSampler
     : public CppPrioritizedSampler<Priority,MultiThread> {
+  private:
+    std::size_t W;
+    Priority rho;
+    Priority eta;
+    bool episode_start;
   };
 
 }
