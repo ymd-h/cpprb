@@ -499,6 +499,32 @@ namespace ymd {
     Priority rho;
     Priority eta;
     bool episode_start;
+  public:
+    CppPrioritizedSequenceSampler(std::size_t buffer_size,Priority alpha,
+				  Priority* max_p = nullptr,
+				  Priority* sum_ptr = nullptr,
+				  bool* sum_anychanged = nullptr,
+				  bool* sum_changed = nullptr,
+				  Priority* min_ptr = nullptr,
+				  bool* min_anychanged = nullptr,
+				  bool* min_changed = nullptr,
+				  bool initialize = true,
+				  Priority eps = Priority{1e-4},
+				  std::size_t W = 5,
+				  Priority rho = Priority{0.4},
+				  Priority eta = Priority{0.7}):
+      CppPrioritizedSampler(buffer_size,alpha,max_p,
+			    sum_ptr,sum_anychanged,sum_changed,
+			    min_ptr,min_anychanged,min_changed,
+			    initialize,eps),
+      W{W}, rho{rho}, eta{eta}, episode_start{true}
+    {}
+    CppPrioritizedSequenceSampler() : CppPrioritizedSequenceSampler(1,0.5) {}
+    CppPrioritizedSequenceSampler(const CppPrioritizedSequenceSampler&) = default;
+    CppPrioritizedSequenceSampler(CppPrioritizedSequenceSampler&&) = default;
+    CppPrioritizedSequenceSampler& operator=(const CppPrioritizedSequenceSampler&) = default;
+    CppPrioritizedSequenceSampler& operator=(CppPrioritizedSequenceSampler&&) = default;
+    ~CppPrioritizedSequenceSampler() = default;
   };
 
 }
