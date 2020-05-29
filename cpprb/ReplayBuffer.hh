@@ -490,5 +490,11 @@ namespace ymd {
 
   template<typename Priority>
   using CppThreadSafePrioritizedSampler = CppPrioritizedSampler<Priority,true>;
+
+  template<typename Priority,bool MultiThread = false>
+  class CppPrioritizedSequenceSampler
+    : public CppPrioritizedSampler<Priority,MultiThread> {
+  };
+
 }
 #endif // YMD_REPLAY_BUFFER_HH
