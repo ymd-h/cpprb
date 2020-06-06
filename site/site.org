@@ -654,3 +654,15 @@ However, you can get all the stored transisions (without "priority" in
 ~PrioritizedReplayBuffer~) by calling
 ~ReplayBuffer.get_all_transitions()~ and a set of transitions can be
 stored at the same time by calling ~ReplayBuffer.add(**kwargs)~.
+
+** "IlIegal instruction (core dumped)" when "import cpprb"
+
+Pre-built binary does not match with your environment. Please
+re-install from source code.
+
+#+begin_src shell
+pip uninstall cpprb
+pip install cpprb --no-binary
+#+end_src
+
+This installation requires sufficient C++ compiler. (see [[https://ymd_h.gitlab.io/cpprb/installation/][Installation]])
