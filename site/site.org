@@ -635,7 +635,7 @@ batch_size = 32
 beta = 0.4
 
 obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = rb.sample(batch_size)
-obs_batch, act_batch, rew_batch, next_obs_batch, done_mask, weights, idxes = rb.sample(batch_size)
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask, weights, idxes = prb.sample(batch_size)
 #+end_src
 
 Priorities can be updated by calling
@@ -711,7 +711,7 @@ batch_size = 32
 beta = 0.4
 
 obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = rb.sample(batch_size)
-obs_batch, act_batch, rew_batch, next_obs_batch, done_mask, weights, idxes = rb.sample(batch_size)
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask, weights, idxes = prb.sample(batch_size)
 #+end_src
 
 Priorities can be also updated by calling
