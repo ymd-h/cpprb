@@ -574,6 +574,85 @@ also creating brand-new networks and/or algorithms.
 Here, we would like to show that cpprb is enough functional and enough
 efficient compared with others.
 
+*** OpenAI Baselines
+[[https://github.com/openai/baselines][OpenAI Baselines]] is a set of baseline implementations of reinforcement
+learning developed by OpenAI.
+
+The source code is published with MIT license.
+
+Ordinary and prioritized experience replay are implemented with
+~ReplayBuffer~ and ~PrioritizedReplayBuffer~ classes, respectively.
+Using these classes directly is (probably) not expected, but you can
+import them like this;
+
+#+begin_src python
+from baselines.deepq.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+#+end_src
+
+~ReplayBuffer~ is initialized with ~size~ parameter for replay buffer
+size. Additionally, ~PrioritizedReplayBuffer~ requires ~alpha~
+parameter for degree of prioritization, too. These parameters doesn't
+have default values, so that you need to specify them.
+
+#+begin_src python
+buffer_size = int(1e6)
+alpha = 0.6
+
+rb = ReplayBuffer(buffer_size)
+prb = PrioritizedReplayBuffer(buffer_size,alpha)
+#+end_src
+
+A transition is stored into replay buffer by calling
+~ReplayBuffer.add(self,obs_t,action,reward,obs_tp1,done)~.
+
+For ~PrioritizedReplayBuffer~, the maximum priority at that time is
+automatically used for a newly added transition.
+
+These replay buffers are ring buffers, so that the oldest transition
+is overwritten by a new transition after the buffer becomes full.
+
+#+begin_src python
+obs_t = [0, 0, 0]
+action = [1]
+reward = 0.5
+obs_tp1 = [1, 1, 1]
+done = 0.0
+
+rb.add(obs_t,action,reward,obs_tp1,done)
+prb.add(obs_t,action,reward,obs_tp1,done) # Store with max. priority
+#+end_src
+
+Stored transitions can be sampled by calling
+~ReplayBuffer.sample(self,batch_size)~ or
+~PrioritizedReplayBuffer.sample(self,batch_size,beta)~.
+
+~ReplayBuffer~ returns a tuple of batch size
+transition. ~PrioritizedReplayBuffer~ also returns weights and
+indexes, too.
+
+#+begin_src python
+batch_size = 32
+beta = 0.4
+
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = rb.sample(batch_size)
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask, weights, idxes = rb.sample(batch_size)
+#+end_src
+
+Priorities can be updated by calling
+~PrioritizedReplayBuffer.update_priorities(self,idxes,priorities)~.
+
+#+begin_src python
+prb.update_priorities(idxes,priorities)
+#+end_src
+
+Internally, these replay buffers utilize Python ~list~ for storage, so
+that the memory usage gradually increase until the buffer becomes
+full.
+
+*** Ray RLib
+
+*** Chainer ChainerRL
+
 ** DONE Functionality
 CLOSED: [2020-02-24 Mon 12:49]
 :PROPERTIES:
