@@ -727,6 +727,86 @@ that the memory usage gradually increase until the buffer becomes
 full.
 
 *** Chainer ChainerRL
+[[https://github.com/chainer/chainerrl][ChainerRL]] is a deep reinforcement learning library based on a
+framework [[https://github.com/chainer/chainer][Chainer]]. Chainer (including ChainerRL) has already stopped
+active development, and development team (Preferred Networks) joined
+to [[https://pytorch.org/][PyTorch]] development.
+
+The source code is published with MIT license.
+
+Ordinary and prioritized experience replay are implemented with
+~ReplayBuffer~ and ~PrioritizedReplayBuffer~, respectively.
+
+ChainerRL has slighly different API from OpenAI Baselines' one.
+
+~ReplayBuffer~ is initialized with ~capacity=None~ parameter for
+buffer size and ~num_steps=1~ parameter for Nstep configuration.
+
+~PrioritizedReplayBuffer~ can additionally take parameters of
+~alpha=0.6~, ~beta0=0.4~, ~betasteps=2e5~, ~eps=0.01~,
+~normalize_by_max=True~, ~error_min=0~, ~error_max=1~.
+
+In ChainerRL, beta (correction for weight) parameter starts from
+~beta0~, automatically increases with equal step size during
+~betasteps~ time iterations and after that becomes ~1.0~.
+
+#+begin_src python
+buffer_size = int(1e6)
+alpha = 0.6
+
+rb = ReplayBuffer(buffer_size)
+prb = PrioritizedReplayBuffer(buffer_size,alpha)
+#+end_src
+
+A transition is stored by calling
+~ReplayBuffer.append(self,state,action,reward,next_state=None,next_action=None,is_state_terminate=False,env_id=0,**kwargs)~.
+Additional keyward arguments are stored, too, so that you can use any
+custom environment values. By specifying ~env_id~, multiple trajectory
+can be tracked with Nstep configuration.
+
+#+begin_src python
+obs_t = [0, 0, 0]
+action = [1]
+reward = 0.5
+obs_tp1 = [1, 1, 1]
+done = False
+
+rb.add(obs_t,action,reward,obs_tp1,is_state_terminal=done)
+prb.add(obs_t,action,reward,obs_tp1,is_state_terminal=done)
+#+end_src
+
+Stored transitions are sampled by calling
+~ReplayBuffer.sample(self,num_experience)~ and
+~PrioritizedReplayBuffer.sample(self,n)~.
+
+Apart from other implementations, ChainerRL's replay buffers return
+unique (non-duplicated) transitions, so that batch_size must be
+smaller than stored transition size. Furthermore, they return a Python
+~list~ of a ~dict~ of transition instead of a Python ~tuple~ of
+environment values.
+
+#+begin_src python
+batch_size = 32
+
+# Need additional modification to take apart
+transitions = rb.sample(batch_size)
+transitions_with_weight = prb.sample(batch_size)
+#+end_src
+
+Update index cannot be specified manually, but
+~PrioritizedReplayBuffer~ memorizes sampled indexes.
+(Without ~sample~, user cannot update priority.)
+
+#+begin_src python
+prb.update_priorities(priorities)
+#+end_src
+
+
+Internally, these replay buffers utilize Python ~list~ for storage, so
+that the memory usage gradually increase until the buffer becomes
+full. In ChainerRL, storage is not a simple Python ~list~, but two
+~list~ to pop out the oldest element with O(1) time.
+
 
 ** DONE Functionality
 CLOSED: [2020-02-24 Mon 12:49]
