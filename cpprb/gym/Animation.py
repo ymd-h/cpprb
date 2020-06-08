@@ -35,7 +35,12 @@ class NotebookAnimation(Animation):
 
             self._display = Display(visible=0, size=size)
             self._display.start()
-            os.environ["DISPLAY"] = f":{self._display.display}.{self._display._obj.screen}"
+            _obj = self._display._obj
+
+            # version <=  1.3  : Display._obj.screen
+            # version >=  1.3.1: Display._obj._screen
+            _screen = _obj.screen if hasattr(_obj,"screen") else _obj._screen
+            os.environ["DISPLAY"] = f":{self._display.display}.{_screen}"
 
         self.frames = []
 
