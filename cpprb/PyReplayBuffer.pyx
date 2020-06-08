@@ -422,7 +422,7 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
                                                            shape=shape,
                                                            strides=strides)
         else:
-            buffer[name] = np.ones(shape,dtype=defs.get("dtype",default_dtype))
+            buffer[name] = np.zeros(shape,dtype=defs.get("dtype",default_dtype)) + 1
 
         shape[0] = -1
         defs["add_shape"] = shape
