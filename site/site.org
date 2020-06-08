@@ -807,6 +807,16 @@ that the memory usage gradually increase until the buffer becomes
 full. In ChainerRL, storage is not a simple Python ~list~, but two
 ~list~ to pop out the oldest element with O(1) time.
 
+*** Other Implementations
+There are also some other replay buffer implementations, which we
+couldn't review well. In future, we would like to investigate these
+implementations and compare with cpprb.
+
+- [[https://github.com/tensorflow/agents][TF-Agents]] :: TensorFlow official reinforcement learning library
+- [[https://github.com/google-research/seed_rl][SEED RL]] :: Scalable and Effificient Deep-RL
+- [[https://github.com/tensorflow/models][TensorFlow Model Garden]] :: TensorFlow example implementation
+- [[https://deepmind.com/research/open-source/Reverb][Reverb]] :: Framework for experience replay developed by DeepMind
+
 
 ** DONE Functionality
 CLOSED: [2020-02-24 Mon 12:49]
