@@ -574,6 +574,250 @@ also creating brand-new networks and/or algorithms.
 Here, we would like to show that cpprb is enough functional and enough
 efficient compared with others.
 
+*** OpenAI Baselines
+[[https://github.com/openai/baselines][OpenAI Baselines]] is a set of baseline implementations of reinforcement
+learning developed by OpenAI.
+
+The source code is published with MIT license.
+
+Ordinary and prioritized experience replay are implemented with
+~ReplayBuffer~ and ~PrioritizedReplayBuffer~ classes, respectively.
+Using these classes directly is (probably) not expected, but you can
+import them like this;
+
+#+begin_src python
+from baselines.deepq.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+#+end_src
+
+~ReplayBuffer~ is initialized with ~size~ parameter for replay buffer
+size. Additionally, ~PrioritizedReplayBuffer~ requires ~alpha~
+parameter for degree of prioritization, too. These parameters doesn't
+have default values, so that you need to specify them.
+
+#+begin_src python
+buffer_size = int(1e6)
+alpha = 0.6
+
+rb = ReplayBuffer(buffer_size)
+prb = PrioritizedReplayBuffer(buffer_size,alpha)
+#+end_src
+
+A transition is stored into replay buffer by calling
+~ReplayBuffer.add(self,obs_t,action,reward,obs_tp1,done)~.
+
+For ~PrioritizedReplayBuffer~, the maximum priority at that time is
+automatically used for a newly added transition.
+
+These replay buffers are ring buffers, so that the oldest transition
+is overwritten by a new transition after the buffer becomes full.
+
+#+begin_src python
+obs_t = [0, 0, 0]
+action = [1]
+reward = 0.5
+obs_tp1 = [1, 1, 1]
+done = 0.0
+
+rb.add(obs_t,action,reward,obs_tp1,done)
+prb.add(obs_t,action,reward,obs_tp1,done) # Store with max. priority
+#+end_src
+
+Stored transitions can be sampled by calling
+~ReplayBuffer.sample(self,batch_size)~ or
+~PrioritizedReplayBuffer.sample(self,batch_size,beta)~.
+
+~ReplayBuffer~ returns a tuple of batch size
+transition. ~PrioritizedReplayBuffer~ also returns weights and
+indexes, too.
+
+#+begin_src python
+batch_size = 32
+beta = 0.4
+
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = rb.sample(batch_size)
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask, weights, idxes = prb.sample(batch_size)
+#+end_src
+
+Priorities can be updated by calling
+~PrioritizedReplayBuffer.update_priorities(self,idxes,priorities)~.
+
+#+begin_src python
+prb.update_priorities(idxes,priorities)
+#+end_src
+
+Internally, these replay buffers utilize Python ~list~ for storage, so
+that the memory usage gradually increase until the buffer becomes
+full.
+
+*** Ray RLib
+[[https://docs.ray.io/en/latest/rllib.html][RLlib]] is reinforcement learning library based on distributed framework
+[[https://github.com/ray-project/ray][Ray]].
+
+The source code is published with Apache-2.0 license.
+
+Ordinary and prioritized experience replay are implemented with
+~ReplayBuffer~ and ~PrioritizedReplayBuffer~ classes, respectively.
+
+These classes are decorated with ~@DeveloperAPI~, which are intented
+to be used by developer when making custom algorithms.
+
+#+begin_src python
+from ray.rllib.optimizers.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+#+end_src
+
+These replay buffer classes initialize like OpenAI Baselines;
+
+#+begin_src python
+buffer_size = int(1e6)
+alpha = 0.6
+
+rb = ReplayBuffer(buffer_size)
+prb = PrioritizedReplayBuffer(buffer_size,alpha)
+#+end_src
+
+A transition is stored by calling
+~ReplayBuffer.add(self,obs_t,action,reward,obs_tp1,done,weight)~ and
+~PrioritizedReplayBuffer.add(self,obs_t,action,reward,obs_tp1,done,weight)~.
+
+In RLlib, ~PrioritizedReplayBuffer~ can take ~weight~ parameter to
+specify priority at the same time. Brcause of unified API,
+~ReplayBuffer~ also requires ~weight~ parameter, even though it is not
+used at all. Moreover, the ~weight~ does not have default parameter
+(such as ~None~), you need to pass something.
+
+#+begin_src python
+obs_t = [0, 0, 0]
+action = [1]
+reward = 0.5
+obs_tp1 = [1, 1, 1]
+done = 0.0
+weight = 0.5
+
+rb.add(obs_t,action,reward,obs_tp1,done,None)
+prb.add(obs_t,action,reward,obs_tp1,done,weight)
+#+end_src
+
+
+Like OpenAI Baselines, stored transitions can be sampled by calling
+~ReplayBuffer.sample(self,batch_size)~ or
+~PrioritizedReplayBuffer.sample(self,batch_size,beta)~.
+
+~ReplayBuffer~ returns a tuple of batch size
+transition. ~PrioritizedReplayBuffer~ also returns weights and
+indexes, too.
+
+#+begin_src python
+batch_size = 32
+beta = 0.4
+
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = rb.sample(batch_size)
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask, weights, idxes = prb.sample(batch_size)
+#+end_src
+
+Priorities can be also updated by calling
+~PrioritizedReplayBuffer.update_priorities(self,idxes,priorities)~,
+too.
+
+#+begin_src python
+prb.update_priorities(idxes,priorities)
+#+end_src
+
+Internally, these replay buffers utilize Python ~list~ for storage, so
+that the memory usage gradually increase until the buffer becomes
+full.
+
+*** Chainer ChainerRL
+[[https://github.com/chainer/chainerrl][ChainerRL]] is a deep reinforcement learning library based on a
+framework [[https://github.com/chainer/chainer][Chainer]]. Chainer (including ChainerRL) has already stopped
+active development, and development team (Preferred Networks) joined
+to [[https://pytorch.org/][PyTorch]] development.
+
+The source code is published with MIT license.
+
+Ordinary and prioritized experience replay are implemented with
+~ReplayBuffer~ and ~PrioritizedReplayBuffer~, respectively.
+
+ChainerRL has slighly different API from OpenAI Baselines' one.
+
+~ReplayBuffer~ is initialized with ~capacity=None~ parameter for
+buffer size and ~num_steps=1~ parameter for Nstep configuration.
+
+~PrioritizedReplayBuffer~ can additionally take parameters of
+~alpha=0.6~, ~beta0=0.4~, ~betasteps=2e5~, ~eps=0.01~,
+~normalize_by_max=True~, ~error_min=0~, ~error_max=1~.
+
+In ChainerRL, beta (correction for weight) parameter starts from
+~beta0~, automatically increases with equal step size during
+~betasteps~ time iterations and after that becomes ~1.0~.
+
+#+begin_src python
+buffer_size = int(1e6)
+alpha = 0.6
+
+rb = ReplayBuffer(buffer_size)
+prb = PrioritizedReplayBuffer(buffer_size,alpha)
+#+end_src
+
+A transition is stored by calling
+~ReplayBuffer.append(self,state,action,reward,next_state=None,next_action=None,is_state_terminate=False,env_id=0,**kwargs)~.
+Additional keyward arguments are stored, too, so that you can use any
+custom environment values. By specifying ~env_id~, multiple trajectory
+can be tracked with Nstep configuration.
+
+#+begin_src python
+obs_t = [0, 0, 0]
+action = [1]
+reward = 0.5
+obs_tp1 = [1, 1, 1]
+done = False
+
+rb.add(obs_t,action,reward,obs_tp1,is_state_terminal=done)
+prb.add(obs_t,action,reward,obs_tp1,is_state_terminal=done)
+#+end_src
+
+Stored transitions are sampled by calling
+~ReplayBuffer.sample(self,num_experience)~ and
+~PrioritizedReplayBuffer.sample(self,n)~.
+
+Apart from other implementations, ChainerRL's replay buffers return
+unique (non-duplicated) transitions, so that batch_size must be
+smaller than stored transition size. Furthermore, they return a Python
+~list~ of a ~dict~ of transition instead of a Python ~tuple~ of
+environment values.
+
+#+begin_src python
+batch_size = 32
+
+# Need additional modification to take apart
+transitions = rb.sample(batch_size)
+transitions_with_weight = prb.sample(batch_size)
+#+end_src
+
+Update index cannot be specified manually, but
+~PrioritizedReplayBuffer~ memorizes sampled indexes.
+(Without ~sample~, user cannot update priority.)
+
+#+begin_src python
+prb.update_priorities(priorities)
+#+end_src
+
+
+Internally, these replay buffers utilize Python ~list~ for storage, so
+that the memory usage gradually increase until the buffer becomes
+full. In ChainerRL, storage is not a simple Python ~list~, but two
+~list~ to pop out the oldest element with O(1) time.
+
+*** Other Implementations
+There are also some other replay buffer implementations, which we
+couldn't review well. In future, we would like to investigate these
+implementations and compare with cpprb.
+
+- [[https://github.com/tensorflow/agents][TF-Agents]] :: TensorFlow official reinforcement learning library
+- [[https://github.com/google-research/seed_rl][SEED RL]] :: Scalable and Effificient Deep-RL
+- [[https://github.com/tensorflow/models][TensorFlow Model Garden]] :: TensorFlow example implementation
+- [[https://deepmind.com/research/open-source/Reverb][Reverb]] :: Framework for experience replay developed by DeepMind
+
+
 ** DONE Functionality
 CLOSED: [2020-02-24 Mon 12:49]
 :PROPERTIES:
