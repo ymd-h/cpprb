@@ -129,11 +129,6 @@ multi_rew:
   script:
     - coverage run -m xmlrunner test/multi_rew.py
 
-gym:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/test_gym.py
-
 high_level_api:
   <<: *py_setup
   script:
