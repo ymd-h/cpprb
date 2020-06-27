@@ -13,6 +13,8 @@
 #+creator: Emacs 26.3 (Org mode 9.2.3)
 
 * Unreleased
+* v9.0.0
+- Remove: cpprb.gym sub-package, which is not cpprb main purpose
 * v8.4.8
 - Fix: Support PyVirtualDisplay 1.0 above.
 - Fix: Try to acquire physical memory in ReplayBuffer initialization ([[https://gitlab.com/ymd_h/cpprb/-/issues/105][#105]])
