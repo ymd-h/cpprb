@@ -877,6 +877,30 @@ The benchmark script is as follows;
 [[/cpprb/benchmark/PrioritizedReplayBuffer_sample.png]]
 
 
+*** Benchmark 2
+The second benchmark compares DeepMind/Reverb and cpprb.
+Reverb has multiple ways of adding and sampling.
+
+**** Settings
+We use following docker image to take benchmarks;
+
+#+INCLUDE: "../benchmark2/Dockerfile" src dockerfile
+
+- DeepMind/Reverb requires development version TensorFlow 2.3.0.dev20200604
+
+The benchmark script is as follows;
+
+#+INCLUDE: "../benchmark2/benchmark.py" src python
+
+**** Results
+[[/cpprb/benchmark/ReplayBuffer_add2.png]]
+
+[[/cpprb/benchmark/ReplayBuffer_sample2.png]]
+
+[[/cpprb/benchmark/PrioritizedReplayBuffer_add2.png]]
+
+
+[[/cpprb/benchmark/PrioritizedReplayBuffer_sample2.png]]
 
 * DONE Misc
 CLOSED: [2020-01-17 Fri 22:31]
