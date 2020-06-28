@@ -2,6 +2,7 @@ import numpy as np
 import perfplot
 import tensorflow as tf
 import gc
+import itertools
 
 # DeepMind/Reverb: https://github.com/deepmind/reverb
 import reverb
