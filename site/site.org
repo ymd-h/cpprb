@@ -559,13 +559,14 @@ In this section, we compare cpprb with other replay buffer implementations;
 - [[https://github.com/chainer/chainerrl][Chainer ChainerRL]]
   - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/replay_buffer.py][chainerrl.replay_buffers.ReplayBuffer]]
   - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/prioritized.py][chainerrl.replay_buffers.PrioritizedReplayBuffer]]
+- [[https://github.com/deepmind/reverb][DeepMind Reverb]]
 
 
 *Important Notice*
 
-Except cpprb, replay buffers are only a part of their reinforcement
-learning ecosystem. These libraries don't focus on providing greatest
-replay buffers but reinforcement learning.
+Except cpprb and DeepMind/Reverb, replay buffers are only a part of
+their reinforcement learning ecosystem. These libraries don't focus on
+providing greatest replay buffers but reinforcement learning.
 
 Our motivation is to provide strong replay buffers to researchers and
 developers who not only use existing networks and/or algorithms but
@@ -737,6 +738,10 @@ The source code is published with MIT license.
 Ordinary and prioritized experience replay are implemented with
 ~ReplayBuffer~ and ~PrioritizedReplayBuffer~, respectively.
 
+#+begin_src python
+from chainerrl.replay_buffers import ReplayBuffer, PrioritizedReplayBuffer
+#+end_src
+
 ChainerRL has slighly different API from OpenAI Baselines' one.
 
 ~ReplayBuffer~ is initialized with ~capacity=None~ parameter for
@@ -807,6 +812,190 @@ that the memory usage gradually increase until the buffer becomes
 full. In ChainerRL, storage is not a simple Python ~list~, but two
 ~list~ to pop out the oldest element with O(1) time.
 
+*** DeepMind Reverb
+[[https://github.com/deepmind/reverb][Reverb]] is relatively new, which was released on 26th May 2020 by
+DeepMind.
+
+Reverb is a framework for experience replay like cpprb. By utilizing
+server-client model, Reverb is mainly optimized for large-scale
+distributed reinforcement learning.
+
+The source code is published with Apache-2.0 license.
+
+Currently (28th June 2020), Reverb officially says it is still
+non-production level and requries a development version of TensorFlow
+(i.e. tf-nightly 2.3.0.dev20200604).
+
+Ordinary and prioritized experience replay are constructed by setting
+~reverb.selectors.Uniform()~ and ~reverb.selectors.Prioritized(alpha)~
+to ~sampler~ argument in ~reverb.Table~ constructor, respectively.
+
+Following sample code constructs a server with two replay buffers
+listening a port ~8000~.
+
+#+begin_src python
+import reverb
+
+buffer_size = int(1e6)
+alpha = 0.6
+
+server = reverb.Server(tables=[reverb.Table(name="ReplayBuffer",
+                                            sampler=reverb.selectors.Uniform(),
+                                            remover=reverb.selectors.Fifo(),
+                                            rate_limiter=reverb.rate_limiters.MinSize(1),
+                                            max_size=buffer_size),
+                               reverb.Table(name="PrioritizedReplayBuffer",
+                                            sampler=reverb.selectors.Prioritized(alpha),
+                                            remover=reverb.selectors.Fifo(),
+                                            rate_limiter=reverb.rate_limiters.MinSize(1),
+                                            max_size=buffer_size)],
+                       port=8000)
+#+end_src
+
+By changing ~selector~ and ~remover~, we can use different algorithms
+for sampling and overwriting, respectively.
+
+Supported algorithms implemented at ~reverb.selectors~ are following;
+
+- ~Uniform~: Select uniformly.
+- ~Prioritized~: Select proportional to stored priorities.
+- ~Fifo~: Select oldest data.
+- ~Lifo~: Select newest data.
+- ~MinHeap~: Select data with lowest priority.
+- ~MaxHeap~: Select data with highest priority.
+
+
+There are 3 ways to store a transition.
+
+The first method uses ~reverb.Client.insert~. Not only prioritized
+replay buffer but also ordinary replay buffer requires priority even
+though it is not used.
+
+#+begin_src python
+import reverb
+
+client = reverb.Client(f"localhost:{server.port}")
+
+obs_t = [0, 0, 0]
+action = [1]
+reward = [0.5]
+obs_tp1 = [1, 1, 1]
+done = [0]
+
+client.insert([obs_t,action,reward,obs_tp1,done],priorities={"ReplayBuffer":1.0})
+client.insert([obs_t,action,reward,obs_tp1,done],priorities={"PrioritizedReplayBuffer":1.0})
+#+end_src
+
+The second method uses ~reverb.Client.writer~, which is internally
+used in ~reverb.Client.insert~, too. This method can be more efficient
+because you can flush multiple items together by calling
+~reverb.Writer.close~ insead of one by one.
+
+#+begin_src python
+import reverb
+
+client = reverb.Client(f"localhost:{server.port}")
+
+obs_t = [0, 0, 0]
+action = [1]
+reward = [0.5]
+obs_tp1 = [1, 1, 1]
+done = [0]
+
+with client.writer(max_sequence_length=1) as writer:
+    writer.append([obs_t,action,reward,obs_tp1,done])
+    writer.create_item(table="ReplayBuffer",num_timesteps=1,priority=1.0)
+
+    writer.append([obs_t,action,reward,obs_tp1,done])
+    writer.create_item(table="PrioritizedReplayBuffer",num_timesteps=1,priority=1.0)
+#+end_src
+
+The last method uses ~reverb.TFClient.insert~. This class is designed
+to be used in TensorFlow graph.
+
+#+begin_src python
+import reverb
+
+tf_client = reverb.TFClient(f"localhost:{server.port}")
+
+obs_t = tf.constant([0, 0, 0])
+action = tf.constant([1])
+reward = tf.constant([0.5])
+obs_tp1 = tf.constant([1, 1, 1])
+done = tf.constant([0])
+
+tf_client.insert([obs_t,action,reward,obs_tp1,done],
+                 tables=tf.constant(["ReplayBuffer"]),
+                 priorities=tf.constant([1.0],dtype=tf.float64))
+tf_client.insert([obs_t,action,reward,obs_tp1,done],
+                 tables=tf.constant(["PrioritizedReplayBuffer"]),
+                 priorities=tf.constant([1.0],dtype=tf.float64))
+#+end_src
+
+~tables~ parameter must be ~tf.Tensor~ of ~str~ with rank 1 and
+~priorities~ parameter must be ~tf.Tensor~ of ~float64~ with
+rank 1. The lengths of ~tables~ and ~priorities~ must match.
+
+
+Sampling transitions can be realized by 3 ways, too.
+
+The first method utilizes ~reverb.Client.sample~, which returns
+generator of ~reverb.replay_sample.ReplaySample~. As long as we can
+investigate, beta-parameter is not supported and weight is not
+calculated at prioritized experience replay.
+
+#+begin_src python
+batch_size = 32
+
+transitions = client.sample("ReplayBuffer",num_samples=batch_size)
+transitions_with_priority = client.sample("PrioritizedReplayBuffer",num_samples=batch_size)
+#+end_src
+
+
+The second method uses ~reverb.TFClient.sample~, which does not
+support batch sampling.
+
+#+begin_src python
+transition = tf_client.sample("ReplayBuffer",
+                              [tf.float64,tf.float64,tf.float64,tf.float64,tf.float64])
+transition_priority = tf_client.sample("PrioritizedReplayBuffer",
+                                       [tf.float64,tf.float64,tf.float64,tf.float64,tf.float64])
+#+end_src
+
+
+The last method is completely different from others, which calls
+~reverb.TFClient.dataset~, returning ~reverb.ReplayDataset~ derived
+from ~tf.data.Dataset~.
+
+Once creating ~ReplayDataset~, the dataset can be used as generator
+and automatically fetches transitions from its replay buffer with
+proper timing.
+
+
+#+begin_src python
+dataset = tf_client.dataset("ReplayBuffer",
+                            [tf.float64,tf.float64,tf.float64,tf.float64,tf.float64],
+                            [4,1,1,4,1])
+dataset_priority = tf_client.dataset("PrioritizedReplayBuffer",
+                                     [tf.float64,tf.float64,tf.float64,tf.float64,tf.float64],
+                                     [4,1,1,4,1])
+#+end_src
+
+
+Priorities can be updated by ~reverb.Client.mutate_priorities~ or
+~reverb.TFClient.update_priorities~. Aside from other implementations,
+key is not integer sequence but hash, so that the key must be taken
+from sampled items by accsessing ~ReplaySample.info.key~.
+
+#+begin_src python
+for t in transitions_with_priority:
+    client.mutate_priorities("PriorotizedReplayBuffer",updates={t.info.key: 0.5})
+
+tf_client.update_priorities("PrioritizedReplayBuffer",
+                            transition_priority.info.key,
+                            priorities=tf.constant([0.5],dtype=tf.float64)
+#+end_src
+
 *** Other Implementations
 There are also some other replay buffer implementations, which we
 couldn't review well. In future, we would like to investigate these
@@ -815,7 +1004,6 @@ implementations and compare with cpprb.
 - [[https://github.com/tensorflow/agents][TF-Agents]] :: TensorFlow official reinforcement learning library
 - [[https://github.com/google-research/seed_rl][SEED RL]] :: Scalable and Effificient Deep-RL
 - [[https://github.com/tensorflow/models][TensorFlow Model Garden]] :: TensorFlow example implementation
-- [[https://deepmind.com/research/open-source/Reverb][Reverb]] :: Framework for experience replay developed by DeepMind
 
 
 ** DONE Functionality
@@ -827,13 +1015,13 @@ CLOSED: [2020-02-24 Mon 12:49]
 
 The following table summarizes functionalities of replay buffers.
 
-|                           | cpprb                     | OpenAI/Baselines                          | Ray/RLlib                                                  | Chainer/ChainerRL          |
-|---------------------------+---------------------------+-------------------------------------------+------------------------------------------------------------+----------------------------|
-| *Flexible Environment*    | Yes                       | No                                        | No                                                         | Yes                        |
-| *Nstep*                   | Yes                       | No                                        | Yes                                                        | Yes                        |
-| *Parellel Exploration*    | No ([[https://gitlab.com/ymd_h/cpprb/-/milestones/3][milestone]], [[https://gitlab.com/ymd_h/cpprb/-/milestones/9][milestone]]) | Yes (Avarages gradients of MPI processes) | Yes (Concatenates sample batches from distributed buffers) | No                         |
-| *Save/Load*               | No (Cannot =pickle=)      | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                        |
-| *Deep Learning Framework* | Anything                  | TensorFlow 1.14 (only this version)       | Anything (Helper functions for [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-tensorflow][TensorFlow]] and [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-pytorch][PyTorch]])     | [[https://chainer.org/][Chainer]] ([[https://chainer.org/announcement/2019/12/05/released-v7.html][maintenance only]]) |
+|                           | cpprb                     | OpenAI/Baselines                          | Ray/RLlib                                                  | Chainer/ChainerRL          | DeepMind/Reverb |
+|---------------------------+---------------------------+-------------------------------------------+------------------------------------------------------------+----------------------------+-----------------|
+| *Flexible Environment*    | Yes                       | No                                        | No                                                         | Yes                        | Yes             |
+| *Nstep*                   | Yes                       | No                                        | Yes                                                        | Yes                        | No              |
+| *Parellel Exploration*    | No ([[https://gitlab.com/ymd_h/cpprb/-/milestones/3][milestone]], [[https://gitlab.com/ymd_h/cpprb/-/milestones/9][milestone]]) | Yes (Avarages gradients of MPI processes) | Yes (Concatenates sample batches from distributed buffers) | No                         | Yes             |
+| *Save/Load*               | No (Cannot =pickle=)      | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                        | Yes             |
+| *Deep Learning Framework* | Anything                  | TensorFlow 1.14 (only this version)       | Anything (Helper functions for [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-tensorflow][TensorFlow]] and [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-pytorch][PyTorch]])     | [[https://chainer.org/][Chainer]] ([[https://chainer.org/announcement/2019/12/05/released-v7.html][maintenance only]]) | TensorFlow 2.3  |
 
 
 ** DONE Benchmark
