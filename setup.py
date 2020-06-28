@@ -94,7 +94,6 @@ else:
 
 setup(name="cpprb",
       author="Yamada Hiroyuki",
-      author_email="incoming+ymd-h-cpprb-10328285-issue-@incoming.gitlab.com",
       description=description,
       version="9.0.0",
       install_requires=requires,
