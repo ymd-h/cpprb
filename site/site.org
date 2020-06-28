@@ -843,7 +843,14 @@ CLOSED: [2020-02-16 Sun 23:24]
 :EXPORT_FILE_NAME: benchmark
 :END:
 
-*** Settings
+Because of dependant TensorFlow version incompatibility, two set of
+benchmarks are executed.
+
+*** Benchmark 1
+The first benchmark compares OpenAI/Baselines, Ray/RLlib,
+Chainer/ChainerRL, and cpprb.
+
+**** Settings
 
 We use following docker image to take benchmarks;
 
@@ -859,7 +866,7 @@ The benchmark script is as follows;
 #+INCLUDE: "../benchmark/benchmark.py" src python
 
 
-*** Results
+**** Results
 [[/cpprb/benchmark/ReplayBuffer_add.png]]
 
 [[/cpprb/benchmark/ReplayBuffer_sample.png]]
