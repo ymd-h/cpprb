@@ -1,5 +1,6 @@
 import numpy as np
 import perfplot
+import tensorflow as tf
 import gc
 
 # DeepMind/Reverb: https://github.com/deepmind/reverb
@@ -88,6 +89,21 @@ def add_client_insert(_rb,table):
                         e["done"][i]],priorities={table: 1.0})
     return add
 
+def add_tf_client(_rb,table):
+    """ Add for Reverb TFClient
+    """
+    def add(e):
+        n = e["obs"].shape[0]
+        for i in range(n):
+            _rb.insert([tf.constant(e["obs"][i]),
+                        tf.constant(e["act"][i]),
+                        tf.constant(e["rew"][i]),
+                        tf.constant(e["next_obs"][i]),
+                        tf.constant(e["done"])],
+                       tf.constant([table]),
+                       tf.constant([1.0],dtype=tf.float64))
+    return add
+
 def sample_client(_rb,table):
     """ Sample from Reverb Client
     """
@@ -103,9 +119,11 @@ perfplot.save(filename="ReplayBuffer_add2.png",
               time_unit="ms",
               kernels = [add_client_insert(client,"ReplayBuffer"),
                          add_client(client,"ReplayBuffer"),
+                         add_tf_client(tf_client,"ReplayBuffer"),
                          lambda e: rb.add(**e)],
               labels = ["DeepMind/Reverb: Client.insert",
                         "DeepMind/Reverb: Client.writer",
+                        "DeepMind/Reverb: TFClient.insert",
                         "cpprb"],
               n_range = [n for n in range(1,102,10)],
               xlabel = "Step size added at once",
