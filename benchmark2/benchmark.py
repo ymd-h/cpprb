@@ -121,7 +121,7 @@ def sample_tf_client(_rb,table):
     def sample(n):
         return [_rb.sample(table,
                            [tf.float64,tf.float64,tf.float64,tf.float64,tf.float64])
-                for _ range(n)]
+                for _ in range(n)]
 
     return sample
 
