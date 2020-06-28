@@ -738,6 +738,10 @@ The source code is published with MIT license.
 Ordinary and prioritized experience replay are implemented with
 ~ReplayBuffer~ and ~PrioritizedReplayBuffer~, respectively.
 
+#+begin_src python
+from chainerrl.replay_buffers import ReplayBuffer, PrioritizedReplayBuffer
+#+end_src
+
 ChainerRL has slighly different API from OpenAI Baselines' one.
 
 ~ReplayBuffer~ is initialized with ~capacity=None~ parameter for
