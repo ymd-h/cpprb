@@ -903,7 +903,7 @@ with client.writer(max_sequence_length=1) as writer:
     writer.create_item(table="ReplayBuffer",num_timesteps=1,priority=1.0)
 
     writer.append([obs_t,action,reward,obs_tp1,done])
-    writer.create_item(table="PrioritizedReplayBuffer",num_timesteps=1,priorit=1.0)
+    writer.create_item(table="PrioritizedReplayBuffer",num_timesteps=1,priority=1.0)
 #+end_src
 
 The last method uses ~reverb.TFClient.insert~. This class is designed
