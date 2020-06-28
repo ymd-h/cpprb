@@ -75,6 +75,19 @@ def add_client(_rb,table):
                 _w.create_item(table,1,1.0)
     return add
 
+def add_client_insert(_rb,table):
+    """ Add for Reverb Client
+    """
+    def add(e):
+        n = e["obs"].shape[0]
+        for i in range(n):
+            _rb.insert([e["obs"][i],
+                        e["act"][i],
+                        e["rew"][i],
+                        e["next_obs"][i],
+                        e["done"][i]],priorities={table: 1.0})
+    return add
+
 def sample_client(_rb,table):
     """ Sample from Reverb Client
     """
@@ -88,9 +101,12 @@ def sample_client(_rb,table):
 perfplot.save(filename="ReplayBuffer_add2.png",
               setup = env,
               time_unit="ms",
-              kernels = [add_client(client,"ReplayBuffer"),
+              kernels = [add_client_insert(client,"ReplayBuffer"),
+                         add_client(client,"ReplayBuffer"),
                          lambda e: rb.add(**e)],
-              labels = ["DeepMind/Reverb","cpprb"],
+              labels = ["DeepMind/Reverb: Client.insert",
+                        "DeepMind/Reverb: Client.writer",
+                        "cpprb"],
               n_range = [n for n in range(1,102,10)],
               xlabel = "Step size added at once",
               title = "Replay Buffer Add Speed",
