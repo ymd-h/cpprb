@@ -85,7 +85,7 @@ def sample_client(_rb,table):
 
 
 # ReplayBuffer.add
-perfplot.save(filename="ReplayBuffer_add.png",
+perfplot.save(filename="ReplayBuffer_add2.png",
               setup = env,
               time_unit="ms",
               kernels = [add_client(client,"ReplayBuffer"),
@@ -110,7 +110,7 @@ for _ in range(buffer_size):
 
 
 # ReplayBuffer.sample
-perfplot.save(filename="ReplayBuffer_sample.png",
+perfplot.save(filename="ReplayBuffer_sample2.png",
               setup = lambda n: n,
               time_unit="ms",
               kernels = [sample_client(client,"ReplayBuffer"),
@@ -125,7 +125,7 @@ perfplot.save(filename="ReplayBuffer_sample.png",
 
 
 # PrioritizedReplayBuffer.add
-perfplot.save(filename="PrioritizedReplayBuffer_add.png",
+perfplot.save(filename="PrioritizedReplayBuffer_add2.png",
               time_unit="ms",
               setup = env,
               kernels = [add_client(client,"PrioritizedReplayBuffer"),
@@ -152,7 +152,7 @@ for _ in range(buffer_size):
     prb.add(obs=o,act=a,rew=r,next_obs=o,done=d,priority=p)
 
 
-perfplot.save(filename="PrioritizedReplayBuffer_sample.png",
+perfplot.save(filename="PrioritizedReplayBuffer_sample2.png",
               time_unit="ms",
               setup = lambda n: n,
               kernels = [sample_client(client,"PrioritizedReplayBuffer"),
