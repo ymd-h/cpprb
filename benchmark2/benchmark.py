@@ -115,6 +115,16 @@ def sample_client(_rb,table):
 
     return sample
 
+def sample_tf_client(_rb,table):
+    """ Sample from Reverb TFClient
+    """
+    def sample(n):
+        return [_rb.sample(table,
+                           [tf.float64,tf.float64,tf.float64,tf.float64,tf.float64])
+                for _ range(n)]
+
+    return sample
+
 
 # ReplayBuffer.add
 perfplot.save(filename="ReplayBuffer_add2.png",
