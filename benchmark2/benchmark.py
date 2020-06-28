@@ -162,7 +162,7 @@ for _ in range(buffer_size):
     a = np.random.rand(act_shape)
     r = np.random.rand(1)
     d = np.random.randint(2) # [0,2) == 0 or 1
-    client.insert([o,a,r,d],priorities={"ReplayBuffer": 1.0})
+    client.insert([o,a,r,o,d],priorities={"ReplayBuffer": 1.0})
     rb.add(obs=o,act=a,rew=r,next_obs=o,done=d)
 
 
@@ -214,7 +214,7 @@ for _ in range(buffer_size):
     d = np.random.randint(2) # [0,2) == 0 or 1
     p = np.random.rand(1)
 
-    client.insert([o,a,r,d],priorities={"PrioritizedReplayBuffer": p})
+    client.insert([o,a,r,o,d],priorities={"PrioritizedReplayBuffer": p})
 
     prb.add(obs=o,act=a,rew=r,next_obs=o,done=d,priority=p)
 
