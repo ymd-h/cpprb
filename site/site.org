@@ -826,7 +826,7 @@ Ordinary and prioritized experience replay are constructed by setting
 ~reverb.selectors.Uniform()~ and ~reverb.selectors.Prioritized(alpha)~
 to ~sampler~ argument in ~reverb.Table~ constructor, respectively.
 
-Following sample code construct a server with two replay buffers
+Following sample code constructs a server with two replay buffers
 listening a port ~8000~.
 
 #+begin_src python
