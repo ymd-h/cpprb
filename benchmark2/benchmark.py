@@ -125,6 +125,16 @@ def sample_tf_client(_rb,table):
 
     return sample
 
+def sample_tf_client_dataset(_rb,table):
+    """ Sample from Reverb TFClient using dataset
+    """
+    def sample(n):
+        dataset=_rb.dataset(table,
+                            [tf.float64,tf.float64,tf.float64,tf.float64,tf.float64],
+                            [4,1,1,4,1])
+        return itertools.islice(dataset,n)
+    return sample
+
 
 # ReplayBuffer.add
 perfplot.save(filename="ReplayBuffer_add2.png",
