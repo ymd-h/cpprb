@@ -1011,13 +1011,13 @@ CLOSED: [2020-02-24 Mon 12:49]
 
 The following table summarizes functionalities of replay buffers.
 
-|                           | cpprb                     | OpenAI/Baselines                          | Ray/RLlib                                                  | Chainer/ChainerRL          |
-|---------------------------+---------------------------+-------------------------------------------+------------------------------------------------------------+----------------------------|
-| *Flexible Environment*    | Yes                       | No                                        | No                                                         | Yes                        |
-| *Nstep*                   | Yes                       | No                                        | Yes                                                        | Yes                        |
-| *Parellel Exploration*    | No ([[https://gitlab.com/ymd_h/cpprb/-/milestones/3][milestone]], [[https://gitlab.com/ymd_h/cpprb/-/milestones/9][milestone]]) | Yes (Avarages gradients of MPI processes) | Yes (Concatenates sample batches from distributed buffers) | No                         |
-| *Save/Load*               | No (Cannot =pickle=)      | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                        |
-| *Deep Learning Framework* | Anything                  | TensorFlow 1.14 (only this version)       | Anything (Helper functions for [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-tensorflow][TensorFlow]] and [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-pytorch][PyTorch]])     | [[https://chainer.org/][Chainer]] ([[https://chainer.org/announcement/2019/12/05/released-v7.html][maintenance only]]) |
+|                           | cpprb                     | OpenAI/Baselines                          | Ray/RLlib                                                  | Chainer/ChainerRL          | DeepMind/Reverb |
+|---------------------------+---------------------------+-------------------------------------------+------------------------------------------------------------+----------------------------+-----------------|
+| *Flexible Environment*    | Yes                       | No                                        | No                                                         | Yes                        | Yes             |
+| *Nstep*                   | Yes                       | No                                        | Yes                                                        | Yes                        | No              |
+| *Parellel Exploration*    | No ([[https://gitlab.com/ymd_h/cpprb/-/milestones/3][milestone]], [[https://gitlab.com/ymd_h/cpprb/-/milestones/9][milestone]]) | Yes (Avarages gradients of MPI processes) | Yes (Concatenates sample batches from distributed buffers) | No                         | Yes             |
+| *Save/Load*               | No (Cannot =pickle=)      | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                        | Yes             |
+| *Deep Learning Framework* | Anything                  | TensorFlow 1.14 (only this version)       | Anything (Helper functions for [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-tensorflow][TensorFlow]] and [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-pytorch][PyTorch]])     | [[https://chainer.org/][Chainer]] ([[https://chainer.org/announcement/2019/12/05/released-v7.html][maintenance only]]) | TensorFlow 2.3  |
 
 
 ** DONE Benchmark
