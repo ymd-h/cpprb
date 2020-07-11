@@ -423,9 +423,10 @@ in the constructor manually.
 Internally, ~next_foo~ is not stored into a ring buffer, but into its chache.
 (So still raising error if you don't pass them to ~add~.)
 
-When sampling, indices (which is ~numpy.ndarray~) are shifted (and
-wraparounded if necessary), then are checked whether they are on the
-newest edge of the ring buffer.
+When sampling the ~next_foo~, indices (which is ~numpy.ndarray~) are
+shifted (and wraparounded if necessary), then are checked whether they
+are on the newest edge of the ring buffer. If the indices are on the
+edge, the cached one is extracted.
 
 *** ~stack_compress~
 
