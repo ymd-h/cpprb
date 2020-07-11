@@ -452,7 +452,6 @@ rb.add(obs=(np.ones((16,16,4))),
        next_obs=(np.ones((16,16,4))),
        rew=1,
        done=0)
-
 #+end_src
 **** Notes
 In order to make compatible with [[https://github.com/openai/gym][OpenAI gym]], the last dimension is
