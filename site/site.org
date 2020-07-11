@@ -278,8 +278,8 @@ weights = s["weights"]
 #  train
 #  ...
 
-
-per.update_priorities(indexes,new_priorities)
+new_priorities = np.ones_like(weights)
+prb.update_priorities(indexes,new_priorities)
 #+end_src
 *** Notes
 
