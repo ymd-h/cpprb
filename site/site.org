@@ -364,7 +364,7 @@ replay buffer.
 ~next_of~ and ~stack_compress~ can be used together, but currently
 none of them are compatible with N-step replay buffer.
 
-These memory compression relies on the internal memory alignment, so
+These memory compressions rely on the internal memory alignment, so
 that these functionalities cannot be used in situations where
 sequential steps are not stored sequentially (e.g. distributed
 reinforcement learning)
