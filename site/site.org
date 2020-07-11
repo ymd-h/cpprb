@@ -367,7 +367,7 @@ none of them are compatible with N-step replay buffer.
 These memory compressions rely on the internal memory alignment, so
 that these functionalities cannot be used in situations where
 sequential steps are not stored sequentially (e.g. distributed
-reinforcement learning)
+reinforcement learning).
 
 *** ~next_of~
 
