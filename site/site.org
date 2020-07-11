@@ -265,7 +265,7 @@ for i in range(1000):
     prb.add(obs=np.zeros((4,4)),
             act=np.ones(3),
             rew=0.5,
-            next_obs=np.zeros(4,4),
+            next_obs=np.zeros((4,4)),
             done=0)
 
 batch_size = 32
