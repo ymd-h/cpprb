@@ -249,6 +249,7 @@ original paper above.
 
 *** Example Usage
 #+begin_src python
+import numpy as np
 from cpprb import PrioritizedReplayBuffer
 
 buffer_size = 256
