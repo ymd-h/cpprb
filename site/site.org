@@ -249,6 +249,7 @@ original paper above.
 
 *** Example Usage
 #+begin_src python
+import numpy as np
 from cpprb import PrioritizedReplayBuffer
 
 buffer_size = 256
@@ -265,7 +266,7 @@ for i in range(1000):
     prb.add(obs=np.zeros((4,4)),
             act=np.ones(3),
             rew=0.5,
-            next_obs=np.zeros(4,4),
+            next_obs=np.zeros((4,4)),
             done=0)
 
 batch_size = 32
@@ -277,8 +278,8 @@ weights = s["weights"]
 #  train
 #  ...
 
-
-per.update_priorities(indexes,new_priorities)
+new_priorities = np.ones_like(weights)
+prb.update_priorities(indexes,new_priorities)
 #+end_src
 *** Notes
 
