@@ -425,35 +425,42 @@ newest edge of the ring buffer.
 **** Overview
 ~stack_compress~ is designed for compressing stacked (or sliding
 windowed) observation. A famous use case is Atari video game, where 4
-frames of display window are treated as single observation and the
-next observation is the one slided by only 1 frame. For this example,
-a straight forward approach stores all the frames 4 times.
+frames of display windows are treated as a single observation and the
+next observation is the one slided by only 1 frame
+(e.g. 1,2,3,4-frames, 2,3,4,5-frames, 3,4,5,6-frames, ...). For this
+example, a straight forward approach stores all the frames 4 times.
 
-cpprb stores such stacked observation like non stacked observation
-(except for the end edge of the ring buffer) by utilizing numpy
-sliding trick.
+cpprb with ~stack_compress~ does not store duplicated frames in
+stacked observation (except for the end edge of the internal ring
+buffer) by utilizing numpy sliding trick.
 
 You can specify ~stack_compress~ parameter, whose type is ~str~ or
 array like of ~str~, at constructor.
 
 **** Sample Usage
+The following sample code stores ~4~-stacked frames of ~16x16~ data as
+a single observation.
+
 #+begin_src python
+import numpy as np
 from cpprb import ReplayBuffer
 
-rb = ReplayBuffer(32,{"obs":{"shape": (16,16)}, 'rew': {}, 'done': {}},
+rb = ReplayBuffer(32,{"obs":{"shape": (16,16,4)}, 'rew': {}, 'done': {}},
                   next_of = "obs", stack_compress = "obs")
 
-rb.add(obs=(np.ones((16,16))),
-       next_obs=(np.ones((16,16))),
+rb.add(obs=(np.ones((16,16,4))),
+       next_obs=(np.ones((16,16,4))),
        rew=1,
        done=0)
-
 #+end_src
 **** Notes
 In order to make compatible with [[https://github.com/openai/gym][OpenAI gym]], the last dimension is
 considered as stack dimension (which is not fit to C array memory
 order).
 
+For the sake of performance, cpprb does not check the overlapped data
+are truly identical, but simply overwrites with new data. Users must
+not specify ~stack_compress~ for non-stacked data.
 
 **** Technical Detail
 Technically speaking ~numpy.ndarray~ (and other data type supporting
