@@ -393,6 +393,7 @@ penalty is not significant, and you might not notice.)
 
 **** Example Usage
 #+begin_src python
+import numpy as np
 from cpprb import ReplayBuffer
 
 buffer_size = 256
