@@ -424,7 +424,7 @@ Internally, ~next_foo~ is not stored into a ring buffer, but into its chache.
 (So still raising error if you don't pass them to ~add~.)
 
 When sampling, indices (which is ~numpy.ndarray~) are shifted (and
-wrap arounded if necessary), then are checked whether they are on the
+wraparounded if necessary), then are checked whether they are on the
 newest edge of the ring buffer.
 
 *** ~stack_compress~
