@@ -357,13 +357,17 @@ CLOSED: [2019-11-10 Sun 13:33]
 Since replay buffer stores a large number of data set, memory
 efficiency is one of the most important point.
 
-In cpprb, there are two functionalities named ~next_of~ and
+In cpprb, there are two *optional* functionalities named ~next_of~ and
 ~stack_compress~, which you can turn on manually when constructing
 replay buffer.
 
 ~next_of~ and ~stack_compress~ can be used together, but currently
 none of them are compatible with N-step replay buffer.
 
+These memory compressions rely on the internal memory alignment, so
+that these functionalities cannot be used in situations where
+sequential steps are not stored sequentially (e.g. distributed
+reinforcement learning).
 
 *** ~next_of~
 
@@ -374,11 +378,11 @@ in your replay buffer together. Naively speaking, all observations are
 stored twice.
 
 As you know, replay buffer is a ring buffer and the next value should
-be stored at next index, except for the newest edge.
+be stored at the next index, except for the newest edge.
 
-If you specify ~next_of~ argument (its type is ~str~ or array like of
-~str~), the "next value" of specified values are also set in the
-replay buffer and they share the memory location.
+If you specify ~next_of~ argument (whose type is ~str~ or array like
+of ~str~), the "next value" of specified values are also created in
+the replay buffer automatically and they share the memory location.
 
 The name of the next value adds prefix ~next_~ to the original name
 (e.g. ~next_obs~ for ~obs~, ~next_rew~ for ~rew~, and so on).
@@ -389,6 +393,7 @@ penalty is not significant, and you might not notice.)
 
 **** Example Usage
 #+begin_src python
+import numpy as np
 from cpprb import ReplayBuffer
 
 buffer_size = 256
@@ -396,7 +401,7 @@ buffer_size = 256
 rb = ReplayBuffer(buffer_size,{"obs": {"shape": (84,84)},
                                "act": {"shape": 3},
                                "rew": {},
-                               "done": {}},
+                               "done": {}}, # You must not specify "next_obs" nor "next_rew".
                   next_of=("obs","rew"))
 
 rb.add(obs=np.ones((84,84)),
@@ -408,17 +413,20 @@ rb.add(obs=np.ones((84,84)),
 #+end_src
 
 **** Notes
-cpprb does not check the consistance of i-th ~next_foo~ and (i+1)-th
+cpprb does not check the consistence of i-th ~next_foo~ and (i+1)-th
 ~foo~. This is user responsibility.
 
+Since ~next_foo~ is automatically generated, you must not specify it
+in the constructor manually.
 
 **** Technical Detail
 Internally, ~next_foo~ is not stored into a ring buffer, but into its chache.
 (So still raising error if you don't pass them to ~add~.)
 
-When sampling, indices (which is ~numpy.ndarray~) are shifted (and
-wraparounded if necessary), then are checked whether they are on the
-newest edge of the ring buffer.
+When sampling the ~next_foo~, indices (which is ~numpy.ndarray~) are
+shifted (and wraparounded if necessary), then are checked whether they
+are on the newest edge of the ring buffer. If the indices are on the
+edge, the cached one is extracted.
 
 *** ~stack_compress~
 
