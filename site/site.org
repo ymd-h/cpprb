@@ -378,11 +378,11 @@ in your replay buffer together. Naively speaking, all observations are
 stored twice.
 
 As you know, replay buffer is a ring buffer and the next value should
-be stored at next index, except for the newest edge.
+be stored at the next index, except for the newest edge.
 
 If you specify ~next_of~ argument (whose type is ~str~ or array like
-of ~str~), the "next value" of specified values are also set in the
-replay buffer and they share the memory location.
+of ~str~), the "next value" of specified values are also created in
+the replay buffer automatically and they share the memory location.
 
 The name of the next value adds prefix ~next_~ to the original name
 (e.g. ~next_obs~ for ~obs~, ~next_rew~ for ~rew~, and so on).
