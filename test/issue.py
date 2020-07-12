@@ -369,7 +369,9 @@ class TestIssue108(unittest.TestCase):
                           next_of="obs",stack_compress="obs")
 
         obs = np.arange(episode_len+stack_size+2,dtype=np.int)
-        # [0,1,...,episode_len+stack_size+2)
+        # [0,1,...,episode_len+stack_size+1]
+        obs2 = obs + 3*episode_len
+        # [3*episode_len,...,4*episode_len+stack_size+1]
 
         # Add 1st episode
         for i in range(episode_len):
@@ -398,8 +400,8 @@ class TestIssue108(unittest.TestCase):
 
         # Add 2nd episode
         for i in range(episode_len):
-            rb.add(obs=obs[i:i+stack_size],
-                   next_obs=obs[i+1:i+1+stack_size])
+            rb.add(obs=obs2[i:i+stack_size],
+                   next_obs=obs2[i+1:i+1+stack_size])
 
         s = rb.get_all_transitions()
         self.assertEqual(rb.get_stored_size(),2*episode_len)
@@ -412,9 +414,9 @@ class TestIssue108(unittest.TestCase):
         for i in range(episode_len):
             with self.subTest(i=i+episode_len):
                 np.testing.assert_equal(s["obs"][i+episode_len],
-                                        obs[i:i+stack_size])
+                                        obs2[i:i+stack_size])
                 np.testing.assert_equal(s["next_obs"][i+episode_len],
-                                        obs[i+1:i+1+stack_size])
+                                        obs2[i+1:i+1+stack_size])
 
 if __name__ == '__main__':
     unittest.main()
