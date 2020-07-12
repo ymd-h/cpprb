@@ -440,6 +440,7 @@ class TestIssue108(unittest.TestCase):
         obs = np.arange(episode_len1+stack_size+2,dtype=np.int)
         obs2= np.arange(episode_len2+stack_size+2,dtype=np.int) + 100
 
+        self.assertEqual(rb.get_current_episode_len(),0)
 
         # Add 1st episode
         for i in range(episode_len1):
@@ -448,6 +449,7 @@ class TestIssue108(unittest.TestCase):
 
         s = rb.get_all_transitions()
         self.assertEqual(rb.get_stored_size(),episode_len1)
+        self.assertEqual(rb.get_current_episode_len(),episode_len1)
         for i in range(episode_len1):
             with self.subTest(i=i):
                 np.testing.assert_equal(s["obs"][i],
@@ -457,6 +459,7 @@ class TestIssue108(unittest.TestCase):
 
         # Reset environment
         rb.on_episode_end()
+        self.assertEqual(rb.get_current_episode_len(),0)
         s = rb.get_all_transitions()
         self.assertEqual(rb.get_stored_size(),episode_len1)
         for i in range(episode_len1):
@@ -473,6 +476,7 @@ class TestIssue108(unittest.TestCase):
 
         s = rb.get_all_transitions()
         self.assertEqual(rb.get_stored_size(),episode_len1 + episode_len2)
+        self.assertEqual(rb.get_current_episode_len(),episode_len2)
         for i in range(episode_len1):
             with self.subTest(i=i):
                 np.testing.assert_equal(s["obs"][i],
@@ -488,6 +492,7 @@ class TestIssue108(unittest.TestCase):
 
 
         rb.on_episode_end()
+        self.assertEqual(rb.get_current_episode_len(),0)
         s = rb.get_all_transitions()
         self.assertEqual(rb.get_stored_size(),episode_len1 + episode_len2)
         for i in range(episode_len1):
