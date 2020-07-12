@@ -743,6 +743,7 @@ cdef class ReplayBuffer:
     cdef env_dict
     cdef size_t index
     cdef size_t stored_size
+    cdef size_t episode_len
     cdef next_of
     cdef bool has_next_of
     cdef next_
@@ -764,6 +765,7 @@ cdef class ReplayBuffer:
         self.buffer_size = size
         self.stored_size = 0
         self.index = 0
+        self.episode_len = 0
 
         self.compress_any = stack_compress
         self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
@@ -877,6 +879,7 @@ cdef class ReplayBuffer:
 
         self.stored_size = min(self.stored_size + N,self.buffer_size)
         self.index = end if end < self.buffer_size else remain
+        self.episode_len += N
         return index
 
     def get_all_transitions(self):
@@ -964,6 +967,7 @@ cdef class ReplayBuffer:
         """
         self.index = 0
         self.stored_size = 0
+        self.episode_len = 0
 
         self.cache = {} if (self.has_next_of or self.compress_any) else None
 
@@ -1007,8 +1011,9 @@ cdef class ReplayBuffer:
         # Last added index: key_ in [0,...,self.buffer_size-1]
 
         cdef size_t key_min = 0
-        if key_ > self.cache_size:
-            key_min = key_ - self.cache_size
+        cdef size_t max_cache = min(self.cache_size,self.episode_len)
+        if key_ > max_cache:
+            key_min = key_ - max_cache
 
         cdef size_t key = 0
         for key in range(key_min, key_ + 1):
@@ -1040,6 +1045,8 @@ cdef class ReplayBuffer:
 
         if self.cache is not None:
             self.add_cache()
+
+        self.episode_len = 0
 
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
@@ -1257,6 +1264,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         if self.cache is not None:
             self.add_cache()
+
+        self.episode_len = 0
 
 def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     """Create specified version of replay buffer
