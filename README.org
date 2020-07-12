@@ -200,6 +200,9 @@ done = 0
 for i in range(500):
     rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
+    if done:
+        # Together with resetting environment, call ReplayBuffer.on_episode_end()
+        rb.on_episode_end()
 
 batch_size = 32
 sample = rb.sample(batch_size)
