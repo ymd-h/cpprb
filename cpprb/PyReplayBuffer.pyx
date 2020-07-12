@@ -1004,14 +1004,22 @@ cdef class ReplayBuffer:
         """Add last items into cache
         """
         cdef size_t key_ = (self.index or self.buffer_size) -1
+        # Last added index: key_ in [0,...,self.buffer_size-1]
+
+        cdef size_t key_min = 0
+        if key_ > self.cache_size:
+            key_min = key_ - self.cache_size
 
         cdef size_t key = 0
-        for key in range(max(0,key_ - self.cache_size), key_ + 1):
+        for key in range(key_min, key_ + 1):
             self.cache[key] = {}
 
             if self.has_next_of:
                 for name, value in self.next_.items():
-                    self.cache[key][f"next_{name}"] = value
+                    if key == key_:
+                        self.cache[key][f"next_{name}"] = value
+                    else:
+                        self.cache[key][f"next_{name}"] = self.buffer[name][key+1].copy()
 
             if self.compress_any:
                 for name in self.stack_compress:
