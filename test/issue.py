@@ -353,5 +353,68 @@ class TestIssue97(unittest.TestCase):
                                                [2., 3., 4.],
                                                [1., 1., 1.]]))
 
+class TestIssue108(unittest.TestCase):
+    """
+    Bug: When "next_of" and "stack_compress" are specified together,
+         all the "next_of" cache become last "next_of" item.
+
+    Expected: "next_of" cache should be the next step of original items.
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/108
+    """
+    def test_cache_next_of(self):
+        stack_size = 3
+        episode_len = 5
+        rb = ReplayBuffer(32, {"obs": {"shape": (stack_size),"dtype": np.int}},
+                          next_of="obs",stack_compress="obs")
+
+        obs = np.arange(episode_len+stack_size+2,dtype=np.int)
+        # [0,1,...,episode_len+stack_size+2)
+
+        # Add 1st episode
+        for i in range(episode_len):
+            rb.add(obs=obs[i:i+stack_size],
+                   next_obs=obs[i+1:i+1+stack_size])
+
+        s = rb.get_all_transitions()
+        self.assertEqual(rb.get_stored_size(),episode_len)
+        for i in range(episode_len):
+            with self.subTest(i=i):
+                np.testing.assert_equal(s["obs"][i],
+                                        obs[i:i+stack_size])
+                np.testing.assert_equal(s["next_obs"][i],
+                                        obs[i+1:i+1+stack_size])
+
+        # Reset environment
+        rb.on_episode_end()
+        s = rb.get_all_transitions()
+        self.assertEqual(rb.get_stored_size(),episode_len)
+        for i in range(episode_len):
+            with self.subTest(i=i):
+                np.testing.assert_equal(s["obs"][i],
+                                        obs[i:i+stack_size])
+                np.testing.assert_equal(s["next_obs"][i],
+                                        obs[i+1:i+1+stack_size])
+
+        # Add 2nd episode
+        for i in range(episode_len):
+            rb.add(obs=obs[i:i+stack_size],
+                   next_obs=obs[i+1:i+1+stack_size])
+
+        s = rb.get_all_transitions()
+        self.assertEqual(rb.get_stored_size(),2*episode_len)
+        for i in range(episode_len):
+            with self.subTest(i=i):
+                np.testing.assert_equal(s["obs"][i],
+                                        obs[i:i+stack_size])
+                np.testing.assert_equal(s["next_obs"][i],
+                                        obs[i+1:i+1+stack_size])
+        for i in range(episode_len):
+            with self.subTest(i=i+episode_len):
+                np.testing.assert_equal(s["obs"][i+episode_len],
+                                        obs[i:i+stack_size])
+                np.testing.assert_equal(s["next_obs"][i+episode_len],
+                                        obs[i+1:i+1+stack_size])
+
 if __name__ == '__main__':
     unittest.main()
