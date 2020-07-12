@@ -1048,6 +1048,15 @@ cdef class ReplayBuffer:
 
         self.episode_len = 0
 
+    cpdef size_t get_current_episode_len(self):
+        """Get current episode length
+
+        Returns
+        -------
+        episode_len : size_t
+        """
+        return self.episode_len
+
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
     """Prioritized replay buffer class to store environments with priorities.
