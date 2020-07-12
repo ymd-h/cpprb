@@ -506,7 +506,7 @@ class TestIssue108(unittest.TestCase):
                 np.testing.assert_equal(s["obs"][i+episode_len1],
                                         obs2[i:i+stack_size])
                 np.testing.assert_equal(s["next_obs"][i+episode_len1],
-                                        obs2[i+1:i+1+stack_size1])
+                                        obs2[i+1:i+1+stack_size])
 
 
 if __name__ == '__main__':
