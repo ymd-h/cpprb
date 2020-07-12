@@ -14,6 +14,10 @@
 
 * Unreleased
 - Remove: author email address from setup.py, which is not necessary for PyPI
+* v9.0.2
+- Fix: Cache for "next_of" when "stack_compress" at last item ([[https://gitlab.com/ymd_h/cpprb/-/issues/108][108]])
+* v9.0.1
+- Fix: Cache for "next_of" with "stack_compress" at non last item ([[https://gitlab.com/ymd_h/cpprb/-/issues/108][108]])
 * v9.0.0
 - Remove: cpprb.gym sub-package, which is not cpprb main purpose
 * v8.4.8
