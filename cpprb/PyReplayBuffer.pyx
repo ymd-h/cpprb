@@ -1017,7 +1017,7 @@ cdef class ReplayBuffer:
             if self.has_next_of:
                 for name, value in self.next_.items():
                     if key == key_:
-                        self.cache[key][f"next_{name}"] = value
+                        self.cache[key][f"next_{name}"] = value.copy()
                     else:
                         self.cache[key][f"next_{name}"] = self.buffer[name][key+1].copy()
 
