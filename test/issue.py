@@ -502,10 +502,10 @@ class TestIssue108(unittest.TestCase):
                 np.testing.assert_equal(s["next_obs"][i],
                                         obs[i+1:i+1+stack_size])
         for i in range(episode_len2):
-            with self.subTest(i=i+episode_len):
+            with self.subTest(i=i+episode_len1):
                 np.testing.assert_equal(s["obs"][i+episode_len1],
                                         obs2[i:i+stack_size])
-                np.testing.assert_equal(s["next_obs"][i+episode_len],
+                np.testing.assert_equal(s["next_obs"][i+episode_len1],
                                         obs2[i+1:i+1+stack_size1])
 
 
