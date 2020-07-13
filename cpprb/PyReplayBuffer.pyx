@@ -1023,7 +1023,7 @@ cdef class ReplayBuffer:
             return
 
         cdef size_t key_end = (self.index or self.buffer_size)
-        # Next index (without wraparounding): key_end in [0,...,self.buffer_size]
+        # Next index (without wraparounding): key_end in [1,...,self.buffer_size]
 
         cdef size_t key_min = 0
         cdef size_t max_cache = min(self.cache_size,self.episode_len)
