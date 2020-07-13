@@ -478,15 +478,17 @@ class TestIssue108(unittest.TestCase):
         s = rb.get_all_transitions()
         self.assertEqual(rb.get_stored_size(),episode_len1 + episode_len2)
         for i in range(episode_len1):
-            with self.subTest(i=i):
+            with self.subTest(i=i,v="obs"):
                 np.testing.assert_equal(s["obs"][i],
                                         obs[i:i+stack_size])
+            with self.subTest(i=i,v="next_obs"):
                 np.testing.assert_equal(s["next_obs"][i],
                                         obs[i+1:i+1+stack_size])
         for i in range(episode_len2):
-            with self.subTest(i=i+episode_len1):
+            with self.subTest(i=i+episode_len1,v="obs"):
                 np.testing.assert_equal(s["obs"][i+episode_len1],
                                         obs2[i:i+stack_size])
+            with self.subTest(i=i+episode_len1,v="next_obs"):
                 np.testing.assert_equal(s["next_obs"][i+episode_len1],
                                         obs2[i+1:i+1+stack_size])
 
@@ -496,15 +498,17 @@ class TestIssue108(unittest.TestCase):
         s = rb.get_all_transitions()
         self.assertEqual(rb.get_stored_size(),episode_len1 + episode_len2)
         for i in range(episode_len1):
-            with self.subTest(i=i):
+            with self.subTest(i=i,v="obs"):
                 np.testing.assert_equal(s["obs"][i],
                                         obs[i:i+stack_size])
+            with self.subTest(i=i,v="next_obs"):
                 np.testing.assert_equal(s["next_obs"][i],
                                         obs[i+1:i+1+stack_size])
         for i in range(episode_len2):
-            with self.subTest(i=i+episode_len1):
+            with self.subTest(i=i+episode_len1,v="obs"):
                 np.testing.assert_equal(s["obs"][i+episode_len1],
                                         obs2[i:i+stack_size])
+            with self.subTest(i=i+episode_len1,v="next_obs"):
                 np.testing.assert_equal(s["next_obs"][i+episode_len1],
                                         obs2[i+1:i+1+stack_size])
 
