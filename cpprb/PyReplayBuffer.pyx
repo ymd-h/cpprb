@@ -1021,7 +1021,7 @@ cdef class ReplayBuffer:
             key_min = key_ - max_cache
 
         cdef size_t key = 0
-        for key in range(key_min, key_ + 1):
+        for key in range(key_min, key_ + 1): # key_ is included
             self.cache[key] = {}
 
             if self.has_next_of:
