@@ -792,6 +792,11 @@ cdef class ReplayBuffer:
         self.has_next_of = next_of
         self.next_ = {}
         self.cache = {} if (self.has_next_of or self.compress_any) else None
+
+        # Cache Size:
+        #     No "next_of" nor "stack_compress": -> 0
+        #     If "stack_compress": -> max of stack size -1
+        #     If "next_of": -> Increase by 1
         self.cache_size = 1 if (self.cache is not None) else 0
         if self.compress_any:
             for name in self.stack_compress:
