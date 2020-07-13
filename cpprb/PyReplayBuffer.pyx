@@ -800,6 +800,7 @@ cdef class ReplayBuffer:
                                                ndmin=1,copy=False)[-1] -1)
 
         if self.has_next_of:
+            self.cache_size += 1
             for name in self.next_of:
                 self.next_[name] = self.buffer[name][0].copy()
 
