@@ -474,9 +474,9 @@ class TestIssue108(unittest.TestCase):
             rb.add(obs=obs2[i:i+stack_size],
                    next_obs=obs2[i+1:i+1+stack_size])
 
+        self.assertEqual(rb.get_current_episode_len(),episode_len2)
         s = rb.get_all_transitions()
         self.assertEqual(rb.get_stored_size(),episode_len1 + episode_len2)
-        self.assertEqual(rb.get_current_episode_len(),episode_len2)
         for i in range(episode_len1):
             with self.subTest(i=i):
                 np.testing.assert_equal(s["obs"][i],
