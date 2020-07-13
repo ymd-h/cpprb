@@ -1031,15 +1031,17 @@ cdef class ReplayBuffer:
             key_min = key_end - max_cache
 
         cdef size_t key = 0
+        cdef size_t next_key = 0
         for key in range(key_min, key_end): # key_end is excluded
+            next_key = key + 1
             self.cache[key] = {}
 
             if self.has_next_of:
                 for name, value in self.next_.items():
-                    if key +1 == key_end:
+                    if next_key == key_end:
                         self.cache[key][f"next_{name}"] = value.copy()
                     else:
-                        self.cache[key][f"next_{name}"] = self.buffer[name][key+1].copy()
+                        self.cache[key][f"next_{name}"] = self.buffer[name][next_key].copy()
 
             if self.compress_any:
                 for name in self.stack_compress:
