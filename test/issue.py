@@ -418,5 +418,100 @@ class TestIssue108(unittest.TestCase):
                 np.testing.assert_equal(s["next_obs"][i+episode_len],
                                         obs2[i+1:i+1+stack_size])
 
+    def test_smaller_episode_than_stack_frame(self):
+        """
+        `on_episode_end()` caches stack size.
+
+        When episode length is smaller than stack size,
+        `on_episode_end()` must avoid caching from previous episode.
+
+        Since cache does not wraparound, this bug does not happen
+        at the first episode.
+
+        Ref: https://gitlab.com/ymd_h/cpprb/-/issues/108
+        Ref: https://gitlab.com/ymd_h/cpprb/-/issues/110
+        """
+        stack_size = 4
+        episode_len1 = 5
+        episode_len2 = 2
+        rb = ReplayBuffer(32, {"obs": {"shape": (stack_size),"dtype": np.int}},
+                          next_of="obs",stack_compress="obs")
+
+        obs = np.arange(episode_len1+stack_size+2,dtype=np.int)
+        obs2= np.arange(episode_len2+stack_size+2,dtype=np.int) + 100
+
+        self.assertEqual(rb.get_current_episode_len(),0)
+
+        # Add 1st episode
+        for i in range(episode_len1):
+            rb.add(obs=obs[i:i+stack_size],
+                   next_obs=obs[i+1:i+1+stack_size])
+
+        s = rb.get_all_transitions()
+        self.assertEqual(rb.get_stored_size(),episode_len1)
+        self.assertEqual(rb.get_current_episode_len(),episode_len1)
+        for i in range(episode_len1):
+            with self.subTest(i=i):
+                np.testing.assert_equal(s["obs"][i],
+                                        obs[i:i+stack_size])
+                np.testing.assert_equal(s["next_obs"][i],
+                                        obs[i+1:i+1+stack_size])
+
+        # Reset environment
+        rb.on_episode_end()
+        self.assertEqual(rb.get_current_episode_len(),0)
+        s = rb.get_all_transitions()
+        self.assertEqual(rb.get_stored_size(),episode_len1)
+        for i in range(episode_len1):
+            with self.subTest(i=i):
+                np.testing.assert_equal(s["obs"][i],
+                                        obs[i:i+stack_size])
+                np.testing.assert_equal(s["next_obs"][i],
+                                        obs[i+1:i+1+stack_size])
+
+        # Add 2nd episode
+        for i in range(episode_len2):
+            rb.add(obs=obs2[i:i+stack_size],
+                   next_obs=obs2[i+1:i+1+stack_size])
+
+        self.assertEqual(rb.get_current_episode_len(),episode_len2)
+        s = rb.get_all_transitions()
+        self.assertEqual(rb.get_stored_size(),episode_len1 + episode_len2)
+        for i in range(episode_len1):
+            with self.subTest(i=i,v="obs"):
+                np.testing.assert_equal(s["obs"][i],
+                                        obs[i:i+stack_size])
+            with self.subTest(i=i,v="next_obs"):
+                np.testing.assert_equal(s["next_obs"][i],
+                                        obs[i+1:i+1+stack_size])
+        for i in range(episode_len2):
+            with self.subTest(i=i+episode_len1,v="obs"):
+                np.testing.assert_equal(s["obs"][i+episode_len1],
+                                        obs2[i:i+stack_size])
+            with self.subTest(i=i+episode_len1,v="next_obs"):
+                np.testing.assert_equal(s["next_obs"][i+episode_len1],
+                                        obs2[i+1:i+1+stack_size])
+
+
+        rb.on_episode_end()
+        self.assertEqual(rb.get_current_episode_len(),0)
+        s = rb.get_all_transitions()
+        self.assertEqual(rb.get_stored_size(),episode_len1 + episode_len2)
+        for i in range(episode_len1):
+            with self.subTest(i=i,v="obs"):
+                np.testing.assert_equal(s["obs"][i],
+                                        obs[i:i+stack_size])
+            with self.subTest(i=i,v="next_obs"):
+                np.testing.assert_equal(s["next_obs"][i],
+                                        obs[i+1:i+1+stack_size])
+        for i in range(episode_len2):
+            with self.subTest(i=i+episode_len1,v="obs"):
+                np.testing.assert_equal(s["obs"][i+episode_len1],
+                                        obs2[i:i+stack_size])
+            with self.subTest(i=i+episode_len1,v="next_obs"):
+                np.testing.assert_equal(s["next_obs"][i+episode_len1],
+                                        obs2[i+1:i+1+stack_size])
+
+
 if __name__ == '__main__':
     unittest.main()
