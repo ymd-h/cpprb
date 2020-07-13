@@ -1008,6 +1008,10 @@ cdef class ReplayBuffer:
         """Add last items into cache
         """
 
+        # If no cache configuration, do nothing
+        if self.cache is None:
+            return
+
         # If nothing are stored, do nothing
         if self.stored_size == 0:
             return
@@ -1048,8 +1052,7 @@ cdef class ReplayBuffer:
             self.add(**self.nstep.on_episode_end())
             self.use_nstep = True
 
-        if self.cache is not None:
-            self.add_cache()
+        self.add_cache()
 
         self.episode_len = 0
 
@@ -1276,8 +1279,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
                      **self.priorities_nstep.on_episode_end())
             self.use_nstep = True
 
-        if self.cache is not None:
-            self.add_cache()
+        self.add_cache()
 
         self.episode_len = 0
 
