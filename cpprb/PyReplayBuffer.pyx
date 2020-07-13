@@ -1007,6 +1007,11 @@ cdef class ReplayBuffer:
     cdef void add_cache(self):
         """Add last items into cache
         """
+
+        # If nothing are stored, do nothing
+        if self.stored_size == 0:
+            return
+
         cdef size_t key_ = (self.index or self.buffer_size) -1
         # Last added index: key_ in [0,...,self.buffer_size-1]
 
