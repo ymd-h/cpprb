@@ -1006,6 +1006,12 @@ cdef class ReplayBuffer:
 
     cdef void add_cache(self):
         """Add last items into cache
+
+        The last items for "next_of" and "stack_compress" optimization
+        are moved to cache area.
+
+        If `self.cache is None`, do nothing.
+        If `self.stored_size == 0`, do nothing.
         """
 
         # If no cache configuration, do nothing
