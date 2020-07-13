@@ -14,6 +14,8 @@
 
 * Unreleased
 - Remove: author email address from setup.py, which is not necessary for PyPI
+* v9.0.3
+- Fix: Cache for "next_of" when episode is smaller than stack ([[https://gitlab.com/ymd_h/cpprb/-/issues/110][110]])
 * v9.0.2
 - Fix: Cache for "next_of" when "stack_compress" at last item ([[https://gitlab.com/ymd_h/cpprb/-/issues/108][108]])
 * v9.0.1
