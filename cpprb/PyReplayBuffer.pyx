@@ -1012,21 +1012,21 @@ cdef class ReplayBuffer:
         if self.stored_size == 0:
             return
 
-        cdef size_t key_ = (self.index or self.buffer_size) -1
-        # Last added index: key_ in [0,...,self.buffer_size-1]
+        cdef size_t key_end = (self.index or self.buffer_size)
+        # Next index (without wraparounding): key_end in [0,...,self.buffer_size]
 
         cdef size_t key_min = 0
         cdef size_t max_cache = min(self.cache_size,self.episode_len)
-        if key_ > max_cache:
-            key_min = key_ - max_cache
+        if key_end > max_cache:
+            key_min = key_end - max_cache
 
         cdef size_t key = 0
-        for key in range(key_min, key_ + 1): # key_ is included
+        for key in range(key_min, key_end): # key_end is excluded
             self.cache[key] = {}
 
             if self.has_next_of:
                 for name, value in self.next_.items():
-                    if key == key_:
+                    if key +1 == key_end:
                         self.cache[key][f"next_{name}"] = value.copy()
                     else:
                         self.cache[key][f"next_{name}"] = self.buffer[name][key+1].copy()
