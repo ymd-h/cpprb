@@ -1037,10 +1037,11 @@ cdef class ReplayBuffer:
             cache_key = {}
 
             if self.has_next_of:
-                for name, value in self.next_.items():
-                    if next_key == key_end:
+                if next_key == key_end:
+                    for name, value in self.next_.items():
                         cache_key[f"next_{name}"] = value.copy()
-                    else:
+                else:
+                    for name in self.next_.keys():
                         cache_key[f"next_{name}"] = self.buffer[name][next_key].copy()
 
             if self.compress_any:
