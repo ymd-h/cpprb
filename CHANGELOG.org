@@ -60,66 +60,70 @@
 #+HUGO_VIDEOS:
 #+HUGO_WEIGHT: auto
 
-
-* Unreleased
+* DONE Change Log
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:EXPORT_HUGO_SECTION: changelog
+:END:
+** Unreleased
 - Remove: author email address from setup.py, which is not necessary for PyPI
-* v9.0.3
+** v9.0.3
 - Fix: Cache for "next_of" when episode is smaller than stack ([[https://gitlab.com/ymd_h/cpprb/-/issues/110][110]])
-* v9.0.2
+** v9.0.2
 - Fix: Cache for "next_of" when "stack_compress" at last item ([[https://gitlab.com/ymd_h/cpprb/-/issues/108][108]])
-* v9.0.1
+** v9.0.1
 - Fix: Cache for "next_of" with "stack_compress" at non last item ([[https://gitlab.com/ymd_h/cpprb/-/issues/108][108]])
-* v9.0.0
+** v9.0.0
 - Remove: cpprb.gym sub-package, which is not cpprb main purpose
-* v8.4.8
+** v8.4.8
 - Fix: Support PyVirtualDisplay 1.0 above.
 - Fix: Try to acquire physical memory in ReplayBuffer initialization ([[https://gitlab.com/ymd_h/cpprb/-/issues/105][#105]])
-* v8.4.7
+** v8.4.7
 - Add: Pruning update chain in Segment Tree ([[https://gitlab.com/ymd_h/cpprb/-/issues/103][#103]])
-* v8.4.6
+** v8.4.6
 - Fix: Windows binary build on GitHub Actions
-* v8.4.5
+** v8.4.5
 - Fix: Cache non last transitions. ([[https://gitlab.com/ymd_h/cpprb/-/issues/97][#97]])
 - Fix: Clear caches when `ReplayBuffer.clear` ([[https://gitlab.com/ymd_h/cpprb/-/issues/98][#98]])
-* v8.4.4
+** v8.4.4
 - Fix: PER priority shape mismatch ([[https://gitlab.com/ymd_h/cpprb/-/issues/96][#96]])
-* v8.4.3
+** v8.4.3
 - Fix: Unrequire done ([[https://gitlab.com/ymd_h/cpprb/-/issues/61][#61]])
-* v8.4.2
+** v8.4.2
 - Fix: Unrequire gym
-* v8.4.1
+** v8.4.1
 - Fix: PyPI description
-* v8.4.0
+** v8.4.0
 - Add: =ReplayBuffer.get_all_transitions=
-* v8.3.2
+** v8.3.2
 - Fix: Add gym into requirements, since =create_env_dict=, =create_before_func= use
-* v8.3.1
+** v8.3.1
 - Fix: GitHub Action settings (Recover Windows binary)
-* v8.3.0
+** v8.3.0
 - Add: Hepler functions =create_env_dict=, =create_before_func=
-* v8.2.5
+** v8.2.5
 - Fix: GitHub Actions syntax
-* v8.2.4
+** v8.2.4
 - Fix: README on PyPI (overwritten upload from GitHub)
-* v8.2.3
+** v8.2.3
 - Fix: Binary upload on Github Actions
-* v8.2.2
+** v8.2.2
 - Add: Distribute binary of Windows and Linux
-* v8.2.1
+** v8.2.1
 - Fix: gym module ~is~ comparison with literal
 - Fix: Build without pre-install cython
 
-* v8.2.0
+** v8.2.0
 - Add: debug build with environment ~DEBUG_CPPRB~
 
-* v8.1.3
+** v8.1.3
 - Fix: compile argument at setup.py for Windows.
 
-* v8.1.2
+** v8.1.2
 - Fix: Missing <numeric> header at ReplayBuffer.hh
 
-* v8.1.1
+** v8.1.1
 - Fix: Accept float shape at PrioritizedReplayBuffer.unchange_since_sample
 
-* v8.1.0
+** v8.1.0
 - Add: ~check_for_update~ for PrioritizedReplayBuffer
