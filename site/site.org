@@ -313,7 +313,8 @@ still works better.
 
 You can create N-step version replay buffer by specifying ~Nstep~
 parameter at constructors of ~ReplayBuffer~ or
-~PrioritizedReplayBuffer~.
+~PrioritizedReplayBuffer~. Without modification of its environment,
+cpprb summarizes N-step rewards and slides "next" values like ~next_obs~.
 
 ~Nstep~ parameter is a ~dict~ with keys of ~"size"~ , ~"gamma"~ , and
 ~"next"~ . ~Nstep["size"]~ is a N-step size and 1-step is identical
