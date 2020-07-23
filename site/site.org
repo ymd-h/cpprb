@@ -324,7 +324,7 @@ discount factor for reward summation.  ~Nstep["next"]~ , whose type is
 then ~sample~ method returns (i+N)-th value instead of (i+1)-th one.
 
 
-~sample~ also adds ~"discount"~ into returned ~dict~.
+~sample~ also adds ~"discount"~ (\( \gamma ^{N-1} \)) into returned ~dict~.
 
 
 Since N-step buffer temporary store the values into local storage, you
