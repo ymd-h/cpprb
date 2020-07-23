@@ -354,6 +354,10 @@ rb.on_episode_end()
 #+end_src
 
 *** Notes
+This N-step feature assumes sequential transitions in a trajectory
+(episode) are stored sequentially. If you utilize distributed agent
+configuration, you must add a single episode simultaneously.
+
 
 *** Technical Detail
 
