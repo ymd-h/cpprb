@@ -343,14 +343,17 @@ rb = ReplayBuffer(32,{'obs': {"shape": (4,4)},
                       'done': {}},
                   Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
 
-rb.add(obs=np.zeros((4,4)),
-       act=np.ones((3)),
-       rew=1.0,
-       next_obs=np.zeros((4,4)),
-       done=0.0)
+for i in range(100):
+    done = 1.0 if i%10 == 9 else 0.0
+    rb.add(obs=np.zeros((4,4)),
+           act=np.ones((3)),
+           rew=1.0,
+           next_obs=np.zeros((4,4)),
+           done=0.0)
+    if done:
+        rb.on_episode_end()
 
-
-rb.on_episode_end()
+rb.sample(16)
 #+end_src
 
 *** Notes
