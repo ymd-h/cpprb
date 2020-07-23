@@ -303,6 +303,8 @@ CLOSED: [2019-11-10 Sun 13:46]
 To reduce fluctuation of random sampling effect especially at
 bootstrap phase, N-step reward (discounted summation) are useful.
 
+\( \sum _{k=0}^{N-1} \gamma ^k r_{t+k} + \gamma ^N \max _{a} Q(s_t,a_t) \)
+
 According to [[https://arxiv.org/abs/2007.06700][W. Fedus et. al.]], N-step reward can utilize larger buffer
 more effectively. Even though theoretically N-step reward, which is
 based on a policy at exploration, is not justified for off-policy, it
