@@ -513,5 +513,24 @@ class TestIssue108(unittest.TestCase):
                                         obs2[i+1:i+1+stack_size])
 
 
+class TestIssue111(unittest.TestCase):
+    def test_per_nstep(self):
+        """
+        PrioritizedReplayBuffer.on_episode_end() ignores Exception
+
+        Ref: https://gitlab.com/ymd_h/cpprb/-/issues/111
+        """
+
+        rb = PrioritizedReplayBuffer(32,
+                                     {"rew": {}, "done": {}},
+                                     Nstep={"size": 4, "rew": "rew", "gamma": 0.5})
+
+        for _ in range(10):
+            rb.add(rew=0.5,done=0.0)
+
+        rb.add(rew=0.5,done=1.0)
+        rb.on_episode_end()
+
+
 if __name__ == '__main__':
     unittest.main()
