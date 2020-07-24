@@ -175,8 +175,8 @@ CLOSED: [2020-01-17 Fri 23:09]
 :EXPORT_FILE_NAME: simple_usage
 :END:
 
-Here is a simple example for storing standard environment (aka. "obs",
-"act", "rew", "next_obs", and "done").
+Here is a simple example for storing standard environment (aka. ="obs"=,
+="act"=, ="rew"=, ="next_obs"=, and ="done"=).
 
 #+BEGIN_SRC python
 from cpprb import ReplayBuffer
@@ -304,3 +304,5 @@ CLOSED: [2020-01-17 Fri 23:09]
 :EXPORT_FILE_NAME: lisence
 :END:
 cpprb is available under MIT lisence.
+
+#+INCLUDE: "./LICENSE" src
