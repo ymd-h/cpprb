@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.0.4][v9.0.4]]
+- Fix: Nstep =PrioritizedReplayBuffer= raises exception at =on_episode_end= ([[https://gitlab.com/ymd_h/cpprb/-/issues/111][111]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.0.3][v9.0.3]]
 - Fix: Cache for ="next_of"= when episode is smaller than stack ([[https://gitlab.com/ymd_h/cpprb/-/issues/110][110]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.0.2][v9.0.2]]
