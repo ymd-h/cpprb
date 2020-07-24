@@ -332,7 +332,7 @@ value(s), then ~sample~ method returns (i+N)-th value instead of
 
 Since N-step buffer temporary store the values into local storage, you
 need to call ~on_episode_end~ member function at the end of the every
-episode end to flush into main storage correctly.
+episode end to flush into main storage properly.
 
 *** Example Usage
 #+begin_src python
