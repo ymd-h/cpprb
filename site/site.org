@@ -302,8 +302,9 @@ CLOSED: [2019-11-10 Sun 13:46]
 
 To reduce fluctuation of random sampling effect especially at
 bootstrap phase, N-step reward (discounted summation) are useful. By
-expanding Bellman equation, a target of Q function becomes $\sum
-_{k=0}^{N-1} \gamma ^k r_{t+k} + \gamma ^N \max _{a} Q(s_{t+N},a)$.
+expanding Bellman equation, a N-step target of Q function becomes
+$\sum _{k=0}^{N-1} \gamma ^k r_{t+k} + \gamma ^N \max _{a}
+Q(s_{t+N},a)$.
 
 According to [[https://arxiv.org/abs/2007.06700][W. Fedus et. al.]], N-step reward can utilize larger buffer
 more effectively. Even though theoretically N-step reward, which is
