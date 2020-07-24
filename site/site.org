@@ -344,7 +344,10 @@ rb = ReplayBuffer(32,{'obs': {"shape": (4,4)},
                       'rew': {},
                       'next_obs': {"shape": (4,4)}
                       'done': {}},
-                  Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
+                  Nstep={"size": 4,
+                         "gamma": 0.99,
+                         "rew": "rew",
+                         "next": "next_obs"})
 
 for i in range(100):
     done = 1.0 if i%10 == 9 else 0.0
