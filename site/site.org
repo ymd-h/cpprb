@@ -316,12 +316,15 @@ parameter at constructors of ~ReplayBuffer~ or
 ~PrioritizedReplayBuffer~. Without modification of its environment,
 cpprb summarizes N-step rewards and slides "next" values like ~next_obs~.
 
-~Nstep~ parameter is a ~dict~ with keys of ~"size"~ , ~"gamma"~ , and
-~"next"~ . ~Nstep["size"]~ is a N-step size and 1-step is identical
-with ordinary replay buffer (but inefficient). ~Nstep["gamma"]~ is a
+~Nstep~ parameter is a ~dict~ with keys of ~"size"~ , ~"rew"~,
+~"gamma"~ , and ~"next"~ . ~Nstep["size"]~ is a N-step size and 1-step
+is identical with ordinary replay buffer (but
+inefficient). ~Nstep["rew"]~, whose type is ~str~ or array-like of
+~str~, specifies the (set of) reward(s). ~Nstep["gamma"]~ is a
 discount factor for reward summation.  ~Nstep["next"]~ , whose type is
-~str~ or array like of ~str~, specifies the (set of) next type value(s),
-then ~sample~ method returns (i+N)-th value instead of (i+1)-th one.
+~str~ or array like of ~str~, specifies the (set of) next type
+value(s), then ~sample~ method returns (i+N)-th value instead of
+(i+1)-th one.
 
 
 ~sample~ also adds ~"discounts"~ (\( \gamma ^{N-1} \)) into returned ~dict~.
