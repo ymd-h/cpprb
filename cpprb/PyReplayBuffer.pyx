@@ -1292,8 +1292,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         if self.use_nstep:
             self.use_nstep = False
-            self.add(**self.nstep.on_episode_end(),
-                     **self.priorities_nstep.on_episode_end())
+            self.add(**{**self.nstep.on_episode_end(),
+                        **self.priorities_nstep.on_episode_end()})
             self.use_nstep = True
 
         self.add_cache()
