@@ -301,26 +301,38 @@ CLOSED: [2019-11-10 Sun 13:46]
 *** Overview
 
 To reduce fluctuation of random sampling effect especially at
-bootstrap phase, N-step reward (discounted summation) are useful.
+bootstrap phase, N-step reward (discounted summation) are useful. By
+expanding Bellman equation, a N-step target of Q function becomes
+$\sum _{k=0}^{N-1} \gamma ^k r_{t+k} + \gamma ^N \max _{a}
+Q(s_{t+N},a)$.
+
+According to [[https://arxiv.org/abs/2007.06700][W. Fedus et. al.]], N-step reward can utilize larger buffer
+more effectively. Even though theoretically N-step reward, which is
+based on a policy at exploration, is not justified for off-policy, it
+still works better.
 
 You can create N-step version replay buffer by specifying ~Nstep~
 parameter at constructors of ~ReplayBuffer~ or
-~PrioritizedReplayBuffer~.
+~PrioritizedReplayBuffer~. Without modification of its environment,
+cpprb summarizes N-step rewards and slides "next" values like ~next_obs~.
 
-~Nstep~ parameter is a ~dict~ with keys of ~"size"~ , ~"gamma"~ , and
-~"next"~ . ~Nstep["size"]~ is a N-step size and 1-step is identical
-with ordinary replay buffer (but inefficient). ~Nstep["gamma"]~ is a
+~Nstep~ parameter is a ~dict~ with keys of ~"size"~ , ~"rew"~,
+~"gamma"~ , and ~"next"~ . ~Nstep["size"]~ is a N-step size and 1-step
+is identical with ordinary replay buffer (but
+inefficient). ~Nstep["rew"]~, whose type is ~str~ or array-like of
+~str~, specifies the (set of) reward(s). ~Nstep["gamma"]~ is a
 discount factor for reward summation.  ~Nstep["next"]~ , whose type is
-~str~ or array like of ~str~, specifies (the set of) next type value(s),
-then sample returns (i+N)-th value instead of (i+1)-th one.
+~str~ or array like of ~str~, specifies the (set of) next type
+value(s), then ~sample~ method returns (i+N)-th value instead of
+(i+1)-th one.
 
 
-~sample~ also adds ~"discount"~ into returned ~dict~.
+~sample~ also adds ~"discounts"~ (\( \gamma ^{N-1} \)) into returned ~dict~.
 
 
 Since N-step buffer temporary store the values into local storage, you
 need to call ~on_episode_end~ member function at the end of the every
-episode end to flush into main storage correctly.
+episode end to flush into main storage properly.
 
 *** Example Usage
 #+begin_src python
@@ -332,19 +344,29 @@ rb = ReplayBuffer(32,{'obs': {"shape": (4,4)},
                       'rew': {},
                       'next_obs': {"shape": (4,4)}
                       'done': {}},
-                  Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
+                  Nstep={"size": 4,
+                         "gamma": 0.99,
+                         "rew": "rew",
+                         "next": "next_obs"})
 
-rb.add(obs=np.zeros((4,4)),
-       act=np.ones((3)),
-       rew=1.0,
-       next_obs=np.zeros((4,4)),
-       done=0.0)
+for i in range(100):
+    done = 1.0 if i%10 == 9 else 0.0
+    rb.add(obs=np.zeros((4,4)),
+           act=np.ones((3)),
+           rew=1.0,
+           next_obs=np.zeros((4,4)),
+           done=0.0)
+    if done:
+        rb.on_episode_end()
 
-
-rb.on_episode_end()
+rb.sample(16)
 #+end_src
 
 *** Notes
+This N-step feature assumes sequential transitions in a trajectory
+(episode) are stored sequentially. If you utilize distributed agent
+configuration, you must add a single episode simultaneously.
+
 
 *** Technical Detail
 
