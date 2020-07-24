@@ -531,6 +531,9 @@ class TestIssue111(unittest.TestCase):
         rb.add(rew=0.5,done=1.0)
         rb.on_episode_end()
 
+        s = rb.sample(16)
+
+        self.assertIn("discounts",s)
 
 if __name__ == '__main__':
     unittest.main()
