@@ -1056,7 +1056,7 @@ cdef class ReplayBuffer:
 
             self.cache[key] = cache_key
 
-    cpdef void on_episode_end(self):
+    cpdef void on_episode_end(self) except *:
         """Call on episode end
 
         Notes
@@ -1282,7 +1282,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         return self.per.get_max_priority()
 
-    cpdef void on_episode_end(self):
+    cpdef void on_episode_end(self) except *:
         """Call on episode end
 
         Notes
@@ -1292,8 +1292,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         if self.use_nstep:
             self.use_nstep = False
-            self.add(**{**self.nstep.on_episode_end(),
-                        **self.priorities_nstep.on_episode_end()})
+            self.add(**self.nstep.on_episode_end(),
+                     priorities=self.priorities_nstep.on_episode_end()["priorities"])
             self.use_nstep = True
 
         self.add_cache()
