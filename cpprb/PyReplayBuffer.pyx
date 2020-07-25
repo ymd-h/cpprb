@@ -704,7 +704,7 @@ cdef class NstepBuffer:
         """
         self.stored_size = 0
 
-    cpdef on_episode_end(self):
+    cpdef on_episode_end(self) except *:
         """Terminate episode.
         """
         kwargs = self.buffer.copy()
@@ -1056,7 +1056,7 @@ cdef class ReplayBuffer:
 
             self.cache[key] = cache_key
 
-    cpdef void on_episode_end(self):
+    cpdef void on_episode_end(self) except *:
         """Call on episode end
 
         Notes
@@ -1282,7 +1282,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         return self.per.get_max_priority()
 
-    cpdef void on_episode_end(self):
+    cpdef void on_episode_end(self) except *:
         """Call on episode end
 
         Notes
