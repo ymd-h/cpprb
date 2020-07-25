@@ -704,7 +704,7 @@ cdef class NstepBuffer:
         """
         self.stored_size = 0
 
-    cpdef on_episode_end(self) except *:
+    cpdef on_episode_end(self):
         """Terminate episode.
         """
         kwargs = self.buffer.copy()
