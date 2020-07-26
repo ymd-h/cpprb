@@ -35,6 +35,21 @@ class TestTrain(unittest.TestCase):
               lambda kwargs,step,episode: 0.5,
               max_steps=10)
 
+    def test_per_train(self):
+        """
+        Run train function with PER
+        """
+        rb = PrioritizedReplayBuffer(32,
+                                     {"obs": {"shape": (3,)},
+                                      "act": {},
+                                      "rew": {},
+                                      "next_obs": {"shape": (3,)},
+                                      "done": {}})
+        train(rb,self.env,
+              lambda obs: 1.0,
+              lambda kwargs,step,episode: 0.5,
+              max_steps=10)
+
     def test_too_big_max_steps(self):
         """
         Raise ValueError for too big max_steps
