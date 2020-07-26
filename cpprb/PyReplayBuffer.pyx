@@ -2,7 +2,7 @@
 # cython: linetrace=True
 
 import ctypes
-from logging import getLogger
+from logging import getLogger, StreamHandler, Formatter, INFO
 from typing import Any, Dict, Callable, Optional
 
 cimport numpy as np
@@ -16,6 +16,26 @@ from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,
                             VectorInt,VectorSize_t,
                             VectorDouble,PointerDouble,VectorFloat)
+
+def default_logger(level=INFO):
+    """
+    Create default logger for cpprb
+    """
+    logger = getLogger("cpprb")
+    logger.setLevel(level)
+
+    handler = StreamHandler()
+    handler.setLevel(level)
+
+    format = Formatter("%(asctime)s.%(msecs)03d [%(levelname)s] " +
+                       "(%(filename)s:%(lineno)s) %(message)s",
+                       "%Y%m%d-%H%M%S")
+    handler.setFormatter(format)
+
+    logger.addHandler(handler)
+    logger.propagate = False
+
+    return logger
 
 cdef double [::1] Cdouble(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
