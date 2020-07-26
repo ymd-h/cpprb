@@ -2,6 +2,8 @@
 # cython: linetrace=True
 
 import ctypes
+from typing import Optional
+
 cimport numpy as np
 import numpy as np
 import cython
