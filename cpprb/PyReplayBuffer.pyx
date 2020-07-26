@@ -3,6 +3,7 @@
 
 import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
+import time
 from typing import Any, Dict, Callable, Optional
 
 cimport numpy as np
