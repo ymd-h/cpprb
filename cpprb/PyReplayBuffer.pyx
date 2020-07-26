@@ -1412,7 +1412,7 @@ def train(buffer: ReplayBuffer,
     cdef size_t _n_warmup = min(max(0,n_warmups),size_t_limit)
 
     cdef size_t step = 0
-    cdef size_t episode = -1
+    cdef size_t episode = 0
 
     obs = env.reset()
     for step in range(_max_steps):
