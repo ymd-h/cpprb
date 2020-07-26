@@ -2,6 +2,7 @@
 # cython: linetrace=True
 
 import ctypes
+from logging import getLogger
 from typing import Any, Dict, Callable, Optional
 
 cimport numpy as np
