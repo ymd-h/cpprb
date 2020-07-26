@@ -1429,19 +1429,19 @@ def train(buffer: ReplayBuffer,
 
         # Step environment
         if has_after_step:
-            kwargs = after_step(obs,action,env.step(action),step,episode)
+            transition = after_step(obs,action,env.step(action),step,episode)
         else:
             next_obs, reward, done, _ = env.step(action)
-            kwargs = {"obs": obs,
-                      "act": action,
-                      "rew": reward,
-                      "next_obs": next_obs,
-                      "done": done}
+            transition = {"obs": obs,
+                          "act": action,
+                          "rew": reward,
+                          "next_obs": next_obs,
+                          "done": done}
 
         # Add to buffer
-        buffer.add(**kwargs)
+        buffer.add(**transition)
 
-        # For Nstep, ReplayBuffer can be empty after `add(**kwargs)` method
+        # For Nstep, ReplayBuffer can be empty after `add(**transition)` method
         if (buffer.get_stored_size() > 0) and (step >= _n_warmup):
             # Sample
             sample = buffer.sample(batch_size)
@@ -1451,7 +1451,7 @@ def train(buffer: ReplayBuffer,
                 buffer.update_priorities(sample["indexes"],absTD)
 
         # Prepare the next step
-        if done_check(kwargs) if has_check else kwargs["done"]:
+        if done_check(transition) if has_check else transition["done"]:
             # Reset
             obs = env.reset()
             buffer.on_episode_end()
@@ -1461,4 +1461,4 @@ def train(buffer: ReplayBuffer,
             if episode >= _max_episodes:
                 break
         else:
-            obs = obs_update(kwargs) if has_obs_update else kwargs["next_obs"]
+            obs = obs_update(transition) if has_obs_update else transition["next_obs"]
