@@ -187,5 +187,27 @@ class TestTrain(unittest.TestCase):
               max_steps=10,
               after_step=after_step)
 
+    def test_episode_callback(self):
+        """
+        Pass custom episode_callback
+        """
+        rb = ReplayBuffer(32,
+                          {"obs": {"shape": (3,)},
+                           "act": {},
+                           "rew": {},
+                           "next_obs": {"shape": (3,)},
+                           "done": {}})
+
+        def callback(episode,episode_step,episode_reward):
+            self.assertEqual(episode_step,int(episode_reward))
+
+        train(rb,self.env,
+              lambda obs, step, episode, is_warmup: 1.0,
+              lambda tr,step,episode: 0.5,
+              max_steps=10,
+              rew_sum=lambda sum,tr: sum+1.0
+              done_check=lambda tr: True)
+
+
 if __name__ == "__main__":
     unittest.main()
