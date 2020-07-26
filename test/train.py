@@ -12,7 +12,7 @@ class Env:
         return np.zeros(self.shape)
 
     def step(self,action):
-        return np.zeros(self.shape), 1.0, np.random.choice([0.0,1.0],p=[0.99,0.01])
+        return np.zeros(self.shape), 1.0, np.random.choice([0.0,1.0],p=[0.99,0.01]), {}
 
 
 class TestTrain(unittest.TestCase):
