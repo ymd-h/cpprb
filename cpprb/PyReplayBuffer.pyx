@@ -1351,3 +1351,105 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
         return buffer(size,env_dict,**kwargs)
 
     raise NotImplementedError(f"{buffer_name} is not Implemented")
+
+
+def train(buffer: ReplayBuffer,
+          env,
+          get_action: Callable,
+          update_policy: Callable,*,
+          max_steps: int=int(1e6),
+          max_episodes: Optional[int] = None,
+          batch_size: int = 64,
+          n_warmups: int = 0,
+          after_step: Optional[Callable] = None,
+          done_check: Optional[Callable] = None,
+          obs_update: Optional[Callable] = None):
+    """
+    Train RL policy (model)
+
+    Parameters
+    ----------
+    buffer: ReplayBuffer
+        Buffer to be used for training
+    env: gym.Enviroment compatible
+        Environment to learn
+    get_action: Callable
+        Callable taking `obs` and returning `action`
+    update_policy: Callable
+        Callable taking `sample`, `step`, and `episode`, updating policy,
+        and returning |TD|.
+    max_steps: int (optional)
+        Maximum steps to learn. The default value is `1000000`
+    max_episodes: int (optional)
+        Maximum episodes to learn. The defaul value is `None`
+    n_warmups: int (optional)
+        Warmup steps before sampling. The default value is `0` (No warmup)
+    after_step: Callable (optional)
+        Callable converting from `obs` and `env.step(action)` output to
+        `dict` for `ReplayBuffer`
+    done_check: Callable (optional)
+        Callable checking done
+    obs_update: Callable (optional)
+        Callable updating obs
+
+    Raises
+    ------
+    ValueError:
+       When `max_step` is larger than `size_t` limit
+    """
+    cdef size_t size_t_limit = -1
+    if max_step >= size_t_limit:
+        raise ValueError(f"max_steps ({max_steps}) is too big. " +
+                         f"max_steps < {size_t_limit}")
+
+    cdef bool use_per = isinstance(buffer,PrioritizedReplayBuffer)
+    cdef bool has_after_step = after_step
+    cdef bool has_check = done_check
+    cdef bool has_obs_update = obs_update
+
+    cdef size_t _max_steps = max(max_steps,0)
+    cdef size_t _max_episodes = min(max(max_episode or size_t_limit, 0),size_t_limit)
+    cdef size_t _n_warmup = min(max(0,n_warmups),size_t_limit)
+
+    cdef size_t step = 0
+    cdef size_t episode = -1
+
+    obs = env.reset()
+    for step in range(_max_step):
+        # Get action
+        action = get_action(obs)
+
+        # Step environment
+        if has_after_step:
+            kwargs = after_step(obs,env.step(action))
+        else:
+            next_obs, reward, done, _ = env.step(action)
+            kwargs = {"obs": obs,
+                      "act": action,
+                      "rew": reward,
+                      "next_obs": next_obs,
+                      "done": done}
+
+        # Add to buffer
+        buffer.add(**kwargs)
+
+        if (buffer.get_stored_size() > 0) and (step >= _n_warmup):
+            # Sample
+            sample = buffer.sample(batch_size)
+            maybe_absTD = update_policy(sample,step,episode)
+
+            if use_per:
+                buffer.update_priorities(samplpe["indexes"],maybe_absTD)
+
+        # Prepare the next step
+        if done_check(kwargs) if has_check else kwargs["done"]:
+            # Reset
+            obs = env.reset()
+            buffer.on_episode_end()
+
+            # Update episode count
+            episode += 1
+            if episode >= _max_episodes:
+                break
+        else:
+            obs = obs_update(kwargs) if has_next_update else kwargs["next_obs"]
