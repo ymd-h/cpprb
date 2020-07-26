@@ -1462,6 +1462,8 @@ def train(buffer: ReplayBuffer,
     cdef bool is_warmup = True
 
     obs = env.reset()
+    cdef double episode_start_time = time.perf_counter()
+    cdef double episode_end_time = 0.0
     for step in range(_max_steps):
         is_warmup = (step < _n_warmup)
 
@@ -1497,6 +1499,14 @@ def train(buffer: ReplayBuffer,
 
         # Prepare the next step
         if done_check(transition) if has_check else transition["done"]:
+            episode_end_time = time.perf_counter()
+            SPS = episode_step / max(episode_end_time-episode_start_time,1e-9)
+            logger.info(f"Episode: {episode: 6} " +
+                        f"Total Steps: {step: 7} " +
+                        f"Episode Steps: {episode_step: 5} " +
+                        f"Reward: {episode_reward: =+5.4f} " +
+                        f"Steps/Sec: {SPS: =+5.2f}")
+
             # Summary
             if has_episode_callback:
                 episode_callback(episode,episode_step,episode_reward)
@@ -1511,6 +1521,8 @@ def train(buffer: ReplayBuffer,
             episode += 1
             if episode >= _max_episodes:
                 break
+
+            episode_start_time = time.perf_counter()
         else:
             obs = obs_update(transition) if has_obs_update else transition["next_obs"]
             episode_step += 1
