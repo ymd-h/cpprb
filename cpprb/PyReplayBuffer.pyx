@@ -1372,7 +1372,8 @@ def train(buffer: ReplayBuffer,
           after_step: Optional[Callable] = None,
           done_check: Optional[Callable] = None,
           obs_update: Optional[Callable] = None,
-          rew_sum: Optional[Callable[float, Any, float]] = None):
+          rew_sum: Optional[Callable[float, Any, float]] = None,
+          episode_callback: Optional[Callable[[int,int,float],Any]] = None):
     """
     Train RL policy (model)
 
@@ -1394,14 +1395,17 @@ def train(buffer: ReplayBuffer,
     n_warmups: int (optional)
         Warmup steps before sampling. The default value is `0` (No warmup)
     after_step: Callable (optional)
-        Callable converting from `obs` and `env.step(action)` output to
-        `dict` for `ReplayBuffer`
+        Callable converting from `obs`, returns of `env.step(action)`,
+        `step`, and `episode` to `dict` of a transition for `ReplayBuffer.add`.
+        This function can also be used for step summary callback.
     done_check: Callable (optional)
         Callable checking done
     obs_update: Callable (optional)
         Callable updating obs
     rew_sum: Callable[float, Dict, float] (optional)
         Callable summarizing episode reward
+    episode_callback: Callable (optional)
+        Callable for episode summarization
 
     Raises
     ------
@@ -1418,6 +1422,7 @@ def train(buffer: ReplayBuffer,
     cdef bool has_check = done_check
     cdef bool has_obs_update = obs_update
     cdef bool has_rew_sum = rew_sum
+    cdef bool has_episode_callback = episode_callback
 
     cdef size_t _max_steps = max(max_steps,0)
     cdef size_t _max_episodes = min(max(max_episodes or size_t_limit, 0),size_t_limit)
@@ -1425,6 +1430,7 @@ def train(buffer: ReplayBuffer,
 
     cdef size_t step = 0
     cdef size_t episode = 0
+    cdef size_t episode_step = 0
     cdef float episode_reward = 0.0
     cdef bool is_warmup = True
 
@@ -1463,10 +1469,15 @@ def train(buffer: ReplayBuffer,
 
         # Prepare the next step
         if done_check(transition) if has_check else transition["done"]:
+            # Summary
+            if has_episode_callback:
+                episode_callback(episode,episode_step,episode_reward)
+
             # Reset
             obs = env.reset()
             buffer.on_episode_end()
             episode_reward = 0.0
+            episode_step = 0
 
             # Update episode count
             episode += 1
@@ -1474,3 +1485,4 @@ def train(buffer: ReplayBuffer,
                 break
         else:
             obs = obs_update(transition) if has_obs_update else transition["next_obs"]
+            episode_step += 1
