@@ -1444,10 +1444,10 @@ def train(buffer: ReplayBuffer,
         if (buffer.get_stored_size() > 0) and (step >= _n_warmup):
             # Sample
             sample = buffer.sample(batch_size)
-            maybe_absTD = update_policy(sample,step,episode)
+            absTD = update_policy(sample,step,episode)
 
             if use_per:
-                buffer.update_priorities(sample["indexes"],maybe_absTD)
+                buffer.update_priorities(sample["indexes"],absTD)
 
         # Prepare the next step
         if done_check(kwargs) if has_check else kwargs["done"]:
