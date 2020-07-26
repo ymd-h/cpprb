@@ -1421,11 +1421,14 @@ def train(buffer: ReplayBuffer,
 
     cdef size_t step = 0
     cdef size_t episode = 0
+    cdef bool is_warmup = True
 
     obs = env.reset()
     for step in range(_max_steps):
+        is_warmup = (step < _n_warmup)
+
         # Get action
-        action = get_action(obs)
+        action = get_action(obs,step,episode,is_warmup)
 
         # Step environment
         if has_after_step:
@@ -1442,7 +1445,7 @@ def train(buffer: ReplayBuffer,
         buffer.add(**transition)
 
         # For Nstep, ReplayBuffer can be empty after `add(**transition)` method
-        if (buffer.get_stored_size() > 0) and (step >= _n_warmup):
+        if (buffer.get_stored_size() > 0) and (not is_warmup):
             # Sample
             sample = buffer.sample(batch_size)
             absTD = update_policy(sample,step,episode)
