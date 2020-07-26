@@ -1507,7 +1507,7 @@ def train(buffer: ReplayBuffer,
             logger.info(f"Episode: {episode: 6} " +
                         f"Total Steps: {step+1: 7} " +
                         f"Episode Steps: {episode_step+1: 5} " +
-                        f"Reward: {episode_reward: =+5.4f} " +
+                        f"Reward: {episode_reward: =+5.2f} " +
                         f"Steps/Sec: {SPS: =+5.2f}")
 
             # Summary
