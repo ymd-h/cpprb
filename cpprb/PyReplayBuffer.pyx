@@ -1398,7 +1398,7 @@ def train(buffer: ReplayBuffer,
        When `max_step` is larger than `size_t` limit
     """
     cdef size_t size_t_limit = -1
-    if max_step >= size_t_limit:
+    if max_steps >= size_t_limit:
         raise ValueError(f"max_steps ({max_steps}) is too big. " +
                          f"max_steps < {size_t_limit}")
 
@@ -1408,14 +1408,14 @@ def train(buffer: ReplayBuffer,
     cdef bool has_obs_update = obs_update
 
     cdef size_t _max_steps = max(max_steps,0)
-    cdef size_t _max_episodes = min(max(max_episode or size_t_limit, 0),size_t_limit)
+    cdef size_t _max_episodes = min(max(max_episodes or size_t_limit, 0),size_t_limit)
     cdef size_t _n_warmup = min(max(0,n_warmups),size_t_limit)
 
     cdef size_t step = 0
     cdef size_t episode = -1
 
     obs = env.reset()
-    for step in range(_max_step):
+    for step in range(_max_steps):
         # Get action
         action = get_action(obs)
 
@@ -1439,7 +1439,7 @@ def train(buffer: ReplayBuffer,
             maybe_absTD = update_policy(sample,step,episode)
 
             if use_per:
-                buffer.update_priorities(samplpe["indexes"],maybe_absTD)
+                buffer.update_priorities(sample["indexes"],maybe_absTD)
 
         # Prepare the next step
         if done_check(kwargs) if has_check else kwargs["done"]:
@@ -1452,4 +1452,4 @@ def train(buffer: ReplayBuffer,
             if episode >= _max_episodes:
                 break
         else:
-            obs = obs_update(kwargs) if has_next_update else kwargs["next_obs"]
+            obs = obs_update(kwargs) if has_obs_update else kwargs["next_obs"]
