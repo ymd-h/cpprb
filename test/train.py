@@ -168,7 +168,8 @@ class TestTrain(unittest.TestCase):
                            "next_obs": {"shape": (3,)},
                            "done": {}})
 
-        def after_step(obs,act,next_obs,rew,done,info):
+        def after_step(obs,act,step_returns,step,episode):
+            next_obs, rew, done, info = step_returns
             self.assertEqual(obs.shape,next_obs.shape)
             return {"obs": obs,
                     "act": act,
