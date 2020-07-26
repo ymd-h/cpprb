@@ -1465,7 +1465,8 @@ def train(buffer: ReplayBuffer,
                 buffer.update_priorities(sample["indexes"],absTD)
 
         # Summarize reward
-        episode_reward = rew_sum(transition) if has_rew_sum else transition["rew"]
+        episode_reward = (rew_sum(episode_reward,transition) if has_rew_sum
+                          else transition["rew"])
 
         # Prepare the next step
         if done_check(transition) if has_check else transition["done"]:
