@@ -1256,7 +1256,15 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         Returns
         -------
+
+        Raises
+        ------
+        TypeError: When `indexes` or `priorities` are `None`
         """
+
+        if priorities is None:
+            raise TypeError("`properties` must not be `None`")
+
         cdef size_t [:] idx = Csize(indexes)
         cdef float [:] ps = Cfloat(priorities)
 
