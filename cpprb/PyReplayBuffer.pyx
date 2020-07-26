@@ -2,7 +2,7 @@
 # cython: linetrace=True
 
 import ctypes
-from typing import Optional
+from typing import Callable, Optional
 
 cimport numpy as np
 import numpy as np
