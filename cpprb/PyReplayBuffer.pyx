@@ -1402,9 +1402,9 @@ def train(buffer: ReplayBuffer,
         Callable checking done
     obs_update: Callable (optional)
         Callable updating obs
-    rew_sum: Callable[float, Dict, float] (optional)
+    rew_sum: Callable[[float, Dict], float] (optional)
         Callable summarizing episode reward
-    episode_callback: Callable (optional)
+    episode_callback: Callable[[int, int, float], Any] (optional)
         Callable for episode summarization
 
     Raises
