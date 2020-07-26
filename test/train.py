@@ -139,6 +139,22 @@ class TestTrain(unittest.TestCase):
               max_steps=10,
               done_check=lambda kw: True)
 
+    def test_per_without_TD(self):
+        """
+        Run train function with PER withou TD
+
+        Raise
+        """
+        rb = PrioritizedReplayBuffer(32,
+                                     {"obs": {"shape": (3,)},
+                                      "act": {},
+                                      "rew": {},
+                                      "next_obs": {"shape": (3,)},
+                                      "done": {}})
+        train(rb,self.env,
+              lambda obs: 1.0,
+              lambda kwargs,step,episode: None,
+              max_steps=10)
 
 
 if __name__ == "__main__":
