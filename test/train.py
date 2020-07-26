@@ -28,7 +28,7 @@ class TestTrain(unittest.TestCase):
                           {"obs": {"shape": (3,)},
                            "act": {},
                            "rew": {},
-                           "next_done": {},
+                           "next_obs": {},
                            "done": {}})
         train(rb,self.env,
               lambda obs: 1.0,
@@ -43,7 +43,7 @@ class TestTrain(unittest.TestCase):
                           {"obs": {"shape": (3,)},
                            "act": {},
                            "rew": {},
-                           "next_done": {},
+                           "next_obs": {},
                            "done": {}})
         with self.assertRaises(ValueError):
             train(rb,self.env,
@@ -62,7 +62,7 @@ class TestTrain(unittest.TestCase):
                           {"obs": {"shape": (3,)},
                            "act": {},
                            "rew": {},
-                           "next_done": {},
+                           "next_obs": {},
                            "done": {}})
         def update(kw,step,episode):
             self.assertLess(step,10)
@@ -84,7 +84,7 @@ class TestTrain(unittest.TestCase):
                           {"obs": {"shape": (3,)},
                            "act": {},
                            "rew": {},
-                           "next_done": {},
+                           "next_obs": {},
                            "done": {}})
         def update(kw,step,episode):
             self.assertGreaterEqual(step,5)
@@ -108,7 +108,7 @@ class TestTrain(unittest.TestCase):
                           {"obs": {"shape": (3,)},
                            "act": {},
                            "rew": {},
-                           "next_done": {},
+                           "next_obs": {},
                            "done": {}})
         def update(kw,step,episode):
             self.assertLess(step,10)
