@@ -151,10 +151,11 @@ class TestTrain(unittest.TestCase):
                                       "rew": {},
                                       "next_obs": {"shape": (3,)},
                                       "done": {}})
-        train(rb,self.env,
-              lambda obs: 1.0,
-              lambda kwargs,step,episode: None,
-              max_steps=10)
+        with self.assertRaises(TypeError):
+            train(rb,self.env,
+                  lambda obs: 1.0,
+                  lambda kwargs,step,episode: None,
+                  max_steps=10)
 
 
 if __name__ == "__main__":
