@@ -1429,7 +1429,7 @@ def train(buffer: ReplayBuffer,
 
         # Step environment
         if has_after_step:
-            kwargs = after_step(obs,action,*env.step(action))
+            kwargs = after_step(obs,action,env.step(action))
         else:
             next_obs, reward, done, _ = env.step(action)
             kwargs = {"obs": obs,
