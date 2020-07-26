@@ -1372,7 +1372,7 @@ def train(buffer: ReplayBuffer,
           after_step: Optional[Callable] = None,
           done_check: Optional[Callable] = None,
           obs_update: Optional[Callable] = None,
-          rew_sum: Optional[Callable[float, Any, float]] = None,
+          rew_sum: Optional[Callable[[float, Any], float]] = None,
           episode_callback: Optional[Callable[[int,int,float],Any]] = None):
     """
     Train RL policy (model)
