@@ -1082,6 +1082,15 @@ cdef class ReplayBuffer:
         """
         return self.episode_len
 
+    cpdef bool is_Nstep(self):
+        """Get whether use Nstep or not
+
+        Returns
+        -------
+        use_nstep : bool
+        """
+        return self.use_nstep
+
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
     """Prioritized replay buffer class to store environments with priorities.
