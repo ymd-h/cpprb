@@ -157,6 +157,34 @@ class TestTrain(unittest.TestCase):
                   lambda kwargs,step,episode: None,
                   max_steps=10)
 
+    def test_after_step(self):
+        """
+        Pass custom after_step
+        """
+        rb = ReplayBuffer(32,
+                          {"obs": {"shape": (3,)},
+                           "act": {},
+                           "rew": {},
+                           "next_obs": {"shape": (3,)},
+                           "done": {}})
+
+        def after_step(obs,act,next_obs,rew,done,info):
+            self.assertEqual(obs.shape,next_obs.shape)
+            return {"obs": obs,
+                    "act": act,
+                    "next_obs": next_obs,
+                    "rew": rew,
+                    "done": done}
+
+        def update(kw,step,episode):
+            self.assertLess(step,10)
+            return 0.5
+
+        train(rb,self.env,
+              lambda obs: 1.0,
+              update,
+              max_steps=10,
+              after_step=after_step)
 
 if __name__ == "__main__":
     unittest.main()
