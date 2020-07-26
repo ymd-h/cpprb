@@ -31,7 +31,7 @@ class TestTrain(unittest.TestCase):
                            "next_obs": {"shape": (3,)},
                            "done": {}})
         train(rb,self.env,
-              lambda obs: 1.0,
+              lambda obs, step, episode, is_warmup: 1.0,
               lambda kwargs,step,episode: 0.5,
               max_steps=10)
 
@@ -46,7 +46,7 @@ class TestTrain(unittest.TestCase):
                                       "next_obs": {"shape": (3,)},
                                       "done": {}})
         train(rb,self.env,
-              lambda obs: 1.0,
+              lambda obs, step, episode, is_warmup: 1.0,
               lambda kwargs,step,episode: 0.5,
               max_steps=10)
 
@@ -65,7 +65,7 @@ class TestTrain(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             train(rb,self.env,
-                  lambda obs: 1.0,
+                  lambda obs, step, episode, is_warmup: 1.0,
                   update,
                   max_steps=int(1e+32))
 
@@ -88,7 +88,7 @@ class TestTrain(unittest.TestCase):
             return 0.5
 
         train(rb,self.env,
-              lambda obs: 1.0,
+              lambda obs, step, episode, is_warmup: 1.0,
               update,
               max_steps=10)
 
@@ -111,7 +111,7 @@ class TestTrain(unittest.TestCase):
             return 0.5
 
         train(rb,self.env,
-              lambda obs: 1.0,
+              lambda obs, step, episode, is_warmup: 1.0,
               update,
               max_steps=10,
               n_warmups=5)
@@ -134,7 +134,7 @@ class TestTrain(unittest.TestCase):
             return 0.5
 
         train(rb,self.env,
-              lambda obs: 1.0,
+              lambda obs, step, episode, is_warmup: 1.0,
               update,
               max_steps=10,
               done_check=lambda kw: True)
@@ -153,7 +153,7 @@ class TestTrain(unittest.TestCase):
                                       "done": {}})
         with self.assertRaises(TypeError):
             train(rb,self.env,
-                  lambda obs: 1.0,
+                  lambda obs, step, episode, is_warmup: 1.0,
                   lambda kwargs,step,episode: None,
                   max_steps=10)
 
@@ -182,7 +182,7 @@ class TestTrain(unittest.TestCase):
             return 0.5
 
         train(rb,self.env,
-              lambda obs: 1.0,
+              lambda obs, step, episode, is_warmup: 1.0,
               update,
               max_steps=10,
               after_step=after_step)
