@@ -1398,7 +1398,7 @@ def train(buffer: ReplayBuffer,
        When `max_step` is larger than `size_t` limit
     """
     cdef size_t size_t_limit = -1
-    if max_steps >= size_t_limit:
+    if max_steps >= int(size_t_limit):
         raise ValueError(f"max_steps ({max_steps}) is too big. " +
                          f"max_steps < {size_t_limit}")
 
