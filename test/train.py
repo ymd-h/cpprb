@@ -92,7 +92,7 @@ class TestTrain(unittest.TestCase):
         def update(kw,step,episode):
             self.assertGreaterEqual(step,5)
             self.assertLess(step,10)
-            self.assertLessEqual(step,episode)
+            self.assertLessEqual(episode,step)
             return 0.5
 
         train(rb,self.env,
