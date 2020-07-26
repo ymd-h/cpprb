@@ -172,6 +172,11 @@ util:
   script:
     - coverage run -m xmlrunner test/util.py
 
+train:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/train.py
+
 coverage:
   <<: *setup
   stage: test_coverage
