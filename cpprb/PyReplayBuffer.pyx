@@ -1500,10 +1500,13 @@ def train(buffer: ReplayBuffer,
         # Prepare the next step
         if done_check(transition) if has_check else transition["done"]:
             episode_end_time = time.perf_counter()
-            SPS = episode_step / max(episode_end_time-episode_start_time,1e-9)
+
+            # step/episode_step are index.
+            # Total Steps/Episode Steps are counts.
+            SPS = (episode_step+1) / max(episode_end_time-episode_start_time,1e-9)
             logger.info(f"Episode: {episode: 6} " +
-                        f"Total Steps: {step: 7} " +
-                        f"Episode Steps: {episode_step: 5} " +
+                        f"Total Steps: {step+1: 7} " +
+                        f"Episode Steps: {episode_step+1: 5} " +
                         f"Reward: {episode_reward: =+5.4f} " +
                         f"Steps/Sec: {SPS: =+5.2f}")
 
