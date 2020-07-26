@@ -143,7 +143,7 @@ class TestTrain(unittest.TestCase):
         """
         Run train function with PER withou TD
 
-        Raise
+        Raise TypeError
         """
         rb = PrioritizedReplayBuffer(32,
                                      {"obs": {"shape": (3,)},
