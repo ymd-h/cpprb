@@ -45,10 +45,13 @@ class TestTrain(unittest.TestCase):
                            "rew": {},
                            "next_obs": {"shape": (3,)},
                            "done": {}})
+        def update(kw,step,episode):
+            raise RuntimeError
+
         with self.assertRaises(ValueError):
             train(rb,self.env,
                   lambda obs: 1.0,
-                  lambda kwargs,step,episode: 0.5,
+                  update,
                   max_steps=int(1e+16))
 
     def test_update_count(self):
