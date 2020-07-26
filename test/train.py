@@ -52,7 +52,7 @@ class TestTrain(unittest.TestCase):
             train(rb,self.env,
                   lambda obs: 1.0,
                   update,
-                  max_steps=int(1e+16))
+                  max_steps=int(1e+32))
 
     def test_update_count(self):
         """
