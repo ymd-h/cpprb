@@ -1371,7 +1371,8 @@ def train(buffer: ReplayBuffer,
           n_warmups: int = 0,
           after_step: Optional[Callable] = None,
           done_check: Optional[Callable] = None,
-          obs_update: Optional[Callable] = None):
+          obs_update: Optional[Callable] = None,
+          rew_sum: Optional[Callable[float, Any, float]] = None):
     """
     Train RL policy (model)
 
@@ -1399,6 +1400,8 @@ def train(buffer: ReplayBuffer,
         Callable checking done
     obs_update: Callable (optional)
         Callable updating obs
+    rew_sum: Callable[float, Dict, float] (optional)
+        Callable summarizing episode reward
 
     Raises
     ------
@@ -1414,6 +1417,7 @@ def train(buffer: ReplayBuffer,
     cdef bool has_after_step = after_step
     cdef bool has_check = done_check
     cdef bool has_obs_update = obs_update
+    cdef bool has_rew_sum = rew_sum
 
     cdef size_t _max_steps = max(max_steps,0)
     cdef size_t _max_episodes = min(max(max_episodes or size_t_limit, 0),size_t_limit)
@@ -1421,6 +1425,7 @@ def train(buffer: ReplayBuffer,
 
     cdef size_t step = 0
     cdef size_t episode = 0
+    cdef float episode_reward = 0.0
     cdef bool is_warmup = True
 
     obs = env.reset()
@@ -1453,11 +1458,15 @@ def train(buffer: ReplayBuffer,
             if use_per:
                 buffer.update_priorities(sample["indexes"],absTD)
 
+        # Summarize reward
+        episode_reward = rew_sum(transition) if has_rew_sum else transition["rew"]
+
         # Prepare the next step
         if done_check(transition) if has_check else transition["done"]:
             # Reset
             obs = env.reset()
             buffer.on_episode_end()
+            episode_reward = 0.0
 
             # Update episode count
             episode += 1
