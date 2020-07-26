@@ -1441,6 +1441,7 @@ def train(buffer: ReplayBuffer,
         # Add to buffer
         buffer.add(**kwargs)
 
+        # For Nstep, ReplayBuffer can be empty after `add(**kwargs)` method
         if (buffer.get_stored_size() > 0) and (step >= _n_warmup):
             # Sample
             sample = buffer.sample(batch_size)
