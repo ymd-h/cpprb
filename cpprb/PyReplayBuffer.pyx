@@ -1394,7 +1394,8 @@ def train(buffer: ReplayBuffer,
           done_check: Optional[Callable] = None,
           obs_update: Optional[Callable] = None,
           rew_sum: Optional[Callable[[float, Any], float]] = None,
-          episode_callback: Optional[Callable[[int,int,float],Any]] = None):
+          episode_callback: Optional[Callable[[int,int,float],Any]] = None,
+          logger = None):
     """
     Train RL policy (model)
 
@@ -1427,12 +1428,16 @@ def train(buffer: ReplayBuffer,
         Callable summarizing episode reward
     episode_callback: Callable[[int, int, float], Any] (optional)
         Callable for episode summarization
+    logger: logging.Logger (optional)
+        Custom Logger
 
     Raises
     ------
     ValueError:
        When `max_step` is larger than `size_t` limit
     """
+    logger = logger or default_logger()
+
     cdef size_t size_t_limit = -1
     if max_steps >= int(size_t_limit):
         raise ValueError(f"max_steps ({max_steps}) is too big. " +
