@@ -205,7 +205,7 @@ class TestTrain(unittest.TestCase):
               lambda obs, step, episode, is_warmup: 1.0,
               lambda tr,step,episode: 0.5,
               max_steps=10,
-              rew_sum=lambda sum,tr: sum+1.0
+              rew_sum=lambda sum,tr: sum+1.0,
               done_check=lambda tr: True)
 
 
