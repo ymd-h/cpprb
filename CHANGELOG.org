@@ -66,6 +66,9 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.1.1][v9.1.1]]
+- Fix: Add Warning to =train=
+- Fix: Embed signature at =train=
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.1.0][v9.1.0]]
 - Add: New free function =train= for simple train loop (beta)
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.0.5][v9.0.5]]
