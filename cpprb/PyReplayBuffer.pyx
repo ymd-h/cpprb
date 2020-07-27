@@ -1383,6 +1383,7 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     raise NotImplementedError(f"{buffer_name} is not Implemented")
 
 
+@cython.embedsignature(True)
 def train(buffer: ReplayBuffer,
           env,
           get_action: Callable,
