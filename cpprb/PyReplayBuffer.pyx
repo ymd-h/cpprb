@@ -5,6 +5,7 @@ import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
 import time
 from typing import Any, Dict, Callable, Optional
+import warnings
 
 cimport numpy as np
 import numpy as np
@@ -1383,6 +1384,7 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     raise NotImplementedError(f"{buffer_name} is not Implemented")
 
 
+@cython.embedsignature(True)
 def train(buffer: ReplayBuffer,
           env,
           get_action: Callable,
@@ -1437,6 +1439,8 @@ def train(buffer: ReplayBuffer,
     ValueError:
        When `max_step` is larger than `size_t` limit
     """
+    warnings.warn("`cpprb.train` is still beta release. API can be changed.")
+
     logger = logger or default_logger()
 
     cdef size_t size_t_limit = -1
