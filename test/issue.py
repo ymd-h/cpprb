@@ -575,15 +575,11 @@ class TestIssue112(unittest.TestCase):
                  np.float16,
                  np.float32,
                  np.float64,
-                 np.float96,
-                 np.float128,
                  np.csingle,
                  np.complex_,
                  np.clongfloat,
                  np.complex64,
-                 np.complex128,
-                 np.complex192,
-                 np.complex256]
+                 np.complex128]
 
         for d in types:
             with self.subTest(type=d):
