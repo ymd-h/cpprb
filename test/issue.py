@@ -560,7 +560,7 @@ class TestIssue112(unittest.TestCase):
                  np.ubyte,
                  np.ushort,
                  np.uintc,
-                 up.uint,
+                 np.uint,
                  np.ulonglong,
                  np.uintp,
                  np.uint8,
