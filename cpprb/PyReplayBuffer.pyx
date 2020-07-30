@@ -34,8 +34,11 @@ def default_logger(level=INFO):
                        "%Y%m%d-%H%M%S")
     handler.setFormatter(format)
 
-    logger.addHandler(handler)
-    logger.propagate = False
+    if logger.hasHandlers():
+        logger.handlers[0] = handler
+    else:
+        logger.addHandler(handler)
+        logger.propagate = False
 
     return logger
 
