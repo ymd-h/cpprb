@@ -587,6 +587,18 @@ class TestIssue112(unittest.TestCase):
                 b.add(a=np.ones(1,dtype=d))
                 self.assertEqual(b.get_all_transitions()["a"].dtype,d)
 
+    def test_python_type(self):
+        types = [bool,
+                 int,
+                 float]
+
+        for d in types:
+            with self.subTest(type=d):
+                b = ReplayBuffer(10,{"a": {"dtype": d}})
+                b.add(a=d(1))
+                self.assertEqual(b.get_all_transitions()["a"].dtype,d)
+
+
 
 if __name__ == '__main__':
     unittest.main()
