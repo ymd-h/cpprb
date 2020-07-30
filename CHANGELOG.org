@@ -66,6 +66,7 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.1.2][v9.1.2]]
 - Fix: Logger writer multiple same massages
 - Fix: buffer dtypes were mis-converted ([[https://gitlab.com/ymd_h/cpprb/-/issues/112][112]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.1.1][v9.1.1]]
