@@ -67,6 +67,7 @@
 :END:
 ** Unreleased
 - Fix: Logger writer multiple same massages
+- Fix: buffer dtypes were mis-converted ([[https://gitlab.com/ymd_h/cpprb/-/issues/112][112]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.1.1][v9.1.1]]
 - Fix: Add Warning to =train=
 - Fix: Embed signature at =train=
