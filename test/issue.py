@@ -585,7 +585,7 @@ class TestIssue112(unittest.TestCase):
             with self.subTest(type=d):
                 b = ReplayBuffer(10,{"a": {"dtype": d}})
                 b.add(a=np.ones(1,dtype=d))
-                self.assertIs(b.get_all_transitions()["a"].dtype,d)
+                self.assertEqual(b.get_all_transitions()["a"].dtype,d)
 
 
 if __name__ == '__main__':
