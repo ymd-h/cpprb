@@ -535,5 +535,70 @@ class TestIssue111(unittest.TestCase):
 
         self.assertIn("discounts",s)
 
+class TestIssue112(unittest.TestCase):
+    """
+    dtype is converted to integer type
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/112
+
+    Even set np.bool, it become np.int64.
+    This bug was introduced when fixing https://gitlab.com/ymd_h/cpprb/-/issues/105
+    """
+    def test_dtype_check(self):
+        types = [np.bool_,
+                 np.bool8,
+                 np.byte,
+                 np.short,
+                 np.intc,
+                 np.int_,
+                 np.longlong,
+                 np.intp,
+                 np.int8,
+                 np.int16,
+                 np.int32,
+                 np.int64,
+                 np.ubyte,
+                 np.ushort,
+                 np.uintc,
+                 np.uint,
+                 np.ulonglong,
+                 np.uintp,
+                 np.uint8,
+                 np.uint16,
+                 np.uint32,
+                 np.uint64,
+                 np.half,
+                 np.single,
+                 np.double,
+                 np.float_,
+                 np.longfloat,
+                 np.float16,
+                 np.float32,
+                 np.float64,
+                 np.csingle,
+                 np.complex_,
+                 np.clongfloat,
+                 np.complex64,
+                 np.complex128]
+
+        for d in types:
+            with self.subTest(type=d):
+                b = ReplayBuffer(10,{"a": {"dtype": d}})
+                b.add(a=np.ones(1,dtype=d))
+                self.assertEqual(b.get_all_transitions()["a"].dtype,d)
+
+    def test_python_type(self):
+        types = [bool,
+                 int,
+                 float]
+
+        for d in types:
+            with self.subTest(type=d):
+                b = ReplayBuffer(10,{"a": {"dtype": d}})
+                b.add(a=d(1))
+                self.assertEqual(b.get_all_transitions()["a"].dtype,d)
+
+
+
 if __name__ == '__main__':
     unittest.main()

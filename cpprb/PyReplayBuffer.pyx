@@ -34,8 +34,11 @@ def default_logger(level=INFO):
                        "%Y%m%d-%H%M%S")
     handler.setFormatter(format)
 
-    logger.addHandler(handler)
-    logger.propagate = False
+    if logger.hasHandlers():
+        logger.handlers[0] = handler
+    else:
+        logger.addHandler(handler)
+        logger.propagate = False
 
     return logger
 
@@ -447,7 +450,9 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
                                                            shape=shape,
                                                            strides=strides)
         else:
-            buffer[name] = np.zeros(shape,dtype=defs.get("dtype",default_dtype)) + 1
+            buffer[name] = np.zeros(shape,dtype=defs.get("dtype",default_dtype))
+
+        buffer[name][:] = 1
 
         shape[0] = -1
         defs["add_shape"] = shape
