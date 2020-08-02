@@ -1377,6 +1377,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         self.episode_len = 0
 
+@cython.embedsignature(True)
 def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     """Create specified version of replay buffer
 
