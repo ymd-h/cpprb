@@ -412,7 +412,8 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
-def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = None):
+def dict2buffer(buffer_size,env_dict,*,
+                stack_compress = None,default_dtype = None,mmap_prefix = None):
     """Create buffer from env_dict
 
     Parameters
@@ -425,6 +426,9 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
         compress memory of specified stacked values.
     default_dtype : numpy.dtype, optional
         fallback dtype for not specified in `env_dict`. default is numpy.single
+    mmap_prefix : str, optional
+        File name prefix to save buffer data using mmap. If `None` (default),
+        save only on memory.
 
     Returns
     -------
@@ -434,6 +438,14 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
     cdef buffer = {}
     cdef bool compress_any = stack_compress
     default_dtype = default_dtype or np.single
+
+    def zeros(name,shape,dtype):
+        if mmap_prefix:
+            return np.mmap(f"{mmap_prefix}_{name}.dat",
+                           shape=shape,dtype=dtype,mode="w+")
+        else:
+            return np.zeros(shape=shape,dtype=dtype)
+
     for name, defs in env_dict.items():
         shape = np.insert(np.asarray(defs.get("shape",1)),0,buffer_size)
 
@@ -443,14 +455,14 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
             buffer_shape = np.insert(np.delete(shape,-1),1,shape[-1])
             buffer_shape[0] += buffer_shape[1] - 1
             buffer_shape[1] = 1
-            memory = np.zeros(buffer_shape,
-                              dtype=defs.get("dtype",default_dtype))
+            memory = zeros(name, buffer_shape,
+                           dtype=defs.get("dtype",default_dtype))
             strides = np.append(np.delete(memory.strides,1),memory.strides[1])
             buffer[name] = np.lib.stride_tricks.as_strided(memory,
                                                            shape=shape,
                                                            strides=strides)
         else:
-            buffer[name] = np.zeros(shape,dtype=defs.get("dtype",default_dtype))
+            buffer[name] = zeros(name,shape,dtype=defs.get("dtype",default_dtype))
 
         buffer[name][:] = 1
 
