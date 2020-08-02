@@ -67,7 +67,7 @@ class TestMemmap(unittest.TestCase):
         for _ in range(1000):
             rb.add(done=0.0)
 
-        self.assertTrue(os.path.exists("mmap_done.txt"))
+        self.assertTrue(os.path.exists("mmap_done.dat"))
 
 if __name__ == '__main__':
     unittest.main()
