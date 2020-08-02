@@ -143,13 +143,16 @@ rb = ReplayBuffer(buffer_size,{"obs": {"shape": (4,4)},
                                "done": {},
                                "my_important_info": {"dtype": {np.short}}})
 
-rb.add(obs=np.zeros((4,4)),
-       act=1.5,
-       rew=0.0,
-       next_obs=np.zeros((4,4)),
-       next_next_obs=np.zeros((4,4)),
-       done=0,
-       my_important_info=2)
+for _ in range(100):
+    rb.add(obs=np.zeros((4,4)),
+           act=1.5,
+           rew=0.0,
+           next_obs=np.zeros((4,4)),
+           next_next_obs=np.zeros((4,4)),
+           done=0,
+           my_important_info=2)
+
+rb.sample(64)
 #+end_src
 *** Notes
 ~priorities~, ~weights~, and ~indexes~ for ~PrioritizedReplayBuffer~
