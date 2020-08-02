@@ -412,8 +412,9 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
-def dict2buffer(buffer_size,env_dict,*,
-                stack_compress = None,default_dtype = None,mmap_prefix = None):
+def dict2buffer(buffer_size: int,env_dict: Dict,*,
+                stack_compress = None, default_dtype = None,
+                mmap_prefix: Optional[str] = None):
     """Create buffer from env_dict
 
     Parameters
