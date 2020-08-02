@@ -342,6 +342,14 @@ Since N-step buffer temporary store the values into local storage, you
 need to call ~on_episode_end~ member function at the end of the every
 episode end to flush into main storage properly.
 
+| Parameters | Type                         | Description                |
+|------------+------------------------------+----------------------------|
+| ~size~     | ~int~                        | Nstep size                 |
+| ~rew~      | ~str~ or array-like of ~str~ | Nstep reward               |
+| ~gamma~    | ~float~                      | Discount factor            |
+| ~next~     | ~str~ or array-like of ~str~ | Next items (e.g. next_obs) |
+
+
 *** Example Usage
 #+begin_src python
 import numpy as np
