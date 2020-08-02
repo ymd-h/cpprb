@@ -519,7 +519,7 @@ This feature is useful when a required memory size is larger than
 physical RAM size. Since the data is stored on file directly, this
 might be slower.
 
-The file names are `f"{mmap_prefix}_{name}.dat"`.
+The file names are ~f"{mmap_prefix}_{name}.dat"~.
 
 * Contributing
 :PROPERTIES:
