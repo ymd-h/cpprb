@@ -775,14 +775,23 @@ cdef class NstepBuffer:
 
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
-    """Replay Buffer class to store environments and to sample them randomly.
+    """Replay Buffer class to store transitions and to sample them randomly.
 
-    The envitonment contains observation (obs), action (act), reward (rew),
-    the next observation (next_obs), and done (done).
+    The transition can contain anything compatible with numpy data
+    type. User can specify by `env_dict` parameters at constructor
+    freely.
 
-    In this class, sampling is random sampling and the same environment can be
-    chosen multiple times.
-    """
+    The possible standard transition contains observation (`obs`), action (`act`),
+    reward (`rew`), the next observation (`next_obs`), and done (`done`).
+
+    >>> env_dict = {"obs": {"shape": (4,4)},
+                    "act": {"shape": 3, "dtype": np.int16},
+                    "rew": {},
+                    "next_obs": {"shape": (4,4)},
+                    "done": {}}
+
+    In this class, sampling is random sampling and the same transition
+    can be chosen multiple times."""
     cdef buffer
     cdef size_t buffer_size
     cdef env_dict
@@ -1144,9 +1153,9 @@ cdef class ReplayBuffer:
 
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
-    """Prioritized replay buffer class to store environments with priorities.
+    """Prioritized replay buffer class to store transitions with priorities.
 
-    In this class, these environments are sampled with corresponding priorities.
+    In this class, these transitions are sampled with corresponding to priorities.
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
@@ -1368,6 +1377,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         self.episode_len = 0
 
+@cython.embedsignature(True)
 def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     """Create specified version of replay buffer
 

@@ -143,13 +143,16 @@ rb = ReplayBuffer(buffer_size,{"obs": {"shape": (4,4)},
                                "done": {},
                                "my_important_info": {"dtype": {np.short}}})
 
-rb.add(obs=np.zeros((4,4)),
-       act=1.5,
-       rew=0.0,
-       next_obs=np.zeros((4,4)),
-       next_next_obs=np.zeros((4,4)),
-       done=0,
-       my_important_info=2)
+for _ in range(100):
+    rb.add(obs=np.zeros((4,4)),
+           act=1.5,
+           rew=0.0,
+           next_obs=np.zeros((4,4)),
+           next_next_obs=np.zeros((4,4)),
+           done=0,
+           my_important_info=2)
+
+rb.sample(64)
 #+end_src
 *** Notes
 ~priorities~, ~weights~, and ~indexes~ for ~PrioritizedReplayBuffer~
@@ -207,8 +210,9 @@ The shapes for ~add~ for every environments are stored as
 ~add_shape=(-1,*env_shape)~ at constructor, s.t. ~env_shape~ is the environment
 shape.
 
-Only one environment (usually ~done~) is used to determine the step
-size by reshaping to ~add_shape~.
+Only one environment value is used to determine the step size by
+reshaping to ~add_shape~, so that user must pass the values of the
+same step size.
 
 
 ** DONE Prioritized Experience Replay
@@ -229,9 +233,14 @@ In cpprb, ~PrioritizedReplayBuffer~ class implements these
 functionalities with proportional base (instead of rank base)
 priorities.
 
+#+CAPTION: Parameter Definition
+| \(i\)-th                | Definition                                                                        |
+|-------------------------+-----------------------------------------------------------------------------------|
+| Probability: \( P(i) \) | \( \frac{(P_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (P_{j}+\epsilon)^{\alpha}} \) |
+| Weight:  \( w_i \)      | \( \left( \frac{1}{N} \frac{1}{P(i)}\right) ^{\beta} \)                           |
 
 You can ~add~ ~priorities~ together with other environment. If no
-~prioroties~ are passed, the stored maximum priority is used.
+~priorities~ are passed, the stored maximum priority is used.
 
 
 The ~dict~ returned by ~sample~ also has special key-values of
@@ -245,6 +254,13 @@ constructor and ~beta~ at ~sample~, and their default values are
 ~0.6~, ~1e-4~, and ~0.4~, respectively. The detail is described in the
 original paper above.
 
+
+#+CAPTION: Nstep Parameters
+| Parameters     | Default       | Description                                                                   |
+|----------------+---------------+-------------------------------------------------------------------------------|
+| \( \alpha \)   | \( 0.6 \)     | Prioritized parameter. ~0~ means uniform.                                     |
+| \( \beta \)    | \( 0.4 \)     | Compensation parameter. ~1~ means fully compensate (i.e. Importance Sampling) |
+| \( \epsilon \) | \( 10^{-4} \) | Small value to avoid ~0~ priority                                             |
 
 
 *** Example Usage
@@ -333,6 +349,14 @@ value(s), then ~sample~ method returns (i+N)-th value instead of
 Since N-step buffer temporary store the values into local storage, you
 need to call ~on_episode_end~ member function at the end of the every
 episode end to flush into main storage properly.
+
+| Parameters | Type                         | Description                |
+|------------+------------------------------+----------------------------|
+| ~size~     | ~int~                        | Nstep size                 |
+| ~rew~      | ~str~ or array-like of ~str~ | Nstep reward               |
+| ~gamma~    | ~float~                      | Discount factor            |
+| ~next~     | ~str~ or array-like of ~str~ | Next items (e.g. next_obs) |
+
 
 *** Example Usage
 #+begin_src python
@@ -501,6 +525,22 @@ however, ~stack_compress~ intentionally overlaps the memory addresses
 in the stacked dimension.
 
 
+
+** DONE Map Large Data on File
+CLOSED: [2020-08-02 Sun 18:00]
+:PROPERTIES:
+:EXPORT_FILE_NAME: mmap
+:END:
+
+From version 9.2, ~ReplayBuffer~ accepts ~mmap_prefix~ keyword at
+constructor. If ~mmap_prefix~ is specified, internal memory data are
+mapped on files by using mmap.
+
+This feature is useful when a required memory size is larger than
+physical RAM size. Since the data is stored on file directly, this
+might be slower.
+
+The file names are ~f"{mmap_prefix}_{name}.dat"~.
 
 * Contributing
 :PROPERTIES:
@@ -1137,6 +1177,9 @@ CLOSED: [2020-01-17 Fri 22:31]
 :END:
 
 In this section, cpprb related miscellaneous information are described.
+
+- [[https://ymd_h.gitlab.io/cpprb/misc/links/][Links]]
+- [[https://ymd_h.gitlab.io/cpprb/misc/lisence/][License]]
 
 * DONE FAQ
 CLOSED: [2020-06-06 Sat 13:50]
