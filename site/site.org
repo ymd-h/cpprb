@@ -249,10 +249,10 @@ constructor and ~beta~ at ~sample~, and their default values are
 ~0.6~, ~1e-4~, and ~0.4~, respectively. The detail is described in the
 original paper above.
 
-| \(i\)-th    | Definition                                                      |
-|-------------+-----------------------------------------------------------------|
-| Probability | \( \frac{(P_{i})^{\alpha}}{\sum _{j=0}^{N} (P_{j})^{\alpha}} \) |
-| Weight      | \( (\frac{1}{N} \frac{1}{P_{i}})^{\beta} \)                     |
+| \(i\)-th               | Definition                                                                        |
+|------------------------+-----------------------------------------------------------------------------------|
+| Probability \( P(i) \) | \( \frac{(P_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (P_{j}+\epsilon)^{\alpha}} \) |
+| Weight  \( w_i \)      | \( (\frac{1}{N} \frac{1}{P(i)})^{\beta} \)                                        |
 
 
 *** Example Usage
