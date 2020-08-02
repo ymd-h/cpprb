@@ -63,6 +63,10 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
 class TestMemmap(unittest.TestCase):
     def test_memmap(self):
         rb = ReplayBuffer(32,{"done": {}},mmap_prefix="mmap")
+
+        for _ in range(1000):
+            rb.add(done=0.0)
+
         self.assertTrue(os.path.exists("mmap_done.txt"))
 
 if __name__ == '__main__':
