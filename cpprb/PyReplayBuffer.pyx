@@ -800,6 +800,7 @@ cdef class ReplayBuffer:
 
     def __cinit__(self,size,env_dict=None,*,
                   next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
+                  mmap_prefix =None,
                   **kwargs):
         self.env_dict = env_dict or {}
         cdef special_keys = []
@@ -826,7 +827,8 @@ cdef class ReplayBuffer:
         # side effect: Add "add_shape" key into self.env_dict
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
-                                  default_dtype = self.default_dtype)
+                                  default_dtype = self.default_dtype,
+                                  mmap_prefix = mmap_prefix)
 
         self.size_check = StepChecker(self.env_dict,special_keys)
 
@@ -853,6 +855,7 @@ cdef class ReplayBuffer:
 
     def __init__(self,size,env_dict=None,*,
                  next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
+                 mmap_prefix =None,
                  **kwargs):
         """Initialize ReplayBuffer
 
@@ -877,6 +880,9 @@ cdef class ReplayBuffer:
             Nstep reward to be summed. `Nstep["gamma"]` is float specifying
             discount factor, its default is 0.99. `Nstep["next"]` is `str` or
             list of `str` specifying next values to be moved.
+        mmap_prefix : str, optional
+            File name prefix to save buffer data using mmap. If `None` (default),
+            save only on memory.
         """
         pass
 
