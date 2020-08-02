@@ -442,8 +442,8 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
 
     def zeros(name,shape,dtype):
         if mmap_prefix:
-            return np.mmap(f"{mmap_prefix}_{name}.dat",
-                           shape=shape,dtype=dtype,mode="w+")
+            return np.memmap(f"{mmap_prefix}_{name}.dat",
+                             shape=shape,dtype=dtype,mode="w+")
         else:
             return np.zeros(shape=shape,dtype=dtype)
 
