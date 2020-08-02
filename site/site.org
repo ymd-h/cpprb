@@ -255,6 +255,13 @@ original paper above.
 | Weight:  \( w_i \)      | \( (\frac{1}{N} \frac{1}{P(i)})^{\beta} \)                                        |
 
 
+| Parameters     | Default       |
+|----------------+---------------|
+| \( \alpha \)   | \( 0.6 \)     |
+| \( \beta \)    | \( 0.4 \)     |
+| \( \epsilon \) | \( 10^{-4} \) |
+
+
 *** Example Usage
 #+begin_src python
 import numpy as np
