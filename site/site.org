@@ -505,6 +505,20 @@ in the stacked dimension.
 
 
 
+** DONE Map Large Data on File
+CLOSED: [2020-08-02 Sun 18:00]
+:PROPERTIES:
+:EXPORT_FILE_NAME: mmap
+:END:
+
+From version 9.2, ~ReplayBuffer~ accepts ~mmap_prefix~ keyword at
+constructor. If ~mmap_prefix~ is specified, internal memory data are
+mapped on files by using mmap.
+
+This feature is useful when a required memory size is larger than
+physical RAM size. Since the data is stored on file directly, this
+might be slower.
+
 * Contributing
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: contributing
