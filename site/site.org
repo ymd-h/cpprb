@@ -252,7 +252,7 @@ original paper above.
 | \(i\)-th                | Definition                                                                        |
 |-------------------------+-----------------------------------------------------------------------------------|
 | Probability: \( P(i) \) | \( \frac{(P_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (P_{j}+\epsilon)^{\alpha}} \) |
-| Weight:  \( w_i \)      | \( (\frac{1}{N} \frac{1}{P(i)})^{\beta} \)                                        |
+| Weight:  \( w_i \)      | \( \left( \frac{1}{N} \frac{1}{P(i)}\right) ^{\beta} \)                           |
 
 
 | Parameters     | Default       |
