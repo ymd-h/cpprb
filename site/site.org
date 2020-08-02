@@ -256,11 +256,11 @@ original paper above.
 | Weight:  \( w_i \)      | \( \left( \frac{1}{N} \frac{1}{P(i)}\right) ^{\beta} \)                           |
 
 #+CAPTION: Nstep Parameters
-| Parameters     | Default       |
-|----------------+---------------|
-| \( \alpha \)   | \( 0.6 \)     |
-| \( \beta \)    | \( 0.4 \)     |
-| \( \epsilon \) | \( 10^{-4} \) |
+| Parameters     | Default       | Description                                                                   |
+|----------------+---------------+-------------------------------------------------------------------------------|
+| \( \alpha \)   | \( 0.6 \)     | Prioritized parameter. ~0~ means uniform.                                     |
+| \( \beta \)    | \( 0.4 \)     | Compensation parameter. ~1~ means fully compensate (i.e. Importance Sampling) |
+| \( \epsilon \) | \( 10^{-4} \) | Small value to avoid ~0~ priority                                             |
 
 
 *** Example Usage
