@@ -209,7 +209,8 @@ sample = rb.sample(batch_size)
 # sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', and 'done'
 #+END_SRC
 
-Flexible environment values are defined by =env_dict= when buffer creation.
+Flexible environment values are defined by =env_dict= when buffer
+creation. The detail is described at [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][document]].
 
 Since stored values have flexible name, you have to pass to
 =ReplayBuffer.add= member by keyword.
