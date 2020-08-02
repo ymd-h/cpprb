@@ -235,7 +235,7 @@ priorities.
 
 
 You can ~add~ ~priorities~ together with other environment. If no
-~prioroties~ are passed, the stored maximum priority is used.
+~priorities~ are passed, the stored maximum priority is used.
 
 
 The ~dict~ returned by ~sample~ also has special key-values of
