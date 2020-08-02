@@ -210,8 +210,9 @@ The shapes for ~add~ for every environments are stored as
 ~add_shape=(-1,*env_shape)~ at constructor, s.t. ~env_shape~ is the environment
 shape.
 
-Only one environment (usually ~done~) is used to determine the step
-size by reshaping to ~add_shape~.
+Only one environment value is used to determine the step size by
+reshaping to ~add_shape~, so that user must pass the values of the
+same step size.
 
 
 ** DONE Prioritized Experience Replay
