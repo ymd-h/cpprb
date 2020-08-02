@@ -229,7 +229,7 @@ cpprb provides buffer classes for building following algorithms.
 |-------------------------------+-------------------------------------------+-------------------|
 | Experience Replay             | =ReplayBuffer=                            | [[https://link.springer.com/article/10.1007/BF00992699][L. J. Lin]]         |
 | Prioritized Experience Replay | =PrioritizedReplayBuffer=                 | [[https://arxiv.org/abs/1511.05952][T. Schaul et. al.]] |
-| Multi-step Learning           | =ReplayBuffer=, =PrioritizedReplayBuffer= |                   |
+| Multi-step (Nstep) Learning   | =ReplayBuffer=, =PrioritizedReplayBuffer= |                   |
 
 
 cpprb features and its usage are described at following pages:
