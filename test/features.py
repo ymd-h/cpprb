@@ -1,7 +1,9 @@
+import os
+
 import numpy as np
 import unittest
 
-from cpprb import create_buffer
+from cpprb import create_buffer, ReplayBuffer, PrioritizedReplayBuffer
 
 class TestFeatureHighDimensionalObs(unittest.TestCase):
     def test_RGB_screen_obs(self):
@@ -57,6 +59,11 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
         rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
         rb.sample(batch_size)
+
+class TestMemmap(unittest.TestCase):
+    def test_memmap(self):
+        rb = ReplayBuffer(32,{"done": {}},mmap_prefix="mmap")
+        self.assertTrue(os.path.exists("mmap_done.txt"))
 
 if __name__ == '__main__':
     unittest.main()
