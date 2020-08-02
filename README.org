@@ -218,6 +218,20 @@ sample = rb.sample(batch_size)
 # sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', and 'done'
 #+END_SRC
 
+** Construction Parameters
+(See also [[https://ymd_h.gitlab.io/cpprb/api/api/cpprb.ReplayBuffer.html][API reference]])
+
+| Name             | Type                         | Optional           | Discription                       |
+|------------------+------------------------------+--------------------+-----------------------------------|
+| ~size~           | ~int~                        | No                 | Buffer size                       |
+| ~env_dict~       | ~dict~                       | Yes (but unusable) | Environment definition (See [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][here]]) |
+| ~next_of~        | ~str~ or array-like of ~str~ | Yes                | Memory compression (See [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][here]])     |
+| ~stack_compress~ | ~str~ or array-like of ~str~ | Yes                | Memory compression (See [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][here]])     |
+| ~default_dtype~  | ~numpy.dtype~                | Yes                | Fall back data type               |
+| ~Nstep~          | ~dict~                       | Yes                | Nstep configuration (See [[https://ymd_h.gitlab.io/cpprb/features/nstep/][here]])    |
+| ~mmap_prefix~    | ~str~                        | Yes                | mmap file prefix (See [[https://ymd_h.gitlab.io/cpprb/features/mmap/][here]])       |
+
+
 ** Notes
 Flexible environment values are defined by =env_dict= when buffer
 creation. The detail is described at [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][document]].
