@@ -1162,6 +1162,9 @@ CLOSED: [2020-01-17 Fri 22:31]
 
 In this section, cpprb related miscellaneous information are described.
 
+- [[https://ymd_h.gitlab.io/cpprb/misc/links/][Links]]
+- [[https://ymd_h.gitlab.io/cpprb/misc/lisence/][License]]
+
 * DONE FAQ
 CLOSED: [2020-06-06 Sat 13:50]
 :PROPERTIES:
