@@ -178,9 +178,9 @@ CLOSED: [2020-01-17 Fri 23:09]
 ** Basic Usage
 Basic usage is following step;
 1. Create replay buffer (~ReplayBuffer.__init__~)
-2. Add environment values (~ReplayBuffer.add~)
+2. Add transitions (~ReplayBuffer.add~)
    1. Reset at episode end (~ReplayBuffer.on_episode_end~)
-3. Sample a set of environment values (~ReplayBuffer.sample~)
+3. Sample transitions (~ReplayBuffer.sample~)
 
 
 ** Example Code
