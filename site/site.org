@@ -1181,7 +1181,7 @@ In this section, cpprb related miscellaneous information are described.
 - [[https://ymd_h.gitlab.io/cpprb/misc/links/][Links]]
 - [[https://ymd_h.gitlab.io/cpprb/misc/lisence/][License]]
 
-* DONE Logo Mark
+* DONE Logo
 CLOSED: [2020-08-04 Tue 09:19]
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: misc
