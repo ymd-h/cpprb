@@ -277,7 +277,7 @@ Any contribution are very welcome!
 ** Making Community Larger
 Bigger commumity makes development more active and improve cpprb.
 
-- Star this repository (and/or [[https://github.com/yamada-github-account/cpprb][GitHub Mirror]])
+- Star this repository (and/or [[https://github.com/ymd-h/cpprb][GitHub Mirror]])
 - Publish your code using cpprb
 - Share this repository to your friend and/or followers.
 
@@ -315,7 +315,7 @@ CLOSED: [2020-01-17 Fri 23:09]
   - [[https://ymd_h.gitlab.io/cpprb/api/][Class Reference]]
   - [[https://ymd_h.gitlab.io/cpprb/coverage/][Unit Test Coverage]]
 - [[https://gitlab.com/ymd_h/cpprb][Main Repository]]
-- [[https://github.com/yamada-github-account/cpprb][GitHub Mirror]]
+- [[https://github.com/ymd-h/cpprb][GitHub Mirror]]
 - [[https://pypi.org/project/cpprb/][cpprb on PyPI]]
 
 ** cpprb users' repositories
