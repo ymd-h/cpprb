@@ -1180,6 +1180,23 @@ In this section, cpprb related miscellaneous information are described.
 
 - [[https://ymd_h.gitlab.io/cpprb/misc/links/][Links]]
 - [[https://ymd_h.gitlab.io/cpprb/misc/lisence/][License]]
+- [[https://ymd_h.gitlab.io/cpprb/misc/logo/][Logo]]
+
+* DONE Logo
+CLOSED: [2020-08-04 Tue 09:19]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: misc
+:EXPORT_FILE_NAME: logo
+:END:
+
+[[https://ymd_h.gitlab.io/cpprb/images/logo.png]]
+
+The cpprb logo was degined by the author (H. Yamada) at the beginning
+of 2020. The logo comes from the package name "cpprb". The first "c"
+letter imitates "replay" button, indicating the key feature of
+experience replay. The "r" letter represents reward in formula
+(e.g. Bellman equation), which is another key concept of reinforcement
+learning.
 
 * DONE FAQ
 CLOSED: [2020-06-06 Sat 13:50]
