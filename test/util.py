@@ -1,15 +1,20 @@
 import os
+import platform
 import unittest
 
 import gym
-import pyvirtualdisplay
+
+if platform.system() == 'Linux':
+    import pyvirtualdisplay
 
 from cpprb import ReplayBuffer, create_env_dict, create_before_add_func
 
-display = pyvirtualdisplay.Display()
-display.start()
+if platform.system() == 'Linux':
+    display = pyvirtualdisplay.Display()
+    display.start()
 
 @unittest.skipIf(os.getenv("GITHUB_ACTIONS"),"Skip on GitHub Actions")
+@unittest.skipUnless(platform.system() == 'Linux',"Test only on Linux")
 class TestEnv:
     def test_add(self):
         env_dict = create_env_dict(self.env)

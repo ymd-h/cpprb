@@ -22,24 +22,41 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-      - run: pip install cython setuptools
-      - run: pip install '.[gym]' gym
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "::set-output name=dir::$(pip cache dir)"
+      - name: pip cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip${{ matrix.python }}
+          restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
+      - run: pip install wheel
+      - run: pip install cython setuptools twine gym
+      - name: Install cpprb for macOS
+        run: CC=gcc-9 CXX=g++-9 pip install '.[gym]'
+        if: startsWith(runner.os, 'macOS')
+      - name: Install cpprb for others
+        run: pip install '.[gym]'
+        if: startsWith(runner.os, 'macOS') != true
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
-      - run: pip install wheel twine
       - uses: actions/download-artifact@v1
         with:
           name: README
       - run: mv README/README.md README.md
       - run: python setup.py bdist_wheel
+        if: startsWith(runner.os, 'Windows')
       - uses: actions/upload-artifact@v1
         with:
           name: dist
           path: dist
-      - run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
-        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
+        if: startsWith(runner.os, 'Windows')
+      - name: Upload to PyPI
+        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v') && startsWith(runner.os, 'Windows')
         continue-on-error: true
