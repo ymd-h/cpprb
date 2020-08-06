@@ -36,11 +36,10 @@ jobs:
           key: ${{ runner.os }}-pip${{ matrix.python }}
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
       - run: pip install wheel
-      - run: pip install cython setuptools
-      - run: pip install '.[gym]' gym
+      - run: pip install cython setuptools twine gym
+      - run: pip install '.[gym]'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
-      - run: pip install wheel twine
       - uses: actions/download-artifact@v1
         with:
           name: README
