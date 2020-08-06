@@ -40,6 +40,7 @@ jobs:
         with:
           name: dist
           path: dist
-      - run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
-        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
+      - name: Upload to PyPI
+        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v') && startsWith(runner.os, 'Windows')
         continue-on-error: true
