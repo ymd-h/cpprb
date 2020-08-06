@@ -26,6 +26,15 @@ jobs:
       - uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python }}
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "::set-output name=dir::$(pip cache dir)"
+      - name: pip cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip${{ matrix.python }}
+          restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
       - run: pip install cython setuptools
       - run: pip install '.[gym]' gym
       - run: python -m unittest discover . '*.py'
