@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.2.1][v9.2.1]]
+- Fix: Windows binary distribution
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.2.0][v9.2.0]]
 - Add: Large buffer exceeding memory using mmap
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.1.2][v9.1.2]]
