@@ -35,6 +35,7 @@ jobs:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip${{ matrix.python }}
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
+      - run: pip install wheel
       - run: pip install cython setuptools
       - run: pip install '.[gym]' gym
       - run: python -m unittest discover . '*.py'
