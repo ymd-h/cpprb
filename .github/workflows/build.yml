@@ -39,10 +39,10 @@ jobs:
       - run: pip install cython setuptools twine gym
       - name: Install cpprb for macOS
         run: CC=gcc-9 CXX=g++-9 pip install '.[gym]'
-        if: startWith(runner.os, 'macOS')
+        if: startsWith(runner.os, 'macOS')
       - name: Install cpprb for others
         run: pip install '.[gym]'
-        if: startWith(runner.os, 'macOS') == 'false'
+        if: startsWith(runner.os, 'macOS') == 'false'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - uses: actions/download-artifact@v1
