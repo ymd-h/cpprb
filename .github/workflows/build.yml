@@ -50,10 +50,12 @@ jobs:
           name: README
       - run: mv README/README.md README.md
       - run: python setup.py bdist_wheel
+        if: startsWith(runner.os, 'Windows')
       - uses: actions/upload-artifact@v1
         with:
           name: dist
           path: dist
+        if: startsWith(runner.os, 'Windows')
       - name: Upload to PyPI
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v') && startsWith(runner.os, 'Windows')
