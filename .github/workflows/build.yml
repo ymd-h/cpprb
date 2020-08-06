@@ -42,7 +42,7 @@ jobs:
         if: startsWith(runner.os, 'macOS')
       - name: Install cpprb for others
         run: pip install '.[gym]'
-        if: startsWith(runner.os, 'macOS') == 'false'
+        if: ! startsWith(runner.os, 'macOS')
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - uses: actions/download-artifact@v1
