@@ -1544,11 +1544,11 @@ def train(buffer: ReplayBuffer,
             # step/episode_step are index.
             # Total Steps/Episode Steps are counts.
             SPS = (episode_step+1) / max(episode_end_time-episode_start_time,1e-9)
-            logger.info(f"Episode: {episode: 6} " +
-                        f"Total Steps: {step+1: 7} " +
-                        f"Episode Steps: {episode_step+1: 5} " +
-                        f"Reward: {episode_reward: =+7.2f} " +
-                        f"Steps/Sec: {SPS: =+5.2f}")
+            logger.info(f"{episode: 6}th Episode: " +
+                        f"{episode_step+1: 5} Steps " +
+                        f"({step+1: 7} Total Steps), " +
+                        f"{episode_reward: =+7.2f} Reward, " +
+                        f"{SPS: =+5.2f} Steps/s")
 
             # Summary
             if has_episode_callback:
