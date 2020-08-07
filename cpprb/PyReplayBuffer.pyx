@@ -412,7 +412,9 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
-def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = None):
+def dict2buffer(buffer_size: int,env_dict: Dict,*,
+                stack_compress = None, default_dtype = None,
+                mmap_prefix: Optional[str] = None):
     """Create buffer from env_dict
 
     Parameters
@@ -425,6 +427,9 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
         compress memory of specified stacked values.
     default_dtype : numpy.dtype, optional
         fallback dtype for not specified in `env_dict`. default is numpy.single
+    mmap_prefix : str, optional
+        File name prefix to save buffer data using mmap. If `None` (default),
+        save only on memory.
 
     Returns
     -------
@@ -434,6 +439,16 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
     cdef buffer = {}
     cdef bool compress_any = stack_compress
     default_dtype = default_dtype or np.single
+
+    def zeros(name,shape,dtype):
+        if mmap_prefix:
+            if not isinstance(shape,tuple):
+                shape = tuple(shape)
+            return np.memmap(f"{mmap_prefix}_{name}.dat",
+                             shape=shape,dtype=dtype,mode="w+")
+        else:
+            return np.zeros(shape=shape,dtype=dtype)
+
     for name, defs in env_dict.items():
         shape = np.insert(np.asarray(defs.get("shape",1)),0,buffer_size)
 
@@ -443,14 +458,14 @@ def dict2buffer(buffer_size,env_dict,*,stack_compress = None,default_dtype = Non
             buffer_shape = np.insert(np.delete(shape,-1),1,shape[-1])
             buffer_shape[0] += buffer_shape[1] - 1
             buffer_shape[1] = 1
-            memory = np.zeros(buffer_shape,
-                              dtype=defs.get("dtype",default_dtype))
+            memory = zeros(name, buffer_shape,
+                           dtype=defs.get("dtype",default_dtype))
             strides = np.append(np.delete(memory.strides,1),memory.strides[1])
             buffer[name] = np.lib.stride_tricks.as_strided(memory,
                                                            shape=shape,
                                                            strides=strides)
         else:
-            buffer[name] = np.zeros(shape,dtype=defs.get("dtype",default_dtype))
+            buffer[name] = zeros(name,shape,dtype=defs.get("dtype",default_dtype))
 
         buffer[name][:] = 1
 
@@ -760,14 +775,23 @@ cdef class NstepBuffer:
 
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
-    """Replay Buffer class to store environments and to sample them randomly.
+    """Replay Buffer class to store transitions and to sample them randomly.
 
-    The envitonment contains observation (obs), action (act), reward (rew),
-    the next observation (next_obs), and done (done).
+    The transition can contain anything compatible with numpy data
+    type. User can specify by `env_dict` parameters at constructor
+    freely.
 
-    In this class, sampling is random sampling and the same environment can be
-    chosen multiple times.
-    """
+    The possible standard transition contains observation (`obs`), action (`act`),
+    reward (`rew`), the next observation (`next_obs`), and done (`done`).
+
+    >>> env_dict = {"obs": {"shape": (4,4)},
+                    "act": {"shape": 3, "dtype": np.int16},
+                    "rew": {},
+                    "next_obs": {"shape": (4,4)},
+                    "done": {}}
+
+    In this class, sampling is random sampling and the same transition
+    can be chosen multiple times."""
     cdef buffer
     cdef size_t buffer_size
     cdef env_dict
@@ -788,6 +812,7 @@ cdef class ReplayBuffer:
 
     def __cinit__(self,size,env_dict=None,*,
                   next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
+                  mmap_prefix =None,
                   **kwargs):
         self.env_dict = env_dict or {}
         cdef special_keys = []
@@ -814,7 +839,8 @@ cdef class ReplayBuffer:
         # side effect: Add "add_shape" key into self.env_dict
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   stack_compress = self.stack_compress,
-                                  default_dtype = self.default_dtype)
+                                  default_dtype = self.default_dtype,
+                                  mmap_prefix = mmap_prefix)
 
         self.size_check = StepChecker(self.env_dict,special_keys)
 
@@ -841,6 +867,7 @@ cdef class ReplayBuffer:
 
     def __init__(self,size,env_dict=None,*,
                  next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
+                 mmap_prefix =None,
                  **kwargs):
         """Initialize ReplayBuffer
 
@@ -865,6 +892,9 @@ cdef class ReplayBuffer:
             Nstep reward to be summed. `Nstep["gamma"]` is float specifying
             discount factor, its default is 0.99. `Nstep["next"]` is `str` or
             list of `str` specifying next values to be moved.
+        mmap_prefix : str, optional
+            File name prefix to save buffer data using mmap. If `None` (default),
+            save only on memory.
         """
         pass
 
@@ -1123,9 +1153,9 @@ cdef class ReplayBuffer:
 
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
-    """Prioritized replay buffer class to store environments with priorities.
+    """Prioritized replay buffer class to store transitions with priorities.
 
-    In this class, these environments are sampled with corresponding priorities.
+    In this class, these transitions are sampled with corresponding to priorities.
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
@@ -1347,6 +1377,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         self.episode_len = 0
 
+@cython.embedsignature(True)
 def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     """Create specified version of replay buffer
 

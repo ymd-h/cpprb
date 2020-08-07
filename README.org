@@ -175,6 +175,15 @@ CLOSED: [2020-01-17 Fri 23:09]
 :EXPORT_FILE_NAME: simple_usage
 :END:
 
+** Basic Usage
+Basic usage is following step;
+1. Create replay buffer (~ReplayBuffer.__init__~)
+2. Add transitions (~ReplayBuffer.add~)
+   1. Reset at episode end (~ReplayBuffer.on_episode_end~)
+3. Sample transitions (~ReplayBuffer.sample~)
+
+
+** Example Code
 Here is a simple example for storing standard environment (aka. ="obs"=,
 ="act"=, ="rew"=, ="next_obs"=, and ="done"=).
 
@@ -209,7 +218,23 @@ sample = rb.sample(batch_size)
 # sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', and 'done'
 #+END_SRC
 
-Flexible environment values are defined by =env_dict= when buffer creation.
+** Construction Parameters
+(See also [[https://ymd_h.gitlab.io/cpprb/api/api/cpprb.ReplayBuffer.html][API reference]])
+
+| Name             | Type                         | Optional           | Discription                       |
+|------------------+------------------------------+--------------------+-----------------------------------|
+| ~size~           | ~int~                        | No                 | Buffer size                       |
+| ~env_dict~       | ~dict~                       | Yes (but unusable) | Environment definition (See [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][here]]) |
+| ~next_of~        | ~str~ or array-like of ~str~ | Yes                | Memory compression (See [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][here]])     |
+| ~stack_compress~ | ~str~ or array-like of ~str~ | Yes                | Memory compression (See [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][here]])     |
+| ~default_dtype~  | ~numpy.dtype~                | Yes                | Fall back data type               |
+| ~Nstep~          | ~dict~                       | Yes                | Nstep configuration (See [[https://ymd_h.gitlab.io/cpprb/features/nstep/][here]])    |
+| ~mmap_prefix~    | ~str~                        | Yes                | mmap file prefix (See [[https://ymd_h.gitlab.io/cpprb/features/mmap/][here]])       |
+
+
+** Notes
+Flexible environment values are defined by =env_dict= when buffer
+creation. The detail is described at [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][document]].
 
 Since stored values have flexible name, you have to pass to
 =ReplayBuffer.add= member by keyword.
@@ -228,8 +253,8 @@ cpprb provides buffer classes for building following algorithms.
 | Algorithms                    | cpprb class                               | Paper             |
 |-------------------------------+-------------------------------------------+-------------------|
 | Experience Replay             | =ReplayBuffer=                            | [[https://link.springer.com/article/10.1007/BF00992699][L. J. Lin]]         |
-| Prioritized Experience Replay | =PrioritizedReplayBuffer=                 | [[https://arxiv.org/abs/1511.05952][T. Schaul et. al.]] |
-| Multi-step Learning           | =ReplayBuffer=, =PrioritizedReplayBuffer= |                   |
+| [[https://ymd_h.gitlab.io/cpprb/features/per/][Prioritized Experience Replay]] | =PrioritizedReplayBuffer=                 | [[https://arxiv.org/abs/1511.05952][T. Schaul et. al.]] |
+| [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Multi-step (Nstep) Learning]]   | =ReplayBuffer=, =PrioritizedReplayBuffer= |                   |
 
 
 cpprb features and its usage are described at following pages:
@@ -252,7 +277,7 @@ Any contribution are very welcome!
 ** Making Community Larger
 Bigger commumity makes development more active and improve cpprb.
 
-- Star this repository (and/or [[https://github.com/yamada-github-account/cpprb][GitHub Mirror]])
+- Star this repository (and/or [[https://github.com/ymd-h/cpprb][GitHub Mirror]])
 - Publish your code using cpprb
 - Share this repository to your friend and/or followers.
 
@@ -290,7 +315,7 @@ CLOSED: [2020-01-17 Fri 23:09]
   - [[https://ymd_h.gitlab.io/cpprb/api/][Class Reference]]
   - [[https://ymd_h.gitlab.io/cpprb/coverage/][Unit Test Coverage]]
 - [[https://gitlab.com/ymd_h/cpprb][Main Repository]]
-- [[https://github.com/yamada-github-account/cpprb][Github Mirror]]
+- [[https://github.com/ymd-h/cpprb][GitHub Mirror]]
 - [[https://pypi.org/project/cpprb/][cpprb on PyPI]]
 
 ** cpprb users' repositories
