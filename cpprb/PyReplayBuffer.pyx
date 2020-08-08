@@ -1213,32 +1213,55 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             environment names. The values of env_dict, which are also dict,
             defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         alpha : float, optional
-            the exponent of the priorities in stored whose default value is 0.6
+            :math:`\alpha`, the exponent of the priorities in stored whose
+            default value is 0.6
         eps : float, optional
-            small positive constant to ensure error-less state will be sampled,
-            whose default value is 1e-4.
+            :math:`\epsilon` small positive constant to ensure error-less state
+            will be sampled, whose default value is 1e-4.
         check_for_update : bool
             Whether check update for `update_priorities`. The default value is `False`
+
+        See Also
+        --------
+        ReplayBuffer : Any optional parameters at ReplayBuffer are valid, too.
+
+
+        Notes
+        -----
+        The minimum values and maximum values of pre-calculated priorities
+        :math:`(p_{i} + \epsison)^{\alpha}` are stored with segment tree, which
+        enable fast sampling.
         """
         pass
 
     def add(self,*,priorities = None,**kwargs):
-        """Add environment(s) into replay buffer.
+        """Add transition(s) into replay buffer.
 
-        Multiple step environments can be added.
+        Multple sets of transitions can be added simultaneously.
 
         Parameters
         ----------
         priorities : array like or float or int
             priorities of each environment
-        **kwargs : array like or float or int optional
-            environment(s) to be stored
+        **kwargs : array like or float or int
+            Transitions to be stored.
 
         Returns
         -------
         : int or None
-            the stored first index. If all values store into NstepBuffer and
-            no values store into main buffer, return None.
+            The first index of stored position. If all transitions are stored
+            into NstepBuffer and no transtions are stored into the main buffer,
+            None is returned.
+
+        Raises
+        ------
+        KeyError
+            If any values defined at constructor are missing.
+
+        Warnings
+        --------
+        All values must be passed by key-value style (keyword arguments).
+        It is user responsibility that all the values have the same step-size.
         """
         cdef size_t N = self.size_check.step_size(kwargs)
         if priorities is not None:
