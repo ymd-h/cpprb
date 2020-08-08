@@ -964,9 +964,6 @@ cdef class ReplayBuffer:
         """
         Get all transitions stored in replay buffer.
 
-        Parameters
-        ----------
-
         Returns
         -------
         transitions : dict of numpy.ndarray
