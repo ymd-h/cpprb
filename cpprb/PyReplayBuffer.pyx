@@ -1305,28 +1305,32 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         return index
 
     def sample(self,batch_size,beta = 0.4):
-        """Sample the stored environment depending on correspoinding priorities
+        """Sample the stored transitions depending on correspoinding priorities
         with speciped size
 
         Parameters
         ----------
         batch_size : int
-            sampled batch size
+            Sampled batch size
         beta : float, optional
-            the exponent for discount priority effect whose default value is 0.4
+            :math:`\beta`, the exponent of weight for relaxation of importance
+            sampling effect, whose default value is 0.4
 
         Returns
         -------
         sample : dict of ndarray
-            batch size of samples which also includes 'weights' and 'indexes'
-
+            Batch size of samples which also includes 'weights' and 'indexes'
 
         Notes
         -----
-        When 'beta' is 0, priorities are ignored.
-        The greater 'beta', the bigger effect of priories.
+        When 'beta' is 0, weights become uniform. Wen 'beta' is 1, weight becomes
+        usual importance sampling.
+        The 'weights' are also normalized by the weight for minimum priority
+        (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
 
-        The sampling probabilities are propotional to :math:`priorities ^ {-'beta'}`
+        .. math::
+             w_{i} = \left(\frac{1}{N}\frac{1}{P(i)}\right)^{\beta}
+             \text{where} P(i) = \frac{(p_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (p_{j}+\epsilon)^{\alpha}}
         """
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
