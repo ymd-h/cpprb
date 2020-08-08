@@ -1228,7 +1228,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         Notes
         -----
-        The minimum values and maximum values of pre-calculated priorities
+        The minimum and summation over certain ranges of pre-calculated priorities
         :math:`(p_{i} + \epsison)^{\alpha}` are stored with segment tree, which
         enable fast sampling.
         """
