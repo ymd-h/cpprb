@@ -570,7 +570,7 @@ cdef class NstepBuffer:
 
     def __init__(self,env_dict=None,Nstep=None,*,
                  stack_compress = None,default_dtype = None, next_of = None):
-        """Initialize NstepBuffer class.
+        r"""Initialize NstepBuffer class.
 
         Parameters
         ----------
@@ -598,7 +598,7 @@ cdef class NstepBuffer:
         pass
 
     def add(self,*,**kwargs):
-        """Add envronment into local buffer.
+        r"""Add envronment into local buffer.
 
         Paremeters
         ----------
@@ -775,7 +775,7 @@ cdef class NstepBuffer:
 
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
-    """Replay Buffer class to store transitions and to sample them randomly.
+    r"""Replay Buffer class to store transitions and to sample them randomly.
 
     The transition can contain anything compatible with numpy data
     type. User can specify by `env_dict` parameters at constructor
@@ -869,7 +869,7 @@ cdef class ReplayBuffer:
                  next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
                  mmap_prefix =None,
                  **kwargs):
-        """Initialize ReplayBuffer
+        r"""Initialize ReplayBuffer
 
         Parameters
         ----------
@@ -899,7 +899,7 @@ cdef class ReplayBuffer:
         pass
 
     def add(self,*,**kwargs):
-        """Add transition(s) into replay buffer.
+        r"""Add transition(s) into replay buffer.
 
         Multple sets of transitions can be added simultaneously.
 
@@ -961,7 +961,7 @@ cdef class ReplayBuffer:
         return index
 
     def get_all_transitions(self):
-        """
+        r"""
         Get all transitions stored in replay buffer.
 
         Returns
@@ -1006,7 +1006,7 @@ cdef class ReplayBuffer:
         return sample
 
     def sample(self,batch_size):
-        """Sample the stored transitions randomly with speciped size
+        r"""Sample the stored transitions randomly with speciped size
 
         Parameters
         ----------
@@ -1023,7 +1023,7 @@ cdef class ReplayBuffer:
         return self._encode_sample(idx)
 
     cpdef void clear(self) except *:
-        """Clear replay buffer.
+        r"""Clear replay buffer.
 
         Set `index` and `stored_size` to 0.
 
@@ -1051,7 +1051,7 @@ cdef class ReplayBuffer:
             self.nstep.clear()
 
     cpdef size_t get_stored_size(self):
-        """Get stored size
+        r"""Get stored size
 
         Returns
         -------
@@ -1061,7 +1061,7 @@ cdef class ReplayBuffer:
         return self.stored_size
 
     cpdef size_t get_buffer_size(self):
-        """Get buffer size
+        r"""Get buffer size
 
         Returns
         -------
@@ -1071,7 +1071,7 @@ cdef class ReplayBuffer:
         return self.buffer_size
 
     cpdef size_t get_next_index(self):
-        """Get the next index to store
+        r"""Get the next index to store
 
         Returns
         -------
@@ -1081,7 +1081,7 @@ cdef class ReplayBuffer:
         return self.index
 
     cdef void add_cache(self):
-        """Add last items into cache
+        r"""Add last items into cache
 
         The last items for "next_of" and "stack_compress" optimization
         are moved to cache area.
@@ -1127,7 +1127,7 @@ cdef class ReplayBuffer:
             self.cache[key] = cache_key
 
     cpdef void on_episode_end(self) except *:
-        """Call on episode end
+        r"""Call on episode end
 
         Finalize the current episode by moving remaining Nstep buffer transitions,
         evacuating overlapped data for memory compression features, and resetting
@@ -1149,7 +1149,7 @@ cdef class ReplayBuffer:
         self.episode_len = 0
 
     cpdef size_t get_current_episode_len(self):
-        """Get current episode length
+        r"""Get current episode length
 
         Returns
         -------
@@ -1158,7 +1158,7 @@ cdef class ReplayBuffer:
         return self.episode_len
 
     cpdef bool is_Nstep(self):
-        """Get whether use Nstep or not
+        r"""Get whether use Nstep or not
 
         Returns
         -------
@@ -1168,7 +1168,7 @@ cdef class ReplayBuffer:
 
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
-    """Prioritized replay buffer class to store transitions with priorities.
+    r"""Prioritized replay buffer class to store transitions with priorities.
 
     In this class, these transitions are sampled with corresponding to priorities.
     """
@@ -1235,7 +1235,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         pass
 
     def add(self,*,priorities = None,**kwargs):
-        """Add transition(s) into replay buffer.
+        r"""Add transition(s) into replay buffer.
 
         Multple sets of transitions can be added simultaneously.
 
@@ -1344,7 +1344,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         return samples
 
     def update_priorities(self,indexes,priorities):
-        """Update priorities
+        r"""Update priorities
 
         Parameters
         ----------
@@ -1380,7 +1380,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             self.per.update_priorities(&idx[0],&ps[0],N)
 
     cpdef void clear(self) except *:
-        """Clear replay buffer
+        r"""Clear replay buffer
         """
         super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
@@ -1388,7 +1388,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             self.priorities_nstep.clear()
 
     cpdef float get_max_priority(self):
-        """Get the max priority of stored priorities
+        r"""Get the max priority of stored priorities
 
         Returns
         -------
@@ -1398,7 +1398,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         return self.per.get_max_priority()
 
     cpdef void on_episode_end(self) except *:
-        """Call on episode end
+        r"""Call on episode end
 
         Finalize the current episode by moving remaining Nstep buffer transitions,
         evacuating overlapped data for memory compression features, and resetting
@@ -1422,7 +1422,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
 @cython.embedsignature(True)
 def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
-    """Create specified version of replay buffer
+    r"""Create specified version of replay buffer
 
     Parameters
     ----------
@@ -1478,7 +1478,7 @@ def train(buffer: ReplayBuffer,
           rew_sum: Optional[Callable[[float, Any], float]] = None,
           episode_callback: Optional[Callable[[int,int,float],Any]] = None,
           logger = None):
-    """
+    r"""
     Train RL policy (model)
 
     Parameters
