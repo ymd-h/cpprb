@@ -1474,6 +1474,10 @@ def train(buffer: ReplayBuffer,
     ------
     ValueError:
        When `max_step` is larger than `size_t` limit
+
+    Warnings
+    --------
+    `cpprb.train` is still beta release. API can be changed.
     """
     warnings.warn("`cpprb.train` is still beta release. API can be changed.")
 
