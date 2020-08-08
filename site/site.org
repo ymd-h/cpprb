@@ -231,13 +231,13 @@ scaled to the opposite direction (cf. importance sampling).
 
 In cpprb, ~PrioritizedReplayBuffer~ class implements these
 functionalities with proportional base (instead of rank base)
-priorities.
+priorities as shown at bellow table.
 
 #+CAPTION: Parameter Definition
-| \(i\)-th                | Definition                                                                        |
-|-------------------------+-----------------------------------------------------------------------------------|
-| Probability: \( P(i) \) | \( \frac{(P_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (P_{j}+\epsilon)^{\alpha}} \) |
-| Weight:  \( w_i \)      | \( \left( \frac{1}{N} \frac{1}{P(i)}\right) ^{\beta} \)                           |
+| \(i\)-th                | Definition                                                                                                                                                  |
+|-------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Probability: \( P(i) \) | \( \frac{(P_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (P_{j}+\epsilon)^{\alpha}} \)                                                                           |
+| Weight:  \( w_i \)      | \( \frac{\left( \frac{1}{N} \frac{1}{P(i)}\right) ^{\beta}}{\left( \frac{1}{N} \frac{1}{\min _{j} P(j)}\right) ^{\beta}} \to \left(\frac{\min _{j} P(j)}{P(i)}\right) ^{\beta} \) |
 
 You can ~add~ ~priorities~ together with other environment. If no
 ~priorities~ are passed, the stored maximum priority is used.
@@ -245,22 +245,25 @@ You can ~add~ ~priorities~ together with other environment. If no
 
 The ~dict~ returned by ~sample~ also has special key-values of
 ~indexes~ and ~weights~. The ~indexes~ are intended to be passed to
-~update_priorities~ to update their priorities after comparison with new
-prediction.
+~update_priorities~ to update their priorities after comparison with
+new prediction. The ~weights~ can be used to scale errors when
+updating network parameters. Since the ~weights~ are normalized by the
+largest weight, as the original research did, the values are always
+less than or equal to 1.
 
 
-~PrioritizedReplayBuffer~ has hyperparameters ~alpha~ and ~eps~ at
-constructor and ~beta~ at ~sample~, and their default values are
-~0.6~, ~1e-4~, and ~0.4~, respectively. The detail is described in the
-original paper above.
+~PrioritizedReplayBuffer~ has hyperparameters ~alpha~ (\( \alpha \))
+and ~eps~ (\( \epsilon \)) at constructor and ~beta~ (\( \beta \)) at
+~sample~ method. Their default values are ~0.6~, ~1e-4~, and ~0.4~,
+respectively. The detail is described in the original paper above.
 
 
 #+CAPTION: Nstep Parameters
-| Parameters     | Default       | Description                                                                   |
-|----------------+---------------+-------------------------------------------------------------------------------|
-| \( \alpha \)   | \( 0.6 \)     | Prioritized parameter. ~0~ means uniform.                                     |
-| \( \beta \)    | \( 0.4 \)     | Compensation parameter. ~1~ means fully compensate (i.e. Importance Sampling) |
-| \( \epsilon \) | \( 10^{-4} \) | Small value to avoid ~0~ priority                                             |
+| Parameters             | Default       | Description                                                                   |
+|------------------------+---------------+-------------------------------------------------------------------------------|
+| ~alpha~ (\( \alpha \)) | \( 0.6 \)     | Prioritized parameter. ~0~ means uniform sampling.                            |
+| ~beta~ (\( \beta \))   | \( 0.4 \)     | Compensation parameter. ~1~ means fully compensate (i.e. Importance Sampling) |
+| ~eps~ (\( \epsilon \)) | \( 10^{-4} \) | Small value to avoid ~0~ priority.                                            |
 
 
 *** Example Usage

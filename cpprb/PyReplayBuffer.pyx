@@ -570,7 +570,7 @@ cdef class NstepBuffer:
 
     def __init__(self,env_dict=None,Nstep=None,*,
                  stack_compress = None,default_dtype = None, next_of = None):
-        """Initialize NstepBuffer class.
+        r"""Initialize NstepBuffer class.
 
         Parameters
         ----------
@@ -598,7 +598,7 @@ cdef class NstepBuffer:
         pass
 
     def add(self,*,**kwargs):
-        """Add envronment into local buffer.
+        r"""Add envronment into local buffer.
 
         Paremeters
         ----------
@@ -775,7 +775,7 @@ cdef class NstepBuffer:
 
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
-    """Replay Buffer class to store transitions and to sample them randomly.
+    r"""Replay Buffer class to store transitions and to sample them randomly.
 
     The transition can contain anything compatible with numpy data
     type. User can specify by `env_dict` parameters at constructor
@@ -869,7 +869,7 @@ cdef class ReplayBuffer:
                  next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
                  mmap_prefix =None,
                  **kwargs):
-        """Initialize ReplayBuffer
+        r"""Initialize ReplayBuffer
 
         Parameters
         ----------
@@ -899,19 +899,31 @@ cdef class ReplayBuffer:
         pass
 
     def add(self,*,**kwargs):
-        """Add environment(s) into replay buffer.
-        Multiple step environments can be added.
+        r"""Add transition(s) into replay buffer.
+
+        Multple sets of transitions can be added simultaneously.
 
         Parameters
         ----------
         **kwargs : array like or float or int
-            environments to be stored
+            Transitions to be stored.
 
         Returns
         -------
         : int or None
-            the stored first index. If all values store into NstepBuffer and
-            no values store into main buffer, return None.
+            The first index of stored position. If all transitions are stored
+            into NstepBuffer and no transtions are stored into the main buffer,
+            None is returned.
+
+        Raises
+        ------
+        KeyError
+            If any values defined at constructor are missing.
+
+        Warnings
+        --------
+        All values must be passed by key-value style (keyword arguments).
+        It is user responsibility that all the values have the same step-size.
         """
         if self.use_nstep:
             kwargs = self.nstep.add(**kwargs)
@@ -949,11 +961,8 @@ cdef class ReplayBuffer:
         return index
 
     def get_all_transitions(self):
-        """
+        r"""
         Get all transitions stored in replay buffer.
-
-        Parameters
-        ----------
 
         Returns
         -------
@@ -997,7 +1006,7 @@ cdef class ReplayBuffer:
         return sample
 
     def sample(self,batch_size):
-        """Sample the stored environment randomly with speciped size
+        r"""Sample the stored transitions randomly with speciped size
 
         Parameters
         ----------
@@ -1007,13 +1016,14 @@ cdef class ReplayBuffer:
         Returns
         -------
         sample : dict of ndarray
-            batch size of samples, which might contains the same event multiple times.
+            Batch size of sampled transitions, which might contains
+            the same transition multiple times.
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
     cpdef void clear(self) except *:
-        """Clear replay buffer.
+        r"""Clear replay buffer.
 
         Set `index` and `stored_size` to 0.
 
@@ -1041,7 +1051,7 @@ cdef class ReplayBuffer:
             self.nstep.clear()
 
     cpdef size_t get_stored_size(self):
-        """Get stored size
+        r"""Get stored size
 
         Returns
         -------
@@ -1051,7 +1061,7 @@ cdef class ReplayBuffer:
         return self.stored_size
 
     cpdef size_t get_buffer_size(self):
-        """Get buffer size
+        r"""Get buffer size
 
         Returns
         -------
@@ -1061,7 +1071,7 @@ cdef class ReplayBuffer:
         return self.buffer_size
 
     cpdef size_t get_next_index(self):
-        """Get the next index to store
+        r"""Get the next index to store
 
         Returns
         -------
@@ -1071,7 +1081,7 @@ cdef class ReplayBuffer:
         return self.index
 
     cdef void add_cache(self):
-        """Add last items into cache
+        r"""Add last items into cache
 
         The last items for "next_of" and "stack_compress" optimization
         are moved to cache area.
@@ -1117,12 +1127,17 @@ cdef class ReplayBuffer:
             self.cache[key] = cache_key
 
     cpdef void on_episode_end(self) except *:
-        """Call on episode end
+        r"""Call on episode end
+
+        Finalize the current episode by moving remaining Nstep buffer transitions,
+        evacuating overlapped data for memory compression features, and resetting
+        episode length.
 
         Notes
         -----
-        This is necessary for stack compression (stack_compress) mode or next
-        compression (next_of) mode.
+        Calling this function at episode end is the user responsibility,
+        since episode exploration can be terminated at certain length
+        even though any `done` flags from environment is not set.
         """
         if self.use_nstep:
             self.use_nstep = False
@@ -1134,7 +1149,7 @@ cdef class ReplayBuffer:
         self.episode_len = 0
 
     cpdef size_t get_current_episode_len(self):
-        """Get current episode length
+        r"""Get current episode length
 
         Returns
         -------
@@ -1143,7 +1158,7 @@ cdef class ReplayBuffer:
         return self.episode_len
 
     cpdef bool is_Nstep(self):
-        """Get whether use Nstep or not
+        r"""Get whether use Nstep or not
 
         Returns
         -------
@@ -1153,7 +1168,7 @@ cdef class ReplayBuffer:
 
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
-    """Prioritized replay buffer class to store transitions with priorities.
+    r"""Prioritized replay buffer class to store transitions with priorities.
 
     In this class, these transitions are sampled with corresponding to priorities.
     """
@@ -1187,7 +1202,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
                  check_for_update=False,**kwargs):
-        """Initialize PrioritizedReplayBuffer
+        r"""Initialize PrioritizedReplayBuffer
 
         Parameters
         ----------
@@ -1198,32 +1213,56 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             environment names. The values of env_dict, which are also dict,
             defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         alpha : float, optional
-            the exponent of the priorities in stored whose default value is 0.6
+            :math:`\alpha` the exponent of the priorities in stored whose
+            default value is 0.6
         eps : float, optional
-            small positive constant to ensure error-less state will be sampled,
-            whose default value is 1e-4.
+            :math:`\epsilon` small positive constant to ensure error-less state
+            will be sampled, whose default value is 1e-4.
         check_for_update : bool
             Whether check update for `update_priorities`. The default value is `False`
+
+        See Also
+        --------
+        ReplayBuffer : Any optional parameters at ReplayBuffer are valid, too.
+
+
+        Notes
+        -----
+        The minimum and summation over certain ranges of pre-calculated priorities
+        :math:`(p_{i} + \epsilon )^{ \alpha }` are stored with segment tree, which
+        enable fast sampling.
         """
         pass
 
     def add(self,*,priorities = None,**kwargs):
-        """Add environment(s) into replay buffer.
+        r"""Add transition(s) into replay buffer.
 
-        Multiple step environments can be added.
+        Multple sets of transitions can be added simultaneously.
 
         Parameters
         ----------
-        priorities : array like or float or int
-            priorities of each environment
-        **kwargs : array like or float or int optional
-            environment(s) to be stored
+        priorities : array like or float, optional
+            Priorities of each environment. When no priorities are passed,
+            the maximum priorities until then are used.
+        **kwargs : array like or float or int
+            Transitions to be stored.
 
         Returns
         -------
         : int or None
-            the stored first index. If all values store into NstepBuffer and
-            no values store into main buffer, return None.
+            The first index of stored position. If all transitions are stored
+            into NstepBuffer and no transtions are stored into the main buffer,
+            None is returned.
+
+        Raises
+        ------
+        KeyError
+            If any values defined at constructor are missing.
+
+        Warnings
+        --------
+        All values must be passed by key-value style (keyword arguments).
+        It is user responsibility that all the values have the same step-size.
         """
         cdef size_t N = self.size_check.step_size(kwargs)
         if priorities is not None:
@@ -1266,28 +1305,30 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         return index
 
     def sample(self,batch_size,beta = 0.4):
-        """Sample the stored environment depending on correspoinding priorities
+        r"""Sample the stored transitions.
+
+        Transisions are sampled depending on correspoinding priorities
         with speciped size
 
         Parameters
         ----------
         batch_size : int
-            sampled batch size
+            Sampled batch size
         beta : float, optional
-            the exponent for discount priority effect whose default value is 0.4
+            The exponent of weight for relaxation of importance
+            sampling effect, whose default value is 0.4
 
         Returns
         -------
         sample : dict of ndarray
-            batch size of samples which also includes 'weights' and 'indexes'
-
+            Batch size of samples which also includes 'weights' and 'indexes'
 
         Notes
         -----
-        When 'beta' is 0, priorities are ignored.
-        The greater 'beta', the bigger effect of priories.
-
-        The sampling probabilities are propotional to :math:`priorities ^ {-'beta'}`
+        When 'beta' is 0, weights become uniform. Wen 'beta' is 1, weight becomes
+        usual importance sampling.
+        The 'weights' are also normalized by the weight for minimum priority
+        (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
         """
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
@@ -1303,7 +1344,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         return samples
 
     def update_priorities(self,indexes,priorities):
-        """Update priorities
+        r"""Update priorities
 
         Parameters
         ----------
@@ -1311,9 +1352,6 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             indexes to update priorities
         priorities : array_like
             priorities to update
-
-        Returns
-        -------
 
         Raises
         ------
@@ -1342,7 +1380,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             self.per.update_priorities(&idx[0],&ps[0],N)
 
     cpdef void clear(self) except *:
-        """Clear replay buffer
+        r"""Clear replay buffer
         """
         super(PrioritizedReplayBuffer,self).clear()
         clear(self.per)
@@ -1350,7 +1388,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             self.priorities_nstep.clear()
 
     cpdef float get_max_priority(self):
-        """Get the max priority of stored priorities
+        r"""Get the max priority of stored priorities
 
         Returns
         -------
@@ -1360,12 +1398,17 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         return self.per.get_max_priority()
 
     cpdef void on_episode_end(self) except *:
-        """Call on episode end
+        r"""Call on episode end
+
+        Finalize the current episode by moving remaining Nstep buffer transitions,
+        evacuating overlapped data for memory compression features, and resetting
+        episode length.
 
         Notes
         -----
-        This is necessary for stack compression (stack_compress) mode or next
-        compression (next_of) mode.
+        Calling this function at episode end is the user responsibility,
+        since episode exploration can be terminated at certain length
+        even though any `done` flags from environment is not set.
         """
         if self.use_nstep:
             self.use_nstep = False
@@ -1379,7 +1422,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
 @cython.embedsignature(True)
 def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
-    """Create specified version of replay buffer
+    r"""Create specified version of replay buffer
 
     Parameters
     ----------
@@ -1435,7 +1478,7 @@ def train(buffer: ReplayBuffer,
           rew_sum: Optional[Callable[[float, Any], float]] = None,
           episode_callback: Optional[Callable[[int,int,float],Any]] = None,
           logger = None):
-    """
+    r"""
     Train RL policy (model)
 
     Parameters
