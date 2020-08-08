@@ -1330,7 +1330,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         The 'weights' are also normalized by the weight for minimum priority
         (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
 
-        :math:`w_{i} = \left(\frac{1}{N}\frac{1}{P(i)}\right)^{\beta}`
+        :math:`w_{i} = \left( \frac{1}{N} \frac{1}{P(i)} \right) ^{\beta}`
         :math:`\text{where} P(i) = \frac{(p_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (p_{j}+\epsilon)^{\alpha}}`
         """
         self.per.sample(batch_size,beta,
