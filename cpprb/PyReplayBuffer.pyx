@@ -1355,9 +1355,6 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         priorities : array_like
             priorities to update
 
-        Returns
-        -------
-
         Raises
         ------
         TypeError: When `indexes` or `priorities` are `None`
