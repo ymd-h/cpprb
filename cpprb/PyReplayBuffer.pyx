@@ -1202,7 +1202,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
                  check_for_update=False,**kwargs):
-        """Initialize PrioritizedReplayBuffer
+        r"""Initialize PrioritizedReplayBuffer
 
         Parameters
         ----------
@@ -1305,7 +1305,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         return index
 
     def sample(self,batch_size,beta = 0.4):
-        """Sample the stored transitions.
+        r"""Sample the stored transitions.
 
         Transisions are sampled depending on correspoinding priorities
         with speciped size
