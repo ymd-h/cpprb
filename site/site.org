@@ -234,10 +234,10 @@ functionalities with proportional base (instead of rank base)
 priorities as follows;
 
 #+CAPTION: Parameter Definition
-| \(i\)-th                | Definition                                                                                                            |
-|-------------------------+-----------------------------------------------------------------------------------------------------------------------|
-| Probability: \( P(i) \) | \( \frac{(P_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (P_{j}+\epsilon)^{\alpha}} \)                                     |
-| Weight:  \( w_i \)      | \( \left( \frac{1}{N} \frac{1}{P(i)}\right) ^{\beta} / \left( \frac{1}{N} \frac{1}{\min _{j} P(j)}\right) ^{\beta} \) |
+| \(i\)-th                | Definition                                                                                                                                                  |
+|-------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Probability: \( P(i) \) | \( \frac{(P_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (P_{j}+\epsilon)^{\alpha}} \)                                                                           |
+| Weight:  \( w_i \)      | \( \frac{\left( \frac{1}{N} \frac{1}{P(i)}\right) ^{\beta}}{\left( \frac{1}{N} \frac{1}{\min _{j} P(j)}\right) ^{\beta}} \to \left(\frac{\min _{j} P(j)}{P(i)}\right) ^{\beta} \) |
 
 You can ~add~ ~priorities~ together with other environment. If no
 ~priorities~ are passed, the stored maximum priority is used.
