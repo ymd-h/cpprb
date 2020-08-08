@@ -1405,10 +1405,15 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     cpdef void on_episode_end(self) except *:
         """Call on episode end
 
+        Finalize the current episode by moving remaining Nstep buffer transitions,
+        evacuating overlapped data for memory compression features, and resetting
+        episode length.
+
         Notes
         -----
-        This is necessary for stack compression (stack_compress) mode or next
-        compression (next_of) mode.
+        Calling this function at episode end is the user responsibility,
+        since episode exploration can be terminated at certain length
+        even though any `done` flags from environment is not set.
         """
         if self.use_nstep:
             self.use_nstep = False
