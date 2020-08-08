@@ -1332,7 +1332,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         .. math::
 
-             w_{i} = \left(\frac{1}{N}\frac{1}{P(i)}\right)^{\beta}
+             w_{i} = \left(\frac{1}{N}\frac{1}{P(i)}\right)^{\beta}\\
              \text{where} P(i) = \frac{(p_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (p_{j}+\epsilon)^{\alpha}}
         """
         self.per.sample(batch_size,beta,
