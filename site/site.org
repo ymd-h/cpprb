@@ -231,7 +231,7 @@ scaled to the opposite direction (cf. importance sampling).
 
 In cpprb, ~PrioritizedReplayBuffer~ class implements these
 functionalities with proportional base (instead of rank base)
-priorities as follows;
+priorities as shown at bellow table.
 
 #+CAPTION: Parameter Definition
 | \(i\)-th                | Definition                                                                                                                                                  |
