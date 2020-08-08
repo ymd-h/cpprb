@@ -899,19 +899,31 @@ cdef class ReplayBuffer:
         pass
 
     def add(self,*,**kwargs):
-        """Add environment(s) into replay buffer.
-        Multiple step environments can be added.
+        """Add transition(s) into replay buffer.
+
+        Multple sets of transitions can be added simultaneously.
 
         Parameters
         ----------
         **kwargs : array like or float or int
-            environments to be stored
+            Transitions to be stored.
 
         Returns
         -------
         : int or None
-            the stored first index. If all values store into NstepBuffer and
-            no values store into main buffer, return None.
+            The first index of stored position. If all transitions are stored
+            into NstepBuffer and no transtions are stored into the main buffer,
+            None is returned.
+
+        Raises
+        ------
+        KeyError
+            If any values defined at constructor are missing.
+
+        Warnings
+        --------
+        All values must be passed by key-value style (keyword arguments).
+        It is user responsibility that all the values have the same step-size.
         """
         if self.use_nstep:
             kwargs = self.nstep.add(**kwargs)
