@@ -1213,7 +1213,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             environment names. The values of env_dict, which are also dict,
             defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         alpha : float, optional
-            :math:`\alpha`, the exponent of the priorities in stored whose
+            :math:`\alpha` the exponent of the priorities in stored whose
             default value is 0.6
         eps : float, optional
             :math:`\epsilon` small positive constant to ensure error-less state
