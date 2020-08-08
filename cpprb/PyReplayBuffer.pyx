@@ -1305,7 +1305,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         return index
 
     def sample(self,batch_size,beta = 0.4):
-        """Sample the stored transitions depending on correspoinding priorities
+        """Sample the stored transitions.
+
+        Transisions are sampled depending on correspoinding priorities
         with speciped size
 
         Parameters
@@ -1313,7 +1315,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         batch_size : int
             Sampled batch size
         beta : float, optional
-            :math:`\beta`, the exponent of weight for relaxation of importance
+            The exponent of weight for relaxation of importance
             sampling effect, whose default value is 0.4
 
         Returns
@@ -1329,6 +1331,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
 
         .. math::
+
              w_{i} = \left(\frac{1}{N}\frac{1}{P(i)}\right)^{\beta}
              \text{where} P(i) = \frac{(p_{i}+\epsilon)^{\alpha}}{\sum _{j=0}^{N} (p_{j}+\epsilon)^{\alpha}}
         """
