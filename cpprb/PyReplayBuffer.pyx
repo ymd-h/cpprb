@@ -1241,8 +1241,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         Parameters
         ----------
-        priorities : array like or float or int
-            priorities of each environment
+        priorities : array like or float, optional
+            Priorities of each environment. When no priorities are passed,
+            the maximum priorities until then are used.
         **kwargs : array like or float or int
             Transitions to be stored.
 
