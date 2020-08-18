@@ -11,6 +11,7 @@ from baselines.deepq.replay_buffer import (ReplayBuffer as bRB,
 # Requires Pandas, even though wich is not in `install_requires`
 from ray.rllib.execution.replay_buffer import (ReplayBuffer as rRB,
                                                PrioritizedReplayBuffer as rPRB)
+from ray.rllib.policy.sample_batch import SampleBatch
 
 # Chainer/ChainerRL: https://github.com/chainer/chainerrl
 from chainerrl.replay_buffers import (ReplayBuffer as cRB,
@@ -81,11 +82,11 @@ def add_r(_rb):
     """
     def add(e):
         for i in range(e["obs"].shape[0]):
-            _rb.add(obs_t=e["obs"][i],
-                    action=e["act"][i],
-                    reward=e["rew"][i],
-                    obs_tp1=e["next_obs"][i],
-                    done=e["done"][i],
+            _rb.add(SampleBatch(obs_t=e["obs"][i],
+                                action=e["act"][i],
+                                reward=e["rew"][i],
+                                obs_tp1=e["next_obs"][i],
+                                done=e["done"][i]),
                     weight=0.5)
     return add
 
