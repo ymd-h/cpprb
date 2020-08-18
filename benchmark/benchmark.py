@@ -73,7 +73,7 @@ def add_b(_rb):
                     done=e["done"][i])
     return add
 
-def add_r(_rb):
+def add_r(_rb,with_priority=False):
     """ Add for RLlib
 
     Notes
@@ -88,7 +88,20 @@ def add_r(_rb):
                                 obs_tp1=[e["next_obs"][i]],
                                 done=[e["done"][i]]),
                     weight=0.5)
-    return add
+
+    def add_with_p(e):
+        for i in range(e["obs"].shape[0]):
+            _rb.add(SampleBatch(obs_t=[e["obs"][i]],
+                                action=[e["act"][i]],
+                                reward=[e["rew"][i]],
+                                obs_tp1=[e["next_obs"][i]],
+                                done=[e["done"][i]]),
+                    weight=e["priority"][i])
+
+    if with_priority:
+        return add_with_p
+    else:
+        return add
 
 def add_c(_rb):
     """ Add for ChainerRL
