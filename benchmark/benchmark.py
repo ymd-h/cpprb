@@ -84,9 +84,9 @@ def add_r(_rb):
         for i in range(e["obs"].shape[0]):
             _rb.add(SampleBatch(obs_t=list(e["obs"][i]),
                                 action=list(e["act"][i]),
-                                reward=list(e["rew"][i]),
+                                reward=[e["rew"][i]],
                                 obs_tp1=list(e["next_obs"][i]),
-                                done=list(e["done"][i])),
+                                done=[e["done"][i]]),
                     weight=0.5)
     return add
 
