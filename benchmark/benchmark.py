@@ -130,16 +130,17 @@ perfplot.save(filename="ReplayBuffer_add.png",
 
 
 # Fill Buffers
-for _ in range(buffer_size):
-    o = np.random.rand(obs_shape) # [0,1)
-    a = np.random.rand(act_shape)
-    r = np.random.rand(1)
-    d = np.random.randint(2) # [0,2) == 0 or 1
-    brb.add(obs_t=o,action=a,reward=r,obs_tp1=o,done=d)
-    rrb.add(obs_t=o,action=a,reward=r,obs_tp1=o,done=d,weight=0.5)
-    crb.append(state=o,action=a,reward=r,next_state=o,is_state_terminal=d)
-    rb.add(obs=o,act=a,rew=r,next_obs=o,done=d)
+o = np.random.rand(batch_size,obs_shape)
+e = {"obs": o, # [0,1)
+     "act": np.random.rand(batch_size,act_shape),
+     "rew": np.random.rand(batch_size),
+     "next_obs": o,
+     "done": np.random.randint(2,size=batch_size)} # [0,2) == 0 or 1
 
+add_b(brb)(e)
+add_r(rrb)(e)
+add_c(crb)(c)
+rb.add(**e)
 
 # ReplayBuffer.sample
 perfplot.save(filename="ReplayBuffer_sample.png",
