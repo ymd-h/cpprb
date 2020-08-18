@@ -960,16 +960,26 @@ cdef class ReplayBuffer:
         self.episode_len += N
         return index
 
-    def get_all_transitions(self):
+    def get_all_transitions(self,shuffle: bool=False):
         r"""
         Get all transitions stored in replay buffer.
+
+        Parameters
+        ----------
+        shuffle : bool, optional
+            When True, transitions are shuffled. The default value is False.
 
         Returns
         -------
         transitions : dict of numpy.ndarray
             All transitions stored in this replay buffer.
         """
-        return self._encode_sample(np.arange(self.get_stored_size()))
+        idx = np.arange(self.get_stored_size())
+
+        if shuffle:
+            np.random.shuffle(idx)
+
+        return self._encode_sample(idx)
 
     def _encode_sample(self,idx):
         cdef sample = {}
