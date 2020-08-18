@@ -86,7 +86,7 @@ def add_r(_rb):
                                 action=[e["act"][i]],
                                 reward=[e["rew"][i]],
                                 obs_tp1=[e["next_obs"][i]],
-                                done=[e["done"][i]]),
+                                done=[e["done"][i]],
                     weight=0.5)
     return add
 
