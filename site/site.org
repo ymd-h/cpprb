@@ -635,8 +635,8 @@ In this section, we compare cpprb with other replay buffer implementations;
   - [[https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py][baselines.deepq.replay_buffer.ReplayBuffer]]
   - [[https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py][baselines.deepq.replay_buffer.PrioritizedReplayBuffer]]
 - [[https://github.com/ray-project/ray][Ray RLlib]]
-  - [[https://github.com/ray-project/ray/blob/master/rllib/optimizers/replay_buffer.py][ray.rilib.optimizers.replay_buffer.ReplayBuffer]]
-  - [[https://github.com/ray-project/ray/blob/master/rllib/optimizers/replay_buffer.py][ray.rllib.optimizers.replay_buffer.PrioritizedReplayBuffer]]
+  - [[https://github.com/ray-project/ray/blob/master/rllib/execution/replay_buffer.py][ray.rilib.execution.replay_buffer.ReplayBuffer]]
+  - [[https://github.com/ray-project/ray/blob/master/rllib/execution/replay_buffer.py][ray.rllib.execution.replay_buffer.PrioritizedReplayBuffer]]
 - [[https://github.com/chainer/chainerrl][Chainer ChainerRL]]
   - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/replay_buffer.py][chainerrl.replay_buffers.ReplayBuffer]]
   - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/prioritized.py][chainerrl.replay_buffers.PrioritizedReplayBuffer]]
@@ -744,7 +744,7 @@ These classes are decorated with ~@DeveloperAPI~, which are intented
 to be used by developer when making custom algorithms.
 
 #+begin_src python
-from ray.rllib.optimizers.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+from ray.rllib.execution.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
 #+end_src
 
 These replay buffer classes initialize like OpenAI Baselines;
