@@ -76,8 +76,8 @@ class TestShuffleTransitions(unittest.TestCase):
         a = np.arange(64)
         rb.add(a=a)
 
-        s1 = rb.get_all_transitions()
-        s2 = rb.get_all_transitions(shuffle=True)
+        s1 = rb.get_all_transitions()["a"]
+        s2 = rb.get_all_transitions(shuffle=True)["a"]
 
         self.assertFalse((s1 == s2).all())
 
