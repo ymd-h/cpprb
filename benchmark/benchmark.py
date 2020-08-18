@@ -10,7 +10,7 @@ from baselines.deepq.replay_buffer import (ReplayBuffer as bRB,
 # Ray/RLlib: https://github.com/ray-project/ray
 # Requires Pandas, even though wich is not in `install_requires`
 from ray.rllib.execution.replay_buffer import (ReplayBuffer as rRB,
-                                                PrioritizedReplayBuffer as rPRB)
+                                               PrioritizedReplayBuffer as rPRB)
 
 # Chainer/ChainerRL: https://github.com/chainer/chainerrl
 from chainerrl.replay_buffers import (ReplayBuffer as cRB,
