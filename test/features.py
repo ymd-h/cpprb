@@ -81,7 +81,7 @@ class TestShuffleTransitions(unittest.TestCase):
 
         self.assertFalse((s1 == s2).all())
 
-        s = np.intersect1d(s1,s2,assume_unique=True)
+        s = np.intersect1d(s1,s2,assume_unique=True).reshape(shape=s1.shape)
         np.testing.assert_allclose(s,s1)
 
 
