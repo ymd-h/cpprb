@@ -152,7 +152,7 @@ e = {"obs": o, # [0,1)
 
 add_b(brb)(e)
 add_r(rrb)(e)
-add_c(crb)(c)
+add_c(crb)(e)
 rb.add(**e)
 
 # ReplayBuffer.sample
