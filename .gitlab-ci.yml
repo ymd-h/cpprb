@@ -225,8 +225,6 @@ run_bench_mark:
   artifacts:
     paths:
       - "benchmark/*.png"
-  except:
-    - schedules
   needs:
     - job: coverage
       artifacts: false
@@ -242,8 +240,6 @@ run_bench_mark2:
   artifacts:
     paths:
       - "benchmark2/*.png"
-  except:
-    - schedules
   needs:
     - job: coverage
       artifacts: false
