@@ -1000,11 +1000,13 @@ cdef class ReplayBuffer:
             for name in self.next_of:
                 sample[f"next_{name}"] = self.buffer[name][next_idx]
                 if use_cache:
+                    # Cache for the latest "next_***" stored at `self.next_`
                     sample[f"next_{name}"][cache_idx] = self.next_[name]
 
         cdef size_t i,_i
         cdef size_t N = idx.shape[0]
         if self.cache is not None:
+            # Cache for episode ends stored at `self.cache`
             for _i in range(N):
                 i = idx[_i]
                 if i in self.cache:
