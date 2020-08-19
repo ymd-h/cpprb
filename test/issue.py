@@ -654,7 +654,7 @@ class TestIssue114(unittest.TestCase):
         rb.clear()
 
         for i in range(bsize):
-            rb.add(a=a[i,i:i+ssize])
+            rb.add(a=a[:,i:i+ssize])
             rb.on_episode_end()
 
         _a = rb.get_all_transitions()["a"]
