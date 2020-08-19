@@ -637,7 +637,7 @@ class TestIssue114(unittest.TestCase):
         bsize = 10
         odim = 2
         ssize = 2
-        rb = ReplayBuffer(bsize,{"a": {(odim,ssize)}},stack_compress="a")
+        rb = ReplayBuffer(bsize,{"a": {"shape": (odim,ssize)}},stack_compress="a")
         a = np.random.rand(odim,bsize + ssize-1)
 
         for i in range(bsize):
