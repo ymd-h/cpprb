@@ -630,6 +630,35 @@ class TestIssue114(unittest.TestCase):
         for i in range(bsize):
             rb._encode_sample([i])
 
+    def test_stack_compress(self):
+        bsize = 10
+        odim = 2
+        ssize = 2
+        rb = ReplayBuffer(bsize,{"a": {(odim,ssize)}},stack_compress="a")
+        a = np.random.rand(odim,bsize + ssize-1)
+
+        for i in range(bsize):
+            rb.add(a=a[:,i:i+ssize])
+
+        _a = rb.get_all_transitions()["a"]
+        for i in range(bsize):
+            with self.subTest(i=i,label="without cache"):
+                np.testing.assert_allclose(_a[i],a[:,i:i+ssize])
+
+        rb.clear()
+
+        for i in range(bsize):
+            rb.add(a=a[i,i:i+ssize])
+            rb.on_episode_end()
+
+        _a = rb.get_all_transitions()["a"]
+        for i in range(bsize):
+            with self.subTest(i=i,label="without cache"):
+                np.testing.assert_allclose(_a[i],a[:,i:i+ssize])
+
+        for i in range(bsize):
+            rb._encode_sample([i])
+
 
 if __name__ == '__main__':
     unittest.main()
