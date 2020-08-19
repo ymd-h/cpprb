@@ -1002,16 +1002,18 @@ cdef class ReplayBuffer:
                 if use_cache:
                     sample[f"next_{name}"][cache_idx] = self.next_[name]
 
-        cdef size_t i
+        cdef size_t i,_i
+        cdef size_t N = idx.shape[0]
         if self.cache is not None:
-            for i in idx:
+            for _i in range(N):
+                i = idx[_i]
                 if i in self.cache:
                     if self.has_next_of:
                         for name in self.next_of:
-                            sample[f"next_{name}"][i] = self.cache[i][f"next_{name}"]
+                            sample[f"next_{name}"][_i] = self.cache[i][f"next_{name}"]
                     if self.compress_any:
                         for name in self.stack_compress:
-                            sample[name][i] = self.cache[i][name]
+                            sample[name][_i] = self.cache[i][name]
 
         return sample
 
