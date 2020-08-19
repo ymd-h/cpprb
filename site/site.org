@@ -635,8 +635,8 @@ In this section, we compare cpprb with other replay buffer implementations;
   - [[https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py][baselines.deepq.replay_buffer.ReplayBuffer]]
   - [[https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py][baselines.deepq.replay_buffer.PrioritizedReplayBuffer]]
 - [[https://github.com/ray-project/ray][Ray RLlib]]
-  - [[https://github.com/ray-project/ray/blob/master/rllib/optimizers/replay_buffer.py][ray.rilib.optimizers.replay_buffer.ReplayBuffer]]
-  - [[https://github.com/ray-project/ray/blob/master/rllib/optimizers/replay_buffer.py][ray.rllib.optimizers.replay_buffer.PrioritizedReplayBuffer]]
+  - [[https://github.com/ray-project/ray/blob/master/rllib/execution/replay_buffer.py][ray.rilib.execution.replay_buffer.ReplayBuffer]]
+  - [[https://github.com/ray-project/ray/blob/master/rllib/execution/replay_buffer.py][ray.rllib.execution.replay_buffer.PrioritizedReplayBuffer]]
 - [[https://github.com/chainer/chainerrl][Chainer ChainerRL]]
   - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/replay_buffer.py][chainerrl.replay_buffers.ReplayBuffer]]
   - [[https://github.com/chainer/chainerrl/blob/master/chainerrl/replay_buffers/prioritized.py][chainerrl.replay_buffers.PrioritizedReplayBuffer]]
@@ -744,7 +744,7 @@ These classes are decorated with ~@DeveloperAPI~, which are intented
 to be used by developer when making custom algorithms.
 
 #+begin_src python
-from ray.rllib.optimizers.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+from ray.rllib.execution.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
 #+end_src
 
 These replay buffer classes initialize like OpenAI Baselines;
@@ -757,15 +757,22 @@ rb = ReplayBuffer(buffer_size)
 prb = PrioritizedReplayBuffer(buffer_size,alpha)
 #+end_src
 
-A transition is stored by calling
-~ReplayBuffer.add(self,obs_t,action,reward,obs_tp1,done,weight)~ and
-~PrioritizedReplayBuffer.add(self,obs_t,action,reward,obs_tp1,done,weight)~.
+A transition is stored by calling ~ReplayBuffer.add(self,item,weight)~
+and ~PrioritizedReplayBuffer.add(self,item,weight)~. The ~item~ is a
+instance of ~ray.rllib.policy.sample_batch.SampleBatch~. (The API was
+changed at [[https://github.com/ray-project/ray/releases/tag/ray-0.8.7][ray-0.8.7]].)
+
+The ~SampleBatch~ class can have any kind of values with batch size,
+however, only a single transition is allowed for addition. (If you
+pass ~SampleBatch~ having multi-transitions to ~add()~ method, it will
+produce unintentional bug probably.) The key of ~SampleBatch~ can be
+defined by user freely.
 
 In RLlib, ~PrioritizedReplayBuffer~ can take ~weight~ parameter to
-specify priority at the same time. Brcause of unified API,
+specify priority at the same time. In order to unify their API,
 ~ReplayBuffer~ also requires ~weight~ parameter, even though it is not
 used at all. Moreover, the ~weight~ does not have default parameter
-(such as ~None~), you need to pass something.
+(such as ~None~), you need to pass something explicitly.
 
 #+begin_src python
 obs_t = [0, 0, 0]
@@ -775,8 +782,17 @@ obs_tp1 = [1, 1, 1]
 done = 0.0
 weight = 0.5
 
-rb.add(obs_t,action,reward,obs_tp1,done,None)
-prb.add(obs_t,action,reward,obs_tp1,done,weight)
+# For addition, SampleBatch must be initialized with a set of `list` having only a single element.
+rb.add(SampleBatch(obs=[obs_t],
+                   action=[action],
+                   reward=[reward],
+                   new_obs=[obs_tp1],
+                   done=[done]),None)
+prb.add(SampleBatch(obs=[obs_t],
+                    action=[action],
+                    reward=[reward],
+                    new_obs=[obs_tp1],
+                    done=[done]),weight)
 #+end_src
 
 
@@ -784,16 +800,19 @@ Like OpenAI Baselines, stored transitions can be sampled by calling
 ~ReplayBuffer.sample(self,batch_size)~ or
 ~PrioritizedReplayBuffer.sample(self,batch_size,beta)~.
 
-~ReplayBuffer~ returns a tuple of batch size
-transition. ~PrioritizedReplayBuffer~ also returns weights and
-indexes, too.
+~ReplayBuffer~ returns ~SampleBatch~ of batch size transition. (The
+API was changed at [[https://github.com/ray-project/ray/releases/tag/ray-0.8.7][ray-0.8.7]].) ~PrioritizedReplayBuffer~ also returns
+~weights~ and ~batch_indexes~ in ~SampleBatch~, too.
 
 #+begin_src python
 batch_size = 32
 beta = 0.4
 
-obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = rb.sample(batch_size)
-obs_batch, act_batch, rew_batch, next_obs_batch, done_mask, weights, idxes = prb.sample(batch_size)
+sample = rb.sample(batch_size)
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = sample["obs"], sample["action"], sample["reward"], sample["new_obs"], sample["done"]
+
+sample = prb.sample(batch_size)
+obs_batch, act_batch, rew_batch, next_obs_batch, done_mask, weights, idxes = sample["obs"], sample["action"], sample["reward"], sample["new_obs"], sample["done"], sample["weights"], sample["batch_indexes"]
 #+end_src
 
 Priorities can be also updated by calling

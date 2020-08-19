@@ -1,7 +1,8 @@
 FROM python:3.7
 
 RUN apt update \
-	&& apt install -y --no-install-recommends libopenmpi-dev zlib1g-dev \
+	&& apt install -y --no-install-recommends \
+	libopenmpi-dev libgl1-mesa-dev zlib1g-dev \
 	&& apt clean \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& pip install tensorflow==1.14 \

@@ -9,8 +9,9 @@ from baselines.deepq.replay_buffer import (ReplayBuffer as bRB,
 
 # Ray/RLlib: https://github.com/ray-project/ray
 # Requires Pandas, even though wich is not in `install_requires`
-from ray.rllib.optimizers.replay_buffer import (ReplayBuffer as rRB,
-                                                PrioritizedReplayBuffer as rPRB)
+from ray.rllib.execution.replay_buffer import (ReplayBuffer as rRB,
+                                               PrioritizedReplayBuffer as rPRB)
+from ray.rllib.policy.sample_batch import SampleBatch
 
 # Chainer/ChainerRL: https://github.com/chainer/chainerrl
 from chainerrl.replay_buffers import (ReplayBuffer as cRB,
@@ -72,7 +73,7 @@ def add_b(_rb):
                     done=e["done"][i])
     return add
 
-def add_r(_rb):
+def add_r(_rb,with_priority=False):
     """ Add for RLlib
 
     Notes
@@ -81,13 +82,26 @@ def add_r(_rb):
     """
     def add(e):
         for i in range(e["obs"].shape[0]):
-            _rb.add(obs_t=e["obs"][i],
-                    action=e["act"][i],
-                    reward=e["rew"][i],
-                    obs_tp1=e["next_obs"][i],
-                    done=e["done"][i],
+            _rb.add(SampleBatch(obs_t=[e["obs"][i]],
+                                action=[e["act"][i]],
+                                reward=[e["rew"][i]],
+                                obs_tp1=[e["next_obs"][i]],
+                                done=[e["done"][i]]),
                     weight=0.5)
-    return add
+
+    def add_with_p(e):
+        for i in range(e["obs"].shape[0]):
+            _rb.add(SampleBatch(obs_t=[e["obs"][i]],
+                                action=[e["act"][i]],
+                                reward=[e["rew"][i]],
+                                obs_tp1=[e["next_obs"][i]],
+                                done=[e["done"][i]]),
+                    weight=e["priority"][i])
+
+    if with_priority:
+        return add_with_p
+    else:
+        return add
 
 def add_c(_rb):
     """ Add for ChainerRL
@@ -129,16 +143,17 @@ perfplot.save(filename="ReplayBuffer_add.png",
 
 
 # Fill Buffers
-for _ in range(buffer_size):
-    o = np.random.rand(obs_shape) # [0,1)
-    a = np.random.rand(act_shape)
-    r = np.random.rand(1)
-    d = np.random.randint(2) # [0,2) == 0 or 1
-    brb.add(obs_t=o,action=a,reward=r,obs_tp1=o,done=d)
-    rrb.add(obs_t=o,action=a,reward=r,obs_tp1=o,done=d,weight=0.5)
-    crb.append(state=o,action=a,reward=r,next_state=o,is_state_terminal=d)
-    rb.add(obs=o,act=a,rew=r,next_obs=o,done=d)
+o = np.random.rand(buffer_size,obs_shape)
+e = {"obs": o, # [0,1)
+     "act": np.random.rand(buffer_size,act_shape),
+     "rew": np.random.rand(buffer_size),
+     "next_obs": o,
+     "done": np.random.randint(2,size=buffer_size)} # [0,2) == 0 or 1
 
+add_b(brb)(e)
+add_r(rrb)(e)
+add_c(crb)(e)
+rb.add(**e)
 
 # ReplayBuffer.sample
 perfplot.save(filename="ReplayBuffer_sample.png",
@@ -181,19 +196,29 @@ perfplot.save(filename="PrioritizedReplayBuffer_add.png",
 
 
 # Fill Buffers
-for _ in range(buffer_size):
-    o = np.random.rand(obs_shape) # [0,1)
-    a = np.random.rand(act_shape)
-    r = np.random.rand(1)
-    d = np.random.randint(2) # [0,2) == 0 or 1
-    p = np.random.rand(1)
+o = np.random.rand(buffer_size,obs_shape)
+p = np.random.rand(buffer_size)
+e = {"obs": o, # [0,1)
+     "act": np.random.rand(buffer_size,act_shape),
+     "rew": np.random.rand(buffer_size),
+     "next_obs": o,
+     "done": np.random.randint(2,size=buffer_size)} # [0,2) == 0 or 1
 
-    # OpenAI/Baselines cannot set priority together.
-    idx = bprb._next_idx
-    bprb.add(obs_t=o,action=a,reward=r,obs_tp1=o,done=d)
-    bprb.update_priorities([idx],[p])
+# OpenAI/Baselines cannot set priority together.
+add_b(bprb)(e)
+bprb.update_priorities(np.arange(buffer_size,dtype=np.int),p)
 
-    rprb.add(obs_t=o,action=a,reward=r,obs_tp1=o,done=d,weight=p)
+e["priority"] = p
+
+add_r(rprb,with_priority=True)(e)
+prb.add(**e)
+
+for i in range(buffer_size):
+    o = e["obs"][i]
+    a = e["act"][i]
+    r = e["rew"][i]
+    d = e["next_obs"][i]
+    p = e["priority"][i]
 
     # Directly access internal PrioritizedBuffer,
     # since ChainerRL/PrioritizedReplayBuffer has no API to set priority.
@@ -203,8 +228,6 @@ for _ in range(buffer_size):
                         "next_state":o,
                         "is_state_terminal":d}],
                        priority=p)
-
-    prb.add(obs=o,act=a,rew=r,next_obs=o,done=d,priority=p)
 
 
 perfplot.save(filename="PrioritizedReplayBuffer_sample.png",
