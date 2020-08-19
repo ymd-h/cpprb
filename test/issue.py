@@ -618,6 +618,9 @@ class TestIssue114(unittest.TestCase):
         _next_a = np.ravel(rb.get_all_transitions()["next_a"])
         np.testing.assert_allclose(_next_a,a[1:bsize+1])
 
+        for i in range(bsize):
+            rb._encode_sample([i])
+
         rb.clear()
 
         for i in range(bsize):
@@ -644,6 +647,9 @@ class TestIssue114(unittest.TestCase):
         for i in range(bsize):
             with self.subTest(i=i,label="without cache"):
                 np.testing.assert_allclose(_a[i],a[:,i:i+ssize])
+
+        for i in range(bsize):
+            rb._encode_sample([i])
 
         rb.clear()
 
