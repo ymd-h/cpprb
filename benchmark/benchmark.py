@@ -143,12 +143,12 @@ perfplot.save(filename="ReplayBuffer_add.png",
 
 
 # Fill Buffers
-o = np.random.rand(batch_size,obs_shape)
+o = np.random.rand(buffer_size,obs_shape)
 e = {"obs": o, # [0,1)
-     "act": np.random.rand(batch_size,act_shape),
-     "rew": np.random.rand(batch_size),
+     "act": np.random.rand(buffer_size,act_shape),
+     "rew": np.random.rand(buffer_size),
      "next_obs": o,
-     "done": np.random.randint(2,size=batch_size)} # [0,2) == 0 or 1
+     "done": np.random.randint(2,size=buffer_size)} # [0,2) == 0 or 1
 
 add_b(brb)(e)
 add_r(rrb)(e)
@@ -196,17 +196,17 @@ perfplot.save(filename="PrioritizedReplayBuffer_add.png",
 
 
 # Fill Buffers
-o = np.random.rand(batch_size,obs_shape)
-p = np.random.rand(batch_size)
+o = np.random.rand(buffer_size,obs_shape)
+p = np.random.rand(buffer_size)
 e = {"obs": o, # [0,1)
-     "act": np.random.rand(batch_size,act_shape),
-     "rew": np.random.rand(batch_size),
+     "act": np.random.rand(buffer_size,act_shape),
+     "rew": np.random.rand(buffer_size),
      "next_obs": o,
-     "done": np.random.randint(2,size=batch_size)} # [0,2) == 0 or 1
+     "done": np.random.randint(2,size=buffer_size)} # [0,2) == 0 or 1
 
 # OpenAI/Baselines cannot set priority together.
 add_b(bprb)(e)
-bprb.update_priorities(np.arange(batch_size,dtype=np.int),p)
+bprb.update_priorities(np.arange(buffer_size,dtype=np.int),p)
 
 e["priority"] = p
 
