@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.3.0][v9.3.0]]
+- Add: ~get_all_trainsitions(shuffle=True)~ for shuffle transitions
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.2.1][v9.2.1]]
 - Fix: Windows binary distribution
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.2.0][v9.2.0]]
