@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.3.1][v9.3.1]]
+- Fix: cache for next_of and stack_compress ([[https://gitlab.com/ymd_h/cpprb/-/issues/114][114]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.3.0][v9.3.0]]
 - Add: ~get_all_trainsitions(shuffle=True)~ for shuffle transitions
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.2.1][v9.2.1]]
