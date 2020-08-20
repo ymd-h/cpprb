@@ -599,6 +599,72 @@ class TestIssue112(unittest.TestCase):
                 self.assertEqual(b.get_all_transitions()["a"].dtype,d)
 
 
+class TestIssue114(unittest.TestCase):
+    """
+    ReplayBuffer.sample raises IndexError
+
+    Cache mechanism with next_of and compress_any seem to be broken
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/114
+    """
+    def test_has_next_of(self):
+        bsize = 10
+        rb = ReplayBuffer(bsize,{"a": {}},next_of="a")
+        a = np.random.rand(bsize + 1)
+
+        for i in range(bsize):
+            rb.add(a=a[i],next_a=a[i+1])
+
+        _next_a = np.ravel(rb.get_all_transitions()["next_a"])
+        np.testing.assert_allclose(_next_a,a[1:bsize+1])
+
+        for i in range(bsize):
+            rb._encode_sample([i])
+
+        rb.clear()
+
+        for i in range(bsize):
+            rb.add(a=a[i],next_a=a[i+1])
+            rb.on_episode_end()
+
+        _next_a = np.ravel(rb.get_all_transitions()["next_a"])
+        np.testing.assert_allclose(_next_a,a[1:bsize+1])
+
+        for i in range(bsize):
+            rb._encode_sample([i])
+
+    def test_stack_compress(self):
+        bsize = 10
+        odim = 2
+        ssize = 2
+        rb = ReplayBuffer(bsize,{"a": {"shape": (odim,ssize)}},stack_compress="a")
+        a = np.random.rand(odim,bsize + ssize-1)
+
+        for i in range(bsize):
+            rb.add(a=a[:,i:i+ssize])
+
+        _a = rb.get_all_transitions()["a"]
+        for i in range(bsize):
+            with self.subTest(i=i,label="without cache"):
+                np.testing.assert_allclose(_a[i],a[:,i:i+ssize])
+
+        for i in range(bsize):
+            rb._encode_sample([i])
+
+        rb.clear()
+
+        for i in range(bsize):
+            rb.add(a=a[:,i:i+ssize])
+            rb.on_episode_end()
+
+        _a = rb.get_all_transitions()["a"]
+        for i in range(bsize):
+            with self.subTest(i=i,label="without cache"):
+                np.testing.assert_allclose(_a[i],a[:,i:i+ssize])
+
+        for i in range(bsize):
+            rb._encode_sample([i])
+
 
 if __name__ == '__main__':
     unittest.main()
