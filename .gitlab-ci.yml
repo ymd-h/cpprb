@@ -343,7 +343,10 @@ manylinux:
   artifacts:
     paths:
       - "wheelhouse-fix/cpprb-*.whl"
+  only:
+    - tags
   except:
+    - branches
     - schedules
   needs:
     - job: coverage
@@ -354,4 +357,3 @@ manylinux:
     paths:
       - "$CI_PROJECT_DIR/.pip"
     key: "${CI_PROJECT_PATH}-BINARY-BUILD"
-  interruptible: true
