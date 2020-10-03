@@ -1,7 +1,6 @@
 import numpy as np
 
 from gym.spaces import Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
-from gym.spaces import flatdim, flatten, unflatten
 
 def from_space(space,int_type,float_type):
     if isinstance(space,Discrete):
