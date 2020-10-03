@@ -66,6 +66,11 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.3.2][v9.3.2]]
+- Fix: CodeQL reported warnings
+  - Unused import ([[https://github.com/ymd-h/cpprb/security/code-scanning/26?query=ref%3Arefs%2Fheads%2Fmaster][1]],[[https://github.com/ymd-h/cpprb/security/code-scanning/27?query=ref%3Arefs%2Fheads%2Fmaster][2]])
+  - Empty except ([[https://github.com/ymd-h/cpprb/security/code-scanning/17?query=ref%3Arefs%2Fheads%2Fmaster][1]])
+
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.3.1][v9.3.1]]
 - Fix: cache for next_of and stack_compress ([[https://gitlab.com/ymd_h/cpprb/-/issues/114][114]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.3.0][v9.3.0]]
