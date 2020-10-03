@@ -1,0 +1,21 @@
+name: CodeQL
+
+on: [push, pull_request]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - uses: github/codeql-action/init@v1
+        with:
+          languages: cpp, python
+      - run: pip install .
+      - uses: github/codeql-action/analyze@v1
