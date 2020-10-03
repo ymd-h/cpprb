@@ -1,7 +1,7 @@
 import os
 import platform
 import warnings
-from setuptools import setup, Extension, find_packages
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
 debug = os.getenv('DEBUG_CPPRB')
