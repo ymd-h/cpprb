@@ -814,7 +814,7 @@ cdef class ReplayBuffer:
                   next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
                   mmap_prefix =None,
                   **kwargs):
-        self.env_dict = env_dict or {}
+        self.env_dict = env_dict.copy() if env_dict else {}
         cdef special_keys = []
 
         self.buffer_size = size
