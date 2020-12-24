@@ -671,49 +671,30 @@ class TestIssue116(unittest.TestCase):
 
     Ref: https://gitlab.com/ymd_h/cpprb/-/issues/116
     """
-    def test_nstep(self):
-        from timeit import timeit
-        RBC = ReplayBuffer
-
+    def test_after_nstep(self):
         buffer_size = 100
 
         obs_shape = 4
-        action_shape = 2
         env_dict={"state": {"shape": obs_shape},
-                  "action": {"shape": action_shape},
                   "next_state": {"shape": obs_shape},
                   "reward": {},
                   "done": {}}
 
         def make_data_dict(n, nstep=None):
-            data={"state": np.random.randn(n, obs_shape),
-                  "action": np.random.randn(n, action_shape),
-                  "reward": np.random.randn(n),
-                  "next_state": np.random.randn(n, obs_shape),
-                  "done": np.random.binomial(1, 0.1, n)}
+            data={"state": np.zeros((n, obs_shape)),
+                  "reward": np.zeros(n),
+                  "next_state": np.zeros((n, obs_shape)),
+                  "done": np.zeros(n)}
             return data
 
-        def test_add_speed_nstep():
-            rbc = RBC(buffer_size, env_dict=env_dict,
-                      Nstep={"size": 30, "gamma": 0.99,
-                             "rew": "reward",
-                             "next": ["next_state"]})
-            data_dict = make_data_dict(32)
-            time_cy = timeit(lambda: rbc.add(**data_dict), number=1000)
+        ReplayBuffer(buffer_size, env_dict=env_dict,
+                     Nstep={"size": 4, "gamma": 0.99,
+                            "rew": "reward",
+                            "next": ["next_state"]})
 
-        def test_sampling_speed():
-            rbc = RBC(buffer_size, env_dict=env_dict)
-            data_dict = make_data_dict(32)
-            for i in range(1000):
-                rbc.add(**data_dict)
-
-            rbc.on_episode_end()
-            time_cy_sample = timeit(lambda: rbc.sample(32), number=1000)
-            print('cy sample time: ', time_cy_sample)
-
-
-        #test_add_speed_nstep()
-        test_sampling_speed()
+        rbc = ReplayBuffer(buffer_size, env_dict=env_dict)
+        data_dict = make_data_dict(32)
+        rbc.add(**data_dict)
 
 if __name__ == '__main__':
     unittest.main()
