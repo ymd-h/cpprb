@@ -827,6 +827,11 @@ cdef class ReplayBuffer:
 
         self.default_dtype = default_dtype or np.single
 
+        self.next_of = np.array(next_of,ndmin=1,copy=False)
+        self.has_next_of = next_of
+        self.next_ = {}
+        self.cache = {} if (self.has_next_of or self.compress_any) else None
+
         self.use_nstep = Nstep
         if self.use_nstep:
             self.nstep = NstepBuffer(self.env_dict,Nstep,
@@ -843,11 +848,6 @@ cdef class ReplayBuffer:
                                   mmap_prefix = mmap_prefix)
 
         self.size_check = StepChecker(self.env_dict,special_keys)
-
-        self.next_of = np.array(next_of,ndmin=1,copy=False)
-        self.has_next_of = next_of
-        self.next_ = {}
-        self.cache = {} if (self.has_next_of or self.compress_any) else None
 
         # Cache Size:
         #     No "next_of" nor "stack_compress": -> 0
