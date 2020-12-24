@@ -67,6 +67,7 @@
 :END:
 ** Unreleased
 - Fix: Walkaround ~next_of~ at Nstep
+- Fix: Input ~dict~ modification ([[https://gitlab.com/ymd_h/cpprb/-/issues/116][116]])
 
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.3.2][v9.3.2]]
 - Fix: CodeQL reported warnings
