@@ -835,7 +835,7 @@ cdef class ReplayBuffer:
 
         self.use_nstep = Nstep
         if self.use_nstep:
-            self.nstep = NstepBuffer(self.env_dict,Nstep,
+            self.nstep = NstepBuffer(self.env_dict,Nstep.copy(),
                                      stack_compress = self.stack_compress,
                                      next_of = self.next_of,
                                      default_dtype = self.default_dtype)
