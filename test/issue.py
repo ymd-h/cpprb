@@ -665,6 +665,36 @@ class TestIssue114(unittest.TestCase):
         for i in range(bsize):
             rb._encode_sample([i])
 
+class TestIssue116(unittest.TestCase):
+    """
+    Raise KeyError: 'discounts' for Nstep
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/116
+    """
+    def test_after_nstep(self):
+        buffer_size = 100
+
+        obs_shape = 4
+        env_dict={"state": {"shape": obs_shape},
+                  "next_state": {"shape": obs_shape},
+                  "reward": {},
+                  "done": {}}
+
+        def make_data_dict(n, nstep=None):
+            data={"state": np.zeros((n, obs_shape)),
+                  "reward": np.zeros(n),
+                  "next_state": np.zeros((n, obs_shape)),
+                  "done": np.zeros(n)}
+            return data
+
+        ReplayBuffer(buffer_size, env_dict=env_dict,
+                     Nstep={"size": 4, "gamma": 0.99,
+                            "rew": "reward",
+                            "next": ["next_state"]})
+
+        rbc = ReplayBuffer(buffer_size, env_dict=env_dict)
+        data_dict = make_data_dict(32)
+        rbc.add(**data_dict)
 
 if __name__ == '__main__':
     unittest.main()

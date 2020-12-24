@@ -555,7 +555,6 @@ cdef class NstepBuffer:
         if next_of is not None: # next_of is not support yet.
             for name in np.array(next_of,copy=False,ndmin=1):
                 self.env_dict[f"next_{name}"] = self.env_dict[name]
-            del self.env_dict["next_of"]
 
         self.Nstep_size = Nstep["size"]
         self.Nstep_gamma = Nstep.get("gamma",0.99)
@@ -814,7 +813,7 @@ cdef class ReplayBuffer:
                   next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
                   mmap_prefix =None,
                   **kwargs):
-        self.env_dict = env_dict or {}
+        self.env_dict = env_dict.copy() if env_dict else {}
         cdef special_keys = []
 
         self.buffer_size = size
@@ -827,12 +826,23 @@ cdef class ReplayBuffer:
 
         self.default_dtype = default_dtype or np.single
 
+        self.has_next_of = next_of
+        self.next_of = np.array(next_of,
+                                ndmin=1,copy=False) if self.has_next_of else None
+        self.next_ = {}
+        self.cache = {} if (self.has_next_of or self.compress_any) else None
+
         self.use_nstep = Nstep
         if self.use_nstep:
-            self.nstep = NstepBuffer(self.env_dict,Nstep,
+            self.nstep = NstepBuffer(self.env_dict,Nstep.copy(),
                                      stack_compress = self.stack_compress,
                                      next_of = self.next_of,
                                      default_dtype = self.default_dtype)
+
+            # Nstep is not support next_of yet
+            self.next_of = None
+            self.has_next_of = False
+
             self.env_dict["discounts"] = {"dtype": np.single}
             special_keys.append("discounts")
 
@@ -843,11 +853,6 @@ cdef class ReplayBuffer:
                                   mmap_prefix = mmap_prefix)
 
         self.size_check = StepChecker(self.env_dict,special_keys)
-
-        self.next_of = np.array(next_of,ndmin=1,copy=False)
-        self.has_next_of = next_of
-        self.next_ = {}
-        self.cache = {} if (self.has_next_of or self.compress_any) else None
 
         # Cache Size:
         #     No "next_of" nor "stack_compress": -> 0
