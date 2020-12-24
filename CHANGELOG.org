@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+- Fix: Walkaround ~next_of~ at Nstep
+
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.3.2][v9.3.2]]
 - Fix: CodeQL reported warnings
   - Unused import ([[https://github.com/ymd-h/cpprb/security/code-scanning/26?query=ref%3Arefs%2Fheads%2Fmaster][1]],[[https://github.com/ymd-h/cpprb/security/code-scanning/27?query=ref%3Arefs%2Fheads%2Fmaster][2]])
