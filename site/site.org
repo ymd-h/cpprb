@@ -367,9 +367,9 @@ import numpy as np
 from cpprb import ReplayBuffer
 
 rb = ReplayBuffer(32,{'obs': {"shape": (4,4)},
-                      'act': {"shape": 3}
+                      'act': {"shape": 3},
                       'rew': {},
-                      'next_obs': {"shape": (4,4)}
+                      'next_obs': {"shape": (4,4)},
                       'done': {}},
                   Nstep={"size": 4,
                          "gamma": 0.99,
