@@ -827,8 +827,9 @@ cdef class ReplayBuffer:
 
         self.default_dtype = default_dtype or np.single
 
-        self.next_of = np.array(next_of,ndmin=1,copy=False)
         self.has_next_of = next_of
+        self.next_of = np.array(next_of,
+                                ndmin=1,copy=False) if self.has_next_of else None
         self.next_ = {}
         self.cache = {} if (self.has_next_of or self.compress_any) else None
 
