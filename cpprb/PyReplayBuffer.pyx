@@ -555,7 +555,6 @@ cdef class NstepBuffer:
         if next_of is not None: # next_of is not support yet.
             for name in np.array(next_of,copy=False,ndmin=1):
                 self.env_dict[f"next_{name}"] = self.env_dict[name]
-            del self.env_dict["next_of"]
 
         self.Nstep_size = Nstep["size"]
         self.Nstep_gamma = Nstep.get("gamma",0.99)
@@ -839,6 +838,11 @@ cdef class ReplayBuffer:
                                      stack_compress = self.stack_compress,
                                      next_of = self.next_of,
                                      default_dtype = self.default_dtype)
+
+            # Nstep is not support next_of yet
+            self.next_of = None
+            self.has_next_of = False
+
             self.env_dict["discounts"] = {"dtype": np.single}
             special_keys.append("discounts")
 
