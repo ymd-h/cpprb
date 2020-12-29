@@ -1365,6 +1365,11 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     def update_priorities(self,indexes,priorities):
         r"""Update priorities
 
+        Update priorities specified with indicies. If this
+        PrioritizedReplayBuffer is constructed with
+        `check_for_update=True`, then ignore indices which updated
+        values after the last calling of `sample()` method.
+
         Parameters
         ----------
         indexes : array_like
