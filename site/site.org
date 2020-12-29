@@ -301,6 +301,12 @@ new_priorities = np.ones_like(weights)
 prb.update_priorities(indexes,new_priorities)
 #+end_src
 *** Notes
+The constructor of ~PrioritizedReplayBuffer~ (aka. ~__init__~) has
+parameter ~check_for_update~. If the parameter is ~True~ (default is
+~False~), the buffer traces updated indices after the last calling of
+~sample()~ method to avoid mis-updating priorities of already
+overwritten values. This feature is designed for multiprocess
+learning.
 
 *** Technical Detail
 To choose prioritized sample efficiently, partial summation and
