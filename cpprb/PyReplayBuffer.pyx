@@ -1238,7 +1238,10 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             :math:`\epsilon` small positive constant to ensure error-less state
             will be sampled, whose default value is 1e-4.
         check_for_update : bool
-            Whether check update for `update_priorities`. The default value is `False`
+            If the value is `True` (default value is `False`),
+            this buffer traces updated indices after the last calling of
+            `sample()` method to avoid mis-updating priorities of already
+            overwritten values. This feature is designed for multiprocess learning.
 
         See Also
         --------
