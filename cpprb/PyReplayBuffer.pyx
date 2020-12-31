@@ -772,6 +772,38 @@ cdef class NstepBuffer:
         """
         return self.Nstep_size
 
+
+cdef class RingBufferIndex:
+    """Ring Buffer Index class
+    """
+    cdef size_t index
+    cdef size_t buffer_size
+
+    def __cinit__(self,buffer_size):
+        self.index = 0
+        self.buffer_size = buffer_size
+
+    def __init__(self,buffer_size):
+        pass
+
+    cpdef size_t get_next_index(self):
+        return self.index
+
+    cpdef size_t fetch_add(self,size_t N):
+        """
+        Return
+        """
+        cdef size_t ret = self.index
+        self.index += N
+
+        while self.index >= buffer_size:
+            self.index -= buffer_size
+
+        return ret
+
+    cpdef void clear(self):
+        self.index = 0
+
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
     r"""Replay Buffer class to store transitions and to sample them randomly.
