@@ -513,5 +513,44 @@ namespace ymd {
     }
     void clear(){ index = 0; }
   };
+
+
+  class ThreadSafeRingBufferIndex {
+  private:
+    using index_t = atd::atomic<std::size_t>;
+    index_t* index;
+    std::size_t* index_p;
+    const std::size_t buffer_size;
+  public:
+    ThreadSafeRingBufferIndex(std::size_t size, std::size_t* index_p = nullptr)
+      : buffer_size{ size }, index_p{ index_p }
+    {
+      index = index_p ? new(index_p) index_t : new index_t;
+    }
+    ThreadSafeRingBufferIndex(const ThreadSafeRingBufferIndex&) = default;
+    ThreadSafeRingBufferIndex(ThreadSafeRingBufferIndex&&) = default;
+    ThreadSafeRingBufferIndex& operator=(const ThreadSafeRingBufferIndex&) = default;
+    ThreadSafeRingBufferIndex& operator=(ThreadSafeRingBufferIndex&&) = default;
+    ~ThreadSafeRingBufferIndex(){ if(!index_p){ delete index; } }
+
+    inline std::size_t get_next_index() const {
+      return index->load(std::memory_order_acquire);
+    }
+
+    inline std::size_t fetch_add(std::size_t N){
+      const auto ret = index->fetch_add(N);
+
+      auto now = ret + N;
+      while(now >= buffer_size){
+	if(std::atomic_compare_exchange_weak(index,&now,now-buffer_size)){
+	  now -= buffer_size;
+	}
+      }
+
+      return ret;
+    }
+
+    inline void clear(){ index->store(0,std::memory_order_release); }
+  };
 }
 #endif // YMD_REPLAY_BUFFER_HH
