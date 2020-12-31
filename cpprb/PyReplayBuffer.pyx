@@ -836,7 +836,7 @@ cdef class ReplayBuffer:
     cdef buffer
     cdef size_t buffer_size
     cdef env_dict
-    cdef size_t index
+    cdef RingBufferIndex index
     cdef size_t stored_size
     cdef size_t episode_len
     cdef next_of
@@ -860,7 +860,7 @@ cdef class ReplayBuffer:
 
         self.buffer_size = size
         self.stored_size = 0
-        self.index = 0
+        self.index = RingBufferIndex(self.buffer_size)
         self.episode_len = 0
 
         self.compress_any = stack_compress
@@ -979,7 +979,7 @@ cdef class ReplayBuffer:
 
         cdef size_t N = self.size_check.step_size(kwargs)
 
-        cdef size_t index = self.index
+        cdef size_t index = self.index.fetch_add(N)
         cdef size_t end = index + N
         cdef size_t remain = 0
         cdef add_idx = np.arange(index,end)
@@ -1003,7 +1003,6 @@ cdef class ReplayBuffer:
             del self.cache[index]
 
         self.stored_size = min(self.stored_size + N,self.buffer_size)
-        self.index = end if end < self.buffer_size else remain
         self.episode_len += N
         return index
 
@@ -1102,7 +1101,7 @@ cdef class ReplayBuffer:
         >>> rb.get_next_index()
         0
         """
-        self.index = 0
+        self.index.clear()
         self.stored_size = 0
         self.episode_len = 0
 
@@ -1139,7 +1138,7 @@ cdef class ReplayBuffer:
         size_t
             the next index to store
         """
-        return self.index
+        return self.index.get_next_index()
 
     cdef void add_cache(self):
         r"""Add last items into cache
@@ -1159,7 +1158,7 @@ cdef class ReplayBuffer:
         if self.stored_size == 0:
             return
 
-        cdef size_t key_end = (self.index or self.buffer_size)
+        cdef size_t key_end = (self.get_next_index() or self.buffer_size)
         # Next index (without wraparounding): key_end in [1,...,self.buffer_size]
 
         cdef size_t key_min = 0
