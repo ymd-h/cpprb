@@ -786,12 +786,22 @@ cdef class RingBufferIndex:
     def __init__(self,buffer_size):
         pass
 
-    cpdef size_t get_next_index(self):
+    cdef size_t get_next_index(self):
         return self.index
 
-    cpdef size_t fetch_add(self,size_t N):
+    cdef size_t fetch_add(self,size_t N):
         """
-        Return
+        Add then return original value
+
+        Parameters
+        ----------
+        N : size_t
+            value to add
+
+        Returns
+        -------
+        size_t
+            index before add
         """
         cdef size_t ret = self.index
         self.index += N
@@ -801,7 +811,7 @@ cdef class RingBufferIndex:
 
         return ret
 
-    cpdef void clear(self):
+    cdef void clear(self):
         self.index = 0
 
 @cython.embedsignature(True)
