@@ -490,5 +490,28 @@ namespace ymd {
 
   template<typename Priority>
   using CppThreadSafePrioritizedSampler = CppPrioritizedSampler<Priority,true>;
+
+
+  class RingBufferIndex {
+  private:
+    std::size_t index;
+    std::size_t buffer_size;
+  public:
+    RingBufferIndex(std::size_t size) : index{0}, buffer_size{size} {}
+    RingBufferIndex(const RingBufferIndex&) = default;
+    RingBufferIndex(RingBufferIndex&&) = default;
+    RingBufferIndex& operator=(const RingBufferIndex&) = default;
+    RingBufferIndex& operator=(RingBufferIndex&&) = default;
+    ~RingBufferIndex() = default;
+  public:
+    inline std::size_t get_next_index() const { return index; }
+    inline std::size_t fetch_add(std::size_t N){
+      const auto ret = index;
+      index += N;
+      while(index >= buffer_size){ index -= buffer_size; }
+      return ret;
+    }
+    void clear(){ index = 0; }
+  };
 }
 #endif // YMD_REPLAY_BUFFER_HH
