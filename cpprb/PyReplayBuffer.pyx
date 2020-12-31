@@ -806,8 +806,8 @@ cdef class RingBufferIndex:
         cdef size_t ret = self.index
         self.index += N
 
-        while self.index >= buffer_size:
-            self.index -= buffer_size
+        while self.index >= self.buffer_size:
+            self.index -= self.buffer_size
 
         return ret
 
