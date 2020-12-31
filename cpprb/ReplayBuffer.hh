@@ -520,7 +520,7 @@ namespace ymd {
     using index_t = std::atomic<std::size_t>;
     index_t* index;
     std::size_t* index_p;
-    const std::size_t buffer_size;
+    std::size_t buffer_size;
   public:
     ThreadSafeRingBufferIndex(std::size_t size, std::size_t* index_p = nullptr)
       : buffer_size{ size }, index_p{ index_p }
