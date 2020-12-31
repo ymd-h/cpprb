@@ -526,8 +526,8 @@ namespace ymd {
       : index_p{ index_p }, buffer_size{ size }
     {
       index = index_p ?
-	new(index_p) typename ThreadSafe::index_t :
-	new typename ThreadSafe::index_t;
+	new(index_p) typename ThreadSafeRingBufferIndex::index_t :
+	new typename ThreadSafeRingBufferIndex::index_t;
     }
     ThreadSafeRingBufferIndex(const ThreadSafeRingBufferIndex&) = default;
     ThreadSafeRingBufferIndex(ThreadSafeRingBufferIndex&&) = default;
