@@ -523,7 +523,7 @@ namespace ymd {
     std::size_t buffer_size;
   public:
     ThreadSafeRingBufferIndex(std::size_t size, std::size_t* index_p = nullptr)
-      : buffer_size{ size }, index_p{ index_p }
+      : index_p{ index_p }, buffer_size{ size }
     {
       index = index_p ? new(index_p) typename index_t : new typename index_t;
     }
