@@ -517,7 +517,7 @@ namespace ymd {
 
   class ThreadSafeRingBufferIndex {
   private:
-    using index_t = atd::atomic<std::size_t>;
+    using index_t = std::atomic<std::size_t>;
     index_t* index;
     std::size_t* index_p;
     const std::size_t buffer_size;
