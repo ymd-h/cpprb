@@ -850,7 +850,6 @@ cdef class ReplayBuffer:
     cdef size_t buffer_size
     cdef env_dict
     cdef RingBufferIndex index
-    cdef size_t stored_size
     cdef size_t episode_len
     cdef next_of
     cdef bool has_next_of
@@ -872,7 +871,6 @@ cdef class ReplayBuffer:
         cdef special_keys = []
 
         self.buffer_size = size
-        self.stored_size = 0
         self.index = RingBufferIndex(self.buffer_size)
         self.episode_len = 0
 
@@ -1015,7 +1013,6 @@ cdef class ReplayBuffer:
         if (self.cache is not None) and (index in self.cache):
             del self.cache[index]
 
-        self.stored_size = min(self.stored_size + N,self.buffer_size)
         self.episode_len += N
         return index
 
@@ -1131,7 +1128,7 @@ cdef class ReplayBuffer:
         size_t
             stored size
         """
-        return self.stored_size
+        return self.index.get_stored_size()
 
     cpdef size_t get_buffer_size(self):
         r"""Get buffer size
@@ -1168,7 +1165,7 @@ cdef class ReplayBuffer:
             return
 
         # If nothing are stored, do nothing
-        if self.stored_size == 0:
+        if self.get_stored_size() == 0:
             return
 
         cdef size_t key_end = (self.get_next_index() or self.buffer_size)
