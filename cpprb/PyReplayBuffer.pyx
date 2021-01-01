@@ -778,10 +778,12 @@ cdef class RingBufferIndex:
     """
     cdef size_t index
     cdef size_t buffer_size
+    cdef int is_full
 
     def __cinit__(self,buffer_size):
         self.index = 0
         self.buffer_size = buffer_size
+        self.is_full = 0
 
     def __init__(self,buffer_size):
         pass
@@ -806,6 +808,9 @@ cdef class RingBufferIndex:
         cdef size_t ret = self.index
         self.index += N
 
+        if self.index >= self.buffer_size:
+            self.is_full = 1
+
         while self.index >= self.buffer_size:
             self.index -= self.buffer_size
 
@@ -813,6 +818,14 @@ cdef class RingBufferIndex:
 
     cdef void clear(self):
         self.index = 0
+        self.is_full = 0
+
+    cdef size_t get_stored_size(self):
+        if self.is_full:
+            return self.buffer_size
+        else:
+            return self.index
+
 
 @cython.embedsignature(True)
 cdef class ReplayBuffer:
