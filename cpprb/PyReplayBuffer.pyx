@@ -1112,7 +1112,6 @@ cdef class ReplayBuffer:
         0
         """
         self.index.clear()
-        self.stored_size = 0
         self.episode_len = 0
 
         self.cache = {} if (self.has_next_of or self.compress_any) else None
