@@ -1891,7 +1891,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         :math:`(p_{i} + \epsilon )^{ \alpha }` are stored with segment tree, which
         enable fast sampling.
         """
-        pass
+        super().__init__(size,env_dict,**kwargs)
+
 
     def add(self,*,priorities = None,**kwargs):
         r"""Add transition(s) into replay buffer.
