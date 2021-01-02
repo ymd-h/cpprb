@@ -846,7 +846,7 @@ cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
         self.lock = Lock()
 
     def __init__(self,buffer_size):
-        super(ProcessSafeRingBufferIndex,self).__init__(buffer_size)
+        super().__init__(buffer_size)
 
     cdef size_t get_next_index(self):
         with self.lock:
