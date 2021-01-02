@@ -830,6 +830,8 @@ cdef class RingBufferIndex:
 
 
 cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
+    """Process Safe Ring Buffer Index class
+    """
     cdef lock
 
     def __cinit__(self,buffer_size):
