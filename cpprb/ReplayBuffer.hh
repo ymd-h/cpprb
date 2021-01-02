@@ -496,7 +496,7 @@ namespace ymd {
   private:
     std::size_t index;
     std::size_t buffer_size;
-    bool is_full
+    bool is_full;
   public:
     RingBufferIndex(std::size_t size) : index{0}, buffer_size{size}, is_full{false} {}
     RingBufferIndex(const RingBufferIndex&) = default;
