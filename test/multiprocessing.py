@@ -102,7 +102,7 @@ class TestReplayBuffer(unittest.TestCase):
             for _ in range(100):
                 rb.add(done=0)
 
-        p = Process(add)
+        p = Process(target=add)
         p.start()
         p.join()
 
