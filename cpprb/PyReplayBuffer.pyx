@@ -447,8 +447,7 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
         if shared:
             ctype = np.ctypeslib.as_ctypes_type(dtype)
             len = int(np.array(shape,copy=False,dtype="int").prod())
-            shm = RawArray(ctype,len)
-            data = np.ctypeslib.as_array(shm.get_obj())
+            data = np.ctypeslib.as_array(RawArray(ctype,len))
             data.shape = shape
             return data
 
@@ -1860,7 +1859,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         shm = RawArray(np.ctypeslib.as_ctype_type(np.bool_),
                        int(np.array(size,copy=False,dtype='int').prod()))
-        self.unchange_since_sample = np.ctypeslib.as_array(shm.get_obj())
+        self.unchange_since_sample = np.ctypeslib.as_array(shm)
         self.unchange_since_sample[:] = True
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,
