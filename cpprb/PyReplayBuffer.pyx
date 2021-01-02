@@ -1569,7 +1569,7 @@ cdef class MPReplayBuffer:
     cdef worker_count
     cdef main_ready
 
-    def __cinit__(self,size,env_dict=None,*,default_dtype=None,**kwargs):
+    def __cinit__(self,size,env_dict=None,*,default_dtype=None,logger=None,**kwargs):
         self.env_dict = env_dict.copy() if env_dict else {}
         cdef special_keys = []
 
@@ -1592,7 +1592,7 @@ cdef class MPReplayBuffer:
 
         self.worker_count = Value(ctypes.c_size_t,0)
 
-    def __init__(self,size,env_dict=None,*,default_dtype=None,**kwargs):
+    def __init__(self,size,env_dict=None,*,default_dtype=None,logger=None,**kwargs):
         r"""Initialize ReplayBuffer
 
         Parameters
@@ -1606,7 +1606,9 @@ cdef class MPReplayBuffer:
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
         """
-        pass
+        logger = logger or default_logger()
+        logger.warning(f"{self.__class__.__name__} is experimental. "
+                       "The API can be changed.")
 
     cdef void _init_worker(self):
         self.worker_ready.wait() # Wait permission
