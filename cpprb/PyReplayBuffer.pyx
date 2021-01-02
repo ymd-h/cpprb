@@ -3,6 +3,7 @@
 
 import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
+from multiprocessing.sharedctypes import RawValue
 import time
 from typing import Any, Dict, Callable, Optional
 import warnings
@@ -776,20 +777,20 @@ cdef class NstepBuffer:
 cdef class RingBufferIndex:
     """Ring Buffer Index class
     """
-    cdef size_t index
-    cdef size_t buffer_size
-    cdef int is_full
+    cdef index
+    cdef buffer_size
+    cdef is_full
 
     def __cinit__(self,buffer_size):
-        self.index = 0
-        self.buffer_size = buffer_size
-        self.is_full = 0
+        self.index = RawValue(ctypes.c_size_t,0)
+        self.buffer_size = RawValue(ctypes.c_size_t,buffer_size)
+        self.is_full = RawValue(ctypes.c_int,0)
 
     def __init__(self,buffer_size):
         pass
 
     cdef size_t get_next_index(self):
-        return self.index
+        return self.index.value
 
     cdef size_t fetch_add(self,size_t N):
         """
@@ -805,26 +806,26 @@ cdef class RingBufferIndex:
         size_t
             index before add
         """
-        cdef size_t ret = self.index
-        self.index += N
+        cdef size_t ret = self.index.value
+        self.index.value += N
 
-        if self.index >= self.buffer_size:
-            self.is_full = 1
+        if self.index.value >= self.buffer_size.value:
+            self.is_full.value = 1
 
-        while self.index >= self.buffer_size:
-            self.index -= self.buffer_size
+        while self.index.value >= self.buffer_size.value:
+            self.index.value -= self.buffer_size.value
 
         return ret
 
     cdef void clear(self):
-        self.index = 0
-        self.is_full = 0
+        self.index.value = 0
+        self.is_full.value = 0
 
     cdef size_t get_stored_size(self):
-        if self.is_full:
-            return self.buffer_size
+        if self.is_full.value:
+            return self.buffer_size.value
         else:
-            return self.index
+            return self.index.value
 
 
 @cython.embedsignature(True)
