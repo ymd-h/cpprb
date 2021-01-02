@@ -83,8 +83,8 @@ class TestReplayBuffer(unittest.TestCase):
     def test_default_dtype(self):
         buffer_size = 256
 
-        rb = create_buffer(buffer_size,{"done": {}},
-                           default_dtype = np.float32)
+        rb = ReplayBuffer(buffer_size,{"done": {}},
+                          default_dtype = np.float32)
 
         rb.add(done=1)
         self.assertEqual(rb.sample(1)["done"][0].dtype,np.float32)
