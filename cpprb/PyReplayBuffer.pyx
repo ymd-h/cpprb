@@ -3,8 +3,8 @@
 
 import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
-from multiprocessing import Lock
-from multiprocessing.sharedctypes import RawValue
+from multiprocessing import Event, Lock
+from multiprocessing.sharedctypes import Value, RawValue, RawArray
 import time
 from typing import Any, Dict, Callable, Optional
 import warnings
@@ -416,7 +416,8 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
 
 def dict2buffer(buffer_size: int,env_dict: Dict,*,
                 stack_compress = None, default_dtype = None,
-                mmap_prefix: Optional[str] = None):
+                mmap_prefix: Optional[str] = None,
+                shared: bool = False):
     """Create buffer from env_dict
 
     Parameters
@@ -443,6 +444,14 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
     default_dtype = default_dtype or np.single
 
     def zeros(name,shape,dtype):
+        if shared:
+            ctype = np.ctypeslib.as_ctypes_type(dtype)
+            len = int(np.array(shape,copy=False,dtype="int").prod())
+            shm = RawArray(ctype,len)
+            data = np.ctypeslib.as_array(shm.get_obj())
+            data.shape = shape
+            return data
+
         if mmap_prefix:
             if not isinstance(shape,tuple):
                 shape = tuple(shape)
