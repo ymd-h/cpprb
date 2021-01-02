@@ -1817,40 +1817,40 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef VectorFloat weights
     cdef VectorSize_t indexes
     cdef float alpha
-    cdef max_p
-    cdef sum
-    cdef sum_a#nychanged
-    cdef sum_c#hanged
-    cdef min
-    cdef min_a#nychanged
-    cdef min_c#hanged
+    cdef float [:] max_p
+    cdef float [:] sum
+    cdef bint [:] sum_a#nychanged
+    cdef bint [:] sum_c#hanged
+    cdef float [:] min
+    cdef bint [:] min_a#nychanged
+    cdef bint [:] min_c#hanged
     cdef CppThreadSafePrioritizedSampler[float]* per
     cdef NstepBuffer priorities_nstep
     cdef bool [:] unchange_since_sample
 
     def __cinit__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwrags):
         self.alpha = alpha
-        self.max_p = RawValue(ctypes.c_float)
+        self.max_p = RawArray(ctypes.c_float,1)
 
         cdef size_t pow2size = 1
         while pow2size < size:
             pow2size *= 2
 
-        self.sum = RawArray(ctypes.c_float,pow2size)
-        self.sum_anychanged = RawValue(ctypes.c_bool)
-        self.sum_changed = RawArray(ctypes.c_bool,pow2size)
-        self.min = RawArray(ctypes.c_float,pow2size)
-        self.min_anychanged = RawValue(ctypes.c_bool)
-        self.min_changed = RawArray(ctypes.c_bool,pow2size)
+        self.sum   = RawArray(ctypes.c_float,pow2size)
+        self.sum_a = RawArray(ctypes.c_bool ,1)
+        self.sum_c = RawArray(ctypes.c_bool ,pow2size)
+        self.min   = RawArray(ctypes.c_float,pow2size)
+        self.min_a = RawArray(ctypes.c_bool ,1)
+        self.min_c = RawArray(ctypes.c_bool ,pow2size)
 
         self.per = new CppThreadSafePrioritizedSampler[float](size,alpha,
-                                                              &self.max_p.value,
-                                                              &self.sum.value[0],
-                                                              &self.sum_a.value,
-                                                              &self.sum_c.value[0],
-                                                              &self.min.value[0],
-                                                              &self.min_a.value,
-                                                              &self.min_c.value[0],
+                                                              &self.max_p[0],
+                                                              &self.sum[0],
+                                                              &self.sum_a[0],
+                                                              &self.sum_c[0],
+                                                              &self.min[0],
+                                                              &self.min_a[0],
+                                                              &self.min_c[0],
                                                               False)
         self.per.set_eps(eps)
         self.weights = VectorFloat()
