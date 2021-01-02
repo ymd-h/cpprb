@@ -496,8 +496,9 @@ namespace ymd {
   private:
     std::size_t index;
     std::size_t buffer_size;
+    bool is_full
   public:
-    RingBufferIndex(std::size_t size) : index{0}, buffer_size{size} {}
+    RingBufferIndex(std::size_t size) : index{0}, buffer_size{size}, is_full{false} {}
     RingBufferIndex(const RingBufferIndex&) = default;
     RingBufferIndex(RingBufferIndex&&) = default;
     RingBufferIndex& operator=(const RingBufferIndex&) = default;
@@ -508,10 +509,17 @@ namespace ymd {
     inline std::size_t fetch_add(std::size_t N){
       const auto ret = index;
       index += N;
+      if(index >= buffer_size){ is_full = true; }
       while(index >= buffer_size){ index -= buffer_size; }
       return ret;
     }
-    void clear(){ index = 0; }
+    void clear(){
+      index = 0;
+      is_full = false;
+    }
+    inline std::size_t get_stored_size() const {
+      return is_full ? buffer_size : index;
+    }
   };
 
 
