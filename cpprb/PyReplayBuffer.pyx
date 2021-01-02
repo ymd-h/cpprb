@@ -1819,11 +1819,11 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef float alpha
     cdef float [:] max_p
     cdef float [:] sum
-    cdef bint [:] sum_a#nychanged
-    cdef bint [:] sum_c#hanged
+    cdef bool [:] sum_a#nychanged
+    cdef bool [:] sum_c#hanged
     cdef float [:] min
-    cdef bint [:] min_a#nychanged
-    cdef bint [:] min_c#hanged
+    cdef bool [:] min_a#nychanged
+    cdef bool [:] min_c#hanged
     cdef CppThreadSafePrioritizedSampler[float]* per
     cdef NstepBuffer priorities_nstep
     cdef bool [:] unchange_since_sample
