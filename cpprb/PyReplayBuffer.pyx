@@ -1536,6 +1536,532 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         self.episode_len = 0
 
+
+@cython.embedsignature(True)
+cdef class MPReplayBuffer:
+    r"""Replay Buffer class to store transitions and to sample them randomly.
+
+    This class works on multi-process without manual locking of entire buffer.
+
+    The transition can contain anything compatible with numpy data
+    type. User can specify by `env_dict` parameters at constructor
+    freely.
+
+    The possible standard transition contains observation (`obs`), action (`act`),
+    reward (`rew`), the next observation (`next_obs`), and done (`done`).
+
+    >>> env_dict = {"obs": {"shape": (4,4)},
+                    "act": {"shape": 3, "dtype": np.int16},
+                    "rew": {},
+                    "next_obs": {"shape": (4,4)},
+                    "done": {}}
+
+    In this class, sampling is random sampling and the same transition
+    can be chosen multiple times."""
+    cdef buffer
+    cdef size_t buffer_size
+    cdef env_dict
+    cdef ProcessSafeRingBufferIndex index
+    cdef size_t episode_len
+    cdef default_dtype
+    cdef StepChecker size_check
+    cdef worker_ready
+    cdef worker_count
+    cdef main_ready
+
+    def __cinit__(self,size,env_dict=None,*,default_dtype=None,**kwargs):
+        self.env_dict = env_dict.copy() if env_dict else {}
+        cdef special_keys = []
+
+        self.buffer_size = size
+        self.index = ProcessSafeRingBufferIndex(self.buffer_size)
+
+        self.default_dtype = default_dtype or np.single
+
+        # side effect: Add "add_shape" key into self.env_dict
+        self.buffer = dict2buffer(self.buffer_size,self.env_dict,
+                                  default_dtype = self.default_dtype,
+                                  shared = True)
+
+        self.size_check = StepChecker(self.env_dict,special_keys)
+
+        self.main_ready = Event()
+        self.main_ready.clear()
+        self.worker_ready = Event()
+        self.worker_ready.set()
+
+        self.worker_count = Value(ctypes.c_size_t,0)
+
+    def __init__(self,size,env_dict=None,*,default_dtype=None,**kwargs):
+        r"""Initialize ReplayBuffer
+
+        Parameters
+        ----------
+        size : int
+            buffer size
+        env_dict : dict of dict, optional
+            dictionary specifying environments. The keies of env_dict become
+            environment names. The values of env_dict, which are also dict,
+            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+        default_dtype : numpy.dtype, optional
+            fallback dtype for not specified in `env_dict`. default is numpy.single
+        """
+        pass
+
+    cdef void _init_worker(self):
+        self.worker_ready.wait() # Wait permission
+        self.main_ready.clear()  # Block main
+        with self.worker_count.get_lock():
+            self.worker_count.value += 1
+
+    cdef void _finish_worker(self):
+        with self.worker_count.get_lock():
+            self.worker_count.value -= 1
+        if self.worker_count.value == 0:
+            self.main_ready.set()
+
+    cdef void _init_main(self):
+        self.worker_ready.clear() # New workers cannot enter into critical section
+        self.main_ready.wait() # Wait until all workers exit from critical section
+
+    cdef void _finish_main(self):
+        self.worker_ready.set() # Allow workers to enter into critical section
+
+    def add(self,*,__lock_release=True,**kwargs):
+        r"""Add transition(s) into replay buffer.
+
+        Multple sets of transitions can be added simultaneously.
+
+        Parameters
+        ----------
+        **kwargs : array like or float or int
+            Transitions to be stored.
+
+        Returns
+        -------
+        : int or None
+            The first index of stored position. If all transitions are stored
+            into NstepBuffer and no transtions are stored into the main buffer,
+            None is returned.
+
+        Raises
+        ------
+        KeyError
+            If any values defined at constructor are missing.
+
+        Warnings
+        --------
+        All values must be passed by key-value style (keyword arguments).
+        It is user responsibility that all the values have the same step-size.
+        """
+        cdef size_t N = self.size_check.step_size(kwargs)
+
+        cdef size_t index = self.index.fetch_add(N)
+        cdef size_t end = index + N
+        cdef size_t remain = 0
+        cdef add_idx = np.arange(index,end)
+
+        if end > self.buffer_size:
+            remain = end - self.buffer_size
+            add_idx[add_idx >= self.buffer_size] -= self.buffer_size
+
+
+        self._init_worker()
+
+        for name, b in self.buffer.items():
+            b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+                                    self.env_dict[name]["add_shape"])
+
+        if __lock_release:
+            self._finish_worker()
+        return index
+
+    def get_all_transitions(self,shuffle: bool=False):
+        r"""
+        Get all transitions stored in replay buffer.
+
+        Parameters
+        ----------
+        shuffle : bool, optional
+            When True, transitions are shuffled. The default value is False.
+
+        Returns
+        -------
+        transitions : dict of numpy.ndarray
+            All transitions stored in this replay buffer.
+        """
+        idx = np.arange(self.get_stored_size())
+
+        if shuffle:
+            np.random.shuffle(idx)
+
+        self._init_main()
+        ret = self._encode_sample(idx)
+        self._finish_main()
+
+        return ret
+
+    def _encode_sample(self,idx):
+        cdef sample = {}
+
+        idx = np.array(idx,copy=False,ndmin=1)
+
+        for name, b in self.buffer.items():
+            sample[name] = b[idx]
+
+        return sample
+
+    def sample(self,batch_size):
+        r"""Sample the stored transitions randomly with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+
+        Returns
+        -------
+        sample : dict of ndarray
+            Batch size of sampled transitions, which might contains
+            the same transition multiple times.
+        """
+        cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
+
+        self._init_main()
+        ret =  self._encode_sample(idx)
+        self._finish_main()
+
+        return ret
+
+    cpdef void clear(self) except *:
+        r"""Clear replay buffer.
+
+        Set `index` and `stored_size` to 0.
+
+        Example
+        -------
+        >>> rb = ReplayBuffer(5,{"done",{}})
+        >>> rb.add(1)
+        >>> rb.get_stored_size()
+        1
+        >>> rb.get_next_index()
+        1
+        >>> rb.clear()
+        >>> rb.get_stored_size()
+        0
+        >>> rb.get_next_index()
+        0
+        """
+        self.index.clear()
+
+    cpdef size_t get_stored_size(self):
+        r"""Get stored size
+
+        Returns
+        -------
+        size_t
+            stored size
+        """
+        return self.index.get_stored_size()
+
+    cpdef size_t get_buffer_size(self):
+        r"""Get buffer size
+
+        Returns
+        -------
+        size_t
+            buffer size
+        """
+        return self.buffer_size
+
+    cpdef size_t get_next_index(self):
+        r"""Get the next index to store
+
+        Returns
+        -------
+        size_t
+            the next index to store
+        """
+        return self.index.get_next_index()
+
+    cpdef void on_episode_end(self) except *:
+        r"""Call on episode end
+
+        Finalize the current episode by moving remaining Nstep buffer transitions,
+        evacuating overlapped data for memory compression features, and resetting
+        episode length.
+
+        Notes
+        -----
+        Calling this function at episode end is the user responsibility,
+        since episode exploration can be terminated at certain length
+        even though any `done` flags from environment is not set.
+        """
+        pass
+
+    cpdef bool is_Nstep(self):
+        r"""Get whether use Nstep or not
+
+        Returns
+        -------
+        use_nstep : bool
+        """
+        return False
+
+@cython.embedsignature(True)
+cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
+    r"""Prioritized replay buffer class to store transitions with priorities.
+
+    In this class, these transitions are sampled with corresponding to priorities.
+    """
+    cdef VectorFloat weights
+    cdef VectorSize_t indexes
+    cdef float alpha
+    cdef max_p
+    cdef sum
+    cdef sum_a#nychanged
+    cdef sum_c#hanged
+    cdef min
+    cdef min_a#nychanged
+    cdef min_c#hanged
+    cdef CppThreadSafePrioritizedSampler[float]* per
+    cdef NstepBuffer priorities_nstep
+    cdef bool [:] unchange_since_sample
+
+    def __cinit__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwrags):
+        self.alpha = alpha
+        self.max_p = RawValue(ctypes.c_float)
+
+        cdef size_t pow2size = 1
+        while pow2size < size:
+            pow2size *= 2
+
+        self.sum = RawArray(ctypes.c_float,pow2size)
+        self.sum_anychanged = RawValue(ctypes.c_bool)
+        self.sum_changed = RawArray(ctypes.c_bool,pow2size)
+        self.min = RawArray(ctypes.c_float,pow2size)
+        self.min_anychanged = RawValue(ctypes.c_bool)
+        self.min_changed = RawArray(ctypes.c_bool,pow2size)
+
+        self.per = new CppThreadSafePrioritizedSampler[float](size,alpha,
+                                                              &self.max_p.value,
+                                                              &self.sum.value[0],
+                                                              &self.sum_a.value,
+                                                              &self.sum_c.value[0],
+                                                              &self.min.value[0],
+                                                              &self.min_a.value,
+                                                              &self.min_c.value[0],
+                                                              False)
+        self.per.set_eps(eps)
+        self.weights = VectorFloat()
+        self.indexes = VectorSize_t()
+
+        shm = RawArray(np.ctypeslib.as_ctype_type(np.bool_),
+                       int(np.array(size,copy=False,dtype='int').prod()))
+        self.unchange_since_sample = np.ctypeslib.as_array(shm.get_obj())
+        self.unchange_since_sample[:] = True
+
+    def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,
+                 check_for_update=False,**kwargs):
+        r"""Initialize PrioritizedReplayBuffer
+
+        Parameters
+        ----------
+        size : int
+            buffer size
+        env_dict : dict of dict, optional
+            dictionary specifying environments. The keies of env_dict become
+            environment names. The values of env_dict, which are also dict,
+            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+        alpha : float, optional
+            :math:`\alpha` the exponent of the priorities in stored whose
+            default value is 0.6
+        eps : float, optional
+            :math:`\epsilon` small positive constant to ensure error-less state
+            will be sampled, whose default value is 1e-4.
+        check_for_update : bool
+            If the value is `True` (default value is `False`),
+            this buffer traces updated indices after the last calling of
+            `sample()` method to avoid mis-updating priorities of already
+            overwritten values. This feature is designed for multiprocess learning.
+
+        See Also
+        --------
+        ReplayBuffer : Any optional parameters at ReplayBuffer are valid, too.
+
+
+        Notes
+        -----
+        The minimum and summation over certain ranges of pre-calculated priorities
+        :math:`(p_{i} + \epsilon )^{ \alpha }` are stored with segment tree, which
+        enable fast sampling.
+        """
+        pass
+
+    def add(self,*,priorities = None,**kwargs):
+        r"""Add transition(s) into replay buffer.
+
+        Multple sets of transitions can be added simultaneously.
+
+        Parameters
+        ----------
+        priorities : array like or float, optional
+            Priorities of each environment. When no priorities are passed,
+            the maximum priorities until then are used.
+        **kwargs : array like or float or int
+            Transitions to be stored.
+
+        Returns
+        -------
+        : int or None
+            The first index of stored position. If all transitions are stored
+            into NstepBuffer and no transtions are stored into the main buffer,
+            None is returned.
+
+        Raises
+        ------
+        KeyError
+            If any values defined at constructor are missing.
+
+        Warnings
+        --------
+        All values must be passed by key-value style (keyword arguments).
+        It is user responsibility that all the values have the same step-size.
+        """
+        cdef size_t N = self.size_check.step_size(kwargs)
+        if priorities is not None:
+            priorities = np.ravel(np.array(priorities,copy=False,
+                                           ndmin=1,dtype=np.single))
+            if N != priorities.shape[0]:
+                raise ValueError("`priorities` shape is imcompatible")
+
+        cdef size_t index = super().add(**kwargs,__lock_release=False)
+        cdef float [:] ps
+
+        if priorities is not None:
+            ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
+            self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
+        else:
+            self.per.set_priorities(index,N,self.get_buffer_size())
+
+        if index+N <= self.buffer_size:
+            self.unchange_since_sample[index:index+N] = False
+        else:
+            self.unchange_since_sample[index:] = False
+            self.unchange_since_sample[:index+N-self.buffer_size] = False
+
+        self._finish_worker()
+        return index
+
+    def sample(self,batch_size,beta = 0.4):
+        r"""Sample the stored transitions.
+
+        Transisions are sampled depending on correspoinding priorities
+        with speciped size
+
+        Parameters
+        ----------
+        batch_size : int
+            Sampled batch size
+        beta : float, optional
+            The exponent of weight for relaxation of importance
+            sampling effect, whose default value is 0.4
+
+        Returns
+        -------
+        sample : dict of ndarray
+            Batch size of samples which also includes 'weights' and 'indexes'
+
+        Notes
+        -----
+        When 'beta' is 0, weights become uniform. Wen 'beta' is 1, weight becomes
+        usual importance sampling.
+        The 'weights' are also normalized by the weight for minimum priority
+        (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
+        """
+        self._init_main()
+        self.per.sample(batch_size,beta,
+                        self.weights.vec,self.indexes.vec,
+                        self.get_stored_size())
+        cdef idx = self.indexes.as_numpy()
+        samples = self._encode_sample(idx)
+        if self.check_for_update:
+            self.unchange_since_sample[:] = True
+        self._finish_main()
+
+        samples['weights'] = self.weights.as_numpy()
+        samples['indexes'] = idx
+
+        return samples
+
+    def update_priorities(self,indexes,priorities):
+        r"""Update priorities
+
+        Update priorities specified with indicies. If this
+        PrioritizedReplayBuffer is constructed with
+        `check_for_update=True`, then ignore indices which updated
+        values after the last calling of `sample()` method.
+
+        Parameters
+        ----------
+        indexes : array_like
+            indexes to update priorities
+        priorities : array_like
+            priorities to update
+
+        Raises
+        ------
+        TypeError: When `indexes` or `priorities` are `None`
+        """
+
+        if priorities is None:
+            raise TypeError("`properties` must not be `None`")
+
+        cdef size_t [:] idx = Csize(indexes)
+        cdef float [:] ps = Cfloat(priorities)
+
+        cdef size_t _idx = 0
+        self._init_main()
+        for _i in range(idx.shape[0]):
+            if self.unchange_since_sample[idx[_i]]:
+                idx[_idx] = idx[_i]
+                ps[_idx] = ps[_i]
+                _idx += 1
+        idx = idx[:_idx]
+        ps = ps[:_idx]
+
+        cdef N = idx.shape[0]
+        if N > 0:
+            self.per.update_priorities(&idx[0],&ps[0],N)
+        self._finish_main()
+
+    cpdef void clear(self) except *:
+        r"""Clear replay buffer
+        """
+        super(PrioritizedReplayBuffer,self).clear()
+        clear(self.per)
+
+    cpdef float get_max_priority(self):
+        r"""Get the max priority of stored priorities
+
+        Returns
+        -------
+        max_priority : float
+            the max priority of stored priorities
+        """
+        return self.per.get_max_priority()
+
+    cpdef void on_episode_end(self) except *:
+        r"""Call on episode end
+
+        Notes
+        -----
+        Calling this function at episode end is the user responsibility,
+        since episode exploration can be terminated at certain length
+        even though any `done` flags from environment is not set.
+        """
+        pass
+
 @cython.embedsignature(True)
 def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     r"""Create specified version of replay buffer
