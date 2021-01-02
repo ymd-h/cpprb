@@ -1,3 +1,4 @@
+from multiprocessing import Process
 import unittest
 
 import numpy as np
@@ -88,6 +89,26 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb.add(done=1)
         self.assertEqual(rb.sample(1)["done"][0].dtype,np.float32)
+
+    def test_multi_processing(self):
+        buffer_size = 256
+
+        rb = ReplayBuffer(buffer_size,{"done": {}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        def add():
+            for _ in range(100):
+                rb.add(done=0)
+
+        p = Process(add)
+        p.start()
+        p.join()
+
+        self.assertEqual(rb.get_next_index(),100)
+        self.assertEqual(rb.get_stored_size(),100)
+
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
