@@ -1857,7 +1857,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
-        shm = RawArray(np.ctypeslib.as_ctype_type(np.bool_),
+        shm = RawArray(np.ctypeslib.as_ctypes_type(np.bool_),
                        int(np.array(size,copy=False,dtype='int').prod()))
         self.unchange_since_sample = np.ctypeslib.as_array(shm)
         self.unchange_since_sample[:] = True
