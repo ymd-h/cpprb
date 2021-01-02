@@ -3,6 +3,7 @@
 
 import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
+from multiprocessing import Lock
 from multiprocessing.sharedctypes import RawValue
 import time
 from typing import Any, Dict, Callable, Optional
@@ -826,6 +827,32 @@ cdef class RingBufferIndex:
             return self.buffer_size.value
         else:
             return self.index.value
+
+
+cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
+    cdef lock
+
+    def __cinit__(self,buffer_size):
+        self.lock = Lock()
+
+    def __init__(self,buffer_size):
+        super().__init__(buffer_size)
+
+    cdef size_t get_next_index(self):
+        with self.lock:
+            return super().get_next_index()
+
+    cdef size_t fetch_add(self,size_t N):
+        with self.lock:
+            return super().fetch_add(N)
+
+    cdef void clear(self):
+        with self.lock:
+            super().clear()
+
+    cdef size_t get_stored_size(self):
+        with self.lock:
+            return super().get_stored_size()
 
 
 @cython.embedsignature(True)
