@@ -2039,7 +2039,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cpdef void clear(self) except *:
         r"""Clear replay buffer
         """
-        super(PrioritizedReplayBuffer,self).clear()
+        super(MPPrioritizedReplayBuffer,self).clear()
         clear(self.per)
 
     cpdef float get_max_priority(self):
