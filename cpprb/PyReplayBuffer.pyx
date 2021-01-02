@@ -846,23 +846,23 @@ cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
         self.lock = Lock()
 
     def __init__(self,buffer_size):
-        super().__init__(buffer_size)
+        super(ProcessSafeRingBufferIndex,self).__init__(buffer_size)
 
     cdef size_t get_next_index(self):
         with self.lock:
-            return super().get_next_index()
+            return super(ProcessSafeRingBufferIndex,self).get_next_index()
 
     cdef size_t fetch_add(self,size_t N):
         with self.lock:
-            return super().fetch_add(N)
+            return super(ProcessSafeRingBufferIndex,self).fetch_add(N)
 
     cdef void clear(self):
         with self.lock:
-            super().clear()
+            super(ProcessSafeRingBufferIndex,self).clear()
 
     cdef size_t get_stored_size(self):
         with self.lock:
-            return super().get_stored_size()
+            return super(ProcessSafeRingBufferIndex,self).get_stored_size()
 
 
 @cython.embedsignature(True)
