@@ -1862,8 +1862,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.unchange_since_sample = np.ctypeslib.as_array(shm)
         self.unchange_since_sample[:] = True
 
-    def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,
-                 check_for_update=False,**kwargs):
+    def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
         r"""Initialize PrioritizedReplayBuffer
 
         Parameters
@@ -1880,11 +1879,6 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         eps : float, optional
             :math:`\epsilon` small positive constant to ensure error-less state
             will be sampled, whose default value is 1e-4.
-        check_for_update : bool
-            If the value is `True` (default value is `False`),
-            this buffer traces updated indices after the last calling of
-            `sample()` method to avoid mis-updating priorities of already
-            overwritten values. This feature is designed for multiprocess learning.
 
         See Also
         --------
@@ -1986,8 +1980,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
                         self.get_stored_size())
         cdef idx = self.indexes.as_numpy()
         samples = self._encode_sample(idx)
-        if self.check_for_update:
-            self.unchange_since_sample[:] = True
+        self.unchange_since_sample[:] = True
         self._finish_main()
 
         samples['weights'] = self.weights.as_numpy()
@@ -1998,10 +1991,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     def update_priorities(self,indexes,priorities):
         r"""Update priorities
 
-        Update priorities specified with indicies. If this
-        PrioritizedReplayBuffer is constructed with
-        `check_for_update=True`, then ignore indices which updated
-        values after the last calling of `sample()` method.
+        Update priorities specified with indicies. Ignores indices
+        which updated values after the last calling of `sample()`
+        method.
 
         Parameters
         ----------
