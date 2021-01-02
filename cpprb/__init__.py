@@ -1,4 +1,5 @@
 from .PyReplayBuffer import (ReplayBuffer,PrioritizedReplayBuffer,
+                             MPReplayBuffer, MPPrioritizedReplayBuffer,
                              SelectiveReplayBuffer)
 from .PyReplayBuffer import create_buffer, train
 
