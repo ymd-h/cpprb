@@ -177,6 +177,11 @@ train:
   script:
     - coverage run -m xmlrunner test/train.py
 
+mp:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/mp.py
+
 coverage:
   <<: *setup
   stage: test_coverage
