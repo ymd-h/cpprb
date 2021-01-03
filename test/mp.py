@@ -210,24 +210,26 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
     def test_mp_sample(self):
         buffer_size = 256
+        add_size = 1000
 
         rb = PrioritizedReplayBuffer(buffer_size,{"obs": {}})
 
         self.assertEqual(rb.get_next_index(),0)
         self.assertEqual(rb.get_stored_size(),0)
 
-        p = Process(target=add_args,args=[rb,[{"obs": i, "priority": 0 if i else 1000}
-                                              for i in range(10)]])
+        p = Process(target=add_args,args=[rb,[{"obs": i,
+                                               "priority": 0 if i else 1e+8}
+                                              for i in range(add_size)]])
         p.start()
         p.join()
 
-        self.assertEqual(rb.get_next_index(),10)
-        self.assertEqual(rb.get_stored_size(),10)
+        self.assertEqual(rb.get_next_index(),add_size % buffer_size)
+        self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
 
         s = rb.sample(100)
 
         self.assertTrue((s["obs"] >= 0).all())
-        self.assertTrue((s["obs"] < 10).all())
+        self.assertTrue((s["obs"] < add_size).all())
 
         u, counts = np.unique(s["obs"],return_counts=True)
         self.assertEqual(counts.argmax(),0)
