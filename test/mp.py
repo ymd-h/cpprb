@@ -255,7 +255,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         buffer_size = 256
         add_size = 1000
 
-        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {}})
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"dtype": int}})
 
         self.assertEqual(rb.get_next_index(),0)
         self.assertEqual(rb.get_stored_size(),0)
