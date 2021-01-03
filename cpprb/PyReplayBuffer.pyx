@@ -1822,7 +1822,37 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef NstepBuffer priorities_nstep
     cdef bool [:] unchange_since_sample
 
-    def __cinit__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwrags):
+    def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
+        r"""Initialize PrioritizedReplayBuffer
+
+        Parameters
+        ----------
+        size : int
+            buffer size
+        env_dict : dict of dict, optional
+            dictionary specifying environments. The keies of env_dict become
+            environment names. The values of env_dict, which are also dict,
+            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+        alpha : float, optional
+            :math:`\alpha` the exponent of the priorities in stored whose
+            default value is 0.6
+        eps : float, optional
+            :math:`\epsilon` small positive constant to ensure error-less state
+            will be sampled, whose default value is 1e-4.
+
+        See Also
+        --------
+        ReplayBuffer : Any optional parameters at ReplayBuffer are valid, too.
+
+
+        Notes
+        -----
+        The minimum and summation over certain ranges of pre-calculated priorities
+        :math:`(p_{i} + \epsilon )^{ \alpha }` are stored with segment tree, which
+        enable fast sampling.
+        """
+        super().__init__(size,env_dict,**kwargs)
+
         self.alpha = alpha
         self.max_p = RawArray(ctypes.c_float,1)
 
@@ -1854,37 +1884,6 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
                        int(np.array(size,copy=False,dtype='int').prod()))
         self.unchange_since_sample = np.ctypeslib.as_array(shm)
         self.unchange_since_sample[:] = True
-
-    def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
-        r"""Initialize PrioritizedReplayBuffer
-
-        Parameters
-        ----------
-        size : int
-            buffer size
-        env_dict : dict of dict, optional
-            dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
-        alpha : float, optional
-            :math:`\alpha` the exponent of the priorities in stored whose
-            default value is 0.6
-        eps : float, optional
-            :math:`\epsilon` small positive constant to ensure error-less state
-            will be sampled, whose default value is 1e-4.
-
-        See Also
-        --------
-        ReplayBuffer : Any optional parameters at ReplayBuffer are valid, too.
-
-
-        Notes
-        -----
-        The minimum and summation over certain ranges of pre-calculated priorities
-        :math:`(p_{i} + \epsilon )^{ \alpha }` are stored with segment tree, which
-        enable fast sampling.
-        """
-        super().__init__(size,env_dict,**kwargs)
 
 
     def add(self,*,priorities = None,**kwargs):
