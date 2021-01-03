@@ -6,6 +6,10 @@ import numpy as np
 from cpprb import (MPReplayBuffer as ReplayBuffer,
                    MPPrioritizedReplayBuffer as PrioritizedReplayBuffer)
 
+def add(rb):
+    for _ in range(100):
+        rb.add(done=0)
+
 class TestReplayBuffer(unittest.TestCase):
     def test_buffer(self):
 
@@ -98,11 +102,7 @@ class TestReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),0)
         self.assertEqual(rb.get_stored_size(),0)
 
-        def add():
-            for _ in range(100):
-                rb.add(done=0)
-
-        p = Process(target=add)
+        p = Process(target=add,args=[rb])
         p.start()
         p.join()
 
