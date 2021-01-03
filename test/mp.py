@@ -10,6 +10,10 @@ def add(rb):
     for _ in range(100):
         rb.add(done=0)
 
+def sample(rb,batch_size):
+    for _ in range(10):
+        rb.sample(batch_size)
+
 def add_args(rb,args):
     for arg in args:
         rb.add(**arg)
@@ -127,6 +131,28 @@ class TestReplayBuffer(unittest.TestCase):
         q.start()
         p.join()
         q.join()
+
+        self.assertEqual(rb.get_next_index() ,200)
+        self.assertEqual(rb.get_stored_size(),200)
+
+    def test_multi_add_sample(self):
+        buffer_size = 256
+
+        rb = ReplayBuffer(buffer_size,{"done": {}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add,args=[rb])
+        q = Process(target=add,args=[rb])
+        r = Process(target=sample,args=[rb,32])
+        p.start()
+        p.join()
+
+        q.start()
+        r.start()
+        q.join()
+        r.join()
 
         self.assertEqual(rb.get_next_index() ,200)
         self.assertEqual(rb.get_stored_size(),200)
