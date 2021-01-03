@@ -1818,7 +1818,7 @@ cdef class ThreadSafePrioritizedSampler:
                  min=None,min_a=None,min_c=None):
         self.size = size
         self.alpha = alpha
-        self.eps
+        self.eps = eps
 
         self.max_p = max_p or RawArray(ctypes.c_float,1)
         cdef float [:] view_max_p = self.max_p
