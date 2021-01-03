@@ -1875,9 +1875,9 @@ cdef class ThreadSafePrioritizedSampler:
             pow2size *= 2
 
         print(np.ctypeslib.as_array(self.sum)[-pow2size:])
-        print(self.sum_a.value)
+        print(np.ctypeslib.as_array(self.sum_a)[0])
         print(np.ctypeslib.as_array(self.min)[-pow2size:])
-        print(self.min_a.value)
+        print(np.ctypeslib.as_array(self.min_a)[0])
 
 
 @cython.embedsignature(True)
