@@ -1561,7 +1561,6 @@ cdef class MPReplayBuffer:
     cdef size_t buffer_size
     cdef env_dict
     cdef ProcessSafeRingBufferIndex index
-    cdef size_t episode_len
     cdef default_dtype
     cdef StepChecker size_check
     cdef worker_ready
