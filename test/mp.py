@@ -113,6 +113,23 @@ class TestReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),100)
         self.assertEqual(rb.get_stored_size(),100)
 
+    def test_multi_processing2(self):
+        buffer_size = 256
+
+        rb = ReplayBuffer(buffer_size,{"done": {}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add,args=[rb])
+        q = Process(target=add,args=[rb])
+        p.start()
+        q.start()
+        p.join()
+        q.join()
+
+        self.assertEqual(rb.get_next_index() ,200)
+        self.assertEqual(rb.get_stored_size(),200)
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
