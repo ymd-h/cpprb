@@ -1865,7 +1865,7 @@ cdef class ThreadSafePrioritizedSampler:
 
     def __reduce__(self):
         return (ThreadSafePrioritizedSampler,
-                (self.size,self.alpha,self.max_p,
+                (self.size,self.alpha,self.eps,self.max_p,
                  self.sum,self.sum_a,self.sum_c,
                  self.min,self.min_a,self.min_c))
 
