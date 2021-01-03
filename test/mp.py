@@ -10,6 +10,10 @@ def add(rb):
     for _ in range(100):
         rb.add(done=0)
 
+def add_args(rb,args):
+    for arg in args:
+        rb.add(**arg)
+
 class TestReplayBuffer(unittest.TestCase):
     def test_buffer(self):
 
@@ -188,6 +192,21 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         i = sample["indexes"]
 
         rb.update_priorities(i,w*w)
+
+    def test_multi_processing(self):
+        buffer_size = 256
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"done": {}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add_args,args=[rb,[{"done": 0, "priority": 0.5}] * 10])
+        p.start()
+        p.join()
+
+        self.assertEqual(rb.get_next_index(),10)
+        self.assertEqual(rb.get_stored_size(),10)
 
 if __name__ == '__main__':
     unittest.main()
