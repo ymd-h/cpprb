@@ -1869,6 +1869,16 @@ cdef class ThreadSafePrioritizedSampler:
                  self.sum,self.sum_a,self.sum_c,
                  self.min,self.min_a,self.min_c))
 
+    def _debug_print(self):
+        cdef size_t pow2size = 1
+        while pow2size < self.size:
+            pow2size *= 2
+
+        print(np.ctypeslib.as_array(self.sum)[-pow2size:])
+        print(self.sum_a.value)
+        print(np.ctypeslib.as_array(self.min)[-pow2size:])
+        print(self.min_a.value)
+
 
 @cython.embedsignature(True)
 cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
@@ -2084,6 +2094,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         even though any `done` flags from environment is not set.
         """
         pass
+
+    def _debug_print(self):
+        self.per._debug_print()
 
 @cython.embedsignature(True)
 def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
