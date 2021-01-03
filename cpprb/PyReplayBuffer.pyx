@@ -1799,6 +1799,75 @@ cdef class MPReplayBuffer:
         """
         return False
 
+
+cdef class ThreadSafePrioritizedSampler:
+    cdef size_t size
+    cdef float alpha
+    cdef max_p
+    cdef sum
+    cdef sum_a#nychanged
+    cdef sum_c#hanged
+    cdef min
+    cdef min_a#nychanged
+    cdef min_c#hanged
+    cdef CppThreadSafePrioritizedSampler[float]* per
+
+    def __init__(self,size,alpha,max_p=None,
+                 sum=None,sum_a=None,sum_c=None,
+                 min=None,min_a=None,min_c=None):
+        self.size = size
+        self.alpha = alpha
+
+        self.max_p = max_p or RawArray(ctypes.c_float,1)
+        cdef float [:] view_max_p = self.max_p
+
+        cdef size_t pow2size = 1
+        while pow2size < size:
+            pow2size *= 2
+
+        self.sum   = sum   or RawArray(ctypes.c_float,pow2size)
+        self.sum_a = sum_a or RawArray(ctypes.c_bool ,1)
+        self.sum_c = sum_c or RawArray(ctypes.c_bool ,pow2size)
+        self.min   = min   or RawArray(ctypes.c_float,pow2size)
+        self.min_a = min_a or RawArray(ctypes.c_bool ,1)
+        self.min_c = min_c or RawArray(ctypes.c_bool ,pow2size)
+
+        cdef float [:] view_sum   = self.sum
+        cdef bool  [:] view_sum_a = self.sum_a
+        cdef bool  [:] view_sum_c = self.sum_c
+        cdef float [:] view_min   = self.min
+        cdef bool  [:] view_min_a = self.min_a
+        cdef bool  [:] view_min_c = self.min_c
+
+        cdef bool init = ((max_p is None) and
+                          (sum   is None) and
+                          (sum_a is None) and
+                          (sum_c is None) and
+                          (min   is None) and
+                          (min_a is None) and
+                          (min_c is None))
+
+        self.per = new CppThreadSafePrioritizedSampler[float](size,alpha,
+                                                              &view_max_p[0],
+                                                              &view_sum[0],
+                                                              &view_sum_a[0],
+                                                              &view_sum_c[0],
+                                                              &view_min[0],
+                                                              &view_min_a[0],
+                                                              &view_min_c[0],
+                                                              init)
+        self.per.set_eps(eps)
+
+    cdef CppThreadSafePrioritizedSampler[float]* ptr(self):
+        return self.per
+
+    def __reduce__(self):
+        return (ThreadSafePrioritizedSampler,
+                (self.size,self.alpha,self.max_p,
+                 self.sum,self.sum_a,self.sum_c,
+                 self.min,self.min_a,self.min_c))
+
+
 @cython.embedsignature(True)
 cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     r"""Prioritized replay buffer class to store transitions with priorities.
@@ -1807,16 +1876,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
-    cdef float alpha
-    cdef float [:] max_p
-    cdef float [:] sum
-    cdef bool [:] sum_a#nychanged
-    cdef bool [:] sum_c#hanged
-    cdef float [:] min
-    cdef bool [:] min_a#nychanged
-    cdef bool [:] min_c#hanged
-    cdef CppThreadSafePrioritizedSampler[float]* per
-    cdef bool [:] unchange_since_sample
+    cdef per
+    cdef unchange_since_sample
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
         r"""Initialize PrioritizedReplayBuffer
@@ -1849,30 +1910,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         """
         super().__init__(size,env_dict,**kwargs)
 
-        self.alpha = alpha
-        self.max_p = RawArray(ctypes.c_float,1)
+        self.per = ThreadSafePrioritizedSampler(size,alpha)
 
-        cdef size_t pow2size = 1
-        while pow2size < size:
-            pow2size *= 2
-
-        self.sum   = RawArray(ctypes.c_float,pow2size)
-        self.sum_a = RawArray(ctypes.c_bool ,1)
-        self.sum_c = RawArray(ctypes.c_bool ,pow2size)
-        self.min   = RawArray(ctypes.c_float,pow2size)
-        self.min_a = RawArray(ctypes.c_bool ,1)
-        self.min_c = RawArray(ctypes.c_bool ,pow2size)
-
-        self.per = new CppThreadSafePrioritizedSampler[float](size,alpha,
-                                                              &self.max_p[0],
-                                                              &self.sum[0],
-                                                              &self.sum_a[0],
-                                                              &self.sum_c[0],
-                                                              &self.min[0],
-                                                              &self.min_a[0],
-                                                              &self.min_c[0],
-                                                              False)
-        self.per.set_eps(eps)
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
@@ -1924,9 +1963,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         if priorities is not None:
             ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
-            self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
+            self.per.ptr().set_priorities(index,&ps[0],N,self.get_buffer_size())
         else:
-            self.per.set_priorities(index,N,self.get_buffer_size())
+            self.per.ptr().set_priorities(index,N,self.get_buffer_size())
 
         if index+N <= self.buffer_size:
             self.unchange_since_sample[index:index+N] = False
@@ -1964,9 +2003,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
         """
         self._init_main()
-        self.per.sample(batch_size,beta,
-                        self.weights.vec,self.indexes.vec,
-                        self.get_stored_size())
+        self.per.ptr().sample(batch_size,beta,
+                              self.weights.vec,self.indexes.vec,
+                              self.get_stored_size())
         cdef idx = self.indexes.as_numpy()
         samples = self._encode_sample(idx)
         self.unchange_since_sample[:] = True
@@ -2014,14 +2053,14 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         cdef N = idx.shape[0]
         if N > 0:
-            self.per.update_priorities(&idx[0],&ps[0],N)
+            self.per.ptr().update_priorities(&idx[0],&ps[0],N)
         self._finish_main()
 
     cpdef void clear(self) except *:
         r"""Clear replay buffer
         """
         super(MPPrioritizedReplayBuffer,self).clear()
-        clear(self.per)
+        clear(self.per.ptr())
 
     cpdef float get_max_priority(self):
         r"""Get the max priority of stored priorities
@@ -2031,7 +2070,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         max_priority : float
             the max priority of stored priorities
         """
-        return self.per.get_max_priority()
+        return self.per.ptr().get_max_priority()
 
     cpdef void on_episode_end(self) except *:
         r"""Call on episode end
