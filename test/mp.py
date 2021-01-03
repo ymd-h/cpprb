@@ -261,7 +261,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_stored_size(),0)
 
         p = Process(target=add_args,args=[rb,[{"obs": i,
-                                               "priority": 0 if i else 1e+8}
+                                               "priorities": 0 if i else 1e+8}
                                               for i in range(add_size)]])
         p.start()
         p.join()
