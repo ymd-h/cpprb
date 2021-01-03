@@ -1819,7 +1819,6 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef bool [:] min_a#nychanged
     cdef bool [:] min_c#hanged
     cdef CppThreadSafePrioritizedSampler[float]* per
-    cdef NstepBuffer priorities_nstep
     cdef bool [:] unchange_since_sample
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
