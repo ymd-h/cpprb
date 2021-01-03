@@ -1827,10 +1827,10 @@ cdef class ThreadSafePrioritizedSampler:
         while pow2size < size:
             pow2size *= 2
 
-        self.sum   = sum   or RawArray(ctypes.c_float,pow2size)
+        self.sum   = sum   or RawArray(ctypes.c_float,2*pow2size-1)
         self.sum_a = sum_a or RawArray(ctypes.c_bool ,1)
         self.sum_c = sum_c or RawArray(ctypes.c_bool ,pow2size)
-        self.min   = min   or RawArray(ctypes.c_float,pow2size)
+        self.min   = min   or RawArray(ctypes.c_float,2*pow2size-1)
         self.min_a = min_a or RawArray(ctypes.c_bool ,1)
         self.min_c = min_c or RawArray(ctypes.c_bool ,pow2size)
 
