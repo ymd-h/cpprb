@@ -1803,6 +1803,7 @@ cdef class MPReplayBuffer:
 cdef class ThreadSafePrioritizedSampler:
     cdef size_t size
     cdef float alpha
+    cdef float eps
     cdef max_p
     cdef sum
     cdef sum_a#nychanged
@@ -1812,11 +1813,12 @@ cdef class ThreadSafePrioritizedSampler:
     cdef min_c#hanged
     cdef CppThreadSafePrioritizedSampler[float]* per
 
-    def __init__(self,size,alpha,max_p=None,
+    def __init__(self,size,alpha,eps,max_p=None,
                  sum=None,sum_a=None,sum_c=None,
                  min=None,min_a=None,min_c=None):
         self.size = size
         self.alpha = alpha
+        self.eps
 
         self.max_p = max_p or RawArray(ctypes.c_float,1)
         cdef float [:] view_max_p = self.max_p
@@ -1910,7 +1912,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         """
         super().__init__(size,env_dict,**kwargs)
 
-        self.per = ThreadSafePrioritizedSampler(size,alpha)
+        self.per = ThreadSafePrioritizedSampler(size,alpha,eps)
 
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
