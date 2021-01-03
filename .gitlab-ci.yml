@@ -180,7 +180,7 @@ train:
 mp:
   <<: *py_setup
   script:
-    - coverage run -m xmlrunner test/multiprocessing.py
+    - coverage run -m xmlrunner test/mp.py
 
 coverage:
   <<: *setup
