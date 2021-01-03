@@ -1878,7 +1878,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
-    cdef per
+    cdef ThreadSafePrioritizedSampler per
     cdef unchange_since_sample
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
