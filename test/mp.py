@@ -12,7 +12,7 @@ def add(rb):
 
 def sample(rb,batch_size):
     for _ in range(10):
-        rb.sample(batch_size)
+        rb.sample(batch_size,beta=1.0)
 
 def add_args(rb,args):
     for arg in args:
