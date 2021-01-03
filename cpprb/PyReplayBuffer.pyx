@@ -1857,8 +1857,8 @@ cdef class ThreadSafePrioritizedSampler:
                                                               &view_min[0],
                                                               &view_min_a[0],
                                                               &view_min_c[0],
-                                                              init)
-        self.per.set_eps(eps)
+                                                              init,
+                                                              eps)
 
     cdef CppThreadSafePrioritizedSampler[float]* ptr(self):
         return self.per
