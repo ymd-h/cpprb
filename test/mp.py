@@ -275,7 +275,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.assertTrue((s["obs"] < add_size).all())
 
         u, counts = np.unique(s["obs"],return_counts=True)
-        self.assertEqual(counts.argmax(),0)
+        self.assertEqual(u[counts.argmax()],0)
 
 
 if __name__ == '__main__':
