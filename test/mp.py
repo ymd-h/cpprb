@@ -253,7 +253,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
     def test_mp_sample(self):
         buffer_size = 256
-        add_size = 1000
+        add_size = 200
 
         rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"dtype": int}})
 
