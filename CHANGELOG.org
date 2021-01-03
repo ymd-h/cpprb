@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.4.0][v9.4.0]]
+- Add: ~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.3.3][v9.3.3]]
 - Fix: Walkaround ~next_of~ at Nstep
 - Fix: Input ~dict~ modification ([[https://gitlab.com/ymd_h/cpprb/-/issues/116][116]])
