@@ -790,13 +790,10 @@ cdef class RingBufferIndex:
     cdef buffer_size
     cdef is_full
 
-    def __cinit__(self,buffer_size):
+    def __init__(self,buffer_size):
         self.index = RawValue(ctypes.c_size_t,0)
         self.buffer_size = RawValue(ctypes.c_size_t,buffer_size)
         self.is_full = RawValue(ctypes.c_int,0)
-
-    def __init__(self,buffer_size):
-        pass
 
     cdef size_t get_next_index(self):
         return self.index.value
