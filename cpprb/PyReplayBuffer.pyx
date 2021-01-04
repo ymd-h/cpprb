@@ -2019,6 +2019,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
                               self.weights.vec,self.indexes.vec,
                               self.get_stored_size())
         cdef idx = self.indexes.as_numpy()
+        print(f"Debug: {idx}")
         samples = self._encode_sample(idx)
         self.unchange_since_sample[:] = True
         self._unlock_learner()
