@@ -289,7 +289,6 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
     def test_mp_update_priority(self):
         buffer_size = 256
         add_size = 200
-        one_hot = 3
 
         rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"dtype": int}})
 
@@ -304,6 +303,9 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
         self.assertEqual(rb.get_next_index(),add_size % buffer_size)
         self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
+
+        s = rb.sample(1,beta=1.0)
+        one_hot = s["indexes"][0]
 
         rb._debug_print()
         rb.update_priorities([one_hot],[1e+8])
