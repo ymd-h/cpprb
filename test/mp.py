@@ -12,7 +12,7 @@ def add(rb):
 
 def sample(rb,batch_size):
     for _ in range(10):
-        rb.sample(batch_size,beta=1.0)
+        rb.sample(batch_size)
 
 def add_args(rb,args):
     for arg in args:
@@ -273,7 +273,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
         rb._debug_print()
 
-        s = rb.sample(100)
+        s = rb.sample(100,beta=1.0)
 
         rb._debug_print()
 
