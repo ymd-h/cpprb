@@ -305,7 +305,9 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),add_size % buffer_size)
         self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
 
+        rb._debug_print()
         rb.update_priorities([one_hot],[1e+8])
+        rb._debug_print()
 
         self.assertEqual(rb.get_next_index(),add_size % buffer_size)
         self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
