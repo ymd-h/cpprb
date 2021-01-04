@@ -118,7 +118,7 @@ class TestReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_stored_size(),100)
 
         s = rb.get_all_transitions()
-        np.testing.assert_allclose(s["obs"],np.arange(100,dtype=int))
+        np.testing.assert_allclose(s["obs"].ravel(),np.arange(100,dtype=int))
 
     def test_multi_processing2(self):
         buffer_size = 256
@@ -257,7 +257,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_stored_size(),10)
 
         s = rb.get_all_transitions()
-        np.testing.assert_allclose(s["obs"],np.arange(10,dtype=int))
+        np.testing.assert_allclose(s["obs"].ravel(),np.arange(10,dtype=int))
 
     def test_mp_sample(self):
         buffer_size = 256
