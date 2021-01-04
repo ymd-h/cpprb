@@ -271,11 +271,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),add_size % buffer_size)
         self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
 
-        rb._debug_print()
-
         s = rb.sample(100,beta=1.0)
-
-        rb._debug_print()
 
         self.assertTrue((s["obs"] >= 0).all())
         self.assertTrue((s["obs"] < add_size).all())
@@ -307,9 +303,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         s = rb.sample(1,beta=1.0)
         one_hot = s["indexes"][0]
 
-        rb._debug_print()
         rb.update_priorities([one_hot],[1e+8])
-        rb._debug_print()
 
         self.assertEqual(rb.get_next_index(),add_size % buffer_size)
         self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
