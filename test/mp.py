@@ -286,5 +286,38 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.assertEqual(u[counts.argmax()],one_hot)
 
 
+    def test_mp_update_priority(self):
+        buffer_size = 256
+        add_size = 200
+        one_hot = 3
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"dtype": int}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add_args,args=[rb,
+                                          [{"obs": i, "priorities": 0}
+                                           for i in range(add_size)]])
+        p.start()
+        p.join()
+
+        self.assertEqual(rb.get_next_index(),add_size % buffer_size)
+        self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
+
+        rb.update_priorities([one_hot],[1e+8])
+
+        self.assertEqual(rb.get_next_index(),add_size % buffer_size)
+        self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
+
+
+        s = rb.sample(100,beta=1.0)
+
+        self.assertTrue((s["obs"] >= 0).all())
+        self.assertTrue((s["obs"] < add_size).all())
+
+        u, counts = np.unique(s["obs"],return_counts=True)
+        self.assertEqual(u[counts.argmax()],one_hot)
+
 if __name__ == '__main__':
     unittest.main()
