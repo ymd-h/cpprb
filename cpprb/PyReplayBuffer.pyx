@@ -1599,23 +1599,23 @@ cdef class MPReplayBuffer:
 
         self.worker_count = Value(ctypes.c_size_t,0)
 
-    cdef void _init_worker(self):
+    cdef void _lock_explorer(self):
         self.worker_ready.wait() # Wait permission
         self.main_ready.clear()  # Block main
         with self.worker_count.get_lock():
             self.worker_count.value += 1
 
-    cdef void _finish_worker(self):
+    cdef void _unlock_explorer(self):
         with self.worker_count.get_lock():
             self.worker_count.value -= 1
         if self.worker_count.value == 0:
             self.main_ready.set()
 
-    cdef void _init_main(self):
+    cdef void _lock_learner(self):
         self.worker_ready.clear() # New workers cannot enter into critical section
         self.main_ready.wait() # Wait until all workers exit from critical section
 
-    cdef void _finish_main(self):
+    cdef void _unlock_learner(self):
         self.worker_ready.set() # Allow workers to enter into critical section
 
     def add(self,*,__lock_release=True,**kwargs):
@@ -1657,14 +1657,14 @@ cdef class MPReplayBuffer:
             add_idx[add_idx >= self.buffer_size] -= self.buffer_size
 
 
-        self._init_worker()
+        self._lock_explorer()
 
         for name, b in self.buffer.items():
             b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
                                     self.env_dict[name]["add_shape"])
 
         if __lock_release:
-            self._finish_worker()
+            self._unlock_explorer()
         return index
 
     def get_all_transitions(self,shuffle: bool=False):
@@ -1686,9 +1686,9 @@ cdef class MPReplayBuffer:
         if shuffle:
             np.random.shuffle(idx)
 
-        self._init_main()
+        self._lock_learner()
         ret = self._encode_sample(idx)
-        self._finish_main()
+        self._unlock_learner()
 
         return ret
 
@@ -1718,9 +1718,9 @@ cdef class MPReplayBuffer:
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
 
-        self._init_main()
+        self._lock_learner()
         ret =  self._encode_sample(idx)
-        self._finish_main()
+        self._unlock_learner()
 
         return ret
 
@@ -1985,7 +1985,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
             self.unchange_since_sample[index:] = False
             self.unchange_since_sample[:index+N-self.buffer_size] = False
 
-        self._finish_worker()
+        self._unlock_explorer()
         return index
 
     def sample(self,batch_size,beta = 0.4):
@@ -2014,14 +2014,14 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         The 'weights' are also normalized by the weight for minimum priority
         (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
         """
-        self._init_main()
+        self._lock_learner()
         self.per.ptr().sample(batch_size,beta,
                               self.weights.vec,self.indexes.vec,
                               self.get_stored_size())
         cdef idx = self.indexes.as_numpy()
         samples = self._encode_sample(idx)
         self.unchange_since_sample[:] = True
-        self._finish_main()
+        self._unlock_learner()
 
         samples['weights'] = self.weights.as_numpy()
         samples['indexes'] = idx
@@ -2054,7 +2054,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         cdef float [:] ps = Cfloat(priorities)
 
         cdef size_t _idx = 0
-        self._init_main()
+        self._lock_learner()
         for _i in range(idx.shape[0]):
             if self.unchange_since_sample[idx[_i]]:
                 idx[_idx] = idx[_i]
@@ -2066,7 +2066,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         cdef N = idx.shape[0]
         if N > 0:
             self.per.ptr().update_priorities(&idx[0],&ps[0],N)
-        self._finish_main()
+        self._unlock_learner()
 
     cpdef void clear(self) except *:
         r"""Clear replay buffer
