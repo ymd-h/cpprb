@@ -105,17 +105,20 @@ class TestReplayBuffer(unittest.TestCase):
     def test_multi_processing(self):
         buffer_size = 256
 
-        rb = ReplayBuffer(buffer_size,{"done": {}})
+        rb = ReplayBuffer(buffer_size,{"obs": {"dtype": int}})
 
         self.assertEqual(rb.get_next_index(),0)
         self.assertEqual(rb.get_stored_size(),0)
 
-        p = Process(target=add,args=[rb])
+        p = Process(target=add_args,args=[rb, [{"obs": i} for i in range(100)]])
         p.start()
         p.join()
 
         self.assertEqual(rb.get_next_index(),100)
         self.assertEqual(rb.get_stored_size(),100)
+
+        s = rb.get_all_transitions()
+        np.testing.assert_allclose(s["obs"],np.arange(100,dtype=int))
 
     def test_multi_processing2(self):
         buffer_size = 256
