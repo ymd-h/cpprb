@@ -2055,8 +2055,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         cdef size_t _idx = 0
         self._lock_learner()
+        cdef size_t stored_size = self.get_stored_size()
         for _i in range(idx.shape[0]):
-            if self.unchange_since_sample[idx[_i]]:
+            if idx[_i] < stored_size and self.unchange_since_sample[idx[_i]]:
                 idx[_idx] = idx[_i]
                 ps[_idx] = ps[_i]
                 _idx += 1
