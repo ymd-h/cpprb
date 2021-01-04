@@ -1555,9 +1555,9 @@ cdef class MPReplayBuffer:
     cdef ProcessSafeRingBufferIndex index
     cdef default_dtype
     cdef StepChecker size_check
-    cdef worker_ready
-    cdef worker_count
-    cdef main_ready
+    cdef explorer_ready
+    cdef explorer_count
+    cdef learner_ready
 
     def __init__(self,size,env_dict=None,*,default_dtype=None,logger=None,**kwargs):
         r"""Initialize ReplayBuffer
@@ -1592,31 +1592,31 @@ cdef class MPReplayBuffer:
 
         self.size_check = StepChecker(self.env_dict,special_keys)
 
-        self.main_ready = Event()
-        self.main_ready.clear()
-        self.worker_ready = Event()
-        self.worker_ready.set()
+        self.learner_ready = Event()
+        self.learner_ready.clear()
+        self.explorer_ready = Event()
+        self.explorer_ready.set()
 
-        self.worker_count = Value(ctypes.c_size_t,0)
+        self.explorer_count = Value(ctypes.c_size_t,0)
 
     cdef void _lock_explorer(self):
-        self.worker_ready.wait() # Wait permission
-        self.main_ready.clear()  # Block main
-        with self.worker_count.get_lock():
-            self.worker_count.value += 1
+        self.explorer_ready.wait() # Wait permission
+        self.learner_ready.clear()  # Block learner
+        with self.explorer_count.get_lock():
+            self.explorer_count.value += 1
 
     cdef void _unlock_explorer(self):
-        with self.worker_count.get_lock():
-            self.worker_count.value -= 1
-        if self.worker_count.value == 0:
-            self.main_ready.set()
+        with self.explorer_count.get_lock():
+            self.explorer_count.value -= 1
+        if self.explorer_count.value == 0:
+            self.learner_ready.set()
 
     cdef void _lock_learner(self):
-        self.worker_ready.clear() # New workers cannot enter into critical section
-        self.main_ready.wait() # Wait until all workers exit from critical section
+        self.explorer_ready.clear() # New explorer cannot enter into critical section
+        self.learner_ready.wait() # Wait until all explorer exit from critical section
 
     cdef void _unlock_learner(self):
-        self.worker_ready.set() # Allow workers to enter into critical section
+        self.explorer_ready.set() # Allow workers to enter into critical section
 
     def add(self,*,__lock_release=True,**kwargs):
         r"""Add transition(s) into replay buffer.
