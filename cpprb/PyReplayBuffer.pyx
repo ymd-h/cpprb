@@ -414,6 +414,27 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
 
+
+cdef class SharedBuffer:
+    cdef data
+    cdef view
+    def __init__(self,shape,dtype,data=None):
+        ctype = np.ctypeslib.as_ctypes_type(dtype)
+        len = int(np.array(shape,copy=False,dtype="int").prod())
+        self.data = data or RawArray(ctype,len)
+        self.view = np.ctypeslib.as_array(self.data)
+        self.view.shape = shape
+
+    def __getitem__(self,key):
+        return self.view[key]
+
+    def __setitem__(self,key,value):
+        self.view[key] = value
+
+    def __reduce__(self):
+        return (SharedBuffer,(self.view.shape,self.view.dtype,self.data))
+
+
 def dict2buffer(buffer_size: int,env_dict: Dict,*,
                 stack_compress = None, default_dtype = None,
                 mmap_prefix: Optional[str] = None,
@@ -445,11 +466,7 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
 
     def zeros(name,shape,dtype):
         if shared:
-            ctype = np.ctypeslib.as_ctypes_type(dtype)
-            len = int(np.array(shape,copy=False,dtype="int").prod())
-            data = np.ctypeslib.as_array(RawArray(ctype,len))
-            data.shape = shape
-            return data
+            return SharedBuffer(shape,dtype)
 
         if mmap_prefix:
             if not isinstance(shape,tuple):
