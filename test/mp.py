@@ -42,7 +42,7 @@ class TestReplayBuffer(unittest.TestCase):
 
             erb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
-        es = erb._encode_sample(range(buffer_size))
+        erb._encode_sample(range(buffer_size))
 
         erb.sample(32)
 
