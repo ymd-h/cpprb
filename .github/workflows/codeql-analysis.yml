@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        language: [python, cpp]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -16,7 +18,7 @@ jobs:
           python-version: '3.7'
       - uses: github/codeql-action/init@v1
         with:
-          languages: cpp, python
+          languages: ${{ matrix.language }}
           queries: +security-and-quality
       - run: pip install .
       - uses: github/codeql-action/analyze@v1
