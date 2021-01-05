@@ -101,6 +101,23 @@ namespace ymd {
       any_changed->store(false,std::memory_order_release);
     }
 
+    void weak_update_changed(){
+      std::set<std::size_t> will_update{};
+
+      for(std::size_t i = 0; i < buffer_size; ++i){
+	if(changed[i].load(std::memory_order_acquire)){
+	  will_update.insert(parent(access_index(i)));
+	}
+      }
+
+      while(!will_update.empty()){
+	auto i = *(will_update.rbegin());
+	auto updated = update_buffer(i);
+	will_update.erase(i);
+	if(i && updated){ will_update.insert(parent(i)); }
+      }
+    }
+
   public:
     SegmentTree(std::size_t n,F f, T v = T{0},
 		T* buffer_ptr = nullptr,
