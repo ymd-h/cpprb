@@ -36,3 +36,4 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void set_priorities[P](size_t,P*,size_t,size_t)
         void update_priorities[I,P](I*,P*,size_t)
         Prio get_max_priority()
+        void weak_update_changed()
