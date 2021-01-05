@@ -10,6 +10,14 @@ def add(rb):
     for _ in range(100):
         rb.add(done=0)
 
+def sample(rb,batch_size):
+    for _ in range(10):
+        rb.sample(batch_size)
+
+def add_args(rb,args):
+    for arg in args:
+        rb.add(**arg)
+
 class TestReplayBuffer(unittest.TestCase):
     def test_buffer(self):
 
@@ -34,7 +42,7 @@ class TestReplayBuffer(unittest.TestCase):
 
             erb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
 
-        es = erb._encode_sample(range(buffer_size))
+        erb._encode_sample(range(buffer_size))
 
         erb.sample(32)
 
@@ -97,18 +105,60 @@ class TestReplayBuffer(unittest.TestCase):
     def test_multi_processing(self):
         buffer_size = 256
 
-        rb = ReplayBuffer(buffer_size,{"done": {}})
+        rb = ReplayBuffer(buffer_size,{"obs": {"dtype": int}})
 
         self.assertEqual(rb.get_next_index(),0)
         self.assertEqual(rb.get_stored_size(),0)
 
-        p = Process(target=add,args=[rb])
+        p = Process(target=add_args,args=[rb, [{"obs": i} for i in range(100)]])
         p.start()
         p.join()
 
         self.assertEqual(rb.get_next_index(),100)
         self.assertEqual(rb.get_stored_size(),100)
 
+        s = rb.get_all_transitions()
+        np.testing.assert_allclose(s["obs"].ravel(),np.arange(100,dtype=int))
+
+    def test_multi_processing2(self):
+        buffer_size = 256
+
+        rb = ReplayBuffer(buffer_size,{"done": {}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add,args=[rb])
+        q = Process(target=add,args=[rb])
+        p.start()
+        q.start()
+        p.join()
+        q.join()
+
+        self.assertEqual(rb.get_next_index() ,200)
+        self.assertEqual(rb.get_stored_size(),200)
+
+    def test_multi_add_sample(self):
+        buffer_size = 256
+
+        rb = ReplayBuffer(buffer_size,{"done": {}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add,args=[rb])
+        q = Process(target=add,args=[rb])
+        r = Process(target=sample,args=[rb,32])
+        p.start()
+        p.join()
+
+        q.start()
+        r.start()
+        q.join()
+        r.join()
+
+        self.assertEqual(rb.get_next_index() ,200)
+        self.assertEqual(rb.get_stored_size(),200)
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
@@ -188,6 +238,92 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         i = sample["indexes"]
 
         rb.update_priorities(i,w*w)
+
+    def test_multi_processing(self):
+        buffer_size = 256
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"dtype": int}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add_args,args=[rb,
+                                          [{"obs": i, "priority": 0.5}
+                                           for i in range(10)]])
+        p.start()
+        p.join()
+
+        self.assertEqual(rb.get_next_index(),10)
+        self.assertEqual(rb.get_stored_size(),10)
+
+        s = rb.get_all_transitions()
+        np.testing.assert_allclose(s["obs"].ravel(),np.arange(10,dtype=int))
+
+    def test_mp_sample(self):
+        buffer_size = 256
+        add_size = 200
+        one_hot = 3
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"dtype": int}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add_args,args=[rb,
+                                          [{"obs": i,
+                                            "priorities": 0 if i != one_hot else 1e+8}
+                                           for i in range(add_size)]])
+        p.start()
+        p.join()
+
+        self.assertEqual(rb.get_next_index(),add_size % buffer_size)
+        self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
+
+        s = rb.sample(100,beta=1.0)
+
+        self.assertTrue((s["obs"] >= 0).all())
+        self.assertTrue((s["obs"] < add_size).all())
+
+        u, counts = np.unique(s["obs"],return_counts=True)
+        print(u)
+        print(counts)
+        self.assertEqual(u[counts.argmax()],one_hot)
+
+
+    def test_mp_update_priority(self):
+        buffer_size = 256
+        add_size = 200
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"dtype": int}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add_args,args=[rb,
+                                          [{"obs": i, "priorities": 0}
+                                           for i in range(add_size)]])
+        p.start()
+        p.join()
+
+        self.assertEqual(rb.get_next_index(),add_size % buffer_size)
+        self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
+
+        s = rb.sample(1,beta=1.0)
+        one_hot = s["indexes"][0]
+
+        rb.update_priorities([one_hot],[1e+8])
+
+        self.assertEqual(rb.get_next_index(),add_size % buffer_size)
+        self.assertEqual(rb.get_stored_size(),min(add_size,buffer_size))
+
+
+        s = rb.sample(100,beta=1.0)
+
+        self.assertTrue((s["obs"] >= 0).all())
+        self.assertTrue((s["obs"] < add_size).all())
+
+        u, counts = np.unique(s["obs"],return_counts=True)
+        self.assertEqual(u[counts.argmax()],one_hot)
 
 if __name__ == '__main__':
     unittest.main()

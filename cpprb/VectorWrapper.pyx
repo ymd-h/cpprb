@@ -9,12 +9,15 @@ from cython.operator cimport dereference
 import cython
 
 cdef class VectorWrapper:
-    def __cinit__(self,*,ndim=1,value_dim=1,**kwarg):
+    def __cinit__(self,ndim=1,value_dim=1,**kwarg):
         self.ndim = min(ndim,2)
         self.value_dim = value_dim
 
         self.shape   = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * self.ndim)
         self.strides = <Py_ssize_t*>malloc(sizeof(Py_ssize_t) * self.ndim)
+
+    def __reduce__(self):
+        return (self.__class__, (self.ndim,self.value_dim))
 
     cdef void update_size(self):
         self.shape[0] = <Py_ssize_t>(self.vec_size()//self.value_dim)
@@ -57,7 +60,7 @@ cdef class VectorWrapper:
         return np.array(self,copy=copy,**kwargs)
 
 cdef class VectorInt(VectorWrapper):
-    def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
+    def __cinit__(self,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[int]()
         self.itemsize = sizeof(int)
         self.set_shape_strides()
@@ -70,7 +73,7 @@ cdef class VectorInt(VectorWrapper):
         return self.vec.size()
 
 cdef class VectorDouble(VectorWrapper):
-    def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
+    def __cinit__(self,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[double]()
         self.itemsize = sizeof(double)
         self.set_shape_strides()
@@ -83,7 +86,7 @@ cdef class VectorDouble(VectorWrapper):
         return self.vec.size()
 
 cdef class VectorFloat(VectorWrapper):
-    def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
+    def __cinit__(self,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[float]()
         self.itemsize = sizeof(float)
         self.set_shape_strides()
@@ -96,7 +99,7 @@ cdef class VectorFloat(VectorWrapper):
         return self.vec.size()
 
 cdef class VectorSize_t(VectorWrapper):
-    def __cinit__(self,*,ndim=1,value_dim=1,**kwargs):
+    def __cinit__(self,ndim=1,value_dim=1,**kwargs):
         self.vec = vector[size_t]()
         self.itemsize = sizeof(size_t)
         self.set_shape_strides()
@@ -118,10 +121,14 @@ cdef class VectorSize_t(VectorWrapper):
         return self.vec.size()
 
 cdef class PointerDouble(VectorWrapper):
-    def __cinit__(self,*,ndim=1,value_dim=1,size=1,**kwargs):
+    def __cinit__(self,ndim=1,value_dim=1,size=1,**kwargs):
         self._vec_size = value_dim * size
         self.itemsize = sizeof(double)
         self.set_shape_strides()
+
+    def __reduce__(self):
+        return (self.__class__,
+                (self.ndim,self.value_dim,self._vec_size // self.value_dim))
 
     cdef void set_buffer(self,Py_buffer* buffer):
         buffer.buf = <void*> self.ptr
