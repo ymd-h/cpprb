@@ -2092,7 +2092,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         self.terminate.value = False
         self.helper = Process(target=weak_update,args=[self])
-        self.start()
+        self.helper.start()
 
     def terminate_update_priorities_helper(self):
         self.terminate.value = True
