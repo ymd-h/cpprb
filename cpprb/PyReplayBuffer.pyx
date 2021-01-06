@@ -3,7 +3,7 @@
 
 import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
-from multiprocessing import Event, Lock
+from multiprocessing import Event, Lock, Process
 from multiprocessing.sharedctypes import Value, RawValue, RawArray
 import time
 from typing import Any, Dict, Callable, Optional
