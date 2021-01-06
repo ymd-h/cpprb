@@ -1887,7 +1887,7 @@ cdef class ThreadSafePrioritizedSampler:
                  self.min,self.min_a,self.min_c))
 
 
-def weak_update(per: MPPrioritizedReplayBuffer):
+def weak_update(per):
     per.weak_update_loop()
 
 
@@ -2091,8 +2091,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
             return None
 
         self.terminate.value = False
-        self.helper = Process(target=weak_update_changed,
-                              args=[self.per,self.terminate])
+        self.helper = Process(target=weak_update,args=[self])
         self.start()
 
     def terminate_update_priorities_helper(self):
