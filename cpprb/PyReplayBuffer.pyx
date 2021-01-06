@@ -1887,6 +1887,10 @@ cdef class ThreadSafePrioritizedSampler:
                  self.min,self.min_a,self.min_c))
 
 
+def weak_update(per: MPPrioritizedReplayBuffer):
+    per.weak_update_loop()
+
+
 @cython.embedsignature(True)
 cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     r"""Prioritized replay buffer class to store transitions with priorities.
@@ -1897,6 +1901,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef VectorSize_t indexes
     cdef ThreadSafePrioritizedSampler per
     cdef unchange_since_sample
+    cdef helper
+    cdef terminate
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
         r"""Initialize PrioritizedReplayBuffer
@@ -1938,6 +1944,10 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
                        int(np.array(size,copy=False,dtype='int').prod()))
         self.unchange_since_sample = np.ctypeslib.as_array(shm)
         self.unchange_since_sample[:] = True
+
+        self.helper = None
+        self.terminate = Value(ctypes.c_bool)
+        self.terminate.value = False
 
 
     def add(self,*,priorities = None,**kwargs):
@@ -2075,6 +2085,26 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         if N > 0:
             self.per.ptr().update_priorities(&idx[0],&ps[0],N)
         self._unlock_learner()
+
+    def start_update_priorities_helper(self):
+        if self.helper is not None:
+            return None
+
+        self.terminate.value = False
+        self.helper = Process(target=weak_update_changed,
+                              args=[self.per,self.terminate])
+        self.start()
+
+    def terminate_update_priorities_helper(self):
+        self.terminate.value = True
+        self.helper.join()
+        self.helper = None
+
+    def weak_update_loop(self):
+        while not self.terminate.value:
+            self._lock_explorer()
+            self.per.ptr().weak_update_changed()
+            self._unlock_explorer()
 
     cpdef void clear(self) except *:
         r"""Clear replay buffer
