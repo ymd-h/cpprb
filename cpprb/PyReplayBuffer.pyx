@@ -1635,7 +1635,7 @@ cdef class MPReplayBuffer:
     cdef void _unlock_learner(self):
         self.explorer_ready.set() # Allow workers to enter into critical section
 
-    def add(self,*,__lock_release=True,**kwargs):
+    def add(self,*,**kwargs):
         r"""Add transition(s) into replay buffer.
 
         Multple sets of transitions can be added simultaneously.
@@ -1678,8 +1678,7 @@ cdef class MPReplayBuffer:
             b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
                                     self.env_dict[name]["add_shape"])
 
-        if __lock_release:
-            self._unlock_explorer()
+        self._unlock_explorer()
         return index
 
     def get_all_transitions(self,shuffle: bool=False):
