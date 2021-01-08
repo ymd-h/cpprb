@@ -1961,7 +1961,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         with self.explorer_per_count.get_lock():
             self.explorer_per_count.value += 1
 
-    cdef void _unlock_per(self):
+    cdef void _unlock_per_explorer(self):
         with self.explorer_per_count.get_lock():
             self.explorer_per_count.value -= 1
         if self.explorer_per_count.value == 0:
@@ -1971,7 +1971,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.explorer_per_ready.clear()
         self.learner_per_ready.wait()
 
-    cdef void _unlock_per(self):
+    cdef void _unlock_per_learner(self):
         self.explorer_per_ready.set()
 
     def add(self,*,priorities = None,**kwargs):
