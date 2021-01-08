@@ -1666,11 +1666,9 @@ cdef class MPReplayBuffer:
 
         cdef size_t index = self.index.fetch_add(N)
         cdef size_t end = index + N
-        cdef size_t remain = 0
         cdef add_idx = np.arange(index,end)
 
         if end > self.buffer_size:
-            remain = end - self.buffer_size
             add_idx[add_idx >= self.buffer_size] -= self.buffer_size
 
 
