@@ -1900,7 +1900,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef unchange_since_sample
     cdef helper
     cdef terminate
-    cdef per_count
+    cdef explorer_per_count
     cdef learner_per_ready
     cdef explorer_per_ready
 
@@ -1953,7 +1953,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.learner_per_ready.clear()
         self.explorer_per_ready = Event()
         self.explorer_per_ready.set()
-        self.per_count = Value(ctypes.c_size_t,0)
+        self.explorer_per_count = Value(ctypes.c_size_t,0)
 
     cdef void _lock_explorer_per(self):
         self.explorer_per_ready.wait() # Wait permission
