@@ -1900,6 +1900,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef unchange_since_sample
     cdef helper
     cdef terminate
+    cdef per_count
+    cdef learner_per_ready
+    cdef explorer_per_ready
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
         r"""Initialize PrioritizedReplayBuffer
@@ -1946,6 +1949,30 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.terminate = Value(ctypes.c_bool)
         self.terminate.value = False
 
+        self.learner_per_ready = Event()
+        self.learner_per_ready.clear()
+        self.explorer_per_ready = Event()
+        self.explorer_per_ready.set()
+        self.per_count = Value(ctypes.c_size_t,0)
+
+    cdef void _lock_per_explorer(self):
+        self.explorer_per_ready.wait() # Wait permission
+        self.learner_per_ready.clear()  # Block learner
+        with self.explorer_per_count.get_lock():
+            self.explorer_per_count.value += 1
+
+    cdef void _unlock_per(self):
+        with self.explorer_per_count.get_lock():
+            self.explorer_per_count.value -= 1
+        if self.explorer_per_count.value == 0:
+            self.learner_per_ready.set()
+
+    cdef void _lock_per_learner(self):
+        self.explorer_per_ready.clear()
+        self.learner_per_ready.wait()
+
+    cdef void _unlock_per(self):
+        self.explorer_per_ready.set()
 
     def add(self,*,priorities = None,**kwargs):
         r"""Add transition(s) into replay buffer.
@@ -1978,14 +2005,23 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         It is user responsibility that all the values have the same step-size.
         """
         cdef size_t N = self.size_check.step_size(kwargs)
+        cdef float [:] ps
+
         if priorities is not None:
             priorities = np.ravel(np.array(priorities,copy=False,
                                            ndmin=1,dtype=np.single))
             if N != priorities.shape[0]:
                 raise ValueError("`priorities` shape is imcompatible")
 
-        cdef size_t index = super().add(**kwargs,__lock_release=False)
-        cdef float [:] ps
+        cdef size_t index = self.index.fetch_add(N)
+        cdef size_t end = index + N
+        cdef add_idx = np.arange(index,end)
+
+        if end > self.buffer_size:
+            add_idx[add_idx >= self.buffer_size] -= self.buffer_size
+
+
+        self._lock_explorer_per()
 
         if priorities is not None:
             ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
@@ -1998,6 +2034,13 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         else:
             self.unchange_since_sample[index:] = False
             self.unchange_since_sample[:index+N-self.buffer_size] = False
+
+        self._lock_explorer()
+        self._unlock_explorer_per()
+
+        for name, b in self.buffer.items():
+            b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+                                    self.env_dict[name]["add_shape"])
 
         self._unlock_explorer()
         return index
@@ -2028,11 +2071,15 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         The 'weights' are also normalized by the weight for minimum priority
         (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
         """
-        self._lock_learner()
+        self._lock_learner_per()
         self.per.ptr().sample(batch_size,beta,
                               self.weights.vec,self.indexes.vec,
                               self.get_stored_size())
         cdef idx = self.indexes.as_numpy()
+
+        self._lock_learner()
+        self._unlock_learner_per()
+
         samples = self._encode_sample(idx)
         self.unchange_since_sample[:] = True
         self._unlock_learner()
@@ -2068,7 +2115,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         cdef float [:] ps = Cfloat(priorities)
 
         cdef size_t _idx = 0
-        self._lock_learner()
+
+        self._lock_learner_per()
         cdef size_t stored_size = self.get_stored_size()
         for _i in range(idx.shape[0]):
             if idx[_i] < stored_size and self.unchange_since_sample[idx[_i]]:
@@ -2081,7 +2129,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         cdef N = idx.shape[0]
         if N > 0:
             self.per.ptr().update_priorities(&idx[0],&ps[0],N)
-        self._unlock_learner()
+        self._unlock_learner_per()
 
     def start_update_priorities_helper(self):
         if self.helper is not None:
