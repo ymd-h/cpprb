@@ -1974,6 +1974,11 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef void _unlock_learner_per(self):
         self.explorer_per_ready.set()
 
+    cdef void _lock_learner_unlock_learner_per(self):
+        self.explorer_ready.clear()
+        self.explorer_per_ready.set()
+        self.learner_ready.wait()
+
     def add(self,*,priorities = None,**kwargs):
         r"""Add transition(s) into replay buffer.
 
@@ -2077,8 +2082,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
                               self.get_stored_size())
         cdef idx = self.indexes.as_numpy()
 
-        self._lock_learner()
-        self._unlock_learner_per()
+        self._lock_learner_unlock_learner_per()
 
         samples = self._encode_sample(idx)
         self.unchange_since_sample[:] = True
