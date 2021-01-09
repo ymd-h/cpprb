@@ -3,7 +3,7 @@
 
 import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
-from multiprocessing import Event, Lock
+from multiprocessing import Event, Lock, Process
 from multiprocessing.sharedctypes import Value, RawValue, RawArray
 import time
 from typing import Any, Dict, Callable, Optional
@@ -1590,10 +1590,6 @@ cdef class MPReplayBuffer:
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
         """
-        logger = logger or default_logger()
-        logger.warning(f"{self.__class__.__name__} is experimental. "
-                       "The API can be changed.")
-
         self.env_dict = env_dict.copy() if env_dict else {}
         cdef special_keys = []
 
@@ -1616,26 +1612,26 @@ cdef class MPReplayBuffer:
 
         self.explorer_count = Value(ctypes.c_size_t,0)
 
-    cdef void _lock_explorer(self):
+    cdef void _lock_explorer(self) except *:
         self.explorer_ready.wait() # Wait permission
         self.learner_ready.clear()  # Block learner
         with self.explorer_count.get_lock():
             self.explorer_count.value += 1
 
-    cdef void _unlock_explorer(self):
+    cdef void _unlock_explorer(self) except *:
         with self.explorer_count.get_lock():
             self.explorer_count.value -= 1
         if self.explorer_count.value == 0:
             self.learner_ready.set()
 
-    cdef void _lock_learner(self):
+    cdef void _lock_learner(self) except *:
         self.explorer_ready.clear() # New explorer cannot enter into critical section
         self.learner_ready.wait() # Wait until all explorer exit from critical section
 
-    cdef void _unlock_learner(self):
+    cdef void _unlock_learner(self) except *:
         self.explorer_ready.set() # Allow workers to enter into critical section
 
-    def add(self,*,__lock_release=True,**kwargs):
+    def add(self,*,**kwargs):
         r"""Add transition(s) into replay buffer.
 
         Multple sets of transitions can be added simultaneously.
@@ -1666,11 +1662,9 @@ cdef class MPReplayBuffer:
 
         cdef size_t index = self.index.fetch_add(N)
         cdef size_t end = index + N
-        cdef size_t remain = 0
         cdef add_idx = np.arange(index,end)
 
         if end > self.buffer_size:
-            remain = end - self.buffer_size
             add_idx[add_idx >= self.buffer_size] -= self.buffer_size
 
 
@@ -1680,8 +1674,7 @@ cdef class MPReplayBuffer:
             b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
                                     self.env_dict[name]["add_shape"])
 
-        if __lock_release:
-            self._unlock_explorer()
+        self._unlock_explorer()
         return index
 
     def get_all_transitions(self,shuffle: bool=False):
@@ -1824,15 +1817,13 @@ cdef class ThreadSafePrioritizedSampler:
     cdef max_p
     cdef sum
     cdef sum_a#nychanged
-    cdef sum_c#hanged
     cdef min
     cdef min_a#nychanged
-    cdef min_c#hanged
     cdef CppThreadSafePrioritizedSampler[float]* per
 
     def __init__(self,size,alpha,eps,max_p=None,
-                 sum=None,sum_a=None,sum_c=None,
-                 min=None,min_a=None,min_c=None):
+                 sum=None,sum_a=None,
+                 min=None,min_a=None):
         self.size = size
         self.alpha = alpha
         self.eps = eps
@@ -1846,34 +1837,26 @@ cdef class ThreadSafePrioritizedSampler:
 
         self.sum   = sum   or RawArray(ctypes.c_float,2*pow2size-1)
         self.sum_a = sum_a or RawArray(ctypes.c_bool ,1)
-        self.sum_c = sum_c or RawArray(ctypes.c_bool ,pow2size)
         self.min   = min   or RawArray(ctypes.c_float,2*pow2size-1)
         self.min_a = min_a or RawArray(ctypes.c_bool ,1)
-        self.min_c = min_c or RawArray(ctypes.c_bool ,pow2size)
 
         cdef float [:] view_sum   = self.sum
         cdef bool  [:] view_sum_a = self.sum_a
-        cdef bool  [:] view_sum_c = self.sum_c
         cdef float [:] view_min   = self.min
         cdef bool  [:] view_min_a = self.min_a
-        cdef bool  [:] view_min_c = self.min_c
 
         cdef bool init = ((max_p is None) and
                           (sum   is None) and
                           (sum_a is None) and
-                          (sum_c is None) and
                           (min   is None) and
-                          (min_a is None) and
-                          (min_c is None))
+                          (min_a is None))
 
         self.per = new CppThreadSafePrioritizedSampler[float](size,alpha,
                                                               &view_max_p[0],
                                                               &view_sum[0],
                                                               &view_sum_a[0],
-                                                              &view_sum_c[0],
                                                               &view_min[0],
                                                               &view_min_a[0],
-                                                              &view_min_c[0],
                                                               init,
                                                               eps)
 
@@ -1883,8 +1866,8 @@ cdef class ThreadSafePrioritizedSampler:
     def __reduce__(self):
         return (ThreadSafePrioritizedSampler,
                 (self.size,self.alpha,self.eps,self.max_p,
-                 self.sum,self.sum_a,self.sum_c,
-                 self.min,self.min_a,self.min_c))
+                 self.sum,self.sum_a,
+                 self.min,self.min_a))
 
 
 @cython.embedsignature(True)
@@ -1897,6 +1880,11 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef VectorSize_t indexes
     cdef ThreadSafePrioritizedSampler per
     cdef unchange_since_sample
+    cdef helper
+    cdef terminate
+    cdef explorer_per_count
+    cdef learner_per_ready
+    cdef explorer_per_ready
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
         r"""Initialize PrioritizedReplayBuffer
@@ -1939,6 +1927,39 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.unchange_since_sample = np.ctypeslib.as_array(shm)
         self.unchange_since_sample[:] = True
 
+        self.helper = None
+        self.terminate = Value(ctypes.c_bool)
+        self.terminate.value = False
+
+        self.learner_per_ready = Event()
+        self.learner_per_ready.clear()
+        self.explorer_per_ready = Event()
+        self.explorer_per_ready.set()
+        self.explorer_per_count = Value(ctypes.c_size_t,0)
+
+    cdef void _lock_explorer_per(self) except *:
+        self.explorer_per_ready.wait() # Wait permission
+        self.learner_per_ready.clear()  # Block learner
+        with self.explorer_per_count.get_lock():
+            self.explorer_per_count.value += 1
+
+    cdef void _unlock_explorer_per(self) except *:
+        with self.explorer_per_count.get_lock():
+            self.explorer_per_count.value -= 1
+        if self.explorer_per_count.value == 0:
+            self.learner_per_ready.set()
+
+    cdef void _lock_learner_per(self) except *:
+        self.explorer_per_ready.clear()
+        self.learner_per_ready.wait()
+
+    cdef void _unlock_learner_per(self) except *:
+        self.explorer_per_ready.set()
+
+    cdef void _lock_learner_unlock_learner_per(self) except *:
+        self.explorer_ready.clear()
+        self.explorer_per_ready.set()
+        self.learner_ready.wait()
 
     def add(self,*,priorities = None,**kwargs):
         r"""Add transition(s) into replay buffer.
@@ -1971,14 +1992,23 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         It is user responsibility that all the values have the same step-size.
         """
         cdef size_t N = self.size_check.step_size(kwargs)
+        cdef float [:] ps
+
         if priorities is not None:
             priorities = np.ravel(np.array(priorities,copy=False,
                                            ndmin=1,dtype=np.single))
             if N != priorities.shape[0]:
                 raise ValueError("`priorities` shape is imcompatible")
 
-        cdef size_t index = super().add(**kwargs,__lock_release=False)
-        cdef float [:] ps
+        cdef size_t index = self.index.fetch_add(N)
+        cdef size_t end = index + N
+        cdef add_idx = np.arange(index,end)
+
+        if end > self.buffer_size:
+            add_idx[add_idx >= self.buffer_size] -= self.buffer_size
+
+
+        self._lock_explorer_per()
 
         if priorities is not None:
             ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
@@ -1991,6 +2021,13 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         else:
             self.unchange_since_sample[index:] = False
             self.unchange_since_sample[:index+N-self.buffer_size] = False
+
+        self._lock_explorer()
+        self._unlock_explorer_per()
+
+        for name, b in self.buffer.items():
+            b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+                                    self.env_dict[name]["add_shape"])
 
         self._unlock_explorer()
         return index
@@ -2021,11 +2058,14 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         The 'weights' are also normalized by the weight for minimum priority
         (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
         """
-        self._lock_learner()
+        self._lock_learner_per()
         self.per.ptr().sample(batch_size,beta,
                               self.weights.vec,self.indexes.vec,
                               self.get_stored_size())
         cdef idx = self.indexes.as_numpy()
+
+        self._lock_learner_unlock_learner_per()
+
         samples = self._encode_sample(idx)
         self.unchange_since_sample[:] = True
         self._unlock_learner()
@@ -2061,7 +2101,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         cdef float [:] ps = Cfloat(priorities)
 
         cdef size_t _idx = 0
-        self._lock_learner()
+
+        self._lock_learner_per()
         cdef size_t stored_size = self.get_stored_size()
         for _i in range(idx.shape[0]):
             if idx[_i] < stored_size and self.unchange_since_sample[idx[_i]]:
@@ -2074,7 +2115,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         cdef N = idx.shape[0]
         if N > 0:
             self.per.ptr().update_priorities(&idx[0],&ps[0],N)
-        self._unlock_learner()
+        self._unlock_learner_per()
 
     cpdef void clear(self) except *:
         r"""Clear replay buffer

@@ -26,8 +26,6 @@ namespace ymd {
     F f;
     std::atomic_bool *any_changed;
     std::shared_ptr<std::atomic_bool> any_changed_view;
-    std::atomic_bool *changed;
-    std::shared_ptr<std::atomic_bool[]> changed_view;
 
     auto _reduce(const std::size_t start,const std::size_t end,std::size_t index,
 		 const std::size_t region_s,const std::size_t region_e) const {
@@ -76,45 +74,21 @@ namespace ymd {
 	update_buffer(i);
       }
       if constexpr (MultiThread){
-	for(std::size_t i = 0; i < buffer_size; ++i){
-	  changed[i].store(false,std::memory_order_release);
-	}
 	any_changed->store(false,std::memory_order_release);
       }
-    }
-
-    void update_changed(){
-      std::set<std::size_t> will_update{};
-
-      for(std::size_t i = 0; i < buffer_size; ++i){
-	if(changed[i].exchange(false,std::memory_order_acq_rel)){
-	  will_update.insert(parent(access_index(i)));
-	}
-      }
-
-      while(!will_update.empty()){
-	auto i = *(will_update.rbegin());
-	auto updated = update_buffer(i);
-	will_update.erase(i);
-	if(i && updated){ will_update.insert(parent(i)); }
-      }
-      any_changed->store(false,std::memory_order_release);
     }
 
   public:
     SegmentTree(std::size_t n,F f, T v = T{0},
 		T* buffer_ptr = nullptr,
 		bool* any_changed_ptr = nullptr,
-		bool* changed_ptr = nullptr,
 		bool initialize = true)
       : buffer_size(n),
 	buffer(buffer_ptr),
 	view{},
 	f(f),
 	any_changed{(std::atomic_bool*)any_changed_ptr},
-	any_changed_view{},
-	changed{(std::atomic_bool*)changed_ptr},
-	changed_view{}
+	any_changed_view{}
     {
       if(!buffer){
 	buffer = new T[2*n-1];
@@ -126,22 +100,12 @@ namespace ymd {
 	  any_changed = new std::atomic_bool{true};
 	  any_changed_view.reset(any_changed);
 	}
-	if(!changed){
-	  changed = new std::atomic_bool[n];
-	  changed_view.reset(changed);
-	}
       }
 
       if(initialize){
 	std::fill_n(buffer+access_index(0),n,v);
 
 	update_all();
-
-	if constexpr (MultiThread) {
-	  for(std::size_t i = 0; i < n; ++i){
-	    changed[i].store(false,std::memory_order_release);
-	  }
-	}
       }
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
@@ -161,7 +125,6 @@ namespace ymd {
 
       if constexpr (MultiThread){
 	any_changed->store(true,std::memory_order_release);
-	changed[i].store(true,std::memory_order_release);
       }else{
 	constexpr const std::size_t zero = 0;
 	auto updated = true;
@@ -189,11 +152,7 @@ namespace ymd {
 	auto copy_N = std::min(N,max-i);
 	std::generate_n(buffer+access_index(i),copy_N,f);
 
-	if constexpr (MultiThread) {
-	  std::for_each(changed + i,
-			changed + i + copy_N,
-			[](auto& c){ c.store(true,std::memory_order_release); });
-	}else{
+	if constexpr (!MultiThread){
 	  for(auto n = std::size_t(0); n < copy_N; ++n){
 	    auto _i = access_index(i+n);
 	    if(_i != 0){
@@ -224,7 +183,7 @@ namespace ymd {
       // Operation on [start,end)  # buffer[end] is not included
       if constexpr (MultiThread){
 	if(any_changed->load(std::memory_order_acquire)){
-	  update_changed();
+	  update_all();
 	}
       }
       return _reduce(start,end,0,0,buffer_size);
@@ -240,7 +199,7 @@ namespace ymd {
 
       if constexpr (MultiThread){
 	if(any_changed->load(std::memory_order_acquire)){
-	  update_changed();
+	  update_all();
 	}
       }
 
