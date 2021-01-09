@@ -1590,10 +1590,6 @@ cdef class MPReplayBuffer:
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
         """
-        logger = logger or default_logger()
-        logger.warning(f"{self.__class__.__name__} is experimental. "
-                       "The API can be changed.")
-
         self.env_dict = env_dict.copy() if env_dict else {}
         cdef special_keys = []
 
