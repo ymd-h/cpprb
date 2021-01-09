@@ -26,8 +26,6 @@ namespace ymd {
     F f;
     std::atomic_bool *any_changed;
     std::shared_ptr<std::atomic_bool> any_changed_view;
-    std::atomic_bool *changed;
-    std::shared_ptr<std::atomic_bool[]> changed_view;
 
     auto _reduce(const std::size_t start,const std::size_t end,std::size_t index,
 		 const std::size_t region_s,const std::size_t region_e) const {
@@ -84,16 +82,13 @@ namespace ymd {
     SegmentTree(std::size_t n,F f, T v = T{0},
 		T* buffer_ptr = nullptr,
 		bool* any_changed_ptr = nullptr,
-		bool* changed_ptr = nullptr,
 		bool initialize = true)
       : buffer_size(n),
 	buffer(buffer_ptr),
 	view{},
 	f(f),
 	any_changed{(std::atomic_bool*)any_changed_ptr},
-	any_changed_view{},
-	changed{(std::atomic_bool*)changed_ptr},
-	changed_view{}
+	any_changed_view{}
     {
       if(!buffer){
 	buffer = new T[2*n-1];
@@ -104,10 +99,6 @@ namespace ymd {
 	if(!any_changed){
 	  any_changed = new std::atomic_bool{true};
 	  any_changed_view.reset(any_changed);
-	}
-	if(!changed){
-	  changed = new std::atomic_bool[n];
-	  changed_view.reset(changed);
 	}
       }
 
