@@ -1616,23 +1616,23 @@ cdef class MPReplayBuffer:
 
         self.explorer_count = Value(ctypes.c_size_t,0)
 
-    cdef void _lock_explorer(self):
+    cdef void _lock_explorer(self) except *:
         self.explorer_ready.wait() # Wait permission
         self.learner_ready.clear()  # Block learner
         with self.explorer_count.get_lock():
             self.explorer_count.value += 1
 
-    cdef void _unlock_explorer(self):
+    cdef void _unlock_explorer(self) except *:
         with self.explorer_count.get_lock():
             self.explorer_count.value -= 1
         if self.explorer_count.value == 0:
             self.learner_ready.set()
 
-    cdef void _lock_learner(self):
+    cdef void _lock_learner(self) except *:
         self.explorer_ready.clear() # New explorer cannot enter into critical section
         self.learner_ready.wait() # Wait until all explorer exit from critical section
 
-    cdef void _unlock_learner(self):
+    cdef void _unlock_learner(self) except *:
         self.explorer_ready.set() # Allow workers to enter into critical section
 
     def add(self,*,**kwargs):
@@ -1941,26 +1941,26 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.explorer_per_ready.set()
         self.explorer_per_count = Value(ctypes.c_size_t,0)
 
-    cdef void _lock_explorer_per(self):
+    cdef void _lock_explorer_per(self) except *:
         self.explorer_per_ready.wait() # Wait permission
         self.learner_per_ready.clear()  # Block learner
         with self.explorer_per_count.get_lock():
             self.explorer_per_count.value += 1
 
-    cdef void _unlock_explorer_per(self):
+    cdef void _unlock_explorer_per(self) except *:
         with self.explorer_per_count.get_lock():
             self.explorer_per_count.value -= 1
         if self.explorer_per_count.value == 0:
             self.learner_per_ready.set()
 
-    cdef void _lock_learner_per(self):
+    cdef void _lock_learner_per(self) except *:
         self.explorer_per_ready.clear()
         self.learner_per_ready.wait()
 
-    cdef void _unlock_learner_per(self):
+    cdef void _unlock_learner_per(self) except *:
         self.explorer_per_ready.set()
 
-    cdef void _lock_learner_unlock_learner_per(self):
+    cdef void _lock_learner_unlock_learner_per(self) except *:
         self.explorer_ready.clear()
         self.explorer_per_ready.set()
         self.learner_ready.wait()
