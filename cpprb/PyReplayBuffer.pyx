@@ -1821,15 +1821,13 @@ cdef class ThreadSafePrioritizedSampler:
     cdef max_p
     cdef sum
     cdef sum_a#nychanged
-    cdef sum_c#hanged
     cdef min
     cdef min_a#nychanged
-    cdef min_c#hanged
     cdef CppThreadSafePrioritizedSampler[float]* per
 
     def __init__(self,size,alpha,eps,max_p=None,
-                 sum=None,sum_a=None,sum_c=None,
-                 min=None,min_a=None,min_c=None):
+                 sum=None,sum_a=None,
+                 min=None,min_a=None):
         self.size = size
         self.alpha = alpha
         self.eps = eps
@@ -1843,34 +1841,26 @@ cdef class ThreadSafePrioritizedSampler:
 
         self.sum   = sum   or RawArray(ctypes.c_float,2*pow2size-1)
         self.sum_a = sum_a or RawArray(ctypes.c_bool ,1)
-        self.sum_c = sum_c or RawArray(ctypes.c_bool ,pow2size)
         self.min   = min   or RawArray(ctypes.c_float,2*pow2size-1)
         self.min_a = min_a or RawArray(ctypes.c_bool ,1)
-        self.min_c = min_c or RawArray(ctypes.c_bool ,pow2size)
 
         cdef float [:] view_sum   = self.sum
         cdef bool  [:] view_sum_a = self.sum_a
-        cdef bool  [:] view_sum_c = self.sum_c
         cdef float [:] view_min   = self.min
         cdef bool  [:] view_min_a = self.min_a
-        cdef bool  [:] view_min_c = self.min_c
 
         cdef bool init = ((max_p is None) and
                           (sum   is None) and
                           (sum_a is None) and
-                          (sum_c is None) and
                           (min   is None) and
-                          (min_a is None) and
-                          (min_c is None))
+                          (min_a is None))
 
         self.per = new CppThreadSafePrioritizedSampler[float](size,alpha,
                                                               &view_max_p[0],
                                                               &view_sum[0],
                                                               &view_sum_a[0],
-                                                              &view_sum_c[0],
                                                               &view_min[0],
                                                               &view_min_a[0],
-                                                              &view_min_c[0],
                                                               init,
                                                               eps)
 
@@ -1880,8 +1870,8 @@ cdef class ThreadSafePrioritizedSampler:
     def __reduce__(self):
         return (ThreadSafePrioritizedSampler,
                 (self.size,self.alpha,self.eps,self.max_p,
-                 self.sum,self.sum_a,self.sum_c,
-                 self.min,self.min_a,self.min_c))
+                 self.sum,self.sum_a,
+                 self.min,self.min_a))
 
 
 @cython.embedsignature(True)
