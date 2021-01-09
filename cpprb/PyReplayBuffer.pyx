@@ -1884,10 +1884,6 @@ cdef class ThreadSafePrioritizedSampler:
                  self.min,self.min_a,self.min_c))
 
 
-def weak_update(per):
-    per.weak_update_loop()
-
-
 @cython.embedsignature(True)
 cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     r"""Prioritized replay buffer class to store transitions with priorities.
@@ -2134,25 +2130,6 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         if N > 0:
             self.per.ptr().update_priorities(&idx[0],&ps[0],N)
         self._unlock_learner_per()
-
-    def start_update_priorities_helper(self):
-        if self.helper is not None:
-            return None
-
-        self.terminate.value = False
-        self.helper = Process(target=weak_update,args=[self])
-        self.helper.start()
-
-    def terminate_update_priorities_helper(self):
-        self.terminate.value = True
-        self.helper.join()
-        self.helper = None
-
-    def weak_update_loop(self):
-        while not self.terminate.value:
-            self._lock_explorer_per()
-            self.per.ptr().weak_update_changed()
-            self._unlock_explorer_per()
 
     cpdef void clear(self) except *:
         r"""Clear replay buffer
