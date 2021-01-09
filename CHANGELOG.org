@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.4.2][v9.4.2]]
+- Fix: ~MPPrioritizedReplayBuffer~ lock mechanism, which makes faster
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.4.1][v9.4.1]]
 - Fix: ~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ with spawn multiprocessing
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.4.0][v9.4.0]]
