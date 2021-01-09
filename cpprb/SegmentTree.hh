@@ -152,7 +152,7 @@ namespace ymd {
 	auto copy_N = std::min(N,max-i);
 	std::generate_n(buffer+access_index(i),copy_N,f);
 
-	}else{
+	if constexpr (!MultiThread){
 	  for(auto n = std::size_t(0); n < copy_N; ++n){
 	    auto _i = access_index(i+n);
 	    if(_i != 0){
