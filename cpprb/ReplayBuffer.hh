@@ -364,9 +364,9 @@ namespace ymd {
     CppPrioritizedSampler(std::size_t buffer_size,Priority alpha,
 			  Priority* max_p = nullptr,
 			  Priority* sum_ptr = nullptr,
-			  bool* sum_anychanged = nullptr,bool* sum_changed = nullptr,
+			  bool* sum_anychanged = nullptr,
 			  Priority* min_ptr = nullptr,
-			  bool* min_anychanged = nullptr,bool* min_changed = nullptr,
+			  bool* min_anychanged = nullptr,
 			  bool initialize = true,
 			  Priority eps = Priority{1e-4})
       : alpha{alpha},
@@ -375,10 +375,10 @@ namespace ymd {
 	default_max_priority{1.0},
 	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; },
 	    Priority{0},
-	    sum_ptr,sum_anychanged,sum_changed,initialize},
+	    sum_ptr,sum_anychanged,initialize},
 	min{PowerOf2(buffer_size),[](Priority a,Priority b){ return  std::min(a,b); },
 	    std::numeric_limits<Priority>::max(),
-	    min_ptr,min_anychanged,min_changed,initialize},
+	    min_ptr,min_anychanged,initialize},
 	g{std::random_device{}()},
 	eps{eps}
     {

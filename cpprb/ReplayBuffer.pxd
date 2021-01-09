@@ -27,7 +27,7 @@ cdef extern from "ReplayBuffer.hh" namespace "ymd":
         void set_eps(Prio)
     cdef cppclass CppThreadSafePrioritizedSampler[Prio]:
         CppThreadSafePrioritizedSampler(size_t,Prio,Prio*,
-                                        Prio*,bool*,bool*,Prio*,bool*,bool*,
+                                        Prio*,bool*,Prio*,bool*,
                                         bool,float) except +
         void sample(size_t,Prio,vector[Prio]&,vector[size_t]&,size_t)
         void set_priorities(size_t)
