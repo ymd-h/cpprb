@@ -76,29 +76,8 @@ namespace ymd {
 	update_buffer(i);
       }
       if constexpr (MultiThread){
-	for(std::size_t i = 0; i < buffer_size; ++i){
-	  changed[i].store(false,std::memory_order_release);
-	}
 	any_changed->store(false,std::memory_order_release);
       }
-    }
-
-    void update_changed(){
-      std::set<std::size_t> will_update{};
-
-      for(std::size_t i = 0; i < buffer_size; ++i){
-	if(changed[i].exchange(false,std::memory_order_acq_rel)){
-	  will_update.insert(parent(access_index(i)));
-	}
-      }
-
-      while(!will_update.empty()){
-	auto i = *(will_update.rbegin());
-	auto updated = update_buffer(i);
-	will_update.erase(i);
-	if(i && updated){ will_update.insert(parent(i)); }
-      }
-      any_changed->store(false,std::memory_order_release);
     }
 
   public:
@@ -136,12 +115,6 @@ namespace ymd {
 	std::fill_n(buffer+access_index(0),n,v);
 
 	update_all();
-
-	if constexpr (MultiThread) {
-	  for(std::size_t i = 0; i < n; ++i){
-	    changed[i].store(false,std::memory_order_release);
-	  }
-	}
       }
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
@@ -161,7 +134,6 @@ namespace ymd {
 
       if constexpr (MultiThread){
 	any_changed->store(true,std::memory_order_release);
-	changed[i].store(true,std::memory_order_release);
       }else{
 	constexpr const std::size_t zero = 0;
 	auto updated = true;
@@ -189,10 +161,6 @@ namespace ymd {
 	auto copy_N = std::min(N,max-i);
 	std::generate_n(buffer+access_index(i),copy_N,f);
 
-	if constexpr (MultiThread) {
-	  std::for_each(changed + i,
-			changed + i + copy_N,
-			[](auto& c){ c.store(true,std::memory_order_release); });
 	}else{
 	  for(auto n = std::size_t(0); n < copy_N; ++n){
 	    auto _i = access_index(i+n);
@@ -224,7 +192,7 @@ namespace ymd {
       // Operation on [start,end)  # buffer[end] is not included
       if constexpr (MultiThread){
 	if(any_changed->load(std::memory_order_acquire)){
-	  update_changed();
+	  update_all();
 	}
       }
       return _reduce(start,end,0,0,buffer_size);
@@ -240,7 +208,7 @@ namespace ymd {
 
       if constexpr (MultiThread){
 	if(any_changed->load(std::memory_order_acquire)){
-	  update_changed();
+	  update_all();
 	}
       }
 
@@ -264,23 +232,6 @@ namespace ymd {
     void clear(T v = T{0}){
       std::fill(buffer + access_index(0), buffer + access_index(buffer_size), v);
       update_all();
-    }
-
-    void weak_update_changed(){
-      std::set<std::size_t> will_update{};
-
-      for(std::size_t i = 0; i < buffer_size; ++i){
-	if(changed[i].load(std::memory_order_acquire)){
-	  will_update.insert(parent(access_index(i)));
-	}
-      }
-
-      while(!will_update.empty()){
-	auto i = *(will_update.rbegin());
-	auto updated = update_buffer(i);
-	will_update.erase(i);
-	if(i && updated){ will_update.insert(parent(i)); }
-      }
     }
   };
 }
