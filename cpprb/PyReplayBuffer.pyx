@@ -2150,9 +2150,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
     def weak_update_loop(self):
         while not self.terminate.value:
-            self._lock_explorer()
+            self._lock_explorer_per()
             self.per.ptr().weak_update_changed()
-            self._unlock_explorer()
+            self._unlock_explorer_per()
 
     cpdef void clear(self) except *:
         r"""Clear replay buffer
