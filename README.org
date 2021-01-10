@@ -250,11 +250,13 @@ CLOSED: [2020-01-17 Fri 23:09]
 
 cpprb provides buffer classes for building following algorithms.
 
-| Algorithms                    | cpprb class                               | Paper             |
-|-------------------------------+-------------------------------------------+-------------------|
-| Experience Replay             | =ReplayBuffer=                            | [[https://link.springer.com/article/10.1007/BF00992699][L. J. Lin]]         |
-| [[https://ymd_h.gitlab.io/cpprb/features/per/][Prioritized Experience Replay]] | =PrioritizedReplayBuffer=                 | [[https://arxiv.org/abs/1511.05952][T. Schaul et. al.]] |
-| [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Multi-step (Nstep) Learning]]   | =ReplayBuffer=, =PrioritizedReplayBuffer= |                   |
+| Algorithms                    | cpprb class                                  | Paper             |
+|-------------------------------+----------------------------------------------+-------------------|
+| Experience Replay             | =ReplayBuffer=                               | [[https://link.springer.com/article/10.1007/BF00992699][L. J. Lin]]         |
+| [[https://ymd_h.gitlab.io/cpprb/features/per/][Prioritized Experience Replay]] | =PrioritizedReplayBuffer=                    | [[https://arxiv.org/abs/1511.05952][T. Schaul et. al.]] |
+| [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Multi-step (Nstep) Learning]]   | =ReplayBuffer=, =PrioritizedReplayBuffer=    |                   |
+| [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-X)]] | =MPReplayBuffer= =MPPrioritizedReplayBuffer= | [[https://arxiv.org/abs/1803.00933][D. Horgan et. al.]] |
+
 
 
 cpprb features and its usage are described at following pages:
@@ -264,6 +266,7 @@ cpprb features and its usage are described at following pages:
 - [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Nstep Experience Replay]]
 - [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][Memory Compression]]
 - [[https://ymd_h.gitlab.io/cpprb/features/mmap/][Map Large Data on File]]
+- [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-X)]]
 
 * DONE Contributing to cpprb
 CLOSED: [2020-01-17 Fri 23:09]
