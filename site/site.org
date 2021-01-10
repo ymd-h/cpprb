@@ -552,6 +552,37 @@ might be slower.
 
 The file names are ~f"{mmap_prefix}_{name}.dat"~.
 
+** TODO Multiprocess Learning (Ape-X)
+:PROPERTIES:
+:EXPORT_FILE_NAME: ape-x
+:END:
+
+From version 9.4.2, new classes ~MPReplayBuffer~ and
+~MPPrioritizedReplayBuffer~ support multiprocess learning like [[https://arxiv.org/abs/1803.00933][Ape-X]]
+(single learner with multiple explorers) efficiently.
+
+Although you can implement Ape-X with ordinary =ReplayBuffer= or
+=PrioritizedReplayBuffer= class, locking entire buffer when writing
+and reading is quite inefficient.
+
+#+begin_src python
+# Part of Explorer Naiive Implementation
+if local_buffer.get_stored_size() > local_size:
+    local_sample = local_buffer.get_all_transitions()
+    local_buffer.clear()
+
+    with lock: # Inefficient: Lock entire buffer during addition
+        global_buffer.add(**local_sample)
+#+end_src
+
+~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ automatically lock
+only critical section instead of entire buffer. For example, since
+sequential ~add~ method calls should write different memory address,
+its critical section is only index fetching and increment. (We will
+describe segment tree for PER later.) This locking reduction allows
+multiple explorers to add transitions parallelly.
+
+
 * Contributing
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: contributing
