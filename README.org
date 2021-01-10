@@ -263,6 +263,7 @@ cpprb features and its usage are described at following pages:
 - [[https://ymd_h.gitlab.io/cpprb/features/per/][Prioritized Experience Replay]]
 - [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Nstep Experience Replay]]
 - [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][Memory Compression]]
+- [[https://ymd_h.gitlab.io/cpprb/features/mmap/][Map Large Data on File]]
 
 * DONE Contributing to cpprb
 CLOSED: [2020-01-17 Fri 23:09]
