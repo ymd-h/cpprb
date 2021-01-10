@@ -2053,7 +2053,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         r"""Sample the stored transitions.
 
         Transisions are sampled depending on correspoinding priorities
-        with speciped size
+        with speciped size. This method can be called from single learner process.
 
         Parameters
         ----------
