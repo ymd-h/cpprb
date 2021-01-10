@@ -1881,9 +1881,16 @@ cdef class ThreadSafePrioritizedSampler:
 
 @cython.embedsignature(True)
 cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
-    r"""Prioritized replay buffer class to store transitions with priorities.
+    r"""Multi-process support Prioritized Replay Buffer class to store transitions with priorities.
+
+    This class can work on multi-process without manual lock.
 
     In this class, these transitions are sampled with corresponding to priorities.
+
+    Notes
+    -----
+    This class assumes single learner (`sample`, `update_priorities`) and
+    multiple explorers (`add`).
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
