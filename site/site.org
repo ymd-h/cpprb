@@ -738,7 +738,7 @@ Internally, these replay buffers utilize Python ~list~ for storage, so
 that the memory usage gradually increase until the buffer becomes
 full.
 
-*** Ray RLib
+*** Ray RLlib
 [[https://docs.ray.io/en/latest/rllib.html][RLlib]] is reinforcement learning library based on distributed framework
 [[https://github.com/ray-project/ray][Ray]].
 
