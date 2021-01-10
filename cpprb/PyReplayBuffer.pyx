@@ -1565,7 +1565,13 @@ cdef class MPReplayBuffer:
                     "done": {}}
 
     In this class, sampling is random sampling and the same transition
-    can be chosen multiple times."""
+    can be chosen multiple times.
+
+    Notes
+    -----
+    This class assumes single learner (`sample`) and multiple explorers (`add`)
+    like Ape-X
+    """
     cdef buffer
     cdef size_t buffer_size
     cdef env_dict
