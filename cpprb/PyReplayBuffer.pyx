@@ -1640,7 +1640,8 @@ cdef class MPReplayBuffer:
     def add(self,*,**kwargs):
         r"""Add transition(s) into replay buffer.
 
-        Multple sets of transitions can be added simultaneously.
+        Multple sets of transitions can be added simultaneously. This method
+        can be called from multiple explorer processes without manual lock.
 
         Parameters
         ----------
