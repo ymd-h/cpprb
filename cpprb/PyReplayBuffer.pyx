@@ -1547,7 +1547,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
 @cython.embedsignature(True)
 cdef class MPReplayBuffer:
-    r"""Replay Buffer class to store transitions and to sample them randomly.
+    r"""Multi-process support Replay Buffer class to store transitions and to sample them randomly.
 
     This class works on multi-process without manual locking of entire buffer.
 
