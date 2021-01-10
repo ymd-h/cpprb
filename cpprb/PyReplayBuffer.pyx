@@ -1547,7 +1547,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
 @cython.embedsignature(True)
 cdef class MPReplayBuffer:
-    r"""Replay Buffer class to store transitions and to sample them randomly.
+    r"""Multi-process support Replay Buffer class to store transitions and to sample them randomly.
 
     This class works on multi-process without manual locking of entire buffer.
 
@@ -1565,7 +1565,13 @@ cdef class MPReplayBuffer:
                     "done": {}}
 
     In this class, sampling is random sampling and the same transition
-    can be chosen multiple times."""
+    can be chosen multiple times.
+
+    Notes
+    -----
+    This class assumes single learner (`sample`) and multiple explorers (`add`)
+    like Ape-X
+    """
     cdef buffer
     cdef size_t buffer_size
     cdef env_dict
@@ -1634,7 +1640,8 @@ cdef class MPReplayBuffer:
     def add(self,*,**kwargs):
         r"""Add transition(s) into replay buffer.
 
-        Multple sets of transitions can be added simultaneously.
+        Multple sets of transitions can be added simultaneously. This method
+        can be called from multiple explorer processes without manual lock.
 
         Parameters
         ----------
@@ -1714,6 +1721,8 @@ cdef class MPReplayBuffer:
 
     def sample(self,batch_size):
         r"""Sample the stored transitions randomly with speciped size
+
+        This method can be called from a single learner process.
 
         Parameters
         ----------
@@ -1872,9 +1881,16 @@ cdef class ThreadSafePrioritizedSampler:
 
 @cython.embedsignature(True)
 cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
-    r"""Prioritized replay buffer class to store transitions with priorities.
+    r"""Multi-process support Prioritized Replay Buffer class to store transitions with priorities.
+
+    This class can work on multi-process without manual lock.
 
     In this class, these transitions are sampled with corresponding to priorities.
+
+    Notes
+    -----
+    This class assumes single learner (`sample`, `update_priorities`) and
+    multiple explorers (`add`).
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
@@ -1964,7 +1980,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     def add(self,*,priorities = None,**kwargs):
         r"""Add transition(s) into replay buffer.
 
-        Multple sets of transitions can be added simultaneously.
+        Multple sets of transitions can be added simultaneously. This method can be
+        called from multiple explorer processes without manual lock.
 
         Parameters
         ----------
@@ -2036,7 +2053,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         r"""Sample the stored transitions.
 
         Transisions are sampled depending on correspoinding priorities
-        with speciped size
+        with speciped size. This method can be called from single learner process.
 
         Parameters
         ----------
@@ -2080,7 +2097,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         Update priorities specified with indicies. Ignores indices
         which updated values after the last calling of `sample()`
-        method.
+        method. This method can be called from single learner process.
 
         Parameters
         ----------
