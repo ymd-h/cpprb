@@ -2097,7 +2097,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         Update priorities specified with indicies. Ignores indices
         which updated values after the last calling of `sample()`
-        method.
+        method. This method can be called from single learner process.
 
         Parameters
         ----------
