@@ -1722,6 +1722,8 @@ cdef class MPReplayBuffer:
     def sample(self,batch_size):
         r"""Sample the stored transitions randomly with speciped size
 
+        This method can be called from a single learner process.
+
         Parameters
         ----------
         batch_size : int
