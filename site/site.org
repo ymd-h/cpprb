@@ -307,7 +307,8 @@ parameter ~check_for_update~. If the parameter is ~True~ (default is
 ~sample()~ method and the ~update_priorities()~ method updates
 priorities only at unchanged indices. This feature is designed for
 multiprocess learning in order to avoid mis-updating priorities of
-already overwritten values.
+already overwritten values. (This protection is always enabled at
+~MPPrioritizedReplayBuffer~)
 
 *** Technical Detail
 To choose prioritized sample efficiently, partial summation and
@@ -316,7 +317,11 @@ structure, which is written by C++ and which was an initial main
 motivation of this project.
 
 To support multiprocessing, the Segment Tree can be lazily updated,
-too.
+too. (~MPPrioritizedReplayBuffer~)
+
+Minibatch sampling is done by stratified sampling, which samples from
+every equal probability space, resulting smaller distributions among
+minibatches.
 
 
 ** DONE Nstep Experience Replay
