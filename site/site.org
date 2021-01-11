@@ -617,7 +617,7 @@ features of [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Nstep Experience Re
 on File]]. (You can still utilize these features at local buffers of
 explorers.)
 
-~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ assumes single
+~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ assume single
 learner (~sample~ / ~update_priorities~) and multiple explorers
 (~add~). You must not call learner functions from multiple processes
 simultaneously.
@@ -1338,5 +1338,5 @@ This installation requires sufficient C++ compiler. (see [[https://ymd_h.gitlab.
 * Footnotes
 
 [fn:1] Updating segment tree for PER is critical section, too. To
-avoid data race, ~MPPrioritizedReplayBuffer~ lazily update segment
+avoid data race, ~MPPrioritizedReplayBuffer~ lazily updates segment
 tree from learner process just before ~sample~ method.
