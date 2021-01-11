@@ -552,15 +552,43 @@ might be slower.
 
 The file names are ~f"{mmap_prefix}_{name}.dat"~.
 
-** TODO Multiprocess Learning (Ape-X)
+** DONE Multiprocess Learning (Ape-X)
+CLOSED: [2021-01-11 Mon 08:01]
 :PROPERTIES:
 :EXPORT_FILE_NAME: ape-x
 :END:
 
 From version 9.4.2, new classes ~MPReplayBuffer~ and
 ~MPPrioritizedReplayBuffer~ support multiprocess learning like [[https://arxiv.org/abs/1803.00933][Ape-X]]
-(single learner with multiple explorers) efficiently.
+(single learner with multiple explorers) on single machine
+efficiently.
 
+*** Shared Memory
+First of all, ~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ maps
+internal data on shared memory. This means you don't need to use proxy
+(e.g. ~multiprocessing.managers.SyncManager~) or queue
+(e.g. ~multiprocessing.Queue~) for interproecss data sharing, but you
+can simply access the buffer object from different process.
+
+#+begin_src python
+from multiprocessing import Process
+from cpprb import MPPrioritizedReplayBuffer
+
+rb = MPPrioritizedReplayBuffer(100,{"obs": {},"done" {}})
+
+def explorer(rb):
+    for _ in range(100):
+        # Something ...
+        rb.add(obs=obs, done=done)
+
+p = Process(target=explorer,args=[rb]) # You can pass to Process simply as argument
+p.start()
+p.join()
+
+sample = p.sample(10) # You can access data stored at different process.
+#+end_src
+
+*** Efficient Lock
 Although you can implement Ape-X with ordinary =ReplayBuffer= or
 =PrioritizedReplayBuffer= class, locking entire buffer when writing
 and reading is quite inefficient.
@@ -578,9 +606,23 @@ if local_buffer.get_stored_size() > local_size:
 ~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ automatically lock
 only critical section instead of entire buffer. For example, since
 sequential ~add~ method calls should write different memory address,
-its critical section is only index fetching and increment. (We will
-describe segment tree for PER later.) This locking reduction allows
-multiple explorers to add transitions parallelly.
+its critical section is only index fetching and increment. This
+locking reduction allows multiple explorers to add transitions
+parallelly.[fn:1]
+
+
+*** Limitation
+~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ don't support
+features of [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Nstep Experience Replay]], [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][Memory Compression]], and [[https://ymd_h.gitlab.io/cpprb/features/mmap/][Map Data
+on File]]. (You can still utilize these features at local buffers of
+explorers.)
+
+~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ assumes single
+learner (~sample~ / ~update_priorities~) and multiple explorers
+(~add~). You must not call learner functions from multiple processes
+simultaneously.
+
+*** Example Code
 
 
 * Contributing
@@ -1287,3 +1329,9 @@ pip install cpprb --no-binary
 #+end_src
 
 This installation requires sufficient C++ compiler. (see [[https://ymd_h.gitlab.io/cpprb/installation/][Installation]])
+
+* Footnotes
+
+[fn:1] Updating segment tree for PER is critical section, too. To
+avoid data race, ~MPPrioritizedReplayBuffer~ lazily update segment
+tree from learner process just before ~sample~ method.
