@@ -623,7 +623,7 @@ learner (~sample~ / ~update_priorities~) and multiple explorers
 simultaneously.
 
 *** Example Code
-
+#+INCLUDE: "../example/apex.py" src python
 
 * Contributing
 :PROPERTIES:
