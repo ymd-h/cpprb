@@ -319,6 +319,10 @@ motivation of this project.
 To support multiprocessing, the Segment Tree can be lazily updated,
 too. (~MPPrioritizedReplayBuffer~)
 
+Minibatch sampling is done by stratified sampling, which samples from
+every equal probability space, resulting smaller distributions among
+minibatches.
+
 
 ** DONE Nstep Experience Replay
 CLOSED: [2019-11-10 Sun 13:46]
