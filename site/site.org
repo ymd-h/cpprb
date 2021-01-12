@@ -615,7 +615,7 @@ its critical section is only index fetching and increment. This
 locking reduction allows multiple explorers to add transitions
 parallelly.[fn:1]
 
-
+[[/cpprb/images/apex-per.png]]
 *** Limitation
 ~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ don't support
 features of [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Nstep Experience Replay]], [[https://ymd_h.gitlab.io/cpprb/features/memory_compression/][Memory Compression]], and [[https://ymd_h.gitlab.io/cpprb/features/mmap/][Map Data
