@@ -281,7 +281,7 @@ Any contribution are very welcome!
 ** Making Community Larger
 Bigger commumity makes development more active and improve cpprb.
 
-- Star this repository (and/or [[https://github.com/ymd-h/cpprb][GitHub Mirror]])
+- Star [[https://gitlab.com/ymd_h/cpprb][GitLab repository]] (and/or [[https://github.com/ymd-h/cpprb][GitHub Mirror]])
 - Publish your code using cpprb
 - Share this repository to your friend and/or followers.
 
