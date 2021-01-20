@@ -286,9 +286,13 @@ Bigger commumity makes development more active and improve cpprb.
 - Share this repository to your friend and/or followers.
 
 
-** Report Issue
-When you have any problems or requests, you can check [[https://gitlab.com/ymd_h/cpprb/issues][issues on GitLab.com]].
-If you still cannot find any information, you can open your own issue.
+** Q & A at Forum
+When you have any problems or requests, you can check [[https://github.com/ymd-h/cpprb/discussions][Discussions on
+GitHub.com]]. If you still cannot find any information, you can post
+your own.
+
+We keep [[https://gitlab.com/ymd_h/cpprb/issues][issues on GitLab.com]] and users are still allowed to open
+issues, however, we mainly use the place as development issue tracker.
 
 ** Merge Request (Pull Request)
 
