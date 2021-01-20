@@ -323,7 +323,7 @@ CLOSED: [2020-01-17 Fri 23:09]
 - [[https://pypi.org/project/cpprb/][cpprb on PyPI]]
 
 ** cpprb users' repositories
-- [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]] :: TensorFlow2.0 Reinforcement Learning
+- [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]] :: TensorFlow2.x Reinforcement Learning
 
 
 * DONE Lisence
