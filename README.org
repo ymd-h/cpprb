@@ -281,14 +281,18 @@ Any contribution are very welcome!
 ** Making Community Larger
 Bigger commumity makes development more active and improve cpprb.
 
-- Star this repository (and/or [[https://github.com/ymd-h/cpprb][GitHub Mirror]])
+- Star [[https://gitlab.com/ymd_h/cpprb][GitLab repository]] (and/or [[https://github.com/ymd-h/cpprb][GitHub Mirror]])
 - Publish your code using cpprb
 - Share this repository to your friend and/or followers.
 
 
-** Report Issue
-When you have any problems or requests, you can check [[https://gitlab.com/ymd_h/cpprb/issues][issues on GitLab.com]].
-If you still cannot find any information, you can open your own issue.
+** Q & A at Forum
+When you have any problems or requests, you can check [[https://github.com/ymd-h/cpprb/discussions][Discussions on
+GitHub.com]]. If you still cannot find any information, you can post
+your own.
+
+We keep [[https://gitlab.com/ymd_h/cpprb/issues][issues on GitLab.com]] and users are still allowed to open
+issues, however, we mainly use the place as development issue tracker.
 
 ** Merge Request (Pull Request)
 
@@ -323,7 +327,7 @@ CLOSED: [2020-01-17 Fri 23:09]
 - [[https://pypi.org/project/cpprb/][cpprb on PyPI]]
 
 ** cpprb users' repositories
-- [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]] :: TensorFlow2.0 Reinforcement Learning
+- [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]] :: TensorFlow2.x Reinforcement Learning
 
 
 * DONE Lisence
