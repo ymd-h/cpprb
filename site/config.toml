@@ -10,7 +10,6 @@ defaultContentLanguageInSubdir= true
 publishDir = "../public"
 
 [params]
-  editURL = "https://gitlab.com/ymd_h/cpprb/edit/master/content/"
   description = "Site for cpprb"
   author = "Hiroyuki Yamada"
   showVisitedLinks = false
