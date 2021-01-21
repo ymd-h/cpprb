@@ -2,7 +2,7 @@ baseURL = "https://ymd_h.gitlab.io/cpprb/"
 languageCode = "en-US"
 defaultContentLanguage = "en"
 
-title = "C++ Replay Buffer"
+title = "cpprb"
 theme = "learn"
 themesdir = "themes"
 metaDataFormat = "yaml"
@@ -11,7 +11,7 @@ publishDir = "../public"
 
 [params]
   editURL = "https://gitlab.com/ymd_h/cpprb/edit/master/content/"
-  description = "Site for cpprb (C++ Replay Buffer)"
+  description = "Site for cpprb"
   author = "Hiroyuki Yamada"
   showVisitedLinks = false
   disableBreadcrumb = true
