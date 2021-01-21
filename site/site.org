@@ -52,6 +52,35 @@
 
 #+STARTUP: showall logdone
 
+* DONE cpprb
+CLOSED: [2021-01-21 Thu 21:22]
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:END:
+
+[[https://ymd_h.gitlab.io/cpprb/][https://ymd_h.gitlab.io/cpprb/images/logo.png]]
+
+cpprb is a python ([[https://github.com/python/cpython/tree/master/Python][CPython]]) module providing replay buffer classes for
+reinforcement learning.
+
+Major target users are researchers and library developers.
+
+You can build your own reinforcement learning algorithms together with
+your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
+
+cpprb forcuses speed, flexibility, and memory efficiency.
+
+By utilizing [[https://cython.org/][Cython]], complicated calculations (e.g. segment tree for
+prioritized experience replay) are offloaded onto C++.
+(The name cpprb comes from "C++ Replay Buffer".)
+
+In terms of API, initially cpprb referred to [[https://github.com/openai/baselines][OpenAI Baselines]]'
+implementation. In the current version, cpprb has much more
+flexibility. Any [[https://numpy.org/][NumPy]] compatible types of any numbers of values can
+be stored (as long as memory capacity is sufficient). For example, you
+can store the next action and the next next observation, too.
+
+
 * Installation
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: installation
