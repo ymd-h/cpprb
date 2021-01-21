@@ -52,7 +52,8 @@
 
 #+STARTUP: showall logdone
 
-* cpprb
+* DONE cpprb
+CLOSED: [2021-01-21 Thu 21:22]
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
 :END:
