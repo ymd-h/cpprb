@@ -22,7 +22,7 @@ publishDir = "../public"
 home = [ "HTML", "RSS", "JSON"]
 
 [[menu.shortcuts]]
-name = "<i class='fab fa-fw fa-gitlab'></i> Gitlab"
+name = "<i class='fab fa-fw fa-gitlab'></i> GitLab"
 identifier = "ds"
 url = "https://gitlab.com/ymd_h/cpprb"
 weight = 10
