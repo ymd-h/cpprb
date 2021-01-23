@@ -1419,7 +1419,7 @@ need to implement neural network which infers probabilities of
 Bernoulli masks.
 
 ** References
-- [[https://www.ijcai.org/Proceedings/2019/589][D. Zha et. al., "Experience Replay Optimization", (2019) IJCAI 4243-4249]]
+- [[https://www.ijcai.org/Proceedings/2019/589][D. Zha et. al., "Experience Replay Optimization", IJCAI (2019) 4243-4249]]
 
 * Footnotes
 
