@@ -1400,12 +1400,11 @@ to improve sample efficiency. Additional neural network, "replay
 policy", takes features extracted from each transition and infers mask
 probability. Agent samples from masked transitions uniformly.
 
-In order to train replay policy, binary masks (\( \mathbf{I} \)) produced
-by Bernoulli distribution are considered as action. The replay-reward
-as defined as the difference between culmutive reward of the previous
-policy (\( \pi ^{\prime} \)) and that of agent policy (\( \pi \)).
-
-\( r ^{r} = r^{c}_{\pi} - r^{c}_{\pi ^{\prime}} \)
+In order to train replay policy, binary masks (\( \mathbf{I} \))
+produced by Bernoulli distribution are considered as action. The
+replay-reward (\( r^{r} \)) as defined as the difference between
+culmutive reward of the previous policy (\( \pi ^{\prime} \)) and that
+of agent policy (\( \pi \)); \( r ^{r} = r^{c}_{\pi} - r^{c}_{\pi ^{\prime}} \)
 
 
 ** With cpprb
