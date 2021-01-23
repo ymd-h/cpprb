@@ -1382,6 +1382,41 @@ In this section, we try to survey papers related to experience replay.
 Some of them can be implemented in cpprb in future. Some can be just
 know-how of experience replay.
 
+If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpprb/discussions][GitHub Disccusions]].
+
+
+- [[https://ymd_h.gitlab.io/cpprb/survey/ero/][Experience Replay Optimization (ERO)]]
+
+* DONE Experience Replay Optimization (ERO)
+CLOSED: [2021-01-23 Sat 09:28]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: survey
+:EXPORT_FILE_NAME: ero
+:END:
+
+** Overview
+[[https://arxiv.org/abs/1906.08387][Experience Replay Optimization (ERO)]] masks stored transitions in order
+to improve sample efficiency. Additional neural network, "replay
+policy", takes features extracted from each transition and infers mask
+probability. Agent samples from masked transitions uniformly.
+
+In order to train replay policy, binary masks (\( \bm{I} \)) produced
+by Bernoulli distribution are considered as action. The replay-reward
+as defined as the difference between culmutive reward of the previous
+policy (\( \pi ^{\prime} \)) and that of agent policy (\( \pi \)).
+
+\( r ^{r} = r^{c}_{\pi} - r^{c}_{\pi ^{\prime}} \)
+
+
+** With cpprb
+We plan to implement somthing like `BernoulliMaskedReplayBuffer`
+to support ERO. Together with such future enhancement, users still
+need to implement neural network which infers probabilities of
+Bernoulli masks.
+
+** References
+- [[https://arxiv.org/abs/1906.08387][D. Zha et. al., "Experience Replay Optimization", (2019) arXiv cs.LG 1906.08387]]
+
 * Footnotes
 
 [fn:1] Updating segment tree for PER is critical section, too. To
