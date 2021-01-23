@@ -10,7 +10,7 @@ defaultContentLanguageInSubdir= true
 publishDir = "../public"
 
 [params]
-  description = "Site for cpprb"
+  description = "cpprb: Fast Flexible Replay Buffer Library"
   author = "Hiroyuki Yamada"
   showVisitedLinks = false
   disableBreadcrumb = false
