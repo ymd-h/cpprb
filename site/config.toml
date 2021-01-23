@@ -17,6 +17,7 @@ publishDir = "../public"
   disableNextPrev = true
   themeVariant = "cpprb"
   disableInlineCopyToClipBoard = true
+  images = "/cpprb/images/logo.png"
 
 [outputs]
 home = [ "HTML", "RSS", "JSON"]
