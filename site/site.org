@@ -1404,7 +1404,8 @@ In order to train replay policy, binary masks (\( \mathbf{I} \))
 produced by Bernoulli distribution are considered as action. The
 replay-reward (\( r^{r} \)) as defined as the difference between
 culmutive reward of the previous policy (\( \pi ^{\prime} \)) and that
-of agent policy (\( \pi \)); \( r ^{r} = r^{c}_{\pi} - r^{c}_{\pi ^{\prime}} \)
+of agent policy (\( \pi \)); \( r ^{r} = r^{c}_{\pi} - r^{c}_{\pi
+^{\prime}} \).
 
 
 ** With cpprb
