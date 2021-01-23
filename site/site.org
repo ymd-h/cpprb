@@ -1408,7 +1408,7 @@ of agent policy (\( \pi \)); \( r ^{r} = r^{c}_{\pi} - r^{c}_{\pi ^{\prime}} \)
 
 
 ** With cpprb
-We plan to implement somthing like `BernoulliMaskedReplayBuffer`
+We plan to implement somthing like =BernoulliMaskedReplayBuffer=
 to support ERO. Together with such future enhancement, users still
 need to implement neural network which infers probabilities of
 Bernoulli masks.
