@@ -1395,7 +1395,7 @@ CLOSED: [2021-01-23 Sat 09:28]
 :END:
 
 ** Overview
-[[https://arxiv.org/abs/1906.08387][Experience Replay Optimization (ERO)]] masks stored transitions in order
+[[https://www.ijcai.org/Proceedings/2019/589][Experience Replay Optimization (ERO)]] masks stored transitions in order
 to improve sample efficiency. Additional neural network, "replay
 policy", takes features extracted from each transition and infers mask
 probability. Agent samples from masked transitions uniformly.
@@ -1419,7 +1419,7 @@ need to implement neural network which infers probabilities of
 Bernoulli masks.
 
 ** References
-- [[https://arxiv.org/abs/1906.08387][D. Zha et. al., "Experience Replay Optimization", (2019) arXiv cs.LG 1906.08387]]
+- [[https://www.ijcai.org/Proceedings/2019/589][D. Zha et. al., "Experience Replay Optimization", (2019) IJCAI 4243-4249]]
 
 * Footnotes
 
