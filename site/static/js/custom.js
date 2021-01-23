@@ -19,7 +19,7 @@
 	if(gh){
 	    gh.then((data)=>{
 		$("section#shortcuts a.padding > i.fa-github").parent()
-		    .append("(<i class='fas fa-star fa-fw'></i>"
+		    .append(" (<i class='fas fa-star fa-fw'></i>"
 			    + data["stargazers_count"]
 			    + "<i class='fas fa-code-branch fa-fw'></i>"
 			    + data["forks_count"]
