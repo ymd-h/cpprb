@@ -1407,6 +1407,10 @@ culmutive reward of the previous policy (\( \pi ^{\prime} \)) and that
 of agent policy (\( \pi \)); \( r ^{r} = r^{c}_{\pi} - r^{c}_{\pi
 ^{\prime}} \).
 
+The policy gradient for mini batch can be written as follows;
+
+\[ \sum _{j:B_j \in B^{\text{batch}}} r^r \nabla [ \mathbf{I}_j \log \phi + (1-\mathbf{I}_j) \log (1-\phi) ] \]
+
 
 ** With cpprb
 We plan to implement somthing like =BernoulliMaskedReplayBuffer=
