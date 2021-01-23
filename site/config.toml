@@ -10,13 +10,14 @@ defaultContentLanguageInSubdir= true
 publishDir = "../public"
 
 [params]
-  description = "Site for cpprb"
+  description = "cpprb: Fast Flexible Replay Buffer Library"
   author = "Hiroyuki Yamada"
   showVisitedLinks = false
   disableBreadcrumb = false
   disableNextPrev = true
   themeVariant = "cpprb"
   disableInlineCopyToClipBoard = true
+  images = ["/cpprb/images/OGP.png"]
 
 [outputs]
 home = [ "HTML", "RSS", "JSON"]
