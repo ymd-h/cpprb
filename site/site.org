@@ -1369,6 +1369,19 @@ pip install cpprb --no-binary
 
 This installation requires sufficient C++ compiler. (see [[https://ymd_h.gitlab.io/cpprb/installation/][Installation]])
 
+* DONE Survey
+CLOSED: [2021-01-23 Sat 09:18]
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:EXPORT_HUGO_WEIGHT: 950
+:EXPORT_HUGO_SECTION*: survey
+:END:
+
+In this section, we try to survey papers related to experience replay.
+
+Some of them can be implemented in cpprb in future. Some can be just
+know-how of experience replay.
+
 * Footnotes
 
 [fn:1] Updating segment tree for PER is critical section, too. To
