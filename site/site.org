@@ -1463,6 +1463,22 @@ from replay buffer. We continue to investigate [[https://github.com/cselab/smart
 ** References
 - [[http://proceedings.mlr.press/v97/novati19a.html][G. Novati and P. Koumoutsakos, "Remember and Forget for Experience Replay", PMLR (2019) 97, 4851-4860]] ([[https://arxiv.org/abs/1807.05827][arXiv]], [[https://github.com/cselab/smarties][code]])
 
+* DONE Attentive Experience Replay (AER)
+CLOSED: [2021-01-24 Sun 22:59]
+:PROPERTIES:
+:EXPORT_FILE_NAME: aer
+:EXPORT_HUGO_SECTION*: survey
+:END:
+
+** Overview
+[[https://ojs.aaai.org//index.php/AAAI/article/view/6049][Attentive Experience Replay (AER)]]
+
+** With cpprb
+
+** References
+- [[https://ojs.aaai.org//index.php/AAAI/article/view/6049][P. Sun et. al., "Attentive Experience Replay", AAAI (2020) 34, 5900-5907]] 
+
+
 * Footnotes
 
 [fn:1] Updating segment tree for PER is critical section, too. To
