@@ -1387,6 +1387,8 @@ If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpp
 
 - [[https://ymd_h.gitlab.io/cpprb/survey/ero/][Experience Replay Optimization (ERO)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/ref-er/][Remember and Forget for Experience Replay (ReF-ER)]]
+- [[https://ymd_h.gitlab.io/cpprb/survey/aer/][Attentive Experience Replay (AER)]]
+
 
 * DONE Experience Replay Optimization (ERO)
 CLOSED: [2021-01-23 Sat 09:28]
@@ -1462,6 +1464,32 @@ from replay buffer. We continue to investigate [[https://github.com/cselab/smart
 
 ** References
 - [[http://proceedings.mlr.press/v97/novati19a.html][G. Novati and P. Koumoutsakos, "Remember and Forget for Experience Replay", PMLR (2019) 97, 4851-4860]] ([[https://arxiv.org/abs/1807.05827][arXiv]], [[https://github.com/cselab/smarties][code]])
+
+* DONE Attentive Experience Replay (AER)
+CLOSED: [2021-01-24 Sun 22:59]
+:PROPERTIES:
+:EXPORT_FILE_NAME: aer
+:EXPORT_HUGO_SECTION*: survey
+:END:
+
+** Overview
+[[https://ojs.aaai.org//index.php/AAAI/article/view/6049][Attentive Experience Replay (AER)]] uniformly samples \(\lambda\) times
+greater size than mini-batch size (\(k\)), then choose top \(k\)
+similar samples as minibatch.
+
+The coefficient \(\lambda\) is annealed to 1 during training.
+
+The similarity function \(\mathcal{F}(s_j,s_t)\) is task dependent. In
+the paper, the authors used cosine similarity for [[http://www.mujoco.org/][MuJoCo]] and norm of
+difference between embedded features for Atari 2600 games.
+
+** With cpprb
+You can implement AER with simple =ReplayBuffer= class. Simply you can
+sample enlarged batch size then compute similarity.
+
+** References
+- [[https://ojs.aaai.org//index.php/AAAI/article/view/6049][P. Sun et. al., "Attentive Experience Replay", AAAI (2020) 34, 5900-5907]] 
+
 
 * Footnotes
 
