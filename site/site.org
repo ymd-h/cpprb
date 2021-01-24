@@ -1386,6 +1386,7 @@ If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpp
 
 
 - [[https://ymd_h.gitlab.io/cpprb/survey/ero/][Experience Replay Optimization (ERO)]]
+- [[https://ymd_h.gitlab.io/cpprb/survey/ref-er/][Remember and Forget for Experience Replay (ReF-ER)]]
 
 * DONE Experience Replay Optimization (ERO)
 CLOSED: [2021-01-23 Sat 09:28]
