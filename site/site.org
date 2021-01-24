@@ -1448,7 +1448,7 @@ Additionally, penalty term (\(\hat{g}^D(w)\)) is defined as follows;
 ** With cpprb
 
 ** References
-- [[http://proceedings.mlr.press/v97/novati19a.html][G. Novati and P. Koumoutsakos, "Remember and Forget for Experience Replay", PMLR (2019) 97, 4851-4860]] ([[https://arxiv.org/abs/1807.05827][arXiv]])
+- [[http://proceedings.mlr.press/v97/novati19a.html][G. Novati and P. Koumoutsakos, "Remember and Forget for Experience Replay", PMLR (2019) 97, 4851-4860]] ([[https://arxiv.org/abs/1807.05827][arXiv]], [[https://github.com/cselab/smarties][code]])
 
 * Footnotes
 
