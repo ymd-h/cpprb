@@ -1421,6 +1421,26 @@ Bernoulli masks.
 ** References
 - [[https://www.ijcai.org/Proceedings/2019/589][D. Zha et. al., "Experience Replay Optimization", IJCAI (2019) 4243-4249]]
 
+* DONE Remember and Forget for Experience Replay (ReF-ER)
+CLOSED: [2021-01-24 Sun 11:39]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: survey
+:EXPORT_FILE_NAME: ref-er
+:END:
+
+** Overview
+[[http://proceedings.mlr.press/v97/novati19a.html][Remember and Forget for Experience Replay (ReF-ER)]] dismisses
+transtions from "far policy". The key metrics is the ratio between the
+probability of selecting (\( a_t \)) with the current policy
+(\(\pi ^{w}\)) and with the behavior policy (\(\mu _t\)); \(\rho _t = \pi (a_t\mid s_t) / \mu _t (a_t\mid  s_t)\).
+
+
+
+** With cpprb
+
+** References
+- [[http://proceedings.mlr.press/v97/novati19a.html][G. Novati and P. Koumoutsakos, "Remember and Forget for Experience Replay", PMLR (2019) 97, 4851-4860]] ([[https://arxiv.org/abs/1807.05827][arXiv]])
+
 * Footnotes
 
 [fn:1] Updating segment tree for PER is critical section, too. To
