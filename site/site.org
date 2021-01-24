@@ -1420,7 +1420,7 @@ need to implement neural network which infers probabilities of
 Bernoulli masks.
 
 ** References
-- [[https://www.ijcai.org/Proceedings/2019/589][D. Zha et. al., "Experience Replay Optimization", IJCAI (2019) 4243-4249]]
+- [[https://www.ijcai.org/Proceedings/2019/589][D. Zha et. al., "Experience Replay Optimization", IJCAI (2019) 4243-4249]] ([[https://arxiv.org/abs/1906.08387][arXiv]])
 
 * DONE Remember and Forget for Experience Replay (ReF-ER)
 CLOSED: [2021-01-24 Sun 11:39]
