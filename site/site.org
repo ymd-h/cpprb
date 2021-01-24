@@ -1449,7 +1449,7 @@ These two terms are added with annealing parameter \(\beta\);
 
 The \(\beta \) is updated at each step by following rule;
 
-\[ \beta \leftarrow \cases{ (1-\eta )\beta & \text{if} n_{\text{far}/N} > D \\ (1-\eta )\beta + \eta & \text{otherwise}} \]
+\[ \beta \leftarrow \cases{ (1-\eta )\beta & if \(n_{\text{far}} /N > D\) \\ (1-\eta )\beta + \eta & otherwise} \]
 
 where \(\eta\) is learning rate of neural network, \(N\) is the number
 of total samples in the replay buffer, \(n_{\text{far}}\) is the
