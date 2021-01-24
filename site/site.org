@@ -1441,11 +1441,13 @@ as "near-policy", otherwise "far-policy". The gradients
 (\(\hat{g}(w)\)) computed from far-policy are clipped to 0.
 
 Additionally, penalty term (\(\hat{g}^D(w)\)) is defined as follows;
-\(\hat{g}^D(w)=E[\nabla D_{\text{KL}}(\mu _k\| \pi ^w ( \cdot \mid s_k))]\).
+\(\hat{g}^D(w)=E[\nabla D_{\text{KL}}(\mu _k ( \cdot \mid s_k)\| \pi ^w ( \cdot \mid s_k))]\).
 
 
 
 ** With cpprb
+Under investigation. It is still not clear how do the authors sample
+from replay buffer. We continue to investigate [[https://github.com/cselab/smarties][their code]].
 
 ** References
 - [[http://proceedings.mlr.press/v97/novati19a.html][G. Novati and P. Koumoutsakos, "Remember and Forget for Experience Replay", PMLR (2019) 97, 4851-4860]] ([[https://arxiv.org/abs/1807.05827][arXiv]], [[https://github.com/cselab/smarties][code]])
