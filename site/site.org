@@ -1430,9 +1430,17 @@ CLOSED: [2021-01-24 Sun 11:39]
 
 ** Overview
 [[http://proceedings.mlr.press/v97/novati19a.html][Remember and Forget for Experience Replay (ReF-ER)]] dismisses
-transtions from "far policy". The key metrics is the ratio between the
-probability of selecting (\( a_t \)) with the current policy
-(\(\pi ^{w}\)) and with the behavior policy (\(\mu _t\)); \(\rho _t = \pi (a_t\mid s_t) / \mu _t (a_t\mid  s_t)\).
+transtions from "far policy". The key metrics, importance
+(\(\rho_t\)), is the ratio between the probability of selecting
+(\(a_t\)) with the current policy (\(\pi ^{w}\)) and with the behavior
+policy (\(\mu _t\)); \(\rho _t = \pi (a_t\mid s_t) / \mu _t (a_t\mid s_t)\).
+
+If \(1/c_{\text{max}} < \rho _t < c_{\text{max}}\) then it classified
+as "near-policy", otherwise "far-policy". The gradients
+(\(\hat{g}(w)\)) computed from far-policy are clipped to 0.
+
+Additionally, penalty term (\(\hat{g}^D(w)\)) is defined as follows;
+\(\hat{g}^D(w)=E[\nabla D_{\text{KL}}(\mu _k\| \pi ^w ( \cdot \mid s_k))]\).
 
 
 
