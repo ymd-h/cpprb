@@ -1482,6 +1482,8 @@ the paper, the authors used cosine similarity for [[http://www.mujoco.org/][MuJo
 difference between embedded features for Atari 2600 games.
 
 ** With cpprb
+You can implement AER with simple =ReplayBuffer= class. Simply you can
+sample enlarged batch size then compute similarity.
 
 ** References
 - [[https://ojs.aaai.org//index.php/AAAI/article/view/6049][P. Sun et. al., "Attentive Experience Replay", AAAI (2020) 34, 5900-5907]] 
