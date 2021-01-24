@@ -1443,7 +1443,18 @@ as "near-policy", otherwise "far-policy". The gradients
 Additionally, penalty term (\(\hat{g}^D(w)\)) is defined as follows;
 \(\hat{g}^D(w)=E[\nabla D_{\text{KL}}(\mu _k ( \cdot \mid s_k)\| \pi ^w ( \cdot \mid s_k))]\).
 
+These two terms are added with annealing parameter \(\beta\);
 
+\[ \hat{g}^{\text{ReF-ER}}(w) = \beta \hat{g}(w) + (1-\beta) \hat{g}^D(w) \]
+
+The \(\beta \) is updated at each step by following rule;
+
+\[ \beta \leftarrow \cases{ (1-\eta )\beta & \text{if} n_{\text{far}/N} > D \\ (1-\eta )\beta + \eta & \text{otherwise}} \]
+
+where \(\eta\) is learning rate of neural network, \(N\) is the number
+of total samples in the replay buffer, \(n_{\text{far}}\) is the
+number of far policy samples in the replay buffer, and \(D\) is a
+hyperparameter.
 
 ** With cpprb
 Under investigation. It is still not clear how do the authors sample
