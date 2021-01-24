@@ -1471,7 +1471,15 @@ CLOSED: [2021-01-24 Sun 22:59]
 :END:
 
 ** Overview
-[[https://ojs.aaai.org//index.php/AAAI/article/view/6049][Attentive Experience Replay (AER)]]
+[[https://ojs.aaai.org//index.php/AAAI/article/view/6049][Attentive Experience Replay (AER)]] uniformly samples \(\lambda\) times
+greater size than mini-batch size (\(k\)), then choose top \(k\)
+similar samples as minibatch.
+
+The coefficient \(\lambda\) is annealed to 1 during training.
+
+The similarity function \(\mathcal{F}(s_j,s_t)\) is task dependent. In
+the paper, the authors used cosine similarity for [[http://www.mujoco.org/][MuJoCo]] and norm of
+difference between embedded features for Atari 2600 games.
 
 ** With cpprb
 
