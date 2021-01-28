@@ -1406,7 +1406,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             return None
 
         cdef size_t index = maybe_index
-        cdef float [:] ps
+        cdef const float [:] ps
 
         if priorities is not None:
             ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
@@ -1486,7 +1486,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             raise TypeError("`properties` must not be `None`")
 
         cdef size_t [:] idx = Csize(indexes)
-        cdef float [:] ps = Cfloat(priorities)
+        cdef const float [:] ps = Cfloat(priorities)
 
         cdef size_t _idx = 0
         if self.check_for_update:
@@ -2009,7 +2009,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         It is user responsibility that all the values have the same step-size.
         """
         cdef size_t N = self.size_check.step_size(kwargs)
-        cdef float [:] ps
+        cdef const float [:] ps
 
         if priorities is not None:
             priorities = np.ravel(np.array(priorities,copy=False,
@@ -2115,7 +2115,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
             raise TypeError("`properties` must not be `None`")
 
         cdef size_t [:] idx = Csize(indexes)
-        cdef float [:] ps = Cfloat(priorities)
+        cdef const float [:] ps = Cfloat(priorities)
 
         cdef size_t _idx = 0
 
