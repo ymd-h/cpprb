@@ -47,7 +47,7 @@ def default_logger(level=INFO):
 cdef double [::1] Cdouble(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
 
-cdef const size_t [::1] Csize(array):
+cdef inline const size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
