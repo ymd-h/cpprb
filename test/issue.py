@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-from cpprb import (ReplayBuffer,PrioritizedReplayBuffer)
+from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,MPPrioritizedReplayBuffer)
 from cpprb import create_buffer
 
 
@@ -695,6 +695,46 @@ class TestIssue116(unittest.TestCase):
         rbc = ReplayBuffer(buffer_size, env_dict=env_dict)
         data_dict = make_data_dict(32)
         rbc.add(**data_dict)
+
+class TestIssue128(unittest.TestCase):
+    def test_read_only_priority(self):
+        buffer_size = 100
+        batch_size = 32
+
+        env_dict = {"done": {}}
+
+        done = np.zeros(2)
+        ps = np.ones_like(done)
+        ps.setflags(write=False)
+
+        rb = PrioritizedReplayBuffer(buffer_size,env_dict)
+        rb.add(done=done,priority=ps)
+
+        sample = rb.sample(batch_size)
+        ps2 = sample["weights"]
+        ps2.setflags(write=False)
+
+        rb.update_priorities(sample["indexes"],ps2)
+
+    def test_read_only_mppriority(self):
+        buffer_size = 100
+        batch_size = 32
+
+        env_dict = {"done": {}}
+
+        done = np.zeros(2)
+        ps = np.ones_like(done)
+        ps.setflags(write=False)
+
+        rb = MPPrioritizedReplayBuffer(buffer_size,env_dict)
+        rb.add(done=done,priority=ps)
+
+        sample = rb.sample(batch_size)
+        ps2 = sample["weights"]
+        ps2.setflags(write=False)
+
+        rb.update_priorities(sample["indexes"],ps2)
+
 
 if __name__ == '__main__':
     unittest.main()
