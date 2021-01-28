@@ -47,11 +47,11 @@ def default_logger(level=INFO):
 cdef double [::1] Cdouble(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
 
-cdef size_t [::1] Csize(array):
+cdef const size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
-cdef inline float [::1] Cfloat(array):
+cdef inline const float [::1] Cfloat(array):
     return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
@@ -1485,8 +1485,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         if priorities is None:
             raise TypeError("`properties` must not be `None`")
 
-        cdef size_t [:] idx = Csize(indexes).copy()
-        cdef float [:] ps = Cfloat(priorities).copy()
+        cdef const size_t [:] idx = Csize(indexes)
+        cdef const float [:] ps = Cfloat(priorities)
 
         cdef size_t _idx = 0
         if self.check_for_update:
@@ -2114,8 +2114,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         if priorities is None:
             raise TypeError("`properties` must not be `None`")
 
-        cdef size_t [:] idx = Csize(indexes).copy()
-        cdef float [:] ps = Cfloat(priorities).copy()
+        cdef const size_t [:] idx = Csize(indexes)
+        cdef const float [:] ps = Cfloat(priorities)
 
         cdef size_t _idx = 0
 
