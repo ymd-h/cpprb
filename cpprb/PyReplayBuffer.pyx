@@ -1485,8 +1485,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         if priorities is None:
             raise TypeError("`properties` must not be `None`")
 
-        cdef size_t [:] idx = Csize(indexes)
-        cdef const float [:] ps = Cfloat(priorities)
+        cdef size_t [:] idx = Csize(indexes).copy()
+        cdef float [:] ps = Cfloat(priorities).copy()
 
         cdef size_t _idx = 0
         if self.check_for_update:
@@ -2114,8 +2114,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         if priorities is None:
             raise TypeError("`properties` must not be `None`")
 
-        cdef size_t [:] idx = Csize(indexes)
-        cdef const float [:] ps = Cfloat(priorities)
+        cdef size_t [:] idx = Csize(indexes).copy()
+        cdef float [:] ps = Cfloat(priorities).copy()
 
         cdef size_t _idx = 0
 
