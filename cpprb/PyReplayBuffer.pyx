@@ -47,11 +47,11 @@ def default_logger(level=INFO):
 cdef double [::1] Cdouble(array):
     return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
 
-cdef size_t [::1] Csize(array):
+cdef inline const size_t [::1] Csize(array):
     return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
-cdef inline float [::1] Cfloat(array):
+cdef inline const float [::1] Cfloat(array):
     return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
 
 @cython.embedsignature(True)
@@ -1295,6 +1295,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     cdef NstepBuffer priorities_nstep
     cdef bool check_for_update
     cdef bool [:] unchange_since_sample
+    cdef vector[size_t] idx_vec
+    cdef vector[float] ps_vec
 
     def __cinit__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
                   check_for_update=False,**kwrags):
@@ -1315,6 +1317,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
                                                           copy=False,
                                                           dtype='int'),
                                                  dtype='bool')
+
+        self.idx_vec = vector[size_t]()
+        self.ps_vec = vector[float]()
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
                  check_for_update=False,**kwargs):
@@ -1406,7 +1411,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             return None
 
         cdef size_t index = maybe_index
-        cdef float [:] ps
+        cdef const float [:] ps
 
         if priorities is not None:
             ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
@@ -1485,23 +1490,28 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         if priorities is None:
             raise TypeError("`properties` must not be `None`")
 
-        cdef size_t [:] idx = Csize(indexes)
-        cdef float [:] ps = Cfloat(priorities)
+        cdef const size_t [:] idx = Csize(indexes)
+        cdef const float [:] ps = Cfloat(priorities)
 
-        cdef size_t _idx = 0
+        if not self.check_for_update:
+            self.per.update_priorities(&idx[0],&ps[0],idx.shape[0])
+            return None
+
+        self.idx_vec.clear()
+        self.idx_vec.reserve(idx.shape[0])
+
+        self.ps_vec.clear()
+        self.ps_vec.reserve(ps.shape[0])
+
         if self.check_for_update:
             for _i in range(idx.shape[0]):
                 if self.unchange_since_sample[idx[_i]]:
-                    idx[_idx] = idx[_i]
-                    ps[_idx] = ps[_i]
-                    _idx += 1
-            idx = idx[:_idx]
-            ps = ps[:_idx]
+                    self.idx_vec.push_back(idx[_i])
+                    self.ps_vec.push_back(ps[_i])
 
-
-        cdef N = idx.shape[0]
+        cdef N = self.idx_vec.size()
         if N > 0:
-            self.per.update_priorities(&idx[0],&ps[0],N)
+            self.per.update_priorities(self.idx_vec.data(),self.ps_vec.data(),N)
 
     cpdef void clear(self) except *:
         r"""Clear replay buffer
@@ -1901,6 +1911,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef explorer_per_count
     cdef learner_per_ready
     cdef explorer_per_ready
+    cdef vector[size_t] idx_vec
+    cdef vector[float] ps_vec
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
         r"""Initialize PrioritizedReplayBuffer
@@ -1952,6 +1964,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.explorer_per_ready = Event()
         self.explorer_per_ready.set()
         self.explorer_per_count = Value(ctypes.c_size_t,0)
+
+        self.idx_vec = vector[size_t]()
+        self.ps_vec = vector[float]()
 
     cdef void _lock_explorer_per(self) except *:
         self.explorer_per_ready.wait() # Wait permission
@@ -2009,7 +2024,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         It is user responsibility that all the values have the same step-size.
         """
         cdef size_t N = self.size_check.step_size(kwargs)
-        cdef float [:] ps
+        cdef const float [:] ps
 
         if priorities is not None:
             priorities = np.ravel(np.array(priorities,copy=False,
@@ -2114,24 +2129,25 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         if priorities is None:
             raise TypeError("`properties` must not be `None`")
 
-        cdef size_t [:] idx = Csize(indexes)
-        cdef float [:] ps = Cfloat(priorities)
+        cdef const size_t [:] idx = Csize(indexes)
+        cdef const float [:] ps = Cfloat(priorities)
 
-        cdef size_t _idx = 0
+        self.idx_vec.clear()
+        self.idx_vec.reserve(idx.shape[0])
+
+        self.ps_vec.clear()
+        self.ps_vec.reserve(ps.shape[0])
 
         self._lock_learner_per()
         cdef size_t stored_size = self.get_stored_size()
         for _i in range(idx.shape[0]):
             if idx[_i] < stored_size and self.unchange_since_sample[idx[_i]]:
-                idx[_idx] = idx[_i]
-                ps[_idx] = ps[_i]
-                _idx += 1
-        idx = idx[:_idx]
-        ps = ps[:_idx]
+                self.idx_vec.push_back(idx[_i])
+                self.ps_vec.push_back(ps[_i])
 
-        cdef N = idx.shape[0]
+        cdef N = self.idx_vec.size()
         if N > 0:
-            self.per.ptr().update_priorities(&idx[0],&ps[0],N)
+            self.per.ptr().update_priorities(self.idx_vec.data(),self.ps_vec.data(),N)
         self._unlock_learner_per()
 
     cpdef void clear(self) except *:
