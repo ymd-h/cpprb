@@ -697,6 +697,11 @@ class TestIssue116(unittest.TestCase):
         rbc.add(**data_dict)
 
 class TestIssue128(unittest.TestCase):
+    """
+    Read only indexes and priorities raise ValueError
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/128
+    """
     def test_read_only_priority(self):
         buffer_size = 100
         batch_size = 32
