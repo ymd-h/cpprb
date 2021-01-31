@@ -1500,8 +1500,8 @@ CLOSED: [2021-01-30 Sat 12:55]
 
 ** Overview
 [[https://iclr.cc/Conferences/2019/Schedule?showEvent=1091][Competitive Experience Replay (CER)]] is a strategy for goal-directed RL
-with sparse reward. In CER, a pair of agents \(\pi _A, \pi _B \) are
-trained simultaneously.
+with sparse reward. In CER, a pair of agents, \(\pi _A \text{and} \pi
+_B\), are trained simultaneously.
 
 Agent \(\pi _A\) is punished if agent \(\pi _B\) is also visited the
 near states, \(|s_A^i - s_B^j| < \delta \). Whereas, agent \(\pi _B\)
