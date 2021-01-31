@@ -1464,7 +1464,7 @@ Under investigation. It is still not clear how do the authors sample
 from replay buffer. We continue to investigate [[https://github.com/cselab/smarties][their code]].
 
 ** References
-- [[http://proceedings.mlr.press/v97/novati19a.html][G. Novati and P. Koumoutsakos, "Remember and Forget for Experience Replay", PMLR (2019) 97, 4851-4860]] ([[https://arxiv.org/abs/1807.05827][arXiv]], [[https://github.com/cselab/smarties][code]])
+- [[http://proceedings.mlr.press/v97/novati19a.html][G. Novati and P. Koumoutsakos, "Remember and Forget for Experience Replay", ICML (2019)]] ([[https://arxiv.org/abs/1807.05827][arXiv]], [[https://github.com/cselab/smarties][code]])
 
 * DONE Attentive Experience Replay (AER)
 CLOSED: [2021-01-24 Sun 22:59]
