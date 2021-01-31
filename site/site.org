@@ -1488,7 +1488,43 @@ You can implement AER with simple =ReplayBuffer= class. Simply you can
 sample enlarged batch size then compute similarity.
 
 ** References
-- [[https://ojs.aaai.org//index.php/AAAI/article/view/6049][P. Sun et. al., "Attentive Experience Replay", AAAI (2020) 34, 5900-5907]] 
+- [[https://ojs.aaai.org//index.php/AAAI/article/view/6049][P. Sun et. al., "Attentive Experience Replay", AAAI (2020) 34, 5900-5907]]
+
+* DONE Competitive Eeperience Replay (CER)
+CLOSED: [2021-01-30 Sat 12:55]
+:PROPERTIES:
+:EXPORT_FILE_NAME: cer
+:EXPORT_HUGO_SECTION*: survey
+:END:
+
+** Overview
+[[https://iclr.cc/Conferences/2019/Schedule?showEvent=1091][Competitive Experience Replay (CER)]] is a strategy for goal-directed RL
+with sparse reward. In CER, a pair of agents \(\pi _A, \pi _B \) are
+trained simultaneously.
+
+Agent \(\pi _A\) is punished if agent \(\pi _B\) is also visited the
+near states, \(|s_A^i - s_B^j| < \delta \). Whereas, agent \(\pi _B\)
+gets reward if it visits near the agent \(pi _A\). Such reward
+re-labelling is executed per mini-batch.
+
+Depending on initializing methods, there are two variants of
+CER. Independent-CER initializes \(\pi _B\) with the task's initial
+distribution. Interect-CER initializes \(\pi _B\) with random
+off-policy sample of \(\pi _A\).
+
+
+The authors pointed out that CER complemented the HER. Together with
+HER, CER improves performance.
+
+** With cpprb
+Because of [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][flexible environment design]], cpprb can store a pair of
+transitions from 2 agents. However, the current version of cpprb
+doesn't have the functionality of sampling episodes instead of
+transitions.
+
+
+** References
+- [[https://iclr.cc/Conferences/2019/Schedule?showEvent=1091][H. Liu et. al., "Competitive Experience Replay", ICLR 2019]] ([[https://arxiv.org/abs/1902.00528][arXiv]])
 
 
 * Footnotes
