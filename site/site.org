@@ -1505,7 +1505,7 @@ trained simultaneously.
 
 Agent \(\pi _A\) is punished if agent \(\pi _B\) is also visited the
 near states, \(|s_A^i - s_B^j| < \delta \). Whereas, agent \(\pi _B\)
-gets reward if it visits near the agent \(pi _A\). Such reward
+gets reward if it visits near the agent \(\pi _A\). Such reward
 re-labelling is executed per mini-batch.
 
 Depending on initializing methods, there are two variants of
