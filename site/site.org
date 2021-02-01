@@ -1389,6 +1389,7 @@ If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpp
 - [[https://ymd_h.gitlab.io/cpprb/survey/ref-er/][Remember and Forget for Experience Replay (ReF-ER)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/aer/][Attentive Experience Replay (AER)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/cer/][Competitive Experience Replay (CER)]]
+- [[https://ymd_h.gitlab.io/cpprb/survey/der/][Dynamic Experience Replay (DER)]]
 
 
 * DONE Experience Replay Optimization (ERO)
@@ -1527,6 +1528,47 @@ transitions.
 ** References
 - [[https://iclr.cc/Conferences/2019/Schedule?showEvent=1091][H. Liu et. al., "Competitive Experience Replay", ICLR 2019]] ([[https://arxiv.org/abs/1902.00528][arXiv]])
 
+* DONE Dynamic Experience Replay (DER)
+CLOSED: [2021-02-01 Mon 08:25]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: survey
+:EXPORT_FILE_NAME: der
+:END:
+
+** Overview
+In [[http://proceedings.mlr.press/v100/luo20a.html][Dynamic Experience Replay (DER)]], not only human demonstrations but
+also successful episodes can be used as demonstrations. For robot
+control task, human demonstration is not always perfect demonstration,
+so that DER auguments and replaces demonstrations by successful
+episodes. DER can work with distributed RL framework such [[https://arxiv.org/abs/1803.00933][Ape-X]].
+
+
+DER uses multiple (global) replay buffers
+\(\lbrace\mathbb{B}_0\dots\mathbb{B}_n\rbrace\) which have
+demonstration zone. On the episode end, explorers randomly picked one
+of the replay buffers \(\mathbb{B}_i\) and stores
+transisions. Additionally, if the episode succeeds, it is stored at
+another (ordinary) replay buffer \(\mathbb{T}\) for successful
+transitions.
+
+Learner picks one of the replay buffers \(\mathbb{B}_j\) randomly,
+then samples mini-batch, trains network, and updates priorities as
+usual prioritized experience replay. Periodically, demonstration zones
+are replaced by randomly sampled transitions from successful
+transition replay buffer \(\mathbb{T}\).
+
+
+
+** With cpprb
+DER requires specialized demonstration zone where transisions are
+keeped. Naively speaking, it can be realized by using 2 replay
+buffers. However, to sample from this joint replay buffer with
+prioritized way, cpprb need some modification. We might implement
+something like =JointPrioritizedReplayBuffer=.
+
+
+** References
+- [[http://proceedings.mlr.press/v100/luo20a.html][J. Luo and H. Li, "Dynamic Experience Replay", CoRL (2020)]] ([[https://arxiv.org/abs/2003.02372][arXiv]], [[https://sites.google.com/site/dynamicexperiencereplay][site]])
 
 * Footnotes
 
