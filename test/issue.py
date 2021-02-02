@@ -1,7 +1,8 @@
 import numpy as np
 import unittest
 
-from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,MPPrioritizedReplayBuffer)
+from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,
+                   MPReplayBuffer,MPPrioritizedReplayBuffer)
 from cpprb import create_buffer
 
 
@@ -739,6 +740,18 @@ class TestIssue128(unittest.TestCase):
         ps2.setflags(write=False)
 
         rb.update_priorities(sample["indexes"],ps2)
+
+class TestIssue130(unittest.TestCase):
+    """
+    MPPrioritizedReplayBuffer cannot use np.float16
+
+    `NotImplementedError: Converting dtype('float16') to a ctypes type`
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/130
+    """
+    def test_np_float16(self):
+        buffer_size = 64
+        rb = MPReplayBuffer(buffer_size,{"obs": np.float16})
 
 
 if __name__ == '__main__':
