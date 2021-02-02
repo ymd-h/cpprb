@@ -416,14 +416,41 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
 
 
 cdef class SharedBuffer:
+    cdef dtype
     cdef data
+    cdef data_ndarry
     cdef view
     def __init__(self,shape,dtype,data=None):
-        ctype = np.ctypeslib.as_ctypes_type(dtype)
-        len = int(np.array(shape,copy=False,dtype="int").prod())
-        self.data = data or RawArray(ctype,len)
-        self.view = np.ctypeslib.as_array(self.data)
-        self.view.shape = shape
+        self.dtype = np.dtype(dtype)
+
+        if data is None:
+            try:
+                ctype = np.ctypeslib.as_ctypes_type(self.dtype)
+            except NotImplementedError:
+                # Dirty hack to allocate correct size shared memory
+                if self.dtype.itemsize == np.int16.itemsize:
+                    ctype = np.ctypeslib.as_ctypes_type(np.int16)
+                elif self.dtype.itemsize == np.int32.itemsize:
+                    ctype = np.ctypeslib.as_ctypes_type(np.int32)
+                elif self.dtype.itemsize == np.int64.itemsize:
+                    ctype = np.ctypeslib.as_ctypes_type(np.int64)
+                else:
+                    raise
+
+            len = int(np.array(shape,copy=False,dtype="int").prod())
+            self.data = RawArray(ctype,len)
+        else:
+            self.data = data
+
+        self.data_numpy = np.ctypeslib.as_array(self.data)
+        self.data_numpy.shape = shape
+
+        # Reinterpretation
+        if self.dtype != self.data_numpy.dtype:
+            self.view = self.data_numpy.view(self.dtype)
+        else:
+            self.view = self.data_numpy
+
 
     def __getitem__(self,key):
         return self.view[key]
@@ -432,7 +459,7 @@ cdef class SharedBuffer:
         self.view[key] = value
 
     def __reduce__(self):
-        return (SharedBuffer,(self.view.shape,self.view.dtype,self.data))
+        return (SharedBuffer,(self.view.shape,self.dtype,self.data))
 
 
 def dict2buffer(buffer_size: int,env_dict: Dict,*,
