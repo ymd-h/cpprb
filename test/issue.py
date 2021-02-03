@@ -1,3 +1,4 @@
+from multiprocessing import Process
 import numpy as np
 import unittest
 
@@ -741,6 +742,10 @@ class TestIssue128(unittest.TestCase):
 
         rb.update_priorities(sample["indexes"],ps2)
 
+def add(rb):
+    for _ in range(100):
+        rb.add(done=0)
+
 class TestIssue130(unittest.TestCase):
     """
     MPPrioritizedReplayBuffer cannot use np.float16
@@ -750,8 +755,19 @@ class TestIssue130(unittest.TestCase):
     Ref: https://gitlab.com/ymd_h/cpprb/-/issues/130
     """
     def test_np_float16(self):
-        buffer_size = 64
-        rb = MPReplayBuffer(buffer_size,{"obs": {"dtype": np.float16}})
+        buffer_size = 256
+        rb = MPReplayBuffer(buffer_size,{"done": {"dtype": np.float16}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add,args=[rb])
+        p.start()
+        p.join()
+
+        self.assertEqual(rb.get_next_index(),100)
+        self.assertEqual(rb.get_stored_size(),100)
+
 
 
 if __name__ == '__main__':
