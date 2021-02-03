@@ -751,7 +751,7 @@ class TestIssue130(unittest.TestCase):
     """
     def test_np_float16(self):
         buffer_size = 64
-        rb = MPReplayBuffer(buffer_size,{"obs": np.float16})
+        rb = MPReplayBuffer(buffer_size,{"obs": {"dtype": np.float16}})
 
 
 if __name__ == '__main__':
