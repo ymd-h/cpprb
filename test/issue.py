@@ -1,7 +1,9 @@
+from multiprocessing import Process
 import numpy as np
 import unittest
 
-from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,MPPrioritizedReplayBuffer)
+from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,
+                   MPReplayBuffer,MPPrioritizedReplayBuffer)
 from cpprb import create_buffer
 
 
@@ -739,6 +741,59 @@ class TestIssue128(unittest.TestCase):
         ps2.setflags(write=False)
 
         rb.update_priorities(sample["indexes"],ps2)
+
+def add_args(rb,args):
+    for arg in args:
+        rb.add(**arg)
+
+class TestIssue130(unittest.TestCase):
+    """
+    MPPrioritizedReplayBuffer cannot use np.float16
+
+    `NotImplementedError: Converting dtype('float16') to a ctypes type`
+
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/130
+    """
+    def test_np_float16(self):
+        buffer_size = 256
+        rb = MPReplayBuffer(buffer_size,{"done": {"dtype": np.float16}})
+
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add_args,args=[rb, [{"done": i} for i in range(100)]])
+        p.start()
+        p.join()
+
+        self.assertEqual(rb.get_next_index(),100)
+        self.assertEqual(rb.get_stored_size(),100)
+
+        done = rb.get_all_transitions()["done"]
+
+        np.testing.assert_allclose(done.ravel(),
+                                   np.arange(100,dtype=np.float16))
+
+        self.assertEqual(done.dtype, np.float16)
+
+    def test_dtypes(self):
+        buffer_size = 1
+        for d in [np.byte, np.ubyte, np.short, np.ushort, np.intc, np.uintc,
+                  np.int_, np.uint, np.longlong, np.ulonglong,
+                  np.half, np.double, np.longdouble,
+                  np.int8, np.int16, np.int32, np.int64,
+                  np.uint8, np.uint16, np.uint32, np.uint64, np.intp,
+                  np.float16, np.float32, np.float64]:
+
+            if np.dtype(d).itemsize > 8:
+                # 128bit is not supported
+                continue
+
+            with self.subTest(dtype=d):
+                rb = MPReplayBuffer(buffer_size,{"a": {"dtype": d}})
+                rb.add(a=np.zeros((1,),dtype=d))
+                a = rb.get_all_transitions()["a"].ravel()
+                self.assertEqual(a.dtype, d)
+                np.testing.assert_allclose(a,np.zeros((1,),dtype=d))
 
 
 if __name__ == '__main__':
