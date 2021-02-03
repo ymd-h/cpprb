@@ -768,8 +768,12 @@ class TestIssue130(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),100)
         self.assertEqual(rb.get_stored_size(),100)
 
-        np.testing.assert_allclose(rb.get_all_transitions()["done"].ravel(),
+        done = rb.get_all_transitions()["done"]
+
+        np.testing.assert_allclose(done.ravel(),
                                    np.arange(100,dtype=np.float16))
+
+        self.assertEqual(done.dtype, np.float16)
 
 if __name__ == '__main__':
     unittest.main()
