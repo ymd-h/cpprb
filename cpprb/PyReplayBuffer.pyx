@@ -428,7 +428,7 @@ cdef class SharedBuffer:
                 ctype = np.ctypeslib.as_ctypes_type(self.dtype)
             except NotImplementedError:
                 # Dirty hack to allocate correct size shared memory
-                for d in (np.int16, np.int32, np.int64):
+                for d in (np.int8, np.int16, np.int32, np.int64):
                     _d = np.dtype(d)
 
                     if self.dtype.itemsize == _d.itemsize:
