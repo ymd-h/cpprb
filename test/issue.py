@@ -784,6 +784,10 @@ class TestIssue130(unittest.TestCase):
                   np.uint8, np.uint16, np.uint32, np.uint64, np.intp,
                   np.float16, np.float32, np.float64]:
 
+            if np.dtype(d).itemsize > 8:
+                # 128bit is not supported
+                continue
+
             with self.subTest(dtype=d):
                 rb = MPReplayBuffer(buffer_size,{"a": {"dtype": d}})
                 rb.add(a=np.zeros((1,),dtype=d))
