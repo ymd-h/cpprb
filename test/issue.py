@@ -746,6 +746,10 @@ def add(rb):
     for _ in range(100):
         rb.add(done=0)
 
+def add_args(rb,args):
+    for arg in args:
+        rb.add(**arg)
+
 class TestIssue130(unittest.TestCase):
     """
     MPPrioritizedReplayBuffer cannot use np.float16
@@ -768,7 +772,22 @@ class TestIssue130(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),100)
         self.assertEqual(rb.get_stored_size(),100)
 
+    def test_np_float16_data(self):
+        buffer_size = 256
+        rb = MPReplayBuffer(buffer_size,{"done": {"dtype": np.float16}})
 
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        p = Process(target=add_args,args=[rb, [{"done": i} for i in range(100)]])
+        p.start()
+        p.join()
+
+        self.assertEqual(rb.get_next_index(),100)
+        self.assertEqual(rb.get_stored_size(),100)
+
+        np.testing.assert_allclose(rb.get_all_transitions()["done"].ravel(),
+                                   np.arange(100,dtype=np.float16))
 
 if __name__ == '__main__':
     unittest.main()
