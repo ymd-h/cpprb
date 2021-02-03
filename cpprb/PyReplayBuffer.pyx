@@ -418,7 +418,7 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
 cdef class SharedBuffer:
     cdef dtype
     cdef data
-    cdef data_ndarry
+    cdef data_ndarray
     cdef view
     def __init__(self,shape,dtype,data=None):
         self.dtype = np.dtype(dtype)
@@ -442,14 +442,14 @@ cdef class SharedBuffer:
         else:
             self.data = data
 
-        self.data_numpy = np.ctypeslib.as_array(self.data)
-        self.data_numpy.shape = shape
+        self.data_ndarray = np.ctypeslib.as_array(self.data)
+        self.data_ndarray.shape = shape
 
         # Reinterpretation
-        if self.dtype != self.data_numpy.dtype:
-            self.view = self.data_numpy.view(self.dtype)
+        if self.dtype != self.data_ndarray.dtype:
+            self.view = self.data_ndarray.view(self.dtype)
         else:
-            self.view = self.data_numpy
+            self.view = self.data_ndarray
 
 
     def __getitem__(self,key):
