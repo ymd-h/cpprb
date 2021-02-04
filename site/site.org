@@ -90,28 +90,26 @@ environment values can be stored.
 {{% button href="https://ymd_h.gitlab.io/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button %}}
 
 ** Fast
+Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is much
+faster than Python naive implementation.
 
-cpprb is a python ([[https://github.com/python/cpython/tree/master/Python][CPython]]) module providing replay buffer classes for
-reinforcement learning.
 
-Major target users are researchers and library developers.
 
+
+** Framework Free
 You can build your own reinforcement learning algorithms together with
 your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
 
-cpprb forcuses speed, flexibility, and memory efficiency.
 
-By utilizing [[https://cython.org/][Cython]], complicated calculations (e.g. segment tree for
-prioritized experience replay) are offloaded onto C++.
-(The name cpprb comes from "C++ Replay Buffer".)
+** Ecosystem (cpprb users)
 
-In terms of API, initially cpprb referred to [[https://github.com/openai/baselines][OpenAI Baselines]]'
-implementation. In the current version, cpprb has much more
-flexibility. Any [[https://numpy.org/][NumPy]] compatible types of any numbers of values can
-be stored (as long as memory capacity is sufficient). For example, you
-can store the next action and the next next observation, too.
+*** TF2RL
+{{% button href="https://github.com/keiohta/tf2rl" %}}Go Repository{{%% /button %}}
 
 
+** Community
+
+{{% button href="https://github.com/ymd-h/cpprb/discussions" icon="fas fa-comments" icon-position="right" %}}User Forum{{% /button %}}
 * Installation
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: installation
