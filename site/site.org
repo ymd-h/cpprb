@@ -84,8 +84,8 @@ rb = ReplayBuffer(1000,
                    "next_next_obs": {"shape": (16,16), "dtype"}})
 #+end_src
 
-cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible can
-be stored.
+cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
+environment values can be stored.
 
 {{% button href="https://ymd_h.gitlab.io/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button %}}
 
