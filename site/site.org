@@ -78,20 +78,7 @@ implementing troublesome replay buffer.
 :UNNUMBERED: t
 :END:
 
-#+begin_src python
-import numpy as np
-from cpprb import ReplayBuffer
-
-rb = ReplayBuffer(1000,
-                  {"obs": {"shape": (16,16), "dtype": np.float16},
-                   "act": {"dtype": np.int32},
-                   "reward": {},
-                   "next_obs": {"shape": (16,16), "dtype": np.float16},
-                   "done": {},
-                   "second_reward": {},
-                   "next_act": {},
-                   "next_next_obs": {"shape": (16,16), "dtype"}})
-#+end_src
+[[/cpprb/images/flex_env.png]]
 
 cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
 environment values can be stored.
