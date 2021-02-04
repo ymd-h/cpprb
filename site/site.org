@@ -62,6 +62,11 @@ CLOSED: [2021-01-21 Thu 21:22]
 
 {{% button href="https://ymd_h.gitlab.io/cpprb/installation/" icon="fas fa-download" icon-position="right" %}}Get Started{{% /button %}}
 
+** Make Reinforcement Learning Easier
+Experience Replay is widely used for off-policy reinforcement
+learning. You can start your experiment without implementing
+troublesome replay buffer.
+
 ** Flexible Environment
 
 #+begin_src python
