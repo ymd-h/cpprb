@@ -60,7 +60,7 @@ CLOSED: [2021-01-21 Thu 21:22]
 
 [[https://ymd_h.gitlab.io/cpprb/][https://ymd_h.gitlab.io/cpprb/images/logo.png]]
 
-{{% button href="https://ymd_h.gitlab.io/cpprb/installation/" icon="fas fa-download" iconposition="right" %}}Get Started!{{% /button %}}
+{{% button href="https://ymd_h.gitlab.io/cpprb/installation/" icon="fas fa-download" icon-position="right" %}}Get Started{{% /button %}}
 
 ** Flexible Environment
 
