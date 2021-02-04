@@ -104,7 +104,7 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 ** Ecosystem (cpprb users)
 
 *** TF2RL
-{{% button href="https://github.com/keiohta/tf2rl" %}}Go Repository{{%% /button %}}
+{{% button href="https://github.com/keiohta/tf2rl" %}}Go Repository{{% /button %}}
 
 
 ** Community
