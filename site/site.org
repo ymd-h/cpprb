@@ -60,6 +60,8 @@ CLOSED: [2021-01-21 Thu 21:22]
 
 [[https://ymd_h.gitlab.io/cpprb/][https://ymd_h.gitlab.io/cpprb/images/logo.png]]
 
+{{% button href="https://ymd_h.gitlab.io/cpprb/installation/" icon="fas fa-download" iconposition="right" %}}Get Started!{{% /button %}}
+
 cpprb is a python ([[https://github.com/python/cpython/tree/master/Python][CPython]]) module providing replay buffer classes for
 reinforcement learning.
 
