@@ -68,6 +68,8 @@ Experience Replay is widely used for off-policy reinforcement
 learning. With cpprb, you can start your experiment without
 implementing troublesome replay buffer.
 
+---
+
 ** Flexible Environment
 
 #+begin_src python
@@ -90,23 +92,27 @@ environment values can be stored.
 
 {{% button href="https://ymd_h.gitlab.io/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button %}}
 
+---
+
 ** Fast
 Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is much
 faster than Python naive implementation.
 
 
-
+---
 
 ** Framework Free
 You can build your own reinforcement learning algorithms together with
 your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
 
+---
 
 ** Ecosystem (cpprb users)
 
 *** TF2RL
 {{% button href="https://github.com/keiohta/tf2rl" %}}Go Repository{{% /button %}}
 
+---
 
 ** Community
 
