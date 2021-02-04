@@ -61,7 +61,7 @@ CLOSED: [2021-01-21 Thu 21:22]
 
 [[https://ymd_h.gitlab.io/cpprb/][https://ymd_h.gitlab.io/cpprb/images/logo.png]]
 
-{{% button href="https://ymd_h.gitlab.io/cpprb/installation/" icon="fas fa-download" icon-position="right" %}}Get Started{{% /button %}}
+#+html: {{% button href="/cpprb/installation/" icon="fas fa-download" icon-position="right" %}}Get Started{{% /button %}}
 
 ** Make Reinforcement Learning Easier
 :PROPERTIES:
@@ -86,7 +86,7 @@ implementing troublesome replay buffer.
 cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
 environment values can be stored.
 
-{{% button href="https://ymd_h.gitlab.io/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button %}}
+#+html: {{% button href="/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button %}}
 
 ---
 
@@ -115,7 +115,7 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 :END:
 
 *** TF2RL
-{{% button href="https://github.com/keiohta/tf2rl" %}}Go Repository{{% /button %}}
+#+html: {{% button href="https://github.com/keiohta/tf2rl" %}}Go Repository{{% /button %}}
 
 ---
 
@@ -124,7 +124,7 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 :UNNUMBERED: t
 :END:
 
-{{% button href="https://github.com/ymd-h/cpprb/discussions" icon="fas fa-comments" icon-position="right" %}}User Forum{{% /button %}}
+#+html: {{% button href="https://github.com/ymd-h/cpprb/discussions" icon="fas fa-comments" icon-position="right" %}}User Forum{{% /button %}}
 * Installation
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: installation
