@@ -67,6 +67,9 @@ CLOSED: [2021-01-21 Thu 21:22]
 :PROPERTIES:
 :UNNUMBERED: t
 :END:
+
+[[/cpprb/images/replay_buffer.png]]
+
 Experience Replay is widely used for off-policy reinforcement
 learning. With cpprb, you can start your experiment without
 implementing troublesome replay buffer.
