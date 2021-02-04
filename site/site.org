@@ -56,6 +56,7 @@
 CLOSED: [2021-01-21 Thu 21:22]
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
+:UNNUMBERED: t
 :END:
 
 [[https://ymd_h.gitlab.io/cpprb/][https://ymd_h.gitlab.io/cpprb/images/logo.png]]
