@@ -64,6 +64,9 @@ CLOSED: [2021-01-21 Thu 21:22]
 {{% button href="https://ymd_h.gitlab.io/cpprb/installation/" icon="fas fa-download" icon-position="right" %}}Get Started{{% /button %}}
 
 ** Make Reinforcement Learning Easier
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
 Experience Replay is widely used for off-policy reinforcement
 learning. With cpprb, you can start your experiment without
 implementing troublesome replay buffer.
@@ -71,6 +74,9 @@ implementing troublesome replay buffer.
 ---
 
 ** Flexible Environment
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
 
 #+begin_src python
 import numpy as np
@@ -95,6 +101,9 @@ environment values can be stored.
 ---
 
 ** Fast
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
 Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is much
 faster than Python naive implementation.
 
@@ -102,12 +111,18 @@ faster than Python naive implementation.
 ---
 
 ** Framework Free
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
 You can build your own reinforcement learning algorithms together with
 your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
 
 ---
 
 ** Ecosystem (cpprb users)
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
 
 *** TF2RL
 {{% button href="https://github.com/keiohta/tf2rl" %}}Go Repository{{% /button %}}
@@ -115,6 +130,9 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 ---
 
 ** Community
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
 
 {{% button href="https://github.com/ymd-h/cpprb/discussions" icon="fas fa-comments" icon-position="right" %}}User Forum{{% /button %}}
 * Installation
