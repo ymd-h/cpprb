@@ -83,10 +83,13 @@ implementing troublesome replay buffer.
 :UNNUMBERED: t
 :END:
 
+Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is usually
+faster than Python naive implementation.
+
+#+html: {{% button-center href="/cpprb/comparison/benchmark/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
+
 [[/cpprb/images/flex_env.png]]
 
-Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is much
-faster than Python naive implementation.
 
 cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
 environment values can be stored.
