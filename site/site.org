@@ -78,27 +78,20 @@ implementing troublesome replay buffer.
 
 ---
 
-** Flexible Environment
+** Fast & Flexible Environment
 :PROPERTIES:
 :UNNUMBERED: t
 :END:
 
 [[/cpprb/images/flex_env.png]]
 
+Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is much
+faster than Python naive implementation.
+
 cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
 environment values can be stored.
 
 #+html: {{% button-center href="/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
-
----
-
-** Fast
-:PROPERTIES:
-:UNNUMBERED: t
-:END:
-Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is much
-faster than Python naive implementation.
-
 
 ---
 
