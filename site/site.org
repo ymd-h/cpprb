@@ -104,21 +104,15 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 
 ---
 
-** Ecosystem (cpprb users)
+** Ecosystem & Community
 :PROPERTIES:
 :UNNUMBERED: t
 :END:
 
 #+html: {{% button-center href="https://github.com/keiohta/tf2rl" icon="fab fa-github" icon-position="right" %}}TF2RL{{% /button-center %}}
 
----
-
-** Community
-:PROPERTIES:
-:UNNUMBERED: t
-:END:
-
 #+html: {{% button-center href="https://github.com/ymd-h/cpprb/discussions" icon="fas fa-comments" icon-position="right" %}}User Forum{{% /button-center %}}
+
 * Installation
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: installation
