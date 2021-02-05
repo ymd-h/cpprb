@@ -115,7 +115,7 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 :END:
 
 *** TF2RL
-#+html: {{% button-center href="https://github.com/keiohta/tf2rl" %}}Go Repository{{% /button-center %}}
+#+html: {{% button-center href="https://github.com/keiohta/tf2rl" icon="fab fa-github" icon-position="right" %}}Go Repository{{% /button-center %}}
 
 ---
 
