@@ -78,7 +78,7 @@ implementing troublesome replay buffer.
 
 ---
 
-** Fast & Flexible Environment
+** Fast & Flexible
 :PROPERTIES:
 :UNNUMBERED: t
 :END:
@@ -111,12 +111,6 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 
 {{< /col >}} {{< /row >}} {{< /container >}}
 
----
-
-** Framework Free
-:PROPERTIES:
-:UNNUMBERED: t
-:END:
 ---
 
 ** Ecosystem & Community
