@@ -83,7 +83,7 @@ implementing troublesome replay buffer.
 :UNNUMBERED: t
 :END:
 
-{{< container >}}{{< row >}}{{< col >}}
+{{< container >}}{{< row >}}{{< col size="md">}}
 
 {{% markdownify %}}
 Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is usually
@@ -92,7 +92,7 @@ faster than Python naive implementation.
 
 #+html: {{% button-center href="/cpprb/comparison/benchmark/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
 
-{{< /col >}}{{< col >}}
+{{< /col >}}{{< col size="md">}}
 
 [[/cpprb/images/flex_env.png]]
 
@@ -103,7 +103,7 @@ environment values can be stored.
 
 #+html: {{% button-center href="/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
 
-{{< /col >}}{{< col >}}
+{{< /col >}}{{< col size="md">}}
 
 {{% markdownify %}}
 You can build your own reinforcement learning algorithms together with
@@ -120,9 +120,23 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 :UNNUMBERED: t
 :END:
 
-#+html: {{% button-center href="https://github.com/keiohta/tf2rl" icon="fab fa-github" icon-position="right" %}}TF2RL{{% /button-center %}}
+{{< container >}} {{< row >}} {{< col size="md">}}
+
+{{% markdownify %}}
+*** Duscussion
+{{% /markdownify %}}
 
 #+html: {{% button-center href="https://github.com/ymd-h/cpprb/discussions" icon="fas fa-comments" icon-position="right" %}}User Forum{{% /button-center %}}
+
+{{< /col >}} {{< col size="md">}}
+
+{{% markdownify %}}
+*** TF2RL
+{{% /markdownify %}}
+
+#+html: {{% button-center href="https://github.com/keiohta/tf2rl" icon="fab fa-github" icon-position="right" %}}TF2RL{{% /button-center %}}
+
+{{< /col >}} {{< /row >}} {{< /container >}}
 
 * Installation
 :PROPERTIES:
