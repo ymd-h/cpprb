@@ -10,7 +10,7 @@ defaultContentLanguageInSubdir= true
 publishDir = "../public"
 
 [params]
-  description = "cpprb: Fast Flexible Replay Buffer Library"
+  description = "cpprb: Fast Flexible Replay Buffer Library for Reinforcement Learning"
   author = "Hiroyuki Yamada"
   showVisitedLinks = false
   disableBreadcrumb = false
