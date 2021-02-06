@@ -56,30 +56,101 @@
 CLOSED: [2021-01-21 Thu 21:22]
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
+:UNNUMBERED: t
 :END:
 
 [[https://ymd_h.gitlab.io/cpprb/][https://ymd_h.gitlab.io/cpprb/images/logo.png]]
 
-cpprb is a python ([[https://github.com/python/cpython/tree/master/Python][CPython]]) module providing replay buffer classes for
-reinforcement learning.
+#+html: {{% button-center href="/cpprb/installation/" icon="fas fa-download" icon-position="right" %}}Get Started{{% /button-center %}}
 
-Major target users are researchers and library developers.
+---
 
+** Make Reinforcement Learning Easier
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+
+[[/cpprb/images/replay_buffer.png]]
+
+Experience Replay is widely used for off-policy reinforcement
+learning. With cpprb, you can start your experiment quickly without
+implementing troublesome replay buffer.
+
+---
+
+** Fast & Flexible
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+
+{{< container >}}{{< row >}}{{< col size="md">}}
+
+{{% markdownify %}}
+*** Native
+Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is usually
+faster than Python naive implementation.
+{{% /markdownify %}}
+
+#+html: {{% button-center href="/cpprb/comparison/benchmark/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
+
+{{< /col >}}{{< col size="md">}}
+
+{{% markdownify %}}
+*** Multiprocessing
+cpprb supports [[https://arxiv.org/abs/1803.00933][Ape-X]] on single computer. You don't need to think
+problematic lock. cpprb locks only critical section internally well.
+{{% /markdownify %}}
+
+#+html: {{% button-center href="/cpprb/features/ape-x/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
+
+{{< /col >}}{{< col size="md">}}
+
+{{% markdownify %}}
+*** Flexible Environment
+cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
+environment values can be stored.
+{{% /markdownify %}}
+
+#+html: {{% button-center href="/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
+
+{{< /col >}}{{< col size="md">}}
+
+{{% markdownify %}}
+*** Framework Free
 You can build your own reinforcement learning algorithms together with
 your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
+{{% /markdownify %}}
 
-cpprb forcuses speed, flexibility, and memory efficiency.
 
-By utilizing [[https://cython.org/][Cython]], complicated calculations (e.g. segment tree for
-prioritized experience replay) are offloaded onto C++.
-(The name cpprb comes from "C++ Replay Buffer".)
+{{< /col >}} {{< /row >}} {{< /container >}}
 
-In terms of API, initially cpprb referred to [[https://github.com/openai/baselines][OpenAI Baselines]]'
-implementation. In the current version, cpprb has much more
-flexibility. Any [[https://numpy.org/][NumPy]] compatible types of any numbers of values can
-be stored (as long as memory capacity is sufficient). For example, you
-can store the next action and the next next observation, too.
+---
 
+** Ecosystem & Community
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+
+{{< container >}} {{< row >}} {{< col size="md">}}
+
+{{% markdownify %}}
+*** Duscussion
+Any questions, requests, and so on are welcome.
+{{% /markdownify %}}
+
+#+html: {{% button-center href="https://github.com/ymd-h/cpprb/discussions" icon="fas fa-comments" icon-position="right" %}}User Forum{{% /button-center %}}
+
+{{< /col >}} {{< col size="md">}}
+
+{{% markdownify %}}
+*** TF2RL
+TF2RL provides a set of reinforcement learning algorithms for TensorFlow 2.
+TF2RL uses cpprb for off-policy algorithm.
+{{% /markdownify %}}
+
+#+html: {{% button-center href="https://github.com/keiohta/tf2rl" icon="fab fa-github" icon-position="right" %}}TF2RL{{% /button-center %}}
+
+{{< /col >}} {{< /row >}} {{< /container >}}
 
 * Installation
 :PROPERTIES:

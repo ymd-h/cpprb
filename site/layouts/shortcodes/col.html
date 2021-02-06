@@ -1,0 +1,11 @@
+{{if .Get "size"}}
+{{with .Get "size"}}
+<div class="col-{{.}}">
+{{end}}
+  {{.Inner}}
+</div>
+{{else}}
+<div class="col">
+  {{.Inner}}
+</div>
+{{end}}

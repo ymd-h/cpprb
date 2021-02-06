@@ -1,0 +1,21 @@
+h1
+{
+    text-transform: none;
+    font-family: sans-serif;
+}
+
+.btn
+{
+    font-size: 1.5em !important;
+    border-radius: 7px !important;
+    margin: 0.5em !important;
+}
+
+#make-reinforcement-learning-easier,
+#fast-and-flexible,
+#flexible-environment,
+#ecosystem-and-community,
+.col-md > h3
+  {
+      text-align: center;
+  }
