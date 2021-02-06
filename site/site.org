@@ -99,12 +99,12 @@ faster than Python naive implementation.
 {{< /col >}}{{< col size="md">}}
 
 {{% markdownify %}}
-*** Multiprocessing Support
+*** Multiprocessing
 {{% /markdownify %}}
 
 {{% markdownify %}}
-cpprb supports Ape-X on single computer. You don't need to think
-problematic lock.
+cpprb supports [[https://arxiv.org/abs/1803.00933][Ape-X]] on single computer. You don't need to think
+problematic lock. cpprb locks only critical section internally well.
 {{% /markdownify %}}
 
 #+html: {{% button-center href="/cpprb/features/ape-x/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
