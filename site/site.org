@@ -83,18 +83,33 @@ implementing troublesome replay buffer.
 :UNNUMBERED: t
 :END:
 
+{{< container >}}{{< row >}}{{< col >}}
+
+{{% markdownify %}}
 Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is usually
 faster than Python naive implementation.
+{{% /markdownify %}}
 
 #+html: {{% button-center href="/cpprb/comparison/benchmark/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
 
+{{< /col >}}{{< col >}}
+
 [[/cpprb/images/flex_env.png]]
 
-
+{{% markdownify %}}
 cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
 environment values can be stored.
+{{% /markdownify %}}
 
 #+html: {{% button-center href="/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
+
+{{< /col >}}{{< col >}}
+
+You can build your own reinforcement learning algorithms together with
+your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
+
+
+{{< /col >}} {{< /row >}} {{< /container >}}
 
 ---
 
@@ -102,9 +117,6 @@ environment values can be stored.
 :PROPERTIES:
 :UNNUMBERED: t
 :END:
-You can build your own reinforcement learning algorithms together with
-your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
-
 ---
 
 ** Ecosystem & Community

@@ -18,6 +18,7 @@ publishDir = "../public"
   themeVariant = "cpprb"
   disableInlineCopyToClipBoard = true
   images = ["/cpprb/images/OGP.png"]
+  custom_css = ["css/custom.css"]
 
 [outputs]
 home = [ "HTML", "RSS", "JSON"]
