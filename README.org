@@ -334,4 +334,4 @@ CLOSED: [2020-01-17 Fri 23:09]
 :END:
 cpprb is available under MIT lisence.
 
-#+INCLUDE: "./LICENSE" src
+#+INCLUDE: "./LICENSE" src plaintext
