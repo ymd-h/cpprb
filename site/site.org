@@ -105,8 +105,10 @@ environment values can be stored.
 
 {{< /col >}}{{< col >}}
 
+{{% markdownify %}}
 You can build your own reinforcement learning algorithms together with
 your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
+{{% /markdownify %}}
 
 
 {{< /col >}} {{< /row >}} {{< /container >}}
