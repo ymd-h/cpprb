@@ -86,8 +86,10 @@ implementing troublesome replay buffer.
 {{< container >}}{{< row >}}{{< col size="md">}}
 
 {{% markdownify %}}
-
 *** Native
+{{% /markdownify %}}
+
+{{% markdownify %}}
 Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is usually
 faster than Python naive implementation.
 {{% /markdownify %}}
@@ -96,6 +98,16 @@ faster than Python naive implementation.
 
 {{< /col >}}{{< col size="md">}}
 
+{{% markdownify %}}
+*** Multiprocessing Support
+{{% /markdownify %}}
+
+{{% markdownify %}}
+cpprb supports Ape-X on single computer. You don't need to think
+problematic lock.
+{{% /markdownify %}}
+
+#+html: {{% button-center href="/cpprb/features/ape-x/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
 
 {{% markdownify %}}
 *** Flexible Environment
