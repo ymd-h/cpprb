@@ -134,6 +134,9 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 *** TF2RL
 {{% /markdownify %}}
 
+TF2RL provides a set of reinforcement learning algorithms for TensorFlow 2.
+
+
 #+html: {{% button-center href="https://github.com/keiohta/tf2rl" icon="fab fa-github" icon-position="right" %}}TF2RL{{% /button-center %}}
 
 {{< /col >}} {{< /row >}} {{< /container >}}
