@@ -87,7 +87,7 @@ implementing troublesome replay buffer.
 
 {{% markdownify %}}
 
-*** Native Implementation
+*** Native
 Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is usually
 faster than Python naive implementation.
 {{% /markdownify %}}
