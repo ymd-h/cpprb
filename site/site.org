@@ -135,6 +135,7 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 
 {{% markdownify %}}
 *** Duscussion
+Any questions, requests, and so on are welcome.
 {{% /markdownify %}}
 
 #+html: {{% button-center href="https://github.com/ymd-h/cpprb/discussions" icon="fas fa-comments" icon-position="right" %}}User Forum{{% /button-center %}}
