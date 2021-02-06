@@ -87,9 +87,6 @@ implementing troublesome replay buffer.
 
 {{% markdownify %}}
 *** Native
-{{% /markdownify %}}
-
-{{% markdownify %}}
 Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is usually
 faster than Python naive implementation.
 {{% /markdownify %}}
@@ -100,24 +97,16 @@ faster than Python naive implementation.
 
 {{% markdownify %}}
 *** Multiprocessing
-{{% /markdownify %}}
-
-{{% markdownify %}}
 cpprb supports [[https://arxiv.org/abs/1803.00933][Ape-X]] on single computer. You don't need to think
 problematic lock. cpprb locks only critical section internally well.
 {{% /markdownify %}}
 
 #+html: {{% button-center href="/cpprb/features/ape-x/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
 
+{{< /col >}}{{< col size="md">}}
+
 {{% markdownify %}}
 *** Flexible Environment
-{{% /markdownify %}}
-
-
-[[/cpprb/images/flex_env.png]]
-
-
-{{% markdownify %}}
 cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
 environment values can be stored.
 {{% /markdownify %}}
@@ -127,9 +116,7 @@ environment values can be stored.
 {{< /col >}}{{< col size="md">}}
 
 {{% markdownify %}}
-
 *** Framework Free
-
 You can build your own reinforcement learning algorithms together with
 your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
 {{% /markdownify %}}
