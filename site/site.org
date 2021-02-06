@@ -96,13 +96,16 @@ faster than Python naive implementation.
 
 {{< /col >}}{{< col size="md">}}
 
-{{% markdownify %}}
 
+{{% markdownify %}}
 *** Flexible Environment
+{{% /markdownify %}}
+
 
 [[/cpprb/images/flex_env.png]]
 
 
+{{% markdownify %}}
 cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
 environment values can be stored.
 {{% /markdownify %}}
