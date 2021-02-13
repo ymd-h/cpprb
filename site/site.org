@@ -1461,6 +1461,7 @@ If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpp
 - [[https://ymd_h.gitlab.io/cpprb/survey/aer/][Attentive Experience Replay (AER)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/cer/][Competitive Experience Replay (CER)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/der/][Dynamic Experience Replay (DER)]]
+- [[https://ymd_h.gitlab.io/cpprb/survey/ners/][Neural Experience Replay Sampler (NERS)]]
 
 
 * DONE Experience Replay Optimization (ERO)
