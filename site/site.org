@@ -1766,7 +1766,7 @@ Prioritized Experience Replay (PER) proposed by T. Schaul
 The key concept of PER is utilizing TD error (\( \delta _i \)) for
 prioritization (\(p_i\)). There are 2 variants of PER, proportional-base
 \(p_i=\mid\delta_i\mid+\epsilon\) and rank-base
-\(\frac{1}{\text{rank}(i)}\), where \(\epsilon\) is a small positive
+\(p_i=\frac{1}{\text{rank}(i)}\), where \(\epsilon\) is a small positive
 value to avoid zero prioritization and \(\text{rank}(i)\) is rank of
 transition \(i\) when transitions are sorted according to
 \(\mid\delta_i\mid\). Theoretically, rank-base is more robust because
