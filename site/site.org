@@ -1656,7 +1656,7 @@ like PER, except using inferred score \(\sigma _i\) instead of
 \(\mid\text{TD}\mid\).
 
 
-\[ p_i = \frac{\sigma _i ^{\alpha}}{\sum _{k \in [\mid B\mid ]}}\sigma _k ^{\alpha} \]
+\[ p_i = \frac{\sigma _i ^{\alpha}}{\sum _{k \in [\mid B\mid ]} \sigma _k ^{\alpha}} \]
 
 
 NERS consists of 3 neural networks, local network \(f_l\), global
