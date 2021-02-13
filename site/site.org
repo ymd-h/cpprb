@@ -1776,7 +1776,17 @@ The probability of sampling transition \(i\) is following;
 
 \[ P(i) = \frac{(p _i)^{\alpha}}{\sum _k (p_k)^{\alpha}} \]
 
+where \(\alpha\) is a hyperparameter of prioritization. If
+\(\alpha=0\), no prioritization are applied.
 
+In order to correct distribution, following importance sampling
+weights are used;
+
+\[ w_i = \left ( \frac{1}{N}\frac{1}{P(i)} \right )^{\beta} \]
+
+where \(N\) is the number of transitions in the Replay
+Buffer. \(\beta\) is a hyperparameter of compensation. Weighted TD
+error \(w_i\delta_i\) are used instead of \(\delta_i\).
 
 * Footnotes
 
