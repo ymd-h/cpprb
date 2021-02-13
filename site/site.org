@@ -1724,9 +1724,18 @@ Replay. Most of them focus the way of selecting transitions in order
 to improve sample efficiency.
 
 
+** Prioritized Experience Replay
+One of the most well-known extension of Exparience Replay is
+Prioritized Experience Replay (PER) proposed by T. Schaul
+/et. al./[fn:3]
+
+The key concept of PER is utilizing TD error (\( \delta _i \)) for
+prioritization.
 
 
 * Footnotes
+
+[fn:3] [[https://arxiv.org/abs/1511.05952][T. Schaul /et. al./, "Prioritized Experience Replay", ICLR (2016)]]
 
 [fn:2] [[https://link.springer.com/article/10.1007/BF00992699][L. Lin, "Self-improving reactive agents based on reinforcement learning, planning and teaching", Mach. Learn. 8, 293-321 (1992) https://doi.org/10.1007/BF00992699]]
 
