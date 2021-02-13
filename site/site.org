@@ -1719,7 +1719,8 @@ Experience Replay was proposed (or at leaset was named) by
 L. Lin[fn:2]. At the same paper, he also noted that replaying past
 experiences would disturb if the past policies were different from the
 current one. The policy might overestimate or underestimate by
-learning already rare action results.
+learning already rare action results. (Precisely speaking, tabular
+version of Q-learning is not affected.)
 
 There are a lot of studies and modifications of Experience
 Replay. Most of them focus the way of selecting transitions in order
