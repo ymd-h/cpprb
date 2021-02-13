@@ -1667,6 +1667,15 @@ the concatenation of the outputs of \(f_l\) and the global context and
 calculates scores \(sigma _i\) for each transition.
 
 
+The inputs of NERS are following set of features from transitions;
+
+\[D(I) = \lbrace s _{\kappa(i)}, a _{\kappa(i)}, r _{\kappa(i)}, s _{\kappa(i)+1}, \kappa(i), \delta _{\kappa(i)}, r_{\kappa(i)} + \gamma \max _a Q _{\hat{\theta}} (s_{\kappa(i)},a) \rbrace _{i \in I} \]
+
+where \(\kappa(i)\) is \(i\)-th time step, \(\gamma\) is discount
+factor, \(\delta _{\kappa(i)}\) is TD error, and \(\hat{\theta}\) is
+target network parameter.
+
+
 NERS are trained at each episode end with subset transitions of that
 used for updating of actor and critic during the episode.
 
