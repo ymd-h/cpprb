@@ -1708,7 +1708,7 @@ CLOSED: [2021-02-13 Sat 16:28]
 Experience Replay is widely used for off-policy reinforcement
 learning. Naively speaking, Experience Replay is the method where
 transitions are stored at so called Replay Buffer (or Replay Memory)
-once then these transitions are "randomly" sampled as mini-batch for
+once, then these transitions are "randomly" sampled as mini-batch for
 training. One of the largest motivation is sample efficiency. Running
 an environment, especially in the real world, is costful, so that we
 want to reuse already sampled transitions as much as
