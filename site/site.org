@@ -1662,7 +1662,7 @@ like PER, except using inferred score \(\sigma _i\) instead of
 NERS consists of 3 neural networks, local network \(f_l\), global
 network \(f_g\), and score network \(f_s\). \(f_l\) calculates for
 each transisiton. \(f_g\) calculates for each transition then these
-outputs are averaged over minibatch as global context.\(f_s\) takes
+outputs are averaged over mini-batch as global context.\(f_s\) takes
 the concatenation of the outputs of \(f_l\) and the global context and
 calculates scores \(sigma _i\) for each transition.
 
