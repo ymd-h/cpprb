@@ -1735,15 +1735,16 @@ was generated.
 
 Usually, Replay Buffer is implemented with a fixed size ring buffer,
 where the oldest transition is overwritten by a newly comming
-transition when the capacity is already full. Therefore, replay ratio,
-ratio of gradient update to environment transition, is a good factor
-to adjust the oldest age of transition stored in the Replay Buffer.
+transition when the capacity is already full. Therefore, replay ratio
+(\(=\frac{\text{gradient update}}{\text{environment transition}}\)) is
+a good factor to adjust the oldest age of transition stored in the
+Replay Buffer.
 
 Their results shows that performance improves when increasing replay
 buffer capacity while fixing the oldest age of transition, which also
-requires increase of replay ratio. Performance also improves when
+requires decrease of replay ratio. Performance also improves when
 reducing the oldest age of transition while fixing replay buffer
-capacity, which also requires increase of replay ratio.
+capacity, which also requires decrease of replay ratio.
 
 If the capacity is increased without changing replay ratio, the
 results vary. There are competitive 2 effects, improvement by
