@@ -1641,6 +1641,51 @@ something like =JointPrioritizedReplayBuffer=.
 ** References
 - [[http://proceedings.mlr.press/v100/luo20a.html][J. Luo and H. Li, "Dynamic Experience Replay", CoRL (2020)]] ([[https://arxiv.org/abs/2003.02372][arXiv]], [[https://sites.google.com/site/dynamicexperiencereplay][site]])
 
+* DONE Neural Experience Experience Replay Sampler (NERS)
+CLOSED: [2021-02-13 Sat 11:03]
+:PROPERTIES:
+:EXPORT_FILE_NAME: ners
+:EXPORT_HUGO_SECTION*: survey
+:END:
+
+** Overview
+[[https://openreview.net/forum?id=gJYlaqL8i8][Neural Experience Replay Sampler (NERS)]] is neural network learns
+sampling score \(\sigma _i\) for each transition. RL policy is trained
+like PER, except using inferred score \(\sigma _i\) instead of
+\(\mid\text{TD}\mid\).
+
+
+\[ p_i = \frac{\sigma _i ^{\alpha}}{\sum _{k \in [\mid B\mid ]}}\sigma _k ^{\alpha} \]
+
+
+NERS consists of 3 neural networks, local network \(f_l\), global
+network \(f_g\), and score network \(f_s\). \(f_l\) calculates for
+each transisiton. \(f_g\) calculates for each transition then these
+outputs are averaged over minibatch as global context.\(f_s\) takes
+the concatenation of the outputs of \(f_l\) and the global context and
+calculates scores \(sigma _i\) for each transition.
+
+
+NERS are trained at each episode end with subset transitions of that
+used for updating of actor and critic during the episode.
+
+In order to optimize replay reward
+\(r ^{\text{re}} = \sum _{t \in \text{current episode}} r_t \sum _{t \in \text{previous episode}} r_t \),
+the following gradients are used;
+
+\[\nabla _{\phi} \mathbb{E} [r^{\text{re}}] = \mathbb{E}[r^{\text{re}}\sum _{i\in I_{\text{train}}} \nabla _{\phi} \log \sigma _i (D(I_{\text{i}}))] \]
+
+
+** With cpprb
+You can implement NERS with the current cpprb. For main replay buffer,
+you can use =PrioritizedReplayBuffer=. For index collection, you can
+use =ReplayBuffer=. Additionaly you need to implement neural network
+to learn sampling probability.
+
+
+** References
+- [[https://openreview.net/forum?id=gJYlaqL8i8][Y. Oh et. al., "Learning to Sample with Local and Global Contexts in Experience Replay Buffer", ICRL (2021)]] ([[https://arxiv.org/abs/2007.07358][arXiv]])
+
 * Footnotes
 
 [fn:1] Updating segment tree for PER is critical section, too. To
