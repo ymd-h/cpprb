@@ -1707,11 +1707,13 @@ CLOSED: [2021-02-13 Sat 16:28]
 ** Basics of Experience Replay
 Experience Replay is widely used for off-policy reinforcement
 learning. Naively speaking, Experience Replay is the method where
-transitions are stored once then these transitions are "randomly"
-sampled as mini-batch for training. One of the largest motivation is
-sample efficiency. Running an environment, especially in the real
-world, is costful, so that we want to reuse already sampled
-transitions as much as possible.
+transitions are stored at so called Replay Buffer (or Replay Memory)
+once then these transitions are "randomly" sampled as mini-batch for
+training. One of the largest motivation is sample efficiency. Running
+an environment, especially in the real world, is costful, so that we
+want to reuse already sampled transitions as much as
+possible. Moreover, many results shows that Experience Replay speeds
+up training.
 
 Experience Replay was proposed (or at leaset was named) by
 L. Lin[fn:2]. At the same paper, he also noted that replaying past
