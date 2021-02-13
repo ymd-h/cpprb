@@ -1680,7 +1680,7 @@ NERS are trained at each episode end with subset transitions of that
 used for updating of actor and critic during the episode.
 
 In order to optimize replay reward
-\(r ^{\text{re}} = \sum _{t \in \text{current episode}} r_t \sum _{t \in \text{previous episode}} r_t \),
+\(r ^{\text{re}} = \sum _{t \in \text{current episode}} r_t - \sum _{t \in \text{previous episode}} r_t \),
 the following gradients are used;
 
 \[\nabla _{\phi} \mathbb{E} [r^{\text{re}}] = \mathbb{E}[r^{\text{re}}\sum _{i\in I_{\text{train}}} \nabla _{\phi} \log \sigma _i (D(I_{\text{i}}))] \]
