@@ -1726,6 +1726,30 @@ There are a lot of studies and modifications of Experience
 Replay. Most of them focus the way of selecting transitions in order
 to improve sample efficiency.
 
+** On-Policyness Effect at Experience Replay
+W. Fedus /et.al./[fn:4] recently studied the effect of on-policyness
+(closeness between the current policy and behavior policy). The key
+metrics at this paper is the age of transition, which is defined by
+the number of gradient steps taken by the learner since the transition
+was generated.
+
+Usually, Replay Buffer is implemented with a fixed size ring buffer,
+where the oldest transition is overwritten by a newly comming
+transition when the capacity is already full. Therefore, replay ratio,
+ratio of gradient update to environment transition, is a good factor
+to adjust the oldest age of transition stored in the Replay Buffer.
+
+Their results shows that performance improves when increasing replay
+buffer capacity while fixing the oldest age of transition, which also
+requires increase of replay ratio. Performance also improves when
+reducing the oldest age of transition while fixing replay buffer
+capacity, which also requires increase of replay ratio.
+
+If the capacity is increased without changing replay ratio, the
+results vary. There are competitive 2 effects, improvement by
+increasing the capacity and deterioration by the older age of
+transition.
+
 
 ** Prioritized Experience Replay
 One of the most well-known extension of Exparience Replay is
@@ -1737,6 +1761,8 @@ prioritization.
 
 
 * Footnotes
+
+[fn:4] [[http://proceedings.mlr.press/v119/fedus20a.html][W. Fedus /et. al./, "Revisiting Fundamentals of Experience Replay", ICML (2020)]] ([[https://arxiv.org/abs/2007.06700][arXiv]])
 
 [fn:3] [[https://arxiv.org/abs/1511.05952][T. Schaul /et. al./, "Prioritized Experience Replay", ICLR (2016)]]
 
