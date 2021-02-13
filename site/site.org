@@ -1704,6 +1704,7 @@ CLOSED: [2021-02-13 Sat 16:28]
 :EXPORT_HUGO_WEIGHT: 925
 :END:
 
+** Basics of Experience Replay
 Experience Replay is widely used for off-policy reinforcement
 learning. Naively speaking, Experience Replay is the method where
 transitions are stored once then these transitions are "randomly"
