@@ -1696,7 +1696,32 @@ to learn sampling probability.
 ** References
 - [[https://openreview.net/forum?id=gJYlaqL8i8][Y. Oh et. al., "Learning to Sample with Local and Global Contexts in Experience Replay Buffer", ICRL (2021)]] ([[https://arxiv.org/abs/2007.07358][arXiv]])
 
+* DONE Understanding of Experience Replay
+CLOSED: [2021-02-13 Sat 16:28]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: understanding
+:EXPORT_FILE_NAME: _index
+:EXPORT_HUGO_WEIGHT: 925
+:END:
+
+Experience Replay is widely used for off-policy reinforcement
+learning. Naively speaking, Experience Replay is the method where
+transitions are stored then these transitions are "randomly" sampled
+as mini-batch for training. One of the largest motivation is sample
+efficiency. Running an environment, especially in the real world, is
+costful, so that we want to reuse already sampled transitions as much
+as possible.
+
+Experience Replay was proposed (or at leaset was named) by
+L. Lin[fn:2]. At the same paper, he also noted that replaying past
+experiences will disturb if the past policies are different from the
+current one. The policy might overestimate or underestimate by
+learning already rare action results.
+
+
 * Footnotes
+
+[fn:2] [[https://link.springer.com/article/10.1007/BF00992699][L. Lin, "Self-improving reactive agents based on reinforcement learning, planning and teaching", Mach. Learn. 8, 293-321 (1992) https://doi.org/10.1007/BF00992699]]
 
 [fn:1] Updating segment tree for PER is critical section, too. To
 avoid data race, ~MPPrioritizedReplayBuffer~ lazily updates segment
