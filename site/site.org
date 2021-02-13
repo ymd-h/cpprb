@@ -1772,6 +1772,11 @@ transition \(i\) when transitions are sorted according to
 \(\mid\delta_i\mid\). Theoretically, rank-base is more robust because
 it is insensitive to outliers.
 
+The probability of sampling transition \(i\) is following;
+
+\[ P(i) = \frac{(p _i)^{\alpha}}{\sum _k (p_k)^{\alpha}} \]
+
+
 
 * Footnotes
 
