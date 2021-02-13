@@ -1747,13 +1747,15 @@ reducing the oldest age of transition while fixing replay buffer
 capacity, which also requires decrease of replay ratio.
 
 If the capacity is increased without changing replay ratio, the
-results vary. There are competitive 2 effects, improvement by
-increasing the capacity and deterioration by the older age of
-transition.
+results vary depending on the experimental setup. There are
+competitive 2 effects, improvement by increasing the capacity and
+deterioration by the older age of transition.
 
 
-\(n\)-step configuration enlarges the amount of improvement with
-larger replay buffer capacity.
+The authors also found \(n\)-step rewards enlarges the amount of
+improvement with larger replay buffer capacity even though \(n\)-step
+rewards with the old age of transition were not theoretically
+guaranteed.
 
 
 ** Prioritized Experience Replay
