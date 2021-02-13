@@ -1751,6 +1751,10 @@ increasing the capacity and deterioration by the older age of
 transition.
 
 
+\(n\)-step configuration enlarges the amount of improvement with
+larger replay buffer capacity.
+
+
 ** Prioritized Experience Replay
 One of the most well-known extension of Exparience Replay is
 Prioritized Experience Replay (PER) proposed by T. Schaul
