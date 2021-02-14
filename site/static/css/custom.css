@@ -20,7 +20,7 @@ h1
       text-align: center;
 }
 
-section.footnotes > li > a
+section.footnotes > ol > li > p > a
 {
     vertical-align: top;
 }
