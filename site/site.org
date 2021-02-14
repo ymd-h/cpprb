@@ -1827,9 +1827,9 @@ and non-uniform sampling in Experience Replay.
 The autors formulated the equivalent loss function for any non-uniform
 sampling in terms of expectation;
 
-\[ \mathbb{E}_{\mathcal{D}_1}[\nabla _Q \mathcal{L}_1 (\delta (i))] = \mathbb{E}_{\mathcal{D}_2}[\frac{p_{\mathcal{D}_1(i)}}{\mathcal{D}_2(i)}\nabla _Q \mathcal{L}_1 (\delta (i))] = \mathbb{E}_{\mathcal{D}_2}[\nabla _Q \mathcal{L}_2 (\delta (i))] \]
+\[ \mathbb{E}_{\mathcal{D}_1}[\nabla _Q \mathcal{L}_1 (\delta (i))] = \mathbb{E}_{\mathcal{D}_2}[\frac{p_{\mathcal{D}_1(i)}}{p_{\mathcal{D}_2}(i)}\nabla _Q \mathcal{L}_1 (\delta (i))] = \mathbb{E}_{\mathcal{D}_2}[\nabla _Q \mathcal{L}_2 (\delta (i))] \]
 
-where \(\nabla _Q \mathcal{L}_2 (\delta (i)) = \frac{p_{\mathcal{D}_1(i)}}{\mathcal{D}_2(i)}\nabla _Q \mathcal{L}_1 (\delta (i)) \)
+where \(\nabla _Q \mathcal{L}_2 (\delta (i)) = \frac{p_{\mathcal{D}_1(i)}}{p_{\mathcal{D}_2}(i)}\nabla _Q \mathcal{L}_1 (\delta (i)) \)
 
 The equivalent loss function at uniform sampling to a loss of
 \(\frac{1}{\tau}\mid\delta(i)\mid^{\tau}\) at PER is following;
