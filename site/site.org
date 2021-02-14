@@ -1792,7 +1792,7 @@ Buffer. \(\beta\) is a hyperparameter of compensation. Weighted TD
 error \(w_i\delta_i\) are used instead of \(\delta_i\).
 
 
-** Theory of PER success
+** Theory of PER Success
 A. Ang /et. al./[fn:8] tried to explain the success of PER from
 theoretical view point. (Unfortunately, the paper itself was rejected
 by ICLR 2021. I hope to see the improved version in future.)
