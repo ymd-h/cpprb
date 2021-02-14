@@ -1791,7 +1791,39 @@ where \(N\) is the number of transitions in the Replay
 Buffer. \(\beta\) is a hyperparameter of compensation. Weighted TD
 error \(w_i\delta_i\) are used instead of \(\delta_i\).
 
+
+** Theory of PER success
+A. Ang /et. al./[fn:8] tried to explain the success of PER from
+theoretical view point. (Unfortunately, the paper itself was rejected
+by ICLR 2021. I hope to see the improved version in future.)
+
+The authors utilized Expected Value of Backup (EVB), which is defined
+as improvement of cumulative discounted rewards by updating on an
+experience \(e _k\) (\(=\lbrace s_k, a_k, r_k, s_{k+1}\rbrace\));
+
+\[ EVB(e_k) = v_{\pi _{\text{new}}} (s_k) - v_{\pi _{\text{old}}} (s_k) = \sum _a \pi _{\text{new}} (a\mid s_k) q_{\pi _{\text{new}}}(s_k,a) - \sum _a \pi _{\text{old}} (a\mid s_k) q_{\pi _{\text{old}}}(s_k,a)\]
+
+where \(\pi _{\text{old}}\), \(v _{\text{old}}\), and
+\(q_{\text{old}}\) are the policy, value function, and Q-function
+before the update, respectively, and \(\pi _{\text{new}}\),
+\(v_{\text{new}}\), and \(q_{\text{new}}\) are those after.
+
+The key result of this paper is that as long as policy improvement is
+greedy, the size of EVB is upper-bounded by scaled TD error size;
+
+\[\mid EVB(e_k) \mid \leq \alpha \mid TD(s_k, a_k, r_k, s_{k+1})\mid \]
+
+where \(\alpha\) is step size parameter.
+
+This is not sufficient but partially explains why choosing experience
+with large TD error is better. (At least it is true that an experience
+with small TD error cannot improve cumulative rewards so much.)
+
+
+
 * Footnotes
+
+[fn:8] [[https://arxiv.org/abs/2102.03261][A. Ang /et. al./, "Revisiting Prioritized Experience Replay: A Value Perspective" (2021) arXiv:2102.03261]]
 
 [fn:7] [[https://deepmind.com/research/open-source/Reverb][A. Cassirer /et.al./, "Reverb: An efficient data storage and transport system for ML research", (2020) https://github.com/deepmind/reverb]] ([[https://github.com/deepmind/reverb][code]])
 
