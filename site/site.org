@@ -1811,7 +1811,7 @@ before the update, respectively, and \(\pi _{\text{new}}\),
 The key result of this paper is that as long as policy improvement is
 greedy, the size of EVB is upper-bounded by scaled TD error size;
 
-\[\mid \text{EVB}(e_k) \mid \leq \alpha \mid \text{TD}(s_k, a_k, r_k, s_{k+1})\mid \]
+\[|\text{EVB}(e_k) | \leq \alpha | \text{TD}(s_k, a_k, r_k, s_{k+1})| \]
 
 where \(\alpha\) is step size parameter.
 
