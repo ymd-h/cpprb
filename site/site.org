@@ -1772,7 +1772,7 @@ rank of transition \(i\) when transitions are sorted according to
 \(\mid\delta_i\mid\). Theoretically, rank-base is more robust because
 it is insensitive to outliers, however, experimental results are not
 so much different and proportional-base has efficient implementation,
-so that libraries including cpprb adopts proportional-base
+so that many libraries including cpprb adopts proportional-base
 one[fn:5][fn:6][fn:7].
 
 The probability of sampling transition \(i\) is following;
