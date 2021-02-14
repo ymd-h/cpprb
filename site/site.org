@@ -1847,7 +1847,7 @@ is somehow mixed of the above.
 If we use the MSE in PER sampling, \(\tau + \alpha - \alpha\beta > 2\)
 and the result is biased. Additionally, the authors pointed out that
 the compensation hyperparameter \(\beta\) does not affect expected
-gradient result, and \(\beta=0\) is fine.
+gradient result, and \(\beta=0\) was fine.
 
 The authors proposed Loss-Adjusted Prioritized Experience Relpay (LAP) as follows;
 
