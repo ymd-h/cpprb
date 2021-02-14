@@ -19,3 +19,8 @@ h1
   {
       text-align: center;
   }
+
+section.footnotes > li > a
+{
+    vertical-align: top;
+}
