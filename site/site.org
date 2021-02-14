@@ -1769,10 +1769,10 @@ proportional-base \(p_i=|\delta_i|+\epsilon\) and rank-base
 \(p_i=\frac{1}{\text{rank}(i)}\), where \(\epsilon\) is a small
 positive value to avoid zero prioritization and \(\text{rank}(i)\) is
 rank of transition \(i\) when transitions are sorted according to
-\(|\delta_i|\). Theoretically, rank-base is more robust because
-it is insensitive to outliers, however, experimental results are not
-so much different and proportional-base has efficient implementation,
-so that many libraries including cpprb adopt proportional-base
+\(|\delta_i|\). Theoretically, rank-base is more robust because it is
+insensitive to outliers, however, experimental results are not so much
+different and proportional-base has efficient implementation, so that
+many libraries including cpprb adopt proportional-base
 one[fn:5][fn:6][fn:7].
 
 The probability of sampling transition \(i\) is following;
