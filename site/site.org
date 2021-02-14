@@ -1772,7 +1772,8 @@ rank of transition \(i\) when transitions are sorted according to
 \(\mid\delta_i\mid\). Theoretically, rank-base is more robust because
 it is insensitive to outliers, however, experimental results are not
 so much different and proportional-base has efficient implementation,
-so that libraries including cpprb adopts proportional-base one.
+so that libraries including cpprb adopts proportional-base
+one[fn:5][fn:6][fn:7].
 
 The probability of sampling transition \(i\) is following;
 
@@ -1791,6 +1792,12 @@ Buffer. \(\beta\) is a hyperparameter of compensation. Weighted TD
 error \(w_i\delta_i\) are used instead of \(\delta_i\).
 
 * Footnotes
+
+[fn:7] [[https://deepmind.com/research/open-source/Reverb][A. Cassirer /et.al./, "Reverb: An efficient data storage and transport system for ML research", (2020) https://github.com/deepmind/reverb]] ([[https://github.com/deepmind/reverb][code]])
+
+[fn:6] [[http://proceedings.mlr.press/v80/liang18b.html][E. Liang /et. al./, "RLlib: Abstractions for Distributed Reinforcement Learning", ICML (2018)]] ([[https://arxiv.org/abs/1712.09381][arXiv]], [[https://github.com/ray-project/ray][code]])
+
+[fn:5] [[https://github.com/openai/baselines][D. Prafulla /et. al./, "Open AI Baeslines", (2017) https://github.com/openai/baselines]]
 
 [fn:4] [[http://proceedings.mlr.press/v119/fedus20a.html][W. Fedus /et. al./, "Revisiting Fundamentals of Experience Replay", ICML (2020)]] ([[https://arxiv.org/abs/2007.06700][arXiv]])
 
