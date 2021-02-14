@@ -1853,9 +1853,10 @@ The authors proposed Loss-Adjusted Prioritized Experience Relpay (LAP) as follow
 
 \[ p(i) = \frac{\max(|\delta(i)|^{\alpha},1)}{\sum _j \max(|\delta(j)|^{\alpha},1)},~\mathcal{L}_{\text{Huber}}(\delta(i)) = \begin{cases} 0.5\delta(i)^2 & \text{if}~|\delta(i)| \leq 1 \cr |\delta(i)| & \text{otherwise} \end{cases} \]
 
-MSE is used below 1 because of smooth gradient around 0. By using
-\(\max(|\delta(i)|^{\alpha},1)\), transitions around 0 TD errors
-are sampled uniformly, so that no-bias is introduced.
+MSE is used at \(|\delta(i)|\leq 1\) because of smooth gradient
+around 0. By using \(\max(|\delta(i)|^{\alpha},1)\), transitions
+with \(|\delta(i)\leq 1|\) are sampled uniformly, so that no-bias is
+introduced.
 
 The authors also proposed the equivalent form at uniform sampling,
 Prioritized Approximation Loss (PAL) as follows;
