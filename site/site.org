@@ -1832,16 +1832,16 @@ sampling in terms of expectation;
 where \(\nabla _Q \mathcal{L}_2 (\delta (i)) = \frac{p_{\mathcal{D}_1(i)}}{p_{\mathcal{D}_2}(i)}\nabla _Q \mathcal{L}_1 (\delta (i)) \)
 
 The equivalent loss function at uniform sampling to a loss of
-\(\frac{1}{\tau}\mid\delta(i)\mid^{\tau}\) at PER is following;
+\(\frac{1}{\tau}|\delta(i)|^{\tau}\) at PER is following;
 
-\[ \mathcal{L}^{\tau}_{\text{PER}}(\delta(i)) = \frac{\eta N}{\tau + \alpha - \alpha\beta}\mid\delta(i)\mid^{\tau + \alpha - \alpha\beta},~\eta = \frac{\min _j \mid \delta(i) \mid^{\alpha\beta}}{\sum _j \mid\delta(i)\mid^{\alpha}} \]
+\[ \mathcal{L}^{\tau}_{\text{PER}}(\delta(i)) = \frac{\eta N}{\tau + \alpha - \alpha\beta}|\delta(i)|^{\tau + \alpha - \alpha\beta},~\eta = \frac{\min _j \mid \delta(i) \mid^{\alpha\beta}}{\sum _j |\delta(i)|^{\alpha}} \]
 
 By minimizing mean squared error (MSE) of TD error, Q-function is
 optimized to mean of target
 \(y(i)=r+\gamma\mathbb{E}_{s^{\prime},a^{\prime}}[Q(s^{\prime},a^{\prime})]\). By
 minimizing L1 loss of TD error, Q-function is optimized to median of
 target. If the objective loss is intermidiate of MSE and L1
-(\(\frac{1}{\tau}\mid\delta(i)\mid^{\tau}, \tau\in(1,2)\)), the result
+(\(\frac{1}{\tau}|\delta(i)|^{\tau}, \tau\in(1,2)\)), the result
 is somehow mixed of the above.
 
 If we use the MSE in PER sampling, \(\tau + \alpha - \alpha\beta > 2\)
@@ -1851,16 +1851,16 @@ gradient result, and \(\beta=0\) is fine.
 
 The authors proposed Loss-Adjusted Prioritized Experience Relpay (LAP) as follows;
 
-\[ p(i) = \frac{\max(\mid\delta(i)\mid^{\alpha},1)}{\sum _j \max(\mid\delta(j)\mid^{\alpha},1)},~\mathcal{L}_{text{Huber}}(\delta(i)) = \begin{cases} 0.5\delta(i)^2 & \text{if} \mid\delta(i)\mid \leq 1 \cr \mid\delta(i)\mid & \text{otherwise} \end{cases} \]
+\[ p(i) = \frac{\max(|\delta(i)|^{\alpha},1)}{\sum _j \max(\mid\delta(j)\mid^{\alpha},1)},~\mathcal{L}_{text{Huber}}(\delta(i)) = \begin{cases} 0.5\delta(i)^2 & \text{if} |\delta(i)| \leq 1 \cr |\delta(i)| & \text{otherwise} \end{cases} \]
 
 MSE is used below 1 because of smooth gradient around 0. By using
-\(\max(\mid\delta(i)\mid^{\alpha},1)\), transitions around 0 TD errors
+\(\max(|\delta(i)|^{\alpha},1)\), transitions around 0 TD errors
 are sampled uniformly, so that no-bias is introduced.
 
 The authors also proposed the equivalent form at uniform sampling,
 Prioritized Approximation Loss (PAL) as follows;
 
-\[ \mathcal{L}_{\text{PAL}}(\delta(i)) = \frac{1}{\lambda} \begin{cases} 0.5\delta(i)^2 & \text{if} \mid\delta(i)\mid \leq 1 \cr \frac{\mid\delta(i)\mid^{1+\alpha}}{1+\alpha} & \text{otherwise} \end{cases}, \lambda = \frac{\sum _j \max(\mid\delta(i)\mid^{\alpha},1)}{N} \]
+\[ \mathcal{L}_{\text{PAL}}(\delta(i)) = \frac{1}{\lambda} \begin{cases} 0.5\delta(i)^2 & \text{if} |\delta(i)| \leq 1 \cr \frac{|\delta(i)|^{1+\alpha}}{1+\alpha} & \text{otherwise} \end{cases}, \lambda = \frac{\sum _j \max(|\delta(i)|^{\alpha},1)}{N} \]
 
 Important notice: In terms of expectation, LAP and PAL is equivalent,
 however, the variances are different. PAL (and any other
