@@ -1862,7 +1862,7 @@ Prioritized Approximation Loss (PAL) as follows;
 
 \[ \mathcal{L}_{\text{PAL}}(\delta(i)) = \frac{1}{\lambda} \begin{cases} 0.5\delta(i)^2 & \text{if}~|\delta(i)| \leq 1 \cr \frac{|\delta(i)|^{1+\alpha}}{1+\alpha} & \text{otherwise} \end{cases},~\lambda = \frac{\sum _j \max(|\delta(i)|^{\alpha},1)}{N} \]
 
-Important notice: In terms of expectation, LAP and PAL is equivalent,
+Important notice: In terms of expectation, LAP and PAL are equivalent,
 however, the variances are different. PAL (and any other
 uniform-sample equivalent) has larger variance and smaller
 computational cost.
