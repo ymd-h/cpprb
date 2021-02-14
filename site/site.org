@@ -1836,11 +1836,11 @@ The equivalent loss function at uniform sampling to a loss of
 
 \[ \mathcal{L}^{\tau}_{\text{PER}}(\delta(i)) = \frac{\eta N}{\tau + \alpha - \alpha\beta}\mid\delta(i)\mid^{\tau + \alpha - \alpha\beta},~\eta = \frac{\min _j \mid \delta(i) \mid^{\alpha\beta}}{\sum _j \mid\delta(i)\mid^{\alpha}} \]
 
-Minimizing mean squared error (MSE) of TD error, Q-function is
+By minimizing mean squared error (MSE) of TD error, Q-function is
 optimized to mean of target
-\(y(i)=r+\gamma\mathbb{E}_{s^{\prime},a^{\prime}}[Q(s^{\prime},a^{\prime})]\). Minimizing
-L1 loss of TD error, Q-function is optimized to median of target. If
-the objective loss is intermidiate of MSE and L1
+\(y(i)=r+\gamma\mathbb{E}_{s^{\prime},a^{\prime}}[Q(s^{\prime},a^{\prime})]\). By
+minimizing L1 loss of TD error, Q-function is optimized to median of
+target. If the objective loss is intermidiate of MSE and L1
 (\(\frac{1}{\tau}\mid\delta(i)\mid^{\tau}, \tau\in(1,2)\)), the result
 is somehow mixed of the above.
 
