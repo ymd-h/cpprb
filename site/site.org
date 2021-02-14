@@ -1801,7 +1801,7 @@ The authors utilized Expected Value of Backup (EVB), which is defined
 as improvement of cumulative discounted rewards by updating on an
 experience \(e _k\) (\(=\lbrace s_k, a_k, r_k, s_{k+1}\rbrace\));
 
-\[ EVB(e_k) = v_{\pi _{\text{new}}} (s_k) - v_{\pi _{\text{old}}} (s_k) = \sum _a \pi _{\text{new}} (a\mid s_k) q_{\pi _{\text{new}}}(s_k,a) - \sum _a \pi _{\text{old}} (a\mid s_k) q_{\pi _{\text{old}}}(s_k,a)\]
+\[ \text{EVB}(e_k) = v_{\pi _{\text{new}}} (s_k) - v_{\pi _{\text{old}}} (s_k) = \sum _a \pi _{\text{new}} (a\mid s_k) q_{\pi _{\text{new}}}(s_k,a) - \sum _a \pi _{\text{old}} (a\mid s_k) q_{\pi _{\text{old}}}(s_k,a)\]
 
 where \(\pi _{\text{old}}\), \(v _{\text{old}}\), and
 \(q_{\text{old}}\) are the policy, value function, and Q-function
@@ -1811,7 +1811,7 @@ before the update, respectively, and \(\pi _{\text{new}}\),
 The key result of this paper is that as long as policy improvement is
 greedy, the size of EVB is upper-bounded by scaled TD error size;
 
-\[\mid EVB(e_k) \mid \leq \alpha \mid TD(s_k, a_k, r_k, s_{k+1})\mid \]
+\[\mid \text{EVB}(e_k) \mid \leq \alpha \mid \text{TD}(s_k, a_k, r_k, s_{k+1})\mid \]
 
 where \(\alpha\) is step size parameter.
 
