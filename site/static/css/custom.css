@@ -16,6 +16,11 @@ h1
 #flexible-environment,
 #ecosystem-and-community,
 .col-md > h3
-  {
+{
       text-align: center;
-  }
+}
+
+section.footnotes > li > a
+{
+    vertical-align: top;
+}

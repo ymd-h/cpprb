@@ -1696,7 +1696,196 @@ to learn sampling probability.
 ** References
 - [[https://openreview.net/forum?id=gJYlaqL8i8][Y. Oh et. al., "Learning to Sample with Local and Global Contexts in Experience Replay Buffer", ICRL (2021)]] ([[https://arxiv.org/abs/2007.07358][arXiv]])
 
+* DONE Understanding of Experience Replay
+CLOSED: [2021-02-13 Sat 16:28]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: understanding
+:EXPORT_FILE_NAME: _index
+:EXPORT_HUGO_WEIGHT: 925
+:END:
+
+** Basics of Experience Replay
+Experience Replay is widely used for off-policy reinforcement
+learning. Naively speaking, Experience Replay is the method where
+transitions are stored at so called Replay Buffer (or Replay Memory)
+once, then these transitions are "randomly" sampled as mini-batch for
+training. One of the largest motivation is sample efficiency. Running
+an environment, especially in the real world, is costful, so that we
+want to reuse already sampled transitions as much as
+possible. Moreover, many results shows that Experience Replay speeds
+up training.
+
+Experience Replay was proposed (or at leaset was named) by
+L. Lin[fn:2]. At the same paper, he also noted that replaying past
+experiences would disturb if the past policies were different from the
+current one. The policy might overestimate or underestimate by
+learning already rare action results. (Precisely speaking, tabular
+version of Q-learning is not affected.)
+
+There are a lot of studies and modifications of Experience
+Replay. Most of them focus the way of selecting transitions in order
+to improve sample efficiency.
+
+** On-Policyness Effect at Experience Replay
+W. Fedus /et.al./[fn:4] recently studied the effect of on-policyness
+(closeness between the current policy and behavior policy). The key
+metrics at this paper is the age of transition, which is defined by
+the number of gradient steps taken by the learner since the transition
+was generated.
+
+Usually, Replay Buffer is implemented with a fixed size ring buffer,
+where the oldest transition is overwritten by a newly comming
+transition when the capacity is already full. Therefore, replay ratio
+(\(=\frac{\text{gradient update}}{\text{environment transition}}\)) is
+a good factor to adjust the oldest age of transition stored in the
+Replay Buffer.
+
+Their results shows that performance improves when increasing replay
+buffer capacity while fixing the oldest age of transition, which also
+requires decrease of replay ratio. Performance also improves when
+reducing the oldest age of transition while fixing replay buffer
+capacity, which also requires decrease of replay ratio.
+
+If the capacity is increased without changing replay ratio, the
+results vary depending on the experimental setup. There are
+competitive 2 effects, improvement by increasing the capacity and
+deterioration by the older age of transition.
+
+
+The authors also found \(n\)-step rewards enlarges the amount of
+improvement with larger replay buffer capacity even though \(n\)-step
+rewards with the old age of transition were not theoretically
+guaranteed.
+
+
+** Prioritized Experience Replay
+One of the most well-known extension of Exparience Replay is
+Prioritized Experience Replay (PER) proposed by T. Schaul
+/et. al./[fn:3]
+
+The key concept of PER is utilizing TD error (\( \delta _i \)) for
+prioritization (\(p_i\)). There are 2 variants of PER,
+proportional-base \(p_i=|\delta_i|+\epsilon\) and rank-base
+\(p_i=\frac{1}{\text{rank}(i)}\), where \(\epsilon\) is a small
+positive value to avoid zero prioritization and \(\text{rank}(i)\) is
+rank of transition \(i\) when transitions are sorted according to
+\(|\delta_i|\). Theoretically, rank-base is more robust because it is
+insensitive to outliers, however, experimental results are not so much
+different and proportional-base has efficient implementation, so that
+many libraries including cpprb adopt proportional-base
+one[fn:5][fn:6][fn:7].
+
+The probability of sampling transition \(i\) is following;
+
+\[ P(i) = \frac{(p _i)^{\alpha}}{\sum _k (p_k)^{\alpha}} \]
+
+where \(\alpha\) is a hyperparameter of prioritization. If
+\(\alpha=0\), no prioritization are applied.
+
+In order to correct distribution, following importance sampling
+weights are used;
+
+\[ w_i = \left ( \frac{1}{N}\frac{1}{P(i)} \right )^{\beta} \]
+
+where \(N\) is the number of transitions in the Replay
+Buffer. \(\beta\) is a hyperparameter of compensation. Weighted TD
+error \(w_i\delta_i\) are used instead of \(\delta_i\).
+
+
+** Theory of PER Success
+A. Ang /et. al./[fn:8] tried to explain the success of PER from
+theoretical view point. (Unfortunately, the paper itself was rejected
+by ICLR 2021. I hope to see the improved version in future.)
+
+The authors utilized Expected Value of Backup (EVB), which is defined
+as improvement of cumulative discounted rewards by updating on an
+experience \(e _k\) (\(=\lbrace s_k, a_k, r_k, s_{k+1}\rbrace\));
+
+\[ \text{EVB}(e_k) = v_{\pi _{\text{new}}} (s_k) - v_{\pi _{\text{old}}} (s_k) = \sum _a \pi _{\text{new}} (a\mid s_k) q_{\pi _{\text{new}}}(s_k,a) - \sum _a \pi _{\text{old}} (a\mid s_k) q_{\pi _{\text{old}}}(s_k,a)\]
+
+where \(\pi _{\text{old}}\), \(v _{\text{old}}\), and
+\(q_{\text{old}}\) are the policy, value function, and Q-function
+before the update, respectively, and \(\pi _{\text{new}}\),
+\(v_{\text{new}}\), and \(q_{\text{new}}\) are those after.
+
+The key result of this paper is that as long as policy improvement is
+greedy, the size of EVB is upper-bounded by scaled TD error size;
+
+\[|\text{EVB}(e_k) | \leq \alpha | \text{TD}(s_k, a_k, r_k, s_{k+1})| \]
+
+where \(\alpha\) is step size parameter.
+
+This is not sufficient but partially explains why choosing experience
+with large TD error is better. (At least it is true that an experience
+with small TD error cannot improve cumulative rewards so much.)
+
+
+** Relation between Loss Functions and Non-Uniform Sampling
+S. Fujimoto /et.al./[fn:9] clarified relation between loss functions
+and non-uniform sampling in Experience Replay.
+
+The autors formulated the equivalent loss function for any non-uniform
+sampling in terms of expectation;
+
+\[ \mathbb{E}_{\mathcal{D}_1}[\nabla _Q \mathcal{L}_1 (\delta (i))] = \mathbb{E}_{\mathcal{D}_2}\left [\frac{p_{\mathcal{D}_1(i)}}{p_{\mathcal{D}_2}(i)}\nabla _Q \mathcal{L}_1 (\delta (i))\right ] = \mathbb{E}_{\mathcal{D}_2}[\nabla _Q \mathcal{L}_2 (\delta (i))] \]
+
+where \(\nabla _Q \mathcal{L}_2 (\delta (i)) = \frac{p_{\mathcal{D}_1(i)}}{p_{\mathcal{D}_2}(i)}\nabla _Q \mathcal{L}_1 (\delta (i)) \)
+
+The equivalent loss function at uniform sampling to a loss of
+\(\frac{1}{\tau}|\delta(i)|^{\tau}\) at PER is following;
+
+\[ \mathcal{L}^{\tau}_{\text{PER}}(\delta(i)) = \frac{\eta N}{\tau + \alpha - \alpha\beta}|\delta(i)|^{\tau + \alpha - \alpha\beta},~\eta = \frac{\min _j | \delta(i) |^{\alpha\beta}}{\sum _j |\delta(i)|^{\alpha}} \]
+
+By minimizing mean squared error (MSE) of TD error, Q-function is
+optimized to mean of target
+\(y(i)=r+\gamma\mathbb{E}_{s^{\prime},a^{\prime}}[Q(s^{\prime},a^{\prime})]\). By
+minimizing L1 loss of TD error, Q-function is optimized to median of
+target. If the objective loss is intermidiate of MSE and L1
+(\(\frac{1}{\tau}|\delta(i)|^{\tau}, \tau\in(1,2)\)), the result
+is somehow mixed of the above.
+
+If we use the MSE in PER sampling, \(\tau + \alpha - \alpha\beta > 2\)
+and the result is biased. Additionally, the authors pointed out that
+the compensation hyperparameter \(\beta\) does not affect expected
+gradient result, and \(\beta=0\) was fine.
+
+The authors proposed Loss-Adjusted Prioritized Experience Relpay (LAP) as follows;
+
+\[ p(i) = \frac{\max(|\delta(i)|^{\alpha},1)}{\sum _j \max(|\delta(j)|^{\alpha},1)},~\mathcal{L}_{\text{Huber}}(\delta(i)) = \begin{cases} 0.5\delta(i)^2 & \text{if}~|\delta(i)| \leq 1 \cr |\delta(i)| & \text{otherwise} \end{cases} \]
+
+MSE is used at \(|\delta(i)|\leq 1\) because of smooth gradient
+around 0. By using \(\max(|\delta(i)|^{\alpha},1)\), transitions
+with \(|\delta(i)|\leq 1\) are sampled uniformly, so that no-bias is
+introduced.
+
+The authors also proposed the equivalent form at uniform sampling,
+Prioritized Approximation Loss (PAL) as follows;
+
+\[ \mathcal{L}_{\text{PAL}}(\delta(i)) = \frac{1}{\lambda} \begin{cases} 0.5\delta(i)^2 & \text{if}~|\delta(i)| \leq 1 \cr \frac{|\delta(i)|^{1+\alpha}}{1+\alpha} & \text{otherwise} \end{cases},~\lambda = \frac{\sum _j \max(|\delta(i)|^{\alpha},1)}{N} \]
+
+Important notice: In terms of expectation, LAP and PAL are equivalent,
+however, the variances are different. PAL (and any other
+uniform-sample equivalent) has larger variance and smaller
+computational cost.
+
+
 * Footnotes
+
+[fn:9] [[https://arxiv.org/abs/2007.06049][S. Fujimoto /et. al./, "An Equivalence between Loss Functions and Non-Uniform Sampling in Experience Replay" (2020) arXiv:2007.06049]]
+
+[fn:8] [[https://arxiv.org/abs/2102.03261][A. Ang /et. al./, "Revisiting Prioritized Experience Replay: A Value Perspective" (2021) arXiv:2102.03261]]
+
+[fn:7] [[https://deepmind.com/research/open-source/Reverb][A. Cassirer /et.al./, "Reverb: An efficient data storage and transport system for ML research", (2020) https://github.com/deepmind/reverb]] ([[https://github.com/deepmind/reverb][code]])
+
+[fn:6] [[http://proceedings.mlr.press/v80/liang18b.html][E. Liang /et. al./, "RLlib: Abstractions for Distributed Reinforcement Learning", ICML (2018)]] ([[https://arxiv.org/abs/1712.09381][arXiv]], [[https://github.com/ray-project/ray][code]])
+
+[fn:5] [[https://github.com/openai/baselines][D. Prafulla /et. al./, "Open AI Baeslines", (2017) https://github.com/openai/baselines]]
+
+[fn:4] [[http://proceedings.mlr.press/v119/fedus20a.html][W. Fedus /et. al./, "Revisiting Fundamentals of Experience Replay", ICML (2020)]] ([[https://arxiv.org/abs/2007.06700][arXiv]])
+
+[fn:3] [[https://arxiv.org/abs/1511.05952][T. Schaul /et. al./, "Prioritized Experience Replay", ICLR (2016)]]
+
+[fn:2] [[https://link.springer.com/article/10.1007/BF00992699][L. Lin, "Self-improving reactive agents based on reinforcement learning, planning and teaching", Mach. Learn. 8, 293-321 (1992) https://doi.org/10.1007/BF00992699]]
 
 [fn:1] Updating segment tree for PER is critical section, too. To
 avoid data race, ~MPPrioritizedReplayBuffer~ lazily updates segment
