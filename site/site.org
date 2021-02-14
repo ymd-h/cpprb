@@ -1834,7 +1834,7 @@ where \(\nabla _Q \mathcal{L}_2 (\delta (i)) = \frac{p_{\mathcal{D}_1(i)}}{\math
 
 * Footnotes
 
-[fn:9] [[S. Fujimoto /et. al./, "An Equivalence between Loss Functions and Non-Uniform Sampling in Experience Replay" (2020) arXiv:2007.06049]]
+[fn:9] [[https://arxiv.org/abs/2007.06049][S. Fujimoto /et. al./, "An Equivalence between Loss Functions and Non-Uniform Sampling in Experience Replay" (2020) arXiv:2007.06049]]
 
 [fn:8] [[https://arxiv.org/abs/2102.03261][A. Ang /et. al./, "Revisiting Prioritized Experience Replay: A Value Perspective" (2021) arXiv:2102.03261]]
 
