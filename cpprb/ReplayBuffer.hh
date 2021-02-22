@@ -359,7 +359,7 @@ namespace ymd {
     }
 
     void set_priority(std::size_t next_index,Priority p){
-      auro v = this->prob(p);
+      auto v = this->prob(p);
       sum.set(next_index,v);
       if constexpr (!LossAdjusted){
 	min.set(next_index,v);
