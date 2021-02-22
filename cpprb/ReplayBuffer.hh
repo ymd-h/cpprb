@@ -298,7 +298,7 @@ namespace ymd {
     }
   };
 
-  template<typename Priority,bool MultiThread = false>
+  template<typename Priority,bool MultiThread = false,bool LossAdjusted = false>
   class CppPrioritizedSampler {
   private:
     using ThreadSafePriority_t = ThreadSafe<MultiThread,Priority>;
@@ -332,6 +332,8 @@ namespace ymd {
 
     void set_weights(const std::vector<std::size_t>& indexes,Priority beta,
 		     std::vector<Priority>& weights,std::size_t stored_size) {
+      if constexpr (LossAdjusted){ return; }
+
       weights.resize(0);
       weights.reserve(indexes.size());
 
@@ -351,13 +353,17 @@ namespace ymd {
     void set_priorities(std::size_t next_index,F&& f,
 			std::size_t N,std::size_t buffer_size){
       sum.set(next_index,std::forward<F>(f),N,buffer_size);
-      min.set(next_index,std::forward<F>(f),N,buffer_size);
+      if constexpr (!LossAdjusted){
+	min.set(next_index,std::forward<F>(f),N,buffer_size);
+      }
     }
 
     void set_priority(std::size_t next_index,Priority p){
-      auto v = std::pow(p+eps,alpha);
+      auro v = this->prob(p);
       sum.set(next_index,v);
-      min.set(next_index,v);
+      if constexpr (!LossAdjusted){
+	min.set(next_index,v);
+      }
     }
 
   public:
@@ -376,11 +382,12 @@ namespace ymd {
 	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; },
 	    Priority{0},
 	    sum_ptr,sum_anychanged,initialize},
-	min{PowerOf2(buffer_size),[](Priority a,Priority b){ return  std::min(a,b); },
+	min{(!LossAdjusted) ? PowerOf2(buffer_size): 1,
+            [](Priority a,Priority b){ return  std::min(a,b); },
 	    std::numeric_limits<Priority>::max(),
 	    min_ptr,min_anychanged,initialize},
 	g{std::random_device{}()},
-	eps{eps}
+	eps{LossAdjusted ? Priority{0}: eps}
     {
       if(!max_priority){
 	max_priority = new typename ThreadSafePriority_t::type{};
@@ -402,13 +409,13 @@ namespace ymd {
 		std::vector<Priority>& weights,std::vector<std::size_t>& indexes,
 		std::size_t stored_size){
       sample_proportional(batch_size,indexes,stored_size);
-      set_weights(indexes,beta,weights,stored_size);
+      if constexpr (!LossAdjusted){ set_weights(indexes,beta,weights,stored_size); }
     }
     virtual void clear(){
       ThreadSafePriority_t::store(max_priority,default_max_priority,
 				  std::memory_order_release);
       sum.clear();
-      min.clear(std::numeric_limits<Priority>::max());
+      if constexpr (!LossAdjusted){ min.clear(std::numeric_limits<Priority>::max()); }
     }
 
     Priority get_max_priority() const {
@@ -436,16 +443,14 @@ namespace ymd {
       ThreadSafePriority_t::store_max(max_priority, *std::max_element(p,p+N));
 
       set_priorities(next_index,
-		     [=]() mutable { return std::pow(eps + *(p++),alpha); },
+		     [=]() mutable { return this->prob(*(p++)); },
 		     N,buffer_size);
     }
 
     void set_priorities(std::size_t next_index,
 			std::size_t N,std::size_t buffer_size){
-      const auto v = std::pow(ThreadSafePriority_t::load(max_priority,
-							 std::memory_order_acquire)
-			      + eps,
-			      alpha);
+      auto v = this->prob(ThreadSafePriority_t::load(max_priority,
+						     std::memory_order_acquire));
       set_priorities(next_index,[=](){ return v; },N,buffer_size);
     }
 
@@ -462,9 +467,9 @@ namespace ymd {
 						   std::memory_order_acquire),
 			[=,p=priorities]
 			(auto max_p, auto index) mutable {
-			  Priority v = std::pow(*p + this->eps,this->alpha);
+			  Priority v = this->prob(*p);
 			  this->sum.set(index,v);
-			  this->min.set(index,v);
+			  if constexpr (!LossAdjusted){ this->min.set(index,v); }
 
 			  return std::max<Priority>(max_p,*(p++));
 			});
@@ -490,7 +495,15 @@ namespace ymd {
     void weak_update_changed(){
       if constexpr (MultiThread) {
 	sum.weak_update_changed();
-	min.weak_update_changed();
+	if constexpr (!LossAdjusted){ min.weak_update_changed(); }
+      }
+    }
+
+    Priority prob(Priority p) const {
+      if constexpr (!LossAdjusted){
+	return std::pow(p+this->eps,this->alpha);
+      }else{
+	return std::pow(std::max(p,Priority{1.0}),this->alpha);
       }
     }
   };
