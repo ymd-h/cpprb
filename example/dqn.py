@@ -80,6 +80,20 @@ else:
 action_index = np.arange(env.action_space.n).reshape(1,-1)
 
 
+
+def Q_func(model,obs,act,act_shape):
+    return tf.reduce_sum(model(obs) * tf.one_hot(act,depth=act_shape), axis=1)
+
+
+def Qnext_r_func(model,next_obs,rew,done,gamma):
+    return gamma*tf.reduce_max(model(next_obs),axis=1)*(1.0-done) + rew
+
+
+def Double_Qnext_r_func(model,target,next_obs,rew,done,gamma,act_shape):
+    act = tf.math.argmax(model(next_obs),axis=1)
+    return gamma*tf.reduce_sum(target(next_obs)*tf.one_hot(act,depth=act_shape), axis=1)*(1.0-done) + rew
+
+
 observation = env.reset()
 
 # Warming up
