@@ -31,8 +31,6 @@ prioritized = True
 
 egreedy = True
 
-loss = "huber_loss"
-# loss = "mean_squared_error"
 
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
@@ -47,12 +45,24 @@ env = gym.wrappers.Monitor(env,
                            force=True,
                            video_callable=(lambda ep: ep % 50 == 0))
 
-model = Sequential([InputLayer(input_shape=(observation.shape)), # 4 for CartPole
+# For CartPole: input 4, output 2
+model = Sequential([Dense(64,activation='relu',input_shape=(observation.shape)),
                     Dense(64,activation='relu'),
-                    Dense(64,activation='relu'),
-                    Dense(env.action_space.n)]) # 2 for CartPole
-
+                    Dense(env.action_space.n)])
 target_model = clone_model(model)
+
+
+# Loss Function
+
+@tf.function
+def Huber_loss(absTD):
+    return tf.where(absTD < 1.0, absTD, tf.math.square(absTD))
+
+@tf.function
+def MSE(absTD):
+    return tf.math,square(absTD)
+
+loss_func = Huber_loss
 
 
 optimizer = Adam()
