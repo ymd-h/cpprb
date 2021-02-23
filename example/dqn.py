@@ -129,7 +129,7 @@ for n_episode in range(N_iteration):
                           Q_pred)
 
         if prioritized:
-            TD = np.square(target - Q_pred).sum(axis=1)
+            TD = tf.reduce_mean(tf.math.abs(target - Q_pred))
             rb.update_priorities(sample["indexes"],TD)
 
         model.fit(x=sample['obs'],
