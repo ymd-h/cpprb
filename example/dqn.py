@@ -85,8 +85,8 @@ def Q_func(model,obs,act,act_shape):
     return tf.reduce_sum(model(obs) * tf.one_hot(act,depth=act_shape), axis=1)
 
 
-def DQN_target_func(model,next_obs,rew,done,gamma):
-    return gamma*tf.reduce_max(model(next_obs),axis=1)*(1.0-done) + rew
+def DQN_target_func(target,next_obs,rew,done,gamma):
+    return gamma*tf.reduce_max(target(next_obs),axis=1)*(1.0-done) + rew
 
 
 def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
