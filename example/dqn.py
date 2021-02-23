@@ -91,6 +91,9 @@ def DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
 
 @tf.function
 def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
+    """
+    Double DQN: https://arxiv.org/abs/1509.06461
+    """
     act = tf.math.argmax(model(next_obs),axis=1)
     return gamma*tf.reduce_sum(target(next_obs)*tf.one_hot(act,depth=act_shape), axis=1)*(1.0-done) + rew
 
