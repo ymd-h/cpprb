@@ -95,6 +95,8 @@ def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
     return gamma*tf.reduce_sum(target(next_obs)*tf.one_hot(act,depth=act_shape), axis=1)*(1.0-done) + rew
 
 
+# Start Experiment
+
 observation = env.reset()
 
 # Warming up
