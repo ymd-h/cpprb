@@ -16,7 +16,7 @@ from tensorflow.summary import create_file_writer
 
 from scipy.special import softmax
 
-from cpprb import create_buffer, ReplayBuffer,PrioritizedReplayBuffer
+from cpprb import ReplayBuffer,PrioritizedReplayBuffer
 import cpprb.gym
 
 
@@ -67,13 +67,18 @@ model.compile(loss =  loss,
               optimizer = optimizer,
               metrics=['accuracy'])
 
-rb = create_buffer(1e6,
-                   {"obs":{"shape": observation.shape},
-                    "act":{"shape": 1,"dtype": np.ubyte},
-                    "rew": {},
-                    "next_obs": {"shape": observation.shape},
-                    "done": {}},
-                   prioritized = prioritized)
+
+buffer_size = 1e+6
+env_dict = {"obs":{"shape": observation.shape},
+            "act":{"shape": 1,"dtype": np.ubyte},
+            "rew": {},
+            "next_obs": {"shape": observation.shape},
+            "done": {}}
+
+if prioritized:
+    rb = PrioritizedReplayBuffer(buffer_size,env_dict)
+else:
+    rb = ReplayBuffer(buffer_size,env_dict)
 
 action_index = np.arange(env.action_space.n).reshape(1,-1)
 
