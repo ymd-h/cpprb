@@ -4,6 +4,8 @@ import datetime
 import numpy as np
 
 import gym
+from scipy.special import softmax
+
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential,clone_model
@@ -11,7 +13,6 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.summary import create_file_writer
 
-from scipy.special import softmax
 
 from cpprb import ReplayBuffer,PrioritizedReplayBuffer
 
