@@ -14,7 +14,6 @@ from tensorflow.summary import create_file_writer
 from scipy.special import softmax
 
 from cpprb import ReplayBuffer,PrioritizedReplayBuffer
-import cpprb.gym
 
 
 gamma = 0.99
