@@ -25,7 +25,7 @@ target_update_freq = 50
 
 prioritized = True
 
-egreedy = True
+egreedy = 0.1
 
 # Log
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -117,14 +117,10 @@ observation = env.reset()
 for n_step in range(N_iteration):
     Q = tf.squeeze(model(observation.reshape(1,-1)))
 
-    if egreedy:
-        if np.random.rand() < 0.9:
-            action = np.argmax(Q)
-        else:
-            action = env.action_space.sample()
+    if np.random.rand() < egreedy:
+        action = env.action_space.sample()
     else:
-        actions = softmax(Q)
-        action = np.random.choice(actions.shape[0],p=actions)
+        action = np.argmax(Q)
 
     next_observation, reward, done, info = env.step(action)
     sum_reward += reward
