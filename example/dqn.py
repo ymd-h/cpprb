@@ -197,4 +197,4 @@ for n_step in range(N_iteration):
 
     if n_step % eval_freq == eval_freq-1:
         eval_rew = evaluate(model,eval_env)
-        tf.summary.scalar("episode reward vs training step",data=reward,step=n_step)
+        tf.summary.scalar("episode reward vs training step",data=eval_rew,step=n_step)
