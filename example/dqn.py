@@ -113,6 +113,7 @@ for n_step in range(100):
 
 sum_reward = 0
 n_episode = 0
+observation = env.reset()
 for n_step in range(N_iteration):
     Q = tf.squeeze(model(observation.reshape(1,-1)))
 
