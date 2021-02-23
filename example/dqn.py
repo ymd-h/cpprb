@@ -24,6 +24,7 @@ batch_size = 1024
 
 N_iteration = int(1e+5)
 N_show = 10
+target_update_freq = 50
 
 per_train = 100
 
@@ -170,7 +171,7 @@ for n_step in range(N_iteration):
         sum_reward = 0
         n_episode += 1
 
-    if n_step % 10 == 0:
+    if n_step % target_update_freq == 0:
         target_model.set_weights(model.get_weights())
 
     tf.summary.scalar("reward",data=reward,step=n_step)
