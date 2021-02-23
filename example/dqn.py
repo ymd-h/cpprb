@@ -38,7 +38,7 @@ writer = create_file_writer(logdir + "/metrics")
 writer.set_as_default()
 
 
-
+# Env
 env = gym.make('CartPole-v0')
 env = gym.wrappers.Monitor(env,
                            logdir + "/video/",
