@@ -44,7 +44,8 @@ env = gym.wrappers.Monitor(env,
                            video_callable=(lambda ep: ep % 50 == 0))
 
 # For CartPole: input 4, output 2
-model = Sequential([Dense(64,activation='relu',input_shape=(observation.shape)),
+model = Sequential([Dense(64,activation='relu',
+                          input_shape=(env.observation_space.shape)),
                     Dense(64,activation='relu'),
                     Dense(env.action_space.n)])
 target_model = clone_model(model)
@@ -67,10 +68,10 @@ optimizer = Adam()
 
 
 buffer_size = 1e+6
-env_dict = {"obs":{"shape": observation.shape},
+env_dict = {"obs":{"shape": env.observation_space.shape},
             "act":{"shape": 1,"dtype": np.ubyte},
             "rew": {},
-            "next_obs": {"shape": observation.shape},
+            "next_obs": {"shape": env.observation_space.shape},
             "done": {}}
 
 if prioritized:
