@@ -9,7 +9,7 @@ import gym
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential,clone_model
-from tensorflow.keras.layers import InputLayer,Dense
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.summary import create_file_writer
 
