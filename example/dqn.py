@@ -22,7 +22,7 @@ import cpprb.gym
 gamma = 0.99
 batch_size = 1024
 
-N_iteration = 101
+N_iteration = int(1e+5)
 N_show = 10
 
 per_train = 100
