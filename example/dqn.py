@@ -91,7 +91,7 @@ def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
 observation = env.reset()
 
 # Warming up
-for n_step in range(1000):
+for n_step in range(100):
     action = env.action_space.sample() # Random Action
     next_observation, reward, done, info = env.step(action)
     rb.add(obs=observation,
