@@ -1,147 +1,175 @@
 import os
 import datetime
-import io
-import base64
 
 import numpy as np
 
 import gym
+from scipy.special import softmax
+
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential,clone_model
-from tensorflow.keras.layers import InputLayer,Dense
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping,TensorBoard
 from tensorflow.summary import create_file_writer
 
-from scipy.special import softmax
 
-from cpprb import create_buffer, ReplayBuffer,PrioritizedReplayBuffer
-import cpprb.gym
+from cpprb import ReplayBuffer,PrioritizedReplayBuffer
 
 
 gamma = 0.99
 batch_size = 1024
 
-N_iteration = 101
-N_show = 10
-
-per_train = 100
+N_iteration = int(1e+5)
+target_update_freq = 50
 
 prioritized = True
 
-egreedy = True
+egreedy = 0.1
 
-loss = "huber_loss"
-# loss = "mean_squared_error"
-
-a = cpprb.gym.NotebookAnimation()
+# Log
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-
-
 logdir = os.path.join("logs", dir_name)
 writer = create_file_writer(logdir + "/metrics")
 writer.set_as_default()
 
-env = gym.make('CartPole-v0')
-env = gym.wrappers.Monitor(env,
-                           logdir + "/video/",
-                           force=True,
-                           video_callable=(lambda ep: ep % 50 == 0))
 
+# Env
+env = gym.make('CartPole-v1')
 
-observation = env.reset()
-
-model = Sequential([InputLayer(input_shape=(observation.shape)), # 4 for CartPole
+# For CartPole: input 4, output 2
+model = Sequential([Dense(64,activation='relu',
+                          input_shape=(env.observation_space.shape)),
                     Dense(64,activation='relu'),
-                    Dense(64,activation='relu'),
-                    Dense(env.action_space.n)]) # 2 for CartPole
-
+                    Dense(env.action_space.n)])
 target_model = clone_model(model)
 
 
+# Loss Function
+
+@tf.function
+def Huber_loss(absTD):
+    return tf.where(absTD < 1.0, absTD, tf.math.square(absTD))
+
+@tf.function
+def MSE(absTD):
+    return tf.math.square(absTD)
+
+loss_func = Huber_loss
+
+
 optimizer = Adam()
-tensorboard_callback = TensorBoard(logdir, histogram_freq=1)
 
 
-model.compile(loss =  loss,
-              optimizer = optimizer,
-              metrics=['accuracy'])
+buffer_size = 1e+6
+env_dict = {"obs":{"shape": env.observation_space.shape},
+            "act":{"shape": 1,"dtype": np.ubyte},
+            "rew": {},
+            "next_obs": {"shape": env.observation_space.shape},
+            "done": {}}
 
-rb = create_buffer(1e6,
-                   {"obs":{"shape": observation.shape},
-                    "act":{"shape": 1,"dtype": np.ubyte},
-                    "rew": {},
-                    "next_obs": {"shape": observation.shape},
-                    "done": {}},
-                   prioritized = prioritized)
-
-action_index = np.arange(env.action_space.n).reshape(1,-1)
-
-# Bootstrap
-for n_episode in range (1000):
-    observation = env.reset()
-    for t in range(500):
-        action = env.action_space.sample() # Random Action
-        next_observation, reward, done, info = env.step(action)
-        rb.add(obs=observation,
-               act=action,
-               rew=reward,
-               next_obs=next_observation,
-               done=done)
-        observation = next_observation
-        if done:
-            break
+if prioritized:
+    rb = PrioritizedReplayBuffer(buffer_size,env_dict)
+else:
+    rb = ReplayBuffer(buffer_size,env_dict)
 
 
-for n_episode in range(N_iteration):
-    observation = env.reset()
-    sum_reward = 0
-    for t in range(500):
-        actions = softmax(np.ravel(model.predict(observation.reshape(1,-1),
-                                                 batch_size=1)))
-        actions = actions / actions.sum()
+@tf.function
+def Q_func(model,obs,act,act_shape):
+    return tf.reduce_sum(model(obs) * tf.one_hot(act,depth=act_shape), axis=1)
 
-        if egreedy:
-            if np.random.rand() < 0.9:
-                action = np.argmax(actions)
-            else:
-                action = env.action_space.sample()
-        else:    
-            action = np.random.choice(actions.shape[0],p=actions)
+@tf.function
+def DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
+    return gamma*tf.reduce_max(target(next_obs),axis=1)*(1.0-done) + rew
 
-        next_observation, reward, done, info = env.step(action)
-        sum_reward += reward
-        rb.add(obs=observation,
-               act=action,
-               rew=reward,
-               next_obs=next_observation,
-               done=done)
-        observation = next_observation
+@tf.function
+def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
+    act = tf.math.argmax(model(next_obs),axis=1)
+    return gamma*tf.reduce_sum(target(next_obs)*tf.one_hot(act,depth=act_shape), axis=1)*(1.0-done) + rew
 
-        sample = rb.sample(batch_size)
-        Q_pred = model.predict(sample["obs"])
-        Q_true = target_model.predict(sample['next_obs']).max(axis=1,keepdims=True)*gamma*(1.0 - sample["done"]) + sample['rew']
-        target = tf.where(tf.one_hot(tf.cast(tf.reshape(sample["act"],[-1]),
-                                             dtype=tf.int32),
-                                     env.action_space.n,
-                                     True,False),
-                          tf.broadcast_to(Q_true,[batch_size,env.action_space.n]),
-                          Q_pred)
 
-        if prioritized:
-            TD = np.square(target - Q_pred).sum(axis=1)
-            rb.update_priorities(sample["indexes"],TD)
+target_func = DQN_target_func
 
-        model.fit(x=sample['obs'],
-                  y=target,
-                  batch_size=batch_size,
-                  verbose = 0)
 
-        if done:
-            break
 
-    if n_episode % 10 == 0:
+# Start Experiment
+
+observation = env.reset()
+
+# Warming up
+for n_step in range(100):
+    action = env.action_space.sample() # Random Action
+    next_observation, reward, done, info = env.step(action)
+    rb.add(obs=observation,
+           act=action,
+           rew=reward,
+           next_obs=next_observation,
+           done=done)
+    observation = next_observation
+    if done:
+        env.reset()
+        rb.on_episode_end()
+
+
+sum_reward = 0
+n_episode = 0
+observation = env.reset()
+for n_step in range(N_iteration):
+    Q = tf.squeeze(model(observation.reshape(1,-1)))
+
+    if np.random.rand() < egreedy:
+        action = env.action_space.sample()
+    else:
+        action = np.argmax(Q)
+
+    next_observation, reward, done, info = env.step(action)
+    sum_reward += reward
+    rb.add(obs=observation,
+           act=action,
+           rew=reward,
+           next_obs=next_observation,
+           done=done)
+    observation = next_observation
+
+    sample = rb.sample(batch_size)
+    weights = sample["weights"].ravel() if prioritized else tf.constant(1.0)
+
+    with tf.GradientTape() as tape:
+        tape.watch(model.trainable_weights)
+        Q =  Q_func(model,
+                    tf.constant(sample["obs"]),
+                    tf.constant(sample["act"].ravel()),
+                    tf.constant(env.action_space.n))
+        target_Q = target_func(model,target_model,
+                               tf.constant(sample['next_obs']),
+                               tf.constant(sample["rew"].ravel()),
+                               tf.constant(sample["done"].ravel()),
+                               tf.constant(gamma),
+                               tf.constant(env.action_space.n))
+        absTD = tf.math.abs(target_Q - Q)
+        loss = tf.reduce_mean(loss_func(absTD)*weights)
+
+    grad = tape.gradient(loss,model.trainable_weights)
+    optimizer.apply_gradients(zip(grad,model.trainable_weights))
+
+
+    if prioritized:
+        Q =  Q_func(model,
+                    tf.constant(sample["obs"]),
+                    tf.constant(sample["act"].ravel()),
+                    tf.constant(env.action_space.n))
+        absTD = tf.math.abs(target_Q - Q)
+        rb.update_priorities(sample["indexes"],absTD)
+
+    if done:
+        env.reset()
+        rb.on_episode_end()
+        tf.summary.scalar("total reward vs episode",data=sum_reward,step=n_episode)
+        tf.summary.scalar("total reward vs training step",data=sum_reward,step=n_step)
+        sum_reward = 0
+        n_episode += 1
+
+    if n_step % target_update_freq == 0:
         target_model.set_weights(model.get_weights())
 
-    tf.summary.scalar("reward",data=sum_reward,step=n_episode)
+    tf.summary.scalar("reward vs training step",data=reward,step=n_step)
