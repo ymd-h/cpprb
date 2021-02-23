@@ -140,7 +140,7 @@ for n_step in range(N_iteration):
                                    tf.constant(sample["rew"]),
                                    tf.constant(sample["done"]),
                                    tf.constant(gamma))
-        absTD = tf.abs(target_Q - Q)
+        absTD = tf.math.abs(target_Q - Q)
         loss = loss_func(absTD)
 
     grad = tape.gradient(loss,model.trainable_weights)
@@ -148,6 +148,11 @@ for n_step in range(N_iteration):
 
 
     if prioritized:
+        Q =  Q_func(model,
+                    tf.constant(sample["obs"]),
+                    tf.constant(sample["act"]),
+                    tf.constant(env.action_space.n))
+        absTD = tf.math.abs(target_Q - Q)
         rb.update_priorities(sample["indexes"],absTD)
 
     if done:
