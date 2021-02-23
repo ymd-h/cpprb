@@ -35,7 +35,6 @@ egreedy = True
 loss = "huber_loss"
 # loss = "mean_squared_error"
 
-a = cpprb.gym.NotebookAnimation()
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
