@@ -117,15 +117,15 @@ for n_step in range(100):
 sum_reward = 0
 n_episode = 0
 for n_step in range(N_iteration):
-    Q = model(observation.reshape(1,-1))
-    actions = actions / actions.sum()
+    Q = model(observation)
 
     if egreedy:
         if np.random.rand() < 0.9:
-            action = tf.math.argmax(actions)
+            action = tf.math.argmax(Q)
         else:
             action = env.action_space.sample()
     else:
+        actions = softmax(Q)
         action = np.random.choice(actions.shape[0],p=actions)
 
     next_observation, reward, done, info = env.step(action)
