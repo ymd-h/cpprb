@@ -111,9 +111,9 @@ for n_step in range(1000):
 
 
 sum_reward = 0
+n_episode = 0
 for n_step in range(N_iteration):
-    actions = softmax(np.ravel(model.predict(observation.reshape(1,-1),
-                                                 batch_size=1)))
+    Q = model(observation.reshape(1,-1))
     actions = actions / actions.sum()
 
     if egreedy:
@@ -134,29 +134,35 @@ for n_step in range(N_iteration):
     observation = next_observation
 
     sample = rb.sample(batch_size)
-    Q_pred = model.predict(sample["obs"])
-    Q_true = target_model.predict(sample['next_obs']).max(axis=1,keepdims=True)*gamma*(1.0 - sample["done"]) + sample['rew']
-    target = tf.where(tf.one_hot(tf.cast(tf.reshape(sample["act"],[-1]),
-                                         dtype=tf.int32),
-                                 env.action_space.n,
-                                 True,False),
-                      tf.broadcast_to(Q_true,[batch_size,env.action_space.n]),
-                      Q_pred)
+
+    with tf.GradientTape as tape:
+        tape.watch(model.trainable_weights)
+        Q =  Q_func(model,
+                    tf.constant(sample["obs"]),
+                    tf.constant(sample["act"]),
+                    tf.constant(env.action_space.n))
+        target_Q = DQN_target_func(target_model,
+                                   tf.constant(sample['next_obs']),
+                                   tf.constant(sample["rew"]),
+                                   tf.constant(sample["done"]),
+                                   tf.constant(gamma))
+        absTD = tf.abs(target_Q - Q)
+        loss = loss_func(absTD)
+
+    grad = tape.gradient(loss,model.trainable_weights)
+    optimizer.apply_gradients(zip(grad,model.trainable_weights))
+
 
     if prioritized:
-        TD = tf.reduce_mean(tf.math.abs(target - Q_pred))
-        rb.update_priorities(sample["indexes"],TD)
-
-    model.fit(x=sample['obs'],
-              y=target,
-              batch_size=batch_size,
-              verbose = 0)
+        rb.update_priorities(sample["indexes"],absTD)
 
     if done:
         rb.on_episode_end()
+        tf.summary.scalar("total reward",data=sum_reward,step=n_episode)
         sum_reward = 0
+        n_episode += 1
 
     if n_step % 10 == 0:
         target_model.set_weights(model.get_weights())
 
-    tf.summary.scalar("reward",data=sum_reward,step=n_episode)
+    tf.summary.scalar("reward",data=reward,step=n_step)
