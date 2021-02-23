@@ -112,7 +112,7 @@ for n_step in range(N_iteration):
 
     if egreedy:
         if np.random.rand() < 0.9:
-            action = np.argmax(actions)
+            action = tf.math.argmax(actions)
         else:
             action = env.action_space.sample()
     else:
