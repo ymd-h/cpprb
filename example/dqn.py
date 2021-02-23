@@ -74,15 +74,15 @@ else:
     rb = ReplayBuffer(buffer_size,env_dict)
 
 
-
+@tf.function
 def Q_func(model,obs,act,act_shape):
     return tf.reduce_sum(model(obs) * tf.one_hot(act,depth=act_shape), axis=1)
 
-
+@tf.function
 def DQN_target_func(target,next_obs,rew,done,gamma):
     return gamma*tf.reduce_max(target(next_obs),axis=1)*(1.0-done) + rew
 
-
+@tf.function
 def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
     act = tf.math.argmax(model(next_obs),axis=1)
     return gamma*tf.reduce_sum(target(next_obs)*tf.one_hot(act,depth=act_shape), axis=1)*(1.0-done) + rew
