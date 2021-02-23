@@ -162,11 +162,12 @@ for n_step in range(N_iteration):
     if done:
         env.reset()
         rb.on_episode_end()
-        tf.summary.scalar("total reward",data=sum_reward,step=n_episode)
+        tf.summary.scalar("total reward vs episode",data=sum_reward,step=n_episode)
+        tf.summary.scalar("total reward vs training step",data=sum_reward,step=n_step)
         sum_reward = 0
         n_episode += 1
 
     if n_step % target_update_freq == 0:
         target_model.set_weights(model.get_weights())
 
-    tf.summary.scalar("reward",data=reward,step=n_step)
+    tf.summary.scalar("reward vs training step",data=reward,step=n_step)
