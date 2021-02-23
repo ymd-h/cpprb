@@ -132,7 +132,7 @@ for n_step in range(N_iteration):
     sample = rb.sample(batch_size)
     weights = sample["weights"].ravel() if prioritized else tf.constant(1.0)
 
-    with tf.GradientTape as tape:
+    with tf.GradientTape() as tape:
         tape.watch(model.trainable_weights)
         Q =  Q_func(model,
                     tf.constant(sample["obs"]),
