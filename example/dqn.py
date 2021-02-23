@@ -79,13 +79,17 @@ def Q_func(model,obs,act,act_shape):
     return tf.reduce_sum(model(obs) * tf.one_hot(act,depth=act_shape), axis=1)
 
 @tf.function
-def DQN_target_func(target,next_obs,rew,done,gamma):
+def DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
     return gamma*tf.reduce_max(target(next_obs),axis=1)*(1.0-done) + rew
 
 @tf.function
 def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
     act = tf.math.argmax(model(next_obs),axis=1)
     return gamma*tf.reduce_sum(target(next_obs)*tf.one_hot(act,depth=act_shape), axis=1)*(1.0-done) + rew
+
+
+target_func = DQN_target_func
+
 
 
 # Start Experiment
@@ -139,11 +143,12 @@ for n_step in range(N_iteration):
                     tf.constant(sample["obs"]),
                     tf.constant(sample["act"].ravel()),
                     tf.constant(env.action_space.n))
-        target_Q = DQN_target_func(target_model,
-                                   tf.constant(sample['next_obs']),
-                                   tf.constant(sample["rew"].ravel()),
-                                   tf.constant(sample["done"].ravel()),
-                                   tf.constant(gamma))
+        target_Q = target_func(model,target_model,
+                               tf.constant(sample['next_obs']),
+                               tf.constant(sample["rew"].ravel()),
+                               tf.constant(sample["done"].ravel()),
+                               tf.constant(gamma),
+                               tf.constant(env.action_space.n))
         absTD = tf.math.abs(target_Q - Q)
         loss = tf.reduce_mean(loss_func(absTD)*weights)
 
