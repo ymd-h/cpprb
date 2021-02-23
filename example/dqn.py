@@ -8,13 +8,13 @@ from scipy.special import softmax
 
 
 import tensorflow as tf
-from tensorflow.keras.models import Sequential,clone_model
+from tensorflow.keras.models import Sequential, clone_model
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.summary import create_file_writer
 
 
-from cpprb import ReplayBuffer,PrioritizedReplayBuffer
+from cpprb import ReplayBuffer, PrioritizedReplayBuffer
 
 
 gamma = 0.99
@@ -22,10 +22,16 @@ batch_size = 1024
 
 N_iteration = int(1e+5)
 target_update_freq = 50
+eval_freq = 100
+
+egreedy = 0.1
+
 
 prioritized = True
 
-egreedy = 0.1
+# Beta linear annealing: https://arxiv.org/abs/1511.05952
+beta = 0.4
+beta_step = (1 - beta)/N_iteration
 
 # Log
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -36,6 +42,7 @@ writer.set_as_default()
 
 # Env
 env = gym.make('CartPole-v1')
+eval_env = gym.make('CartPole-v1')
 
 # For CartPole: input 4, output 2
 model = Sequential([Dense(64,activation='relu',
@@ -84,6 +91,9 @@ def DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
 
 @tf.function
 def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
+    """
+    Double DQN: https://arxiv.org/abs/1509.06461
+    """
     act = tf.math.argmax(model(next_obs),axis=1)
     return gamma*tf.reduce_sum(target(next_obs)*tf.one_hot(act,depth=act_shape), axis=1)*(1.0-done) + rew
 
@@ -91,6 +101,19 @@ def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
 target_func = DQN_target_func
 
 
+
+def evaluate(model,env):
+    obs = env.reset()
+    total_rew = 0
+
+    while True:
+        Q = tf.squeeze(model(obs.reshape(1,-1)))
+        act = np.argmax(Q)
+        obs, rew, done, _ = env.step(act)
+        total_rew += rew
+
+        if done:
+            return total_rew
 
 # Start Experiment
 
@@ -111,7 +134,6 @@ for n_step in range(100):
         rb.on_episode_end()
 
 
-sum_reward = 0
 n_episode = 0
 observation = env.reset()
 for n_step in range(N_iteration):
@@ -123,7 +145,6 @@ for n_step in range(N_iteration):
         action = np.argmax(Q)
 
     next_observation, reward, done, info = env.step(action)
-    sum_reward += reward
     rb.add(obs=observation,
            act=action,
            rew=reward,
@@ -131,7 +152,12 @@ for n_step in range(N_iteration):
            done=done)
     observation = next_observation
 
-    sample = rb.sample(batch_size)
+    if prioritized:
+        sample = rb.sample(batch_size,beta)
+        beta += beta_step
+    else:
+        sample = rb.sample(batch_size)
+
     weights = sample["weights"].ravel() if prioritized else tf.constant(1.0)
 
     with tf.GradientTape() as tape:
@@ -164,12 +190,11 @@ for n_step in range(N_iteration):
     if done:
         env.reset()
         rb.on_episode_end()
-        tf.summary.scalar("total reward vs episode",data=sum_reward,step=n_episode)
-        tf.summary.scalar("total reward vs training step",data=sum_reward,step=n_step)
-        sum_reward = 0
         n_episode += 1
 
     if n_step % target_update_freq == 0:
         target_model.set_weights(model.get_weights())
 
-    tf.summary.scalar("reward vs training step",data=reward,step=n_step)
+    if n_step % eval_freq == eval_freq-1:
+        eval_rew = evaluate(model,eval_env)
+        tf.summary.scalar("episode reward vs training step",data=eval_rew,step=n_step)
