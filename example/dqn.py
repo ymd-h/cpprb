@@ -35,11 +35,7 @@ writer.set_as_default()
 
 
 # Env
-env = gym.make('CartPole-v0')
-env = gym.wrappers.Monitor(env,
-                           logdir + "/video/",
-                           force=True,
-                           video_callable=(lambda ep: ep % 50 == 0))
+env = gym.make('CartPole-v1')
 
 # For CartPole: input 4, output 2
 model = Sequential([Dense(64,activation='relu',
