@@ -60,10 +60,6 @@ optimizer = Adam()
 tensorboard_callback = TensorBoard(logdir, histogram_freq=1)
 
 
-model.compile(loss =  loss,
-              optimizer = optimizer,
-              metrics=['accuracy'])
-
 
 buffer_size = 1e+6
 env_dict = {"obs":{"shape": observation.shape},
@@ -76,8 +72,6 @@ if prioritized:
     rb = PrioritizedReplayBuffer(buffer_size,env_dict)
 else:
     rb = ReplayBuffer(buffer_size,env_dict)
-
-action_index = np.arange(env.action_space.n).reshape(1,-1)
 
 
 
