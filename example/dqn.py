@@ -138,20 +138,21 @@ for n_step in range(N_iteration):
     observation = next_observation
 
     sample = rb.sample(batch_size)
+    weights = sample["weights"].ravel() if prioritized else tf.constant(1.0)
 
     with tf.GradientTape as tape:
         tape.watch(model.trainable_weights)
         Q =  Q_func(model,
                     tf.constant(sample["obs"]),
-                    tf.constant(sample["act"]),
+                    tf.constant(sample["act"].ravel()),
                     tf.constant(env.action_space.n))
         target_Q = DQN_target_func(target_model,
                                    tf.constant(sample['next_obs']),
-                                   tf.constant(sample["rew"]),
-                                   tf.constant(sample["done"]),
+                                   tf.constant(sample["rew"].ravel()),
+                                   tf.constant(sample["done"].ravel()),
                                    tf.constant(gamma))
         absTD = tf.math.abs(target_Q - Q)
-        loss = loss_func(absTD)
+        loss = tf.reduce_mean(loss_func(absTD)*weights)
 
     grad = tape.gradient(loss,model.trainable_weights)
     optimizer.apply_gradients(zip(grad,model.trainable_weights))
@@ -160,7 +161,7 @@ for n_step in range(N_iteration):
     if prioritized:
         Q =  Q_func(model,
                     tf.constant(sample["obs"]),
-                    tf.constant(sample["act"]),
+                    tf.constant(sample["act"].ravel()),
                     tf.constant(env.action_space.n))
         absTD = tf.math.abs(target_Q - Q)
         rb.update_priorities(sample["indexes"],absTD)
