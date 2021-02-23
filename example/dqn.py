@@ -103,6 +103,7 @@ for n_step in range(100):
            done=done)
     observation = next_observation
     if done:
+        env.reset()
         rb.on_episode_end()
 
 
@@ -159,6 +160,7 @@ for n_step in range(N_iteration):
         rb.update_priorities(sample["indexes"],absTD)
 
     if done:
+        env.reset()
         rb.on_episode_end()
         tf.summary.scalar("total reward",data=sum_reward,step=n_episode)
         sum_reward = 0
