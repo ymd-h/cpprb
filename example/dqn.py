@@ -31,13 +31,13 @@ prioritized = True
 
 egreedy = True
 
-
+# Log
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-
-
 logdir = os.path.join("logs", dir_name)
 writer = create_file_writer(logdir + "/metrics")
 writer.set_as_default()
+
+
 
 env = gym.make('CartPole-v0')
 env = gym.wrappers.Monitor(env,
