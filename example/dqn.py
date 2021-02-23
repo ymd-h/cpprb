@@ -11,7 +11,6 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential,clone_model
 from tensorflow.keras.layers import InputLayer,Dense
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping,TensorBoard
 from tensorflow.summary import create_file_writer
 
 from scipy.special import softmax
@@ -57,8 +56,6 @@ target_model = clone_model(model)
 
 
 optimizer = Adam()
-tensorboard_callback = TensorBoard(logdir, histogram_freq=1)
-
 
 
 buffer_size = 1e+6
