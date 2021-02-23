@@ -61,7 +61,7 @@ def Huber_loss(absTD):
 
 @tf.function
 def MSE(absTD):
-    return tf.math,square(absTD)
+    return tf.math.square(absTD)
 
 loss_func = Huber_loss
 
