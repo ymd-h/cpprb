@@ -26,6 +26,8 @@ target_update_freq = 50
 prioritized = True
 
 egreedy = 0.1
+beta = 0.4
+beta_step = (1 - beta)/N_iteration
 
 # Log
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -131,7 +133,12 @@ for n_step in range(N_iteration):
            done=done)
     observation = next_observation
 
-    sample = rb.sample(batch_size)
+    if prioritized:
+        sample = rb.sample(batch_size,beta)
+        beta += beta_step
+    else:
+        sample = rb.sample(batch_size)
+
     weights = sample["weights"].ravel() if prioritized else tf.constant(1.0)
 
     with tf.GradientTape() as tape:
