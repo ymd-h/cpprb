@@ -796,5 +796,41 @@ class TestIssue130(unittest.TestCase):
                 np.testing.assert_allclose(a,np.zeros((1,),dtype=d))
 
 
+class TestIssue135(unittest.TestCase):
+    """
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/135
+
+    ReplayBuffer with stack_compress needs cache for just after next_index
+    """
+    def test_stack(self):
+        rb = ReplayBuffer(3,{"a": {"shape": 2}},stack_compress="a")
+
+        rb.add(a=[0,1])
+        np.testing.assert_allclose(rb.get_all_transitions()["a"],
+                                   np.asarray([[0,1]]))
+
+        rb.add(a=[1,2])
+        np.testing.assert_allclose(rb.get_all_transitions()["a"],
+                                   np.asarray([[0,1],
+                                               [1,2]]))
+
+        rb.add(a=[2,3])
+        np.testing.assert_allclose(rb.get_all_transitions()["a"],
+                                   np.asarray([[0,1],
+                                               [1,2],
+                                               [2,3]]))
+
+        rb.add(a=[3,4])
+        np.testing.assert_allclose(rb.get_all_transitions()["a"],
+                                   np.asarray([[3,4],
+                                               [1,2],
+                                               [2,3]]))
+
+        rb.add(a=[4,5])
+        np.testing.assert_allclose(rb.get_all_transitions()["a"],
+                                   np.asarray([[3,4],
+                                               [4,5],
+                                               [2,3]]))
+
 if __name__ == '__main__':
     unittest.main()
