@@ -801,10 +801,15 @@ class TestIssue135(unittest.TestCase):
     Ref: https://gitlab.com/ymd_h/cpprb/-/issues/135
 
     ReplayBuffer with stack_compress needs cache for just after next_index
+
+
+    stack_compress writes from i to i+stack_size-1.
+    From 2nd iteration, [i+1,i+stack_size-1] must be cached before overwitten.
     """
     def test_stack(self):
         rb = ReplayBuffer(3,{"a": {"shape": 2}},stack_compress="a")
 
+        # 1st iteration: Nothing special
         rb.add(a=[0,1])
         np.testing.assert_allclose(rb.get_all_transitions()["a"],
                                    np.asarray([[0,1]]))
@@ -820,6 +825,7 @@ class TestIssue135(unittest.TestCase):
                                                [1,2],
                                                [2,3]]))
 
+        # 2nd iteration: Cache
         rb.add(a=[3,4])
         np.testing.assert_allclose(rb.get_all_transitions()["a"],
                                    np.asarray([[3,4],
@@ -831,6 +837,32 @@ class TestIssue135(unittest.TestCase):
                                    np.asarray([[3,4],
                                                [4,5],
                                                [2,3]]))
+
+        rb.add(a=[5,6])
+        np.testing.assert_allclose(rb.get_all_transitions()["a"],
+                                   np.asarray([[3,4],
+                                               [4,5],
+                                               [5,6]]))
+
+        # 3rd iteration: Clean up cache beforehand and set new cache
+        rb.add(a=[6,7])
+        np.testing.assert_allclose(rb.get_all_transitions()["a"],
+                                   np.asarray([[6,7],
+                                               [4,5],
+                                               [5,6]]))
+
+        rb.add(a=[7,8])
+        np.testing.assert_allclose(rb.get_all_transitions()["a"],
+                                   np.asarray([[6,7],
+                                               [7,8],
+                                               [5,6]]))
+
+        rb.add(a=[8,9])
+        np.testing.assert_allclose(rb.get_all_transitions()["a"],
+                                   np.asarray([[6,7],
+                                               [7,8],
+                                               [8,9]]))
+
 
 if __name__ == '__main__':
     unittest.main()
