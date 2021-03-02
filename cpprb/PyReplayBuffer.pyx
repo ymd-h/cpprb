@@ -1252,22 +1252,31 @@ cdef class ReplayBuffer:
         cdef size_t key = 0
         cdef size_t next_key = 0
         for key in range(key_min, key_end): # key_end is excluded
-            next_key = key + 1
-            cache_key = {}
+            self.add_cache_i(key, key_end)
 
-            if self.has_next_of:
-                if next_key == key_end:
-                    for name, value in self.next_.items():
-                        cache_key[f"next_{name}"] = value.copy()
-                else:
-                    for name in self.next_.keys():
-                        cache_key[f"next_{name}"] = self.buffer[name][next_key].copy()
+    cdef void add_cache_i(self, size_t key, size_t key_end):
+        # If key is already cached, don't do anything
+        if key in self.cache:
+            return
 
-            if self.compress_any:
-                for name in self.stack_compress:
-                    cache_key[name] = self.buffer[name][key].copy()
+        cdef size_t next_key = key + 1
+        cdef cache_key = {}
 
-            self.cache[key] = cache_key
+        if self.has_next_of:
+            if next_key == key_end:
+                for name, value in self.next_.items():
+                    cache_key[f"next_{name}"] = value.copy()
+            else:
+                for name in self.next_.keys():
+                    cache_key[f"next_{name}"] = self.buffer[name][next_key].copy()
+
+        if self.compress_any:
+            for name in self.stack_compress:
+                cache_key[name] = self.buffer[name][key].copy()
+
+        self.cache[key] = cache_key
+
+
 
     cpdef void on_episode_end(self) except *:
         r"""Call on episode end
