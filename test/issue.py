@@ -367,10 +367,10 @@ class TestIssue108(unittest.TestCase):
     def test_cache_next_of(self):
         stack_size = 3
         episode_len = 5
-        rb = ReplayBuffer(32, {"obs": {"shape": (stack_size),"dtype": np.int}},
+        rb = ReplayBuffer(32, {"obs": {"shape": (stack_size),"dtype": int}},
                           next_of="obs",stack_compress="obs")
 
-        obs = np.arange(episode_len+stack_size+2,dtype=np.int)
+        obs = np.arange(episode_len+stack_size+2,dtype=int)
         # [0,1,...,episode_len+stack_size+1]
         obs2 = obs + 3*episode_len
         # [3*episode_len,...,4*episode_len+stack_size+1]
@@ -436,11 +436,11 @@ class TestIssue108(unittest.TestCase):
         stack_size = 4
         episode_len1 = 5
         episode_len2 = 2
-        rb = ReplayBuffer(32, {"obs": {"shape": (stack_size),"dtype": np.int}},
+        rb = ReplayBuffer(32, {"obs": {"shape": (stack_size),"dtype": int}},
                           next_of="obs",stack_compress="obs")
 
-        obs = np.arange(episode_len1+stack_size+2,dtype=np.int)
-        obs2= np.arange(episode_len2+stack_size+2,dtype=np.int) + 100
+        obs = np.arange(episode_len1+stack_size+2,dtype=int)
+        obs2= np.arange(episode_len2+stack_size+2,dtype=int) + 100
 
         self.assertEqual(rb.get_current_episode_len(),0)
 
