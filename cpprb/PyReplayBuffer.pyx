@@ -1068,10 +1068,18 @@ cdef class ReplayBuffer:
         cdef size_t end = index + N
         cdef size_t remain = 0
         cdef add_idx = np.arange(index,end)
+        cdef size_t key_min = 0
 
         if end > self.buffer_size:
             remain = end - self.buffer_size
             add_idx[add_idx >= self.buffer_size] -= self.buffer_size
+
+        if self.compress_any and (remain or
+                                  self.get_stored_size() == self.buffer_size):
+            key_min = remain or end
+            for key in range(key_min,
+                             min(key_min + self.cache_size, self.buffer_size)):
+                self.add_cache_i(key, index)
 
         for name, b in self.buffer.items():
             b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
