@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.4.6][v9.4.6]]
+- Fix: stack_compress cache ([[https://gitlab.com/ymd_h/cpprb/-/issues/135][135]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.4.5][v9.4.5]]
 - Fix: NumPy ABI change ([[https://gitlab.com/ymd_h/cpprb/-/issues/131][131]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v9.4.4][v9.4.4]]
