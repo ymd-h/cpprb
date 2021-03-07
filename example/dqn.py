@@ -183,7 +183,7 @@ for n_step in range(N_iteration):
                                tf.constant(sample['next_obs']),
                                tf.constant(sample["rew"].ravel()),
                                tf.constant(sample["done"].ravel()),
-                               tf.constant(gamma),
+                               tf.constant(gamma * sample["discounts"].ravel()) if nstep else tf.constant(gamma),
                                tf.constant(env.action_space.n))
         absTD = tf.math.abs(target_Q - Q)
         loss = tf.reduce_mean(loss_func(absTD)*weights)
