@@ -798,6 +798,10 @@ CLOSED: [2020-02-15 Sat 09:23]
 :EXPORT_HUGO_WEIGHT: 800
 :END:
 
+** DQN with ~PrioritizedReplayBuffer~
+
+#+INCLUDE: "../example/dqn.py" src python
+
 ** Multiprocess Learning (Ape-X) with ~MPPrioritizedReplayBuffer~
 See [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-X)]] for detail.
 
