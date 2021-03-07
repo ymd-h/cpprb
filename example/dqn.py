@@ -33,6 +33,11 @@ prioritized = True
 beta = 0.4
 beta_step = (1 - beta)/N_iteration
 
+# Nstep
+nstep = 3
+# nstep = False
+
+
 # Log
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 logdir = os.path.join("logs", dir_name)
@@ -75,10 +80,16 @@ env_dict = {"obs":{"shape": env.observation_space.shape},
             "next_obs": {"shape": env.observation_space.shape},
             "done": {}}
 
-if prioritized:
-    rb = PrioritizedReplayBuffer(buffer_size,env_dict)
+if nstep:
+    Nstep = {"size": nstep, "rew": "rew", "next": "next_obs"}
 else:
-    rb = ReplayBuffer(buffer_size,env_dict)
+    Nstep = None
+
+
+if prioritized:
+    rb = PrioritizedReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
+else:
+    rb = ReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
 
 
 @tf.function
