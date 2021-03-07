@@ -87,6 +87,8 @@ else:
 
 
 if prioritized:
+    # Prioritized Experience Replay: https://arxiv.org/abs/1511.05952
+    # See https://ymd_h.gitlab.io/cpprb/features/per/
     rb = PrioritizedReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
 else:
     rb = ReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
