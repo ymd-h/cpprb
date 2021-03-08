@@ -806,7 +806,7 @@ cdef class NstepBuffer:
         kwargs = self.buffer.copy()
         done = kwargs["done"]
 
-        for i in range(1,self.buffer_size):
+        for i in range(1,self.stored_size):
             done[:-i] += kwargs["done"][i:]
 
         self.clear()
