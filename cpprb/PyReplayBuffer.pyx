@@ -756,7 +756,6 @@ cdef class NstepBuffer:
                 self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
 
         done = kwargs["done"]
-        kwargs["discounts"] = np.where(done,1,self.Nstep_gamma)
 
         for i in range(1,self.buffer_size):
             if i <= add_N:
@@ -764,9 +763,6 @@ cdef class NstepBuffer:
                 done[-i:] += self.buffer["done"][:i]
             else:
                 done += self.buffer["done"][i-add_N:i]
-
-            kwargs["discounts"][done == 0] *= self.Nstep_gamma
-
 
         self.stored_size = self.buffer_size
         return kwargs
@@ -804,11 +800,9 @@ cdef class NstepBuffer:
         """
         kwargs = self.buffer.copy()
         done = kwargs["done"]
-        kwargs["discounts"] = np.where(done,1,self.Nstep_gamma)
 
         for i in range(1,self.buffer_size):
             done[:-i] += kwargs["done"][i:]
-            kwargs["discounts"][done == 0] *= self.Nstep_gamma
 
         self.clear()
         return kwargs
@@ -969,9 +963,6 @@ cdef class ReplayBuffer:
             # Nstep is not support next_of yet
             self.next_of = None
             self.has_next_of = False
-
-            self.env_dict["discounts"] = {"dtype": np.single}
-            special_keys.append("discounts")
 
         # side effect: Add "add_shape" key into self.env_dict
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
