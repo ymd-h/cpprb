@@ -955,5 +955,12 @@ class TestIssue137(unittest.TestCase):
                                                [1], [1],
                                                [1], [1], [1]]))
 
+        rb.clear()
+        self.assertEqual(rb.get_stored_size(),0)
+        rb.add(done=1)
+        rb.on_episode_end()
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[1]]))
+
 if __name__ == '__main__':
     unittest.main()
