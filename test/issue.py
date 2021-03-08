@@ -865,20 +865,19 @@ class TestIssue137(unittest.TestCase):
     """
     Ref: https://gitlab.com/ymd_h/cpprb/-/issues/137
 
-    sample["done"] == 1 if trajectory is terminated within Nstep["step"]
+    sample["done"] == 1 if trajectory is terminated within Nstep["size"]
     """
     def test_Nstep_discounts(self):
         buffer_size = 32
         step = 4
         gamma = 0.5
-        rb = ReplayBuffer(buffer_size,
-                          {"done": {}},
-                          Nstep={"step": step, "gamma": gamma})
+        rb = ReplayBuffer(buffer_size, {"done": {}},
+                          Nstep={"size": step, "gamma": gamma})
 
         rb.add(done=0)
         rb.add(done=0)
         rb.add(done=0)
-        self.assertEqual(rb.stored_size(),0)
+        self.assertEqual(rb.get_stored_size(),0)
 
         rb.add(done=0)
         np.testing.assert_allclose(rb.get_all_transitions()["done"],
@@ -893,9 +892,8 @@ class TestIssue137(unittest.TestCase):
             step = 4
             gamma = 0.5
 
-        rb = ReplayBuffer(buffer_size,
-                          {"done": {}},
-                          Nstep={"step": step, "gamma": gamma})
+        rb = ReplayBuffer(buffer_size, {"done": {}},
+                          Nstep={"size": step, "gamma": gamma})
 
         rb.add(done=0)
         rb.add(done=0)
