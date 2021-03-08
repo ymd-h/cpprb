@@ -458,7 +458,12 @@ value(s), then ~sample~ method returns (i+N)-th value instead of
 (i+1)-th one.
 
 
-~sample~ also adds ~"discounts"~ (\( \gamma ^{N-1} \)) into returned ~dict~.
+~sample~ also replaces ~"done"~ with N-step version.
+
+
+#+HTML: {{% notice warning %}} <p>
+cpprb v10 no longer returns $\gamma ^{N-1}$ since users can always multiply fixed $\gamma ^N$.
+#+HTML: </p>{{% /notice %}}
 
 
 Since N-step buffer temporary store the values into local storage, you
@@ -473,18 +478,29 @@ episode end to flush into main storage properly.
 | ~next~     | ~str~ or array-like of ~str~ | Next items (e.g. next_obs) |
 
 
+| Return Value               | Replace: From $\to$ To                        |
+|----------------------------+-----------------------------------------------|
+| Next items (e.g. next_obs) | $s_{t+1} \to s_{t+N}$                         |
+| ~rew~                      | $r_t \to \sum _{n=0}^{N-1} \gamma ^n r_{t+n}$ |
+| ~done~                     | $d_t \to 1-\prod _{n=0}^{N-1} (1-d_{t+n})$    |
+
+
 *** Example Usage
 #+begin_src python
 import numpy as np
 from cpprb import ReplayBuffer
+
+nstep = 4
+gamma = 0.99
+discounts = gamma ** nstep
 
 rb = ReplayBuffer(32,{'obs': {"shape": (4,4)},
                       'act': {"shape": 3},
                       'rew': {},
                       'next_obs': {"shape": (4,4)},
                       'done': {}},
-                  Nstep={"size": 4,
-                         "gamma": 0.99,
+                  Nstep={"size": nstep,
+                         "gamma": gamma,
                          "rew": "rew",
                          "next": "next_obs"})
 
@@ -498,7 +514,9 @@ for i in range(100):
     if done:
         rb.on_episode_end()
 
-rb.sample(16)
+sample = rb.sample(16)
+
+nstep_target = sample["rew"] + (1-sample["done"]) * discounts * Q(sample["next_obs"]).max(axis=1)
 #+end_src
 
 *** Notes
