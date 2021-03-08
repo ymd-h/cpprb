@@ -887,10 +887,10 @@ class TestIssue137(unittest.TestCase):
         np.testing.assert_allclose(rb.get_all_transitions()["done"],
                                    np.asarray([[0], [0]]))
 
-        def test_Nstep_discounts_with_done(self):
-            buffer_size = 32
-            step = 4
-            gamma = 0.5
+    def test_Nstep_discounts_with_done(self):
+        buffer_size = 32
+        step = 4
+        gamma = 0.5
 
         rb = ReplayBuffer(buffer_size, {"done": {}},
                           Nstep={"size": step, "gamma": gamma})
