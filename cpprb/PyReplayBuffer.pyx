@@ -670,6 +670,9 @@ cdef class NstepBuffer:
         cdef ssize_t ext_begin
         cdef ssize_t max_slide
 
+        # Case 1
+        #   If Nstep buffer don't become full, store all the input transitions.
+        #   These transitions are partially calculated.
         if end <= self.buffer_size:
             for name, stored_b in self.buffer.items():
                 if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
@@ -702,6 +705,8 @@ cdef class NstepBuffer:
             self.stored_size = end
             return None
 
+        # Case 2
+        #   If we have enough transitions, return calculated transtions
         cdef size_t diff_N = self.buffer_size - self.stored_size
         cdef size_t add_N = N - diff_N
         cdef bool NisBigger = (add_N > self.buffer_size)
@@ -756,7 +761,6 @@ cdef class NstepBuffer:
                 self._roll(stored_b,ext_b,end,NisBigger,kwargs,name,add_N)
 
         done = kwargs["done"]
-        kwargs["discounts"] = np.where(done,1,self.Nstep_gamma)
 
         for i in range(1,self.buffer_size):
             if i <= add_N:
@@ -764,9 +768,6 @@ cdef class NstepBuffer:
                 done[-i:] += self.buffer["done"][:i]
             else:
                 done += self.buffer["done"][i-add_N:i]
-
-            kwargs["discounts"][done == 0] *= self.Nstep_gamma
-
 
         self.stored_size = self.buffer_size
         return kwargs
@@ -802,13 +803,11 @@ cdef class NstepBuffer:
     cpdef on_episode_end(self):
         """Terminate episode.
         """
-        kwargs = self.buffer.copy()
+        kwargs = {k: v[:self.stored_size].copy() for k, v in self.buffer.items()}
         done = kwargs["done"]
-        kwargs["discounts"] = np.where(done,1,self.Nstep_gamma)
 
-        for i in range(1,self.buffer_size):
+        for i in range(1,self.stored_size):
             done[:-i] += kwargs["done"][i:]
-            kwargs["discounts"][done == 0] *= self.Nstep_gamma
 
         self.clear()
         return kwargs
@@ -969,9 +968,6 @@ cdef class ReplayBuffer:
             # Nstep is not support next_of yet
             self.next_of = None
             self.has_next_of = False
-
-            self.env_dict["discounts"] = {"dtype": np.single}
-            special_keys.append("discounts")
 
         # side effect: Add "add_shape" key into self.env_dict
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,

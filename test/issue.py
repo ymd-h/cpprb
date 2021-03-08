@@ -535,8 +535,6 @@ class TestIssue111(unittest.TestCase):
 
         s = rb.sample(16)
 
-        self.assertIn("discounts",s)
-
 class TestIssue112(unittest.TestCase):
     """
     dtype is converted to integer type
@@ -862,6 +860,139 @@ class TestIssue135(unittest.TestCase):
                                    np.asarray([[6,7],
                                                [7,8],
                                                [8,9]]))
+
+class TestIssue137(unittest.TestCase):
+    """
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/137
+
+    sample["done"] == 1 if trajectory is terminated within Nstep["size"]
+    """
+    def test_Nstep_discounts(self):
+        buffer_size = 32
+        step = 4
+        gamma = 0.5
+        rb = ReplayBuffer(buffer_size, {"done": {}},
+                          Nstep={"size": step, "gamma": gamma})
+
+        rb.add(done=0)
+        rb.add(done=0)
+        rb.add(done=0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+        rb.add(done=0)
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0]]))
+
+        rb.add(done=0)
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0], [0]]))
+
+    def test_Nstep_discounts_with_done(self):
+        buffer_size = 32
+        step = 4
+        gamma = 0.5
+
+        rb = ReplayBuffer(buffer_size, {"done": {}},
+                          Nstep={"size": step, "gamma": gamma})
+
+        rb.add(done=0)
+        rb.add(done=0)
+        rb.add(done=0)
+        rb.add(done=1)
+        rb.on_episode_end()
+
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0], [1], [1], [1]]))
+
+        rb.add(done=0)
+        rb.add(done=0)
+        rb.add(done=0)
+        rb.add(done=0)
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0], [1], [1], [1],
+                                               [0]]))
+
+        rb.add(done=1)
+        rb.on_episode_end()
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0], [1], [1], [1],
+                                               [0], [0], [1], [1], [1]]))
+
+        rb.add(done=1)
+        rb.on_episode_end()
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0], [1], [1], [1],
+                                               [0], [0], [1], [1], [1],
+                                               [1]]))
+
+        rb.add(done=1)
+        rb.on_episode_end()
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0], [1], [1], [1],
+                                               [0], [0], [1], [1], [1],
+                                               [1],
+                                               [1]]))
+
+        rb.add(done=0)
+        rb.add(done=1)
+        rb.on_episode_end()
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0], [1], [1], [1],
+                                               [0], [0], [1], [1], [1],
+                                               [1],
+                                               [1],
+                                               [1], [1]]))
+
+        rb.add(done=0)
+        rb.add(done=0)
+        rb.add(done=1)
+        rb.on_episode_end()
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0], [1], [1], [1],
+                                               [0], [0], [1], [1], [1],
+                                               [1],
+                                               [1],
+                                               [1], [1],
+                                               [1], [1], [1]]))
+
+        rb.clear()
+        self.assertEqual(rb.get_stored_size(),0)
+        rb.add(done=1)
+        rb.on_episode_end()
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[1]]))
+
+    def test_next_obs(self):
+        buffer_size = 32
+        nstep = 4
+        gamma = 0.99
+        rb = ReplayBuffer(buffer_size,{"next_obs": {}, "done": {}},
+                          Nstep={"size": nstep, "gamma": gamma,
+                                 "next": "next_obs"})
+
+        rb.add(next_obs=1,done=0)
+        rb.add(next_obs=2,done=0)
+        rb.add(next_obs=3,done=0)
+        rb.add(next_obs=4,done=0)
+        rb.add(next_obs=5,done=0)
+        np.testing.assert_allclose(rb.get_all_transitions()["next_obs"],
+                                   np.asarray([[4],[5]]))
+
+        rb.add(next_obs=6,done=1)
+        rb.on_episode_end()
+
+        sample = rb.get_all_transitions()
+        np.testing.assert_allclose(sample["next_obs"][sample["done"] == 0.0],
+                                   np.asarray([4,5,6]))
+
+        rb.add(next_obs=7,done=0)
+        rb.add(next_obs=8,done=0)
+        rb.add(next_obs=9,done=0)
+        rb.add(next_obs=10,done=1)
+        rb.on_episode_end()
+        sample = rb.get_all_transitions()
+        np.testing.assert_allclose(sample["next_obs"][sample["done"] == 0.0],
+                                   np.asarray([4,5,6,10]))
 
 
 if __name__ == '__main__':
