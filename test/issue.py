@@ -962,5 +962,38 @@ class TestIssue137(unittest.TestCase):
         np.testing.assert_allclose(rb.get_all_transitions()["done"],
                                    np.asarray([[1]]))
 
+    def test_next_obs(self):
+        buffer_size = 32
+        nstep = 4
+        gamma = 0.99
+        rb = ReplayBuffer(buffer_size,{"next_obs": {}, "done": {}},
+                          Nstep={"size": nstep, "gamma": gamma,
+                                 "next": "next_obs"})
+
+        rb.add(next_obs=1,done=0)
+        rb.add(next_obs=2,done=0)
+        rb.add(next_obs=3,done=0)
+        rb.add(next_obs=4,done=0)
+        rb.add(next_obs=5,done=0)
+        np.testing.assert_allclose(rb.get_all_transitions()["next_obs"],
+                                   np.asarray([[4],[5]]))
+
+        rb.add(next_obs=6,done=1)
+        rb.on_episode_end()
+
+        sample = rb.get_all_transitions()
+        np.testing.assert_allclose(sample["next_obs"][sample["done"] == 0.0],
+                                   np.asarray([4,5,6]))
+
+        rb.add(next_obs=7,done=0)
+        rb.add(next_obs=8,done=0)
+        rb.add(next_obs=9,done=0)
+        rb.add(next_obs=10,done=1)
+        rb.on_episode_end()
+        sample = rb.get_all_transitions()
+        np.testing.assert_allclose(sample["next_obs"][sample["done"] == 0.0],
+                                   np.asarray([4,5,6,10]))
+
+
 if __name__ == '__main__':
     unittest.main()
