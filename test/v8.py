@@ -469,9 +469,9 @@ class TestNstepBuffer(unittest.TestCase):
         self.assertIs(nb.add(rew=1,done=1),None)
         self.assertIs(nb.add(rew=1,done=0),None)
 
-        np.testing.assert_allclose(nb.add(rew=1,done=0)["done"],np.asarray([1]))
-        np.testing.assert_allclose(nb.add(rew=1,done=0)["done"],np.asarray([1]))
-        np.testing.assert_allclose(nb.add(rew=1,done=0)["done"],np.asarray([0]))
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["done"],np.asarray([[1]]))
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["done"],np.asarray([[1]]))
+        np.testing.assert_allclose(nb.add(rew=1,done=0)["done"],np.asarray([[0]]))
 
     def test_gamma_multi_step(self):
         nb = NstepBuffer({'rew': {}, 'done': {}},
@@ -480,14 +480,14 @@ class TestNstepBuffer(unittest.TestCase):
         self.assertIs(nb.add(rew=(1,1),done=(0,0)),None)
 
         np.testing.assert_allclose(nb.add(rew=(1,1), done=(0,0))['done'],
-                                   np.asarray((0,0)))
+                                   np.asarray([[0]]))
 
     def test_gamma_large_step_add(self):
         nb = NstepBuffer({'rew': {}, 'done': {}},
                          {"size": 4, "rew": "rew", "gamma": 0.5})
 
         np.testing.assert_allclose(nb.add(rew=(1,1,1,1,1), done=(0,0,0,0,0))['done'],
-                                   np.asarray((0, 0)))
+                                   np.asarray([[0], [0]]))
 
 class TestNstepReplayBuffer(unittest.TestCase):
     def test_nstep(self):
