@@ -27,12 +27,6 @@ eval_freq = 100
 egreedy = 0.1
 
 
-prioritized = True
-
-# Beta linear annealing: https://arxiv.org/abs/1511.05952
-beta = 0.4
-beta_step = (1 - beta)/N_iteration
-
 
 # Log
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -88,10 +82,16 @@ else:
     discount = tf.constant(gamma)
 
 
+# Prioritized Experience Replay: https://arxiv.org/abs/1511.05952
+# See https://ymd_h.gitlab.io/cpprb/features/per/
+prioritized = True
+
 if prioritized:
-    # Prioritized Experience Replay: https://arxiv.org/abs/1511.05952
-    # See https://ymd_h.gitlab.io/cpprb/features/per/
     rb = PrioritizedReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
+
+    # Beta linear annealing
+    beta = 0.4
+    beta_step = (1 - beta)/N_iteration
 else:
     rb = ReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
 
