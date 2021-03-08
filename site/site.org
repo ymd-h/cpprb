@@ -461,9 +461,9 @@ value(s), then ~sample~ method returns (i+N)-th value instead of
 ~sample~ also replaces ~"done"~ with N-step version.
 
 
-{{% notice warning %}}
+#+HTML: {{% notice warning %}} <p>
 cpprb v10 no longer returns $\gamma ^{N-1}$ since users can always multiply fixed $\gamma ^N$.
-{{% /notice %}}
+#+HTML: </p>{{% /notice %}}
 
 
 Since N-step buffer temporary store the values into local storage, you
