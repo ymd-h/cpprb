@@ -490,13 +490,17 @@ episode end to flush into main storage properly.
 import numpy as np
 from cpprb import ReplayBuffer
 
+nstep = 4
+gamma = 0.99
+discounts = gamma ** nstep
+
 rb = ReplayBuffer(32,{'obs': {"shape": (4,4)},
                       'act': {"shape": 3},
                       'rew': {},
                       'next_obs': {"shape": (4,4)},
                       'done': {}},
-                  Nstep={"size": 4,
-                         "gamma": 0.99,
+                  Nstep={"size": nstep,
+                         "gamma": gamma,
                          "rew": "rew",
                          "next": "next_obs"})
 
@@ -510,7 +514,9 @@ for i in range(100):
     if done:
         rb.on_episode_end()
 
-rb.sample(16)
+sample = rb.sample(16)
+
+nstep_target = sample["rew"] + (1-sample["done"]) * discounts * Q(sample["next_obs"]).max(axis=1)
 #+end_src
 
 *** Notes
