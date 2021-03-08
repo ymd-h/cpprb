@@ -535,8 +535,6 @@ class TestIssue111(unittest.TestCase):
 
         s = rb.sample(16)
 
-        self.assertIn("discounts",s)
-
 class TestIssue112(unittest.TestCase):
     """
     dtype is converted to integer type

@@ -253,11 +253,7 @@ class TestPrioritizedReplayBuffer(TestReplayBuffer,TestPrioritizedBase):
 
 
 class TestNstepBase:
-    def test_discounts(self):
-        self._check_ndarray(self.s['discounts'],2,(self.batch_size,1),"discounts")
-        for g,d in zip(self.s['discounts'],self.s['done']):
-            if(d > 0.0):
-                self.assertAlmostEqual(g,1.0)
+    pass
 
 class TestNstepReplayBuffer(TestReplayBuffer,TestNstepBase):
     """=== NstepReplayBuffer.py ==="""
