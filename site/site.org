@@ -458,7 +458,12 @@ value(s), then ~sample~ method returns (i+N)-th value instead of
 (i+1)-th one.
 
 
-~sample~ also adds ~"discounts"~ (\( \gamma ^{N-1} \)) into returned ~dict~.
+~sample~ also replaces ~"done"~ with N-step version.
+
+
+{{% notice warning %}}
+cpprb v10 no longer returns $\gamma ^{N-1}$ since users can always multiply fixed $\gamma ^N$.
+{{% /notice %}}
 
 
 Since N-step buffer temporary store the values into local storage, you
@@ -471,6 +476,13 @@ episode end to flush into main storage properly.
 | ~rew~      | ~str~ or array-like of ~str~ | Nstep reward               |
 | ~gamma~    | ~float~                      | Discount factor            |
 | ~next~     | ~str~ or array-like of ~str~ | Next items (e.g. next_obs) |
+
+
+| Return Value               | Replace: From $\to$ To                        |
+|----------------------------+-----------------------------------------------|
+| Next items (e.g. next_obs) | $s_{t+1} \to s_{t+N}$                         |
+| ~rew~                      | $r_t \to \sum _{n=0}^{N-1} \gamma ^n r_{t+n}$ |
+| ~done~                     | $d_t \to 1-\prod _{n=0}^{N-1} (1-d_{t+n})$    |
 
 
 *** Example Usage
