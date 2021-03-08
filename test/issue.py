@@ -861,6 +861,50 @@ class TestIssue135(unittest.TestCase):
                                                [7,8],
                                                [8,9]]))
 
+class TestIssue137(unittest.TestCase):
+    """
+    Ref: https://gitlab.com/ymd_h/cpprb/-/issues/137
+
+    sample["done"] == 1 if trajectory is terminated within Nstep["step"]
+    """
+    def test_Nstep_discounts(self):
+        buffer_size = 32
+        step = 4
+        gamma = 0.5
+        rb = ReplayBuffer(buffer_size,
+                          {"done": {}},
+                          Nstep={"step": step, "gamma": gamma})
+
+        rb.add(done=0)
+        rb.add(done=0)
+        rb.add(done=0)
+        self.assertEqual(rb.stored_size(),0)
+
+        rb.add(done=0)
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0]]))
+
+        rb.add(done=0)
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0, 0]]))
+
+        def test_Nstep_discounts_with_done(self):
+            buffer_size = 32
+            step = 4
+            gamma = 0.5
+
+        rb = ReplayBuffer(buffer_size,
+                          {"done": {}},
+                          Nstep={"step": step, "gamma": gamma})
+
+        rb.add(done=0)
+        rb.add(done=0)
+        rb.add(done=0)
+        rb.add(done=1)
+        rb.on_episode_end()
+
+        np.testing.assert_allclose(rb.get_all_transitions()["done"],
+                                   np.asarray([[0, 1, 1, 1]]))
 
 if __name__ == '__main__':
     unittest.main()
