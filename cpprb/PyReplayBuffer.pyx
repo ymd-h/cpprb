@@ -803,7 +803,7 @@ cdef class NstepBuffer:
     cpdef on_episode_end(self):
         """Terminate episode.
         """
-        kwargs = self.buffer.copy()
+        kwargs = {k: v[:self.stored_size].copy() for k, v in self.buffer.items()}
         done = kwargs["done"]
 
         for i in range(1,self.stored_size):
