@@ -831,6 +831,9 @@ See [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-
 
 #+INCLUDE: "../example/apex.py" src python
 
+*** References
+- [[https://openreview.net/forum?id=H1Dy---0Z][D. Hogan /et al/., "Distributed Prioritized Experience Replay", ICLR (2018)]] ([[https://arxiv.org/abs/1803.00933][arXiv cs.LG 1803.00933]])
+
 ** Create ~ReplayBuffer~ for non-simple =gym.Env= with helper functions
 
 #+INCLUDE: "../example/create_buffer_with_helper_func.py" src python
