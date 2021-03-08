@@ -670,6 +670,9 @@ cdef class NstepBuffer:
         cdef ssize_t ext_begin
         cdef ssize_t max_slide
 
+        # Case 1
+        #   If Nstep buffer don't become full, store all the input transitions.
+        #   These transitions are partially calculated.
         if end <= self.buffer_size:
             for name, stored_b in self.buffer.items():
                 if self.Nstep_rew is not None and np.isin(name,self.Nstep_rew).any():
@@ -702,6 +705,8 @@ cdef class NstepBuffer:
             self.stored_size = end
             return None
 
+        # Case 2
+        #   If we have enough transitions, return calculated transtions
         cdef size_t diff_N = self.buffer_size - self.stored_size
         cdef size_t add_N = N - diff_N
         cdef bool NisBigger = (add_N > self.buffer_size)
