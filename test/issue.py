@@ -885,7 +885,7 @@ class TestIssue137(unittest.TestCase):
 
         rb.add(done=0)
         np.testing.assert_allclose(rb.get_all_transitions()["done"],
-                                   np.asarray([[0, 0]]))
+                                   np.asarray([[0], [0]]))
 
         def test_Nstep_discounts_with_done(self):
             buffer_size = 32
@@ -902,7 +902,7 @@ class TestIssue137(unittest.TestCase):
         rb.on_episode_end()
 
         np.testing.assert_allclose(rb.get_all_transitions()["done"],
-                                   np.asarray([[0, 1, 1, 1]]))
+                                   np.asarray([[0], [1], [1], [1]]))
 
 if __name__ == '__main__':
     unittest.main()
