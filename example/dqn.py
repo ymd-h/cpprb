@@ -19,7 +19,7 @@ gamma = 0.99
 batch_size = 1024
 
 N_iteration = int(1e+5)
-target_update_freq = 50
+target_update_freq = 1000
 eval_freq = 100
 
 egreedy = 0.1
@@ -111,7 +111,7 @@ def Double_DQN_target_func(model,target,next_obs,rew,done,gamma,act_shape):
     return gamma*tf.reduce_sum(target(next_obs)*tf.one_hot(act,depth=act_shape), axis=1)*(1.0-done) + rew
 
 
-target_func = DQN_target_func
+target_func = Double_DQN_target_func
 
 
 
