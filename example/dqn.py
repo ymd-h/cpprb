@@ -4,8 +4,6 @@ import datetime
 import numpy as np
 
 import gym
-from scipy.special import softmax
-
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, clone_model
