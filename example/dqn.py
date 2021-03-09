@@ -27,11 +27,6 @@ eval_freq = 100
 egreedy = 0.1
 
 
-prioritized = True
-
-# Beta linear annealing: https://arxiv.org/abs/1511.05952
-beta = 0.4
-beta_step = (1 - beta)/N_iteration
 
 # Log
 dir_name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -75,10 +70,30 @@ env_dict = {"obs":{"shape": env.observation_space.shape},
             "next_obs": {"shape": env.observation_space.shape},
             "done": {}}
 
-if prioritized:
-    rb = PrioritizedReplayBuffer(buffer_size,env_dict)
+# Nstep
+nstep = 3
+# nstep = False
+
+if nstep:
+    Nstep = {"size": nstep, "rew": "rew", "next": "next_obs"}
+    discount = tf.constant(gamma ** nstep)
 else:
-    rb = ReplayBuffer(buffer_size,env_dict)
+    Nstep = None
+    discount = tf.constant(gamma)
+
+
+# Prioritized Experience Replay: https://arxiv.org/abs/1511.05952
+# See https://ymd_h.gitlab.io/cpprb/features/per/
+prioritized = True
+
+if prioritized:
+    rb = PrioritizedReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
+
+    # Beta linear annealing
+    beta = 0.4
+    beta_step = (1 - beta)/N_iteration
+else:
+    rb = ReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
 
 
 @tf.function
@@ -170,7 +185,7 @@ for n_step in range(N_iteration):
                                tf.constant(sample['next_obs']),
                                tf.constant(sample["rew"].ravel()),
                                tf.constant(sample["done"].ravel()),
-                               tf.constant(gamma),
+                               discount,
                                tf.constant(env.action_space.n))
         absTD = tf.math.abs(target_Q - Q)
         loss = tf.reduce_mean(loss_func(absTD)*weights)
