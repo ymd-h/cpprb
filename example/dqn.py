@@ -190,6 +190,7 @@ for n_step in range(N_iteration):
 
     grad = tape.gradient(loss,model.trainable_weights)
     optimizer.apply_gradients(zip(grad,model.trainable_weights))
+    tf.summary.scalar("Loss vs training step", data=loss, step=n_step)
 
 
     if prioritized:
