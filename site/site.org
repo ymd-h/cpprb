@@ -818,12 +818,10 @@ CLOSED: [2020-02-15 Sat 09:23]
 
 ** DQN with ~PrioritizedReplayBuffer~
 
-#+INCLUDE: "../example/dqn.py" src python
+The following is a DQN[fn:11] example. This also includes Double DQN[fn:10] and
+Prioritized Experience Replay[fn:3].
 
-*** References
-- [[https://www.nature.com/articles/nature14236][V. Mnhi /et al/., "Human-level control through deep reinforcement learning", Nature 518, 529-533 (2015)]]
-- [[https://openreview.net/forum?id=pBbWjZdoRiN][T. Schaul /et al/., "Prioritized Experience Replay", ICLR (2016)]] ([[https://arxiv.org/abs/1511.05952][arXiv cs.LG 1511.05952]])
-- [[https://ojs.aaai.org/index.php/AAAI/article/view/10295][H. Hasselt /et al/., "Deep Reinforcement Learning with Double Q-Learning", Proc. AAAI 30, 1 (2016)]] ([[https://arxiv.org/abs/1509.06461][arXiv cs.LG 1509.06461]])
+#+INCLUDE: "../example/dqn.py" src python
 
 
 ** Multiprocess Learning (Ape-X) with ~MPPrioritizedReplayBuffer~
@@ -1902,19 +1900,23 @@ computational cost.
 
 * Footnotes
 
-[fn:9] [[https://arxiv.org/abs/2007.06049][S. Fujimoto /et. al./, "An Equivalence between Loss Functions and Non-Uniform Sampling in Experience Replay" (2020) arXiv:2007.06049]]
+[fn:11] [[https://www.nature.com/articles/nature14236][V. Mnhi /et al/., "Human-level control through deep reinforcement learning", Nature 518, 529-533 (2015)]] 
 
-[fn:8] [[https://arxiv.org/abs/2102.03261][A. Ang /et. al./, "Revisiting Prioritized Experience Replay: A Value Perspective" (2021) arXiv:2102.03261]]
+[fn:10] [[https://ojs.aaai.org/index.php/AAAI/article/view/10295][H. Hasselt /et al/., "Deep Reinforcement Learning with Double Q-Learning", Proc. AAAI 30, 1 (2016)]] ([[https://arxiv.org/abs/1509.06461][arXiv cs.LG 1509.06461]]) 
 
-[fn:7] [[https://deepmind.com/research/open-source/Reverb][A. Cassirer /et.al./, "Reverb: An efficient data storage and transport system for ML research", (2020) https://github.com/deepmind/reverb]] ([[https://github.com/deepmind/reverb][code]])
+[fn:9] [[https://arxiv.org/abs/2007.06049][S. Fujimoto /et al/., "An Equivalence between Loss Functions and Non-Uniform Sampling in Experience Replay" (2020) arXiv:2007.06049]]
 
-[fn:6] [[http://proceedings.mlr.press/v80/liang18b.html][E. Liang /et. al./, "RLlib: Abstractions for Distributed Reinforcement Learning", ICML (2018)]] ([[https://arxiv.org/abs/1712.09381][arXiv]], [[https://github.com/ray-project/ray][code]])
+[fn:8] [[https://arxiv.org/abs/2102.03261][A. Ang /et al/., "Revisiting Prioritized Experience Replay: A Value Perspective" (2021) arXiv:2102.03261]]
 
-[fn:5] [[https://github.com/openai/baselines][D. Prafulla /et. al./, "Open AI Baeslines", (2017) https://github.com/openai/baselines]]
+[fn:7] [[https://deepmind.com/research/open-source/Reverb][A. Cassirer /et al/., "Reverb: An efficient data storage and transport system for ML research", (2020) https://github.com/deepmind/reverb]] ([[https://github.com/deepmind/reverb][code]])
 
-[fn:4] [[http://proceedings.mlr.press/v119/fedus20a.html][W. Fedus /et. al./, "Revisiting Fundamentals of Experience Replay", ICML (2020)]] ([[https://arxiv.org/abs/2007.06700][arXiv]])
+[fn:6] [[http://proceedings.mlr.press/v80/liang18b.html][E. Liang /et al/., "RLlib: Abstractions for Distributed Reinforcement Learning", ICML (2018)]] ([[https://arxiv.org/abs/1712.09381][arXiv]], [[https://github.com/ray-project/ray][code]])
 
-[fn:3] [[https://arxiv.org/abs/1511.05952][T. Schaul /et. al./, "Prioritized Experience Replay", ICLR (2016)]]
+[fn:5] [[https://github.com/openai/baselines][D. Prafulla /et al/., "Open AI Baeslines", (2017) https://github.com/openai/baselines]]
+
+[fn:4] [[http://proceedings.mlr.press/v119/fedus20a.html][W. Fedus /et al/., "Revisiting Fundamentals of Experience Replay", ICML (2020)]] ([[https://arxiv.org/abs/2007.06700][arXiv]])
+
+[fn:3] [[https://arxiv.org/abs/1511.05952][T. Schaul /et al/., "Prioritized Experience Replay", ICLR (2016)]]
 
 [fn:2] [[https://link.springer.com/article/10.1007/BF00992699][L. Lin, "Self-improving reactive agents based on reinforcement learning, planning and teaching", Mach. Learn. 8, 293-321 (1992) https://doi.org/10.1007/BF00992699]]
 
