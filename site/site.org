@@ -818,7 +818,7 @@ CLOSED: [2020-02-15 Sat 09:23]
 
 ** DQN with ~PrioritizedReplayBuffer~
 
-The following is a DQN[fn:11] example. This also include Double DQN[fn:10] and
+The following is a DQN[fn:11] example. This also includes Double DQN[fn:10] and
 Prioritized Experience Replay[fn:3].
 
 #+INCLUDE: "../example/dqn.py" src python
