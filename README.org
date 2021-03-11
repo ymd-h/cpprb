@@ -66,9 +66,11 @@
 [[https://img.shields.io/pypi/l/cpprb.svg]]
 [[https://img.shields.io/pypi/status/cpprb.svg]]
 [[https://ymd_h.gitlab.io/cpprb/coverage/][https://gitlab.com/ymd_h/cpprb/badges/master/coverage.svg]]
-[[https://pepy.tech/badge/cpprb][https://pepy.tech/badge/cpprb]]
-[[https://pepy.tech/badge/cpprb/month][https://pepy.tech/badge/cpprb/month]]
-[[https://pepy.tech/badge/cpprb/week][https://pepy.tech/badge/cpprb/week]]
+#+begin html
+<img src="https://pepy.tech/badge/cpprb">
+<img src="https://pepy.tech/badge/cpprb/month">
+<img src="https://pepy.tech/badge/cpprb/week">
+#+end html
 
 #+attr_html: :width 100px
 [[./site/static/images/favicon.png]]
