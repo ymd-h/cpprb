@@ -825,12 +825,11 @@ Prioritized Experience Replay[fn:3].
 
 
 ** Multiprocess Learning (Ape-X) with ~MPPrioritizedReplayBuffer~
+This is a Ape-X[fn:12] example code.
 See [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-X)]] for detail.
 
 #+INCLUDE: "../example/apex.py" src python
 
-*** References
-- [[https://openreview.net/forum?id=H1Dy---0Z][D. Hogan /et al/., "Distributed Prioritized Experience Replay", ICLR (2018)]] ([[https://arxiv.org/abs/1803.00933][arXiv cs.LG 1803.00933]])
 
 ** Create ~ReplayBuffer~ for non-simple =gym.Env= with helper functions
 
@@ -1899,6 +1898,8 @@ computational cost.
 
 
 * Footnotes
+
+[fn:12] [[https://openreview.net/forum?id=H1Dy---0Z][D. Hogan /et al/., "Distributed Prioritized Experience Replay", ICLR (2018)]] ([[https://arxiv.org/abs/1803.00933][arXiv cs.LG 1803.00933]]) 
 
 [fn:11] [[https://www.nature.com/articles/nature14236][V. Mnhi /et al/., "Human-level control through deep reinforcement learning", Nature 518, 529-533 (2015)]] 
 
