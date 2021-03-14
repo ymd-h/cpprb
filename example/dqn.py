@@ -49,7 +49,7 @@ target_model = clone_model(model)
 
 @tf.function
 def Huber_loss(absTD):
-    return tf.where(absTD < 1.0, absTD, tf.math.square(absTD))
+    return tf.where(absTD > 1.0, absTD, tf.math.square(absTD))
 
 @tf.function
 def MSE(absTD):
