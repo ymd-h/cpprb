@@ -823,6 +823,13 @@ Prioritized Experience Replay[fn:3].
 
 #+INCLUDE: "../example/dqn.py" src python
 
+** Loss Adjusted Prioritization
+
+The following is a LAP[fn:9] example.
+See [[https://ymd_h.gitlab.io/cpprb/understanding/#relation-between-loss-functions-and-non-uniform-sampling][the theory page]].
+
+#+INCLUDE: "../example/dqn-lap.py" src python
+
 
 ** Multiprocess Learning (Ape-X) with ~MPPrioritizedReplayBuffer~
 This is a Ape-X[fn:12] example code.
