@@ -150,11 +150,11 @@ for n_step in range(100):
 n_episode = 0
 observation = env.reset()
 for n_step in range(N_iteration):
-    Q = tf.squeeze(model(observation.reshape(1,-1)))
 
     if np.random.rand() < egreedy:
         action = env.action_space.sample()
     else:
+        Q = tf.squeeze(model(observation.reshape(1,-1)))
         action = np.argmax(Q)
 
     next_observation, reward, done, info = env.step(action)
