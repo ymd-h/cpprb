@@ -57,6 +57,7 @@ docker_build:
       when: always
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
       when: manual
+      allow_failure: true
 
 bench_mark:
   image: docker:latest
@@ -74,6 +75,7 @@ bench_mark:
       when: always
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
       when: manual
+      allow_failure: true
 
 bench_mark2:
   image: docker:latest
@@ -91,6 +93,7 @@ bench_mark2:
       when: always
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
       when: manual
+      allow_failure: true
 
 cpprb_build:
   <<: *setup
