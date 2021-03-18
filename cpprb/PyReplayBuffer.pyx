@@ -14,6 +14,8 @@ import numpy as np
 import cython
 from cython.operator cimport dereference
 
+import joblib
+
 from cpprb.ReplayBuffer cimport *
 
 from .VectorWrapper cimport *
@@ -1114,6 +1116,46 @@ cdef class ReplayBuffer:
             np.random.shuffle(idx)
 
         return self._encode_sample(idx)
+
+    def save_transitions(self, file, *, safe=True):
+        r"""
+        Save transitions to file
+
+        Parameters
+        ----------
+        file : str or file-like object
+            File to write data
+        safe : bool, optional
+            If `False`, we try more aggressive compression
+            which might encounter future incompatibility
+        """
+        if safe:
+            d = self.get_all_transitions()
+            data = {"safe": True, "version": 1, "data": d}
+            joblib.dump(data, file, compress=True)
+        else:
+            raise NotImplementedError
+
+    def load_transitions(self, file):
+        r"""
+        Load transitions from file
+
+        Parameters
+        ----------
+        file : str or file-like object
+            File to read data
+        """
+
+        data = joblib.load(f)
+
+        if data["safe"]:
+            if data["version"] == 1:
+                d = data["data"]
+                self.add(** d)
+            else:
+                raise ValueError(f"Unkown Format Version: {data['version']}")
+        else:
+            raise NotImplementedError
 
     def _encode_sample(self,idx):
         cdef sample = {}
