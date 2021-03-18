@@ -167,6 +167,11 @@ mp:
   script:
     - coverage run -m xmlrunner test/mp.py
 
+save_load:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/save_load.py
+
 coverage:
   <<: *setup
   stage: test_coverage
