@@ -17,7 +17,7 @@ RUN pip3 install -U pip setuptools \
 	cython \
 	gym[box2d] \
 	matplotlib \
-	numpy \
+	'numpy<1.20.0' \
 	pyvirtualdisplay \
 	sphinx \
 	sphinx-automodapi \

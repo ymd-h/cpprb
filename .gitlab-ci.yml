@@ -42,7 +42,7 @@ stages:
       junit:
         - "*.xml"
 
-.docker_build_base: &docker_build
+docker_build:
   image: docker:latest
   stage: build_image
   services:
@@ -52,19 +52,14 @@ stages:
     - docker pull $CI_REGISTRY_IMAGE/build:latest || true
     - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/build:latest -t $CI_REGISTRY_IMAGE/build:latest .
     - docker push $CI_REGISTRY_IMAGE/build:latest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: manual
+      allow_failure: true
 
-docker_build_schedule:
-  <<: *docker_build
-  only:
-    - schedules
-
-docker_build_manual:
-  <<: *docker_build
-  when: manual
-  except:
-    - schedules
-
-.bench_mark_base: &bench_mark
+bench_mark:
   image: docker:latest
   stage: build_image
   services:
@@ -75,19 +70,14 @@ docker_build_manual:
     - cd benchmark
     - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/bench:latest -t $CI_REGISTRY_IMAGE/bench:latest .
     - docker push $CI_REGISTRY_IMAGE/bench:latest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: manual
+      allow_failure: true
 
-bench_mark_schedule:
-  <<: *bench_mark
-  only:
-    - schedules
-
-bench_mark_manual:
-  <<: *bench_mark
-  when: manual
-  except:
-    - schedules
-
-.bench_mark_base2: &bench_mark2
+bench_mark2:
   image: docker:latest
   stage: build_image
   services:
@@ -98,17 +88,12 @@ bench_mark_manual:
     - cd benchmark2
     - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/bench2:latest -t $CI_REGISTRY_IMAGE/bench2:latest .
     - docker push $CI_REGISTRY_IMAGE/bench2:latest
-
-bench_mark_schedule2:
-  <<: *bench_mark2
-  only:
-    - schedules
-
-bench_mark_manual2:
-  <<: *bench_mark2
-  when: manual
-  except:
-    - schedules
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: manual
+      allow_failure: true
 
 cpprb_build:
   <<: *setup
@@ -342,7 +327,7 @@ manylinux:
   image: quay.io/pypa/manylinux2010_x86_64
   stage: binary_build
   script:
-    - for PIP in /opt/python/cp3{5..8}*/bin/pip; do ${PIP} install 'numpy<1.20.0' && ${PIP} wheel . -w wheelhouse/; done
+    - for PIP in /opt/python/cp3{5..9}*/bin/pip; do ${PIP} install 'numpy<1.20.0' && ${PIP} wheel . -w wheelhouse/; done
     - for WHL in wheelhouse/*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
   artifacts:
     paths:
