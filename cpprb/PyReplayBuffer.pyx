@@ -1146,7 +1146,7 @@ cdef class ReplayBuffer:
             File to read data
         """
 
-        data = joblib.load(f)
+        data = joblib.load(file)
 
         if data["safe"]:
             if data["version"] == 1:
