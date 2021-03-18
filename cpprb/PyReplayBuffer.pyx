@@ -1131,7 +1131,10 @@ cdef class ReplayBuffer:
         """
         if safe:
             d = self.get_all_transitions()
-            data = {"safe": True, "version": 1, "data": d}
+            data = {"safe": True,
+                    "version": 1,
+                    "data": d,
+                    "Nstep": bool(self.is_Nstep())}
             joblib.dump(data, file, compress=True)
         else:
             raise NotImplementedError
