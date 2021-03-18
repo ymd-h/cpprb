@@ -51,9 +51,6 @@ target_model = clone_model(model)
 def Huber_loss(absTD):
     return tf.where(absTD > 1.0, absTD, tf.math.square(absTD))
 
-@tf.function
-def MSE(absTD):
-    return tf.math.square(absTD)
 
 loss_func = Huber_loss
 
@@ -80,18 +77,8 @@ else:
     discount = tf.constant(gamma)
 
 
-# Prioritized Experience Replay: https://arxiv.org/abs/1511.05952
-# See https://ymd_h.gitlab.io/cpprb/features/per/
-prioritized = True
+rb = PrioritizedReplayBuffer(buffer_size,env_dict,Nstep=Nstep,eps=0)
 
-if prioritized:
-    rb = PrioritizedReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
-
-    # Beta linear annealing
-    beta = 0.4
-    beta_step = (1 - beta)/N_iteration
-else:
-    rb = ReplayBuffer(buffer_size,env_dict,Nstep=Nstep)
 
 
 @tf.function
@@ -165,13 +152,7 @@ for n_step in range(N_iteration):
            done=done)
     observation = next_observation
 
-    if prioritized:
-        sample = rb.sample(batch_size,beta)
-        beta += beta_step
-    else:
-        sample = rb.sample(batch_size)
-
-    weights = sample["weights"].ravel() if prioritized else tf.constant(1.0)
+    sample = rb.sample(batch_size,beta=0.0)
 
     with tf.GradientTape() as tape:
         tape.watch(model.trainable_weights)
@@ -186,20 +167,19 @@ for n_step in range(N_iteration):
                                discount,
                                tf.constant(env.action_space.n))
         absTD = tf.math.abs(target_Q - Q)
-        loss = tf.reduce_mean(loss_func(absTD)*weights)
+        loss = tf.reduce_mean(loss_func(absTD))
 
     grad = tape.gradient(loss,model.trainable_weights)
     optimizer.apply_gradients(zip(grad,model.trainable_weights))
     tf.summary.scalar("Loss vs training step", data=loss, step=n_step)
 
 
-    if prioritized:
-        Q =  Q_func(model,
-                    tf.constant(sample["obs"]),
-                    tf.constant(sample["act"].ravel()),
-                    tf.constant(env.action_space.n))
-        absTD = tf.math.abs(target_Q - Q)
-        rb.update_priorities(sample["indexes"],absTD)
+    Q =  Q_func(model,
+                tf.constant(sample["obs"]),
+                tf.constant(sample["act"].ravel()),
+                tf.constant(env.action_space.n))
+    absTD = tf.math.abs(target_Q - Q)
+    rb.update_priorities(sample["indexes"],tf.math.maximum(absTD,tf.constant(1.0)))
 
     if done:
         env.reset()
