@@ -1150,11 +1150,21 @@ cdef class ReplayBuffer:
         """
 
         data = joblib.load(file)
+        version = data["version"]
 
-        if data["safe"]:
-            if data["version"] == 1:
+        if (data["safe"] or (not self.compress_any) or (not self.has_next_of)):
+            if version == 1:
                 d = data["data"]
+                N = data["Nstep"]
+
+                if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
+                    raise ValueError(f"Stored data and Buffer mismatch for Nstep")
+
+                if N:
+                    self.use_nstep = False
                 self.add(** d)
+                if N:
+                    self.use_nstep = True
             else:
                 raise ValueError(f"Unkown Format Version: {data['version']}")
         else:
