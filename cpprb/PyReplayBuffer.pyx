@@ -1137,6 +1137,17 @@ cdef class ReplayBuffer:
         else:
             raise NotImplementedError
 
+    def _load_transitions_v1(self, d, N):
+        if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
+            raise ValueError(f"Stored data and Buffer mismatch for Nstep")
+
+        if N:
+            self.use_nstep = False
+            self.add(** d)
+            self.use_nstep = True
+        else:
+            self.add(** d)
+
     def load_transitions(self, file):
         r"""
         Load transitions from file
@@ -1156,7 +1167,6 @@ cdef class ReplayBuffer:
         you MUST NOT load untrusted file, since this method is
         based on `pickle` through `joblib.load`.
         """
-
         with np.load(file, allow_pickle=True) as data:
             version = data["version"]
 
@@ -1164,22 +1174,11 @@ cdef class ReplayBuffer:
                 if version == 1:
                     d = data["data"][np.newaxis][0]
                     N = data["Nstep"]
-
-                    if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
-                        raise ValueError(f"Stored data and Buffer mismatch for Nstep")
-
-                    if N:
-                        self.use_nstep = False
-                        self.add(** d)
-                        self.use_nstep = True
-                    else:
-                        self.add(** d)
-
+                    self._load_transitions_v1(d, N)
                 else:
                     raise ValueError(f"Unkown Format Version: {version}")
             else:
                 raise NotImplementedError
-
 
     def _encode_sample(self,idx):
         cdef sample = {}
