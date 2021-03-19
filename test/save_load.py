@@ -23,7 +23,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1.add(a=a)
 
-        fname = "basic.gz"
+        fname = "basic.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
 
@@ -47,7 +47,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-        fname = "smaller.gz"
+        fname = "smaller.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
 

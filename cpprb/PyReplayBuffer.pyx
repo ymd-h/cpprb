@@ -14,8 +14,6 @@ import numpy as np
 import cython
 from cython.operator cimport dereference
 
-import joblib
-
 from cpprb.ReplayBuffer cimport *
 
 from .VectorWrapper cimport *
@@ -1135,7 +1133,7 @@ cdef class ReplayBuffer:
                     "version": 1,
                     "data": d,
                     "Nstep": self.is_Nstep()}
-            joblib.dump(data, file, compress=True)
+            np.savez_compressed(file, **data)
         else:
             raise NotImplementedError
 
@@ -1159,13 +1157,13 @@ cdef class ReplayBuffer:
         based on `pickle` through `joblib.load`.
         """
 
-        data = joblib.load(file)
-        version = data["version"]
+        data = np.load(file)
+        version = data["version"][0]
 
         if (data["safe"] or (not self.compress_any) or (not self.has_next_of)):
             if version == 1:
-                d = data["data"]
-                N = data["Nstep"]
+                d = data["data"][0]
+                N = data["Nstep"][0]
 
                 if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
                     raise ValueError(f"Stored data and Buffer mismatch for Nstep")
