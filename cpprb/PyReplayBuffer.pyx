@@ -1158,12 +1158,12 @@ cdef class ReplayBuffer:
         """
 
         data = np.load(file)
-        version = data["version"][0]
+        version = data["version"]
 
         if (data["safe"] or (not self.compress_any) or (not self.has_next_of)):
             if version == 1:
-                d = data["data"][0]
-                N = data["Nstep"][0]
+                d = data["data"]
+                N = data["Nstep"]
 
                 if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
                     raise ValueError(f"Stored data and Buffer mismatch for Nstep")
