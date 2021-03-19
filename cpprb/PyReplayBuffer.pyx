@@ -1127,15 +1127,24 @@ cdef class ReplayBuffer:
             If `False`, we try more aggressive compression
             which might encounter future incompatibility
         """
-        if safe:
-            d = self.get_all_transitions()
+        FORMAT_VERSION = 1
+        if (safe or not (self.compress_any or self.has_next_of)):
             data = {"safe": True,
-                    "version": 1,
-                    "data": d,
-                    "Nstep": self.is_Nstep()}
-            np.savez_compressed(file, **data)
+                    "version": FORMAT_VERSION,
+                    "data": self.get_all_transitions(),
+                    "Nstep": self.is_Nstep(),
+                    "cache": None,
+                    "next": None,
+                    "stack": None}
         else:
-            raise NotImplementedError
+            data = {"safe": False,
+                    "version": FORMAT_VERSION,
+                    "data": self.buffer,
+                    "Nstep": self.is_Nstep(),
+                    "cache": self.cache,
+                    "next": self.next_of,
+                    "stack": self.stack_compress}
+        np.savez_compressed(file, **data)
 
     def _load_transitions_v1(self, d, N):
         if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
