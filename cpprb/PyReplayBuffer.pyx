@@ -1174,7 +1174,7 @@ cdef class ReplayBuffer:
                 if N:
                     self.use_nstep = True
             else:
-                raise ValueError(f"Unkown Format Version: {data['version']}")
+                raise ValueError(f"Unkown Format Version: {version}")
         else:
             raise NotImplementedError
 
