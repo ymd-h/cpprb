@@ -1157,28 +1157,29 @@ cdef class ReplayBuffer:
         based on `pickle` through `joblib.load`.
         """
 
-        data = np.load(file)
-        version = data["version"]
+        with np.load(file) as data:
+            version = data["version"]
 
-        if (data["safe"] or (not self.compress_any) or (not self.has_next_of)):
-            if version == 1:
-                d = data["data"]
-                N = data["Nstep"]
+            if (data["safe"] or (not self.compress_any) or (not self.has_next_of)):
+                if version == 1:
+                    d = data["data"]
+                    N = data["Nstep"]
 
-                if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
-                    raise ValueError(f"Stored data and Buffer mismatch for Nstep")
+                    if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
+                        raise ValueError(f"Stored data and Buffer mismatch for Nstep")
 
-                if N:
-                    self.use_nstep = False
-                    self.add(** d)
-                    self.use_nstep = True
+                    if N:
+                        self.use_nstep = False
+                        self.add(** d)
+                        self.use_nstep = True
+                    else:
+                        self.add(** d)
+
                 else:
-                    self.add(** d)
-
+                    raise ValueError(f"Unkown Format Version: {version}")
             else:
-                raise ValueError(f"Unkown Format Version: {version}")
-        else:
-            raise NotImplementedError
+                raise NotImplementedError
+
 
     def _encode_sample(self,idx):
         cdef sample = {}
