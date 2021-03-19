@@ -1134,7 +1134,7 @@ cdef class ReplayBuffer:
             data = {"safe": True,
                     "version": 1,
                     "data": d,
-                    "Nstep": bool(self.is_Nstep())}
+                    "Nstep": self.is_Nstep()}
             joblib.dump(data, file, compress=True)
         else:
             raise NotImplementedError
