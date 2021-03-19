@@ -1138,29 +1138,30 @@ cdef class ReplayBuffer:
                     "version": FORMAT_VERSION,
                     "data": self.get_all_transitions(),
                     "Nstep": self.is_Nstep(),
-                    "cache": None,
-                    "next": None,
-                    "stack": None}
+                    "cache": None}
         else:
             data = {"safe": False,
                     "version": FORMAT_VERSION,
                     "data": self.buffer,
                     "Nstep": self.is_Nstep(),
-                    "cache": self.cache,
-                    "next": self.next_of,
-                    "stack": self.stack_compress}
+                    "cache": self.cache}
         np.savez_compressed(file, **data)
 
-    def _load_transitions_v1(self, d, N):
-        if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
-            raise ValueError(f"Stored data and Buffer mismatch for Nstep")
+    def _load_transitions_v1(self, data):
+        d = unwrap(data["data"])
 
-        if N:
-            self.use_nstep = False
-            self.add(** d)
-            self.use_nstep = True
+        if data["safe"]:
+            if data["Nstep"]:
+                self.use_nstep = False
+                self.add(**d)
+                self.use_nstep = True
+            else:
+                self.add(**d)
         else:
-            self.add(** d)
+            c = unwrap(data["cache"])
+            N = d.shape[0]
+            index = self.index.fetch_add(N)
+
 
     def load_transitions(self, file):
         r"""
@@ -1183,24 +1184,15 @@ cdef class ReplayBuffer:
         """
         with np.load(file, allow_pickle=True) as data:
             version = data["version"]
+            N = data["Nstep"]
 
-            if data["safe"]:
-                if version == 1:
-                    d = unwrap(data["data"])
-                    N = data["Nstep"]
-                    self._load_transitions_v1(d, N)
-                else:
-                    raise ValueError(f"Unkown Format Version: {version}")
+            if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
+                raise ValueError(f"Stored data and Buffer mismatch for Nstep")
+
+            if version == 1:
+                self._load_transitions_v1(data)
             else:
-                if version == 1:
-                    d = unwrap(data["data"])
-                    N = data["Nstep"]
-                    c = unwrap(data["cache"])
-                    h = unwrap(data["next"])
-                    s = unwrap(data["stack"])
-
-                else:
-                    raise ValueError(f"Unknown Format Version: {version}")
+                raise ValueError(f"Unknown Format Version: {version}")
 
     def _encode_sample(self,idx):
         cdef sample = {}
