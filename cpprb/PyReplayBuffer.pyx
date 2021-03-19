@@ -1147,6 +1147,16 @@ cdef class ReplayBuffer:
         ----------
         file : str or file-like object
             File to read data
+
+        Raises
+        ------
+        ValueError : When file format is wrong.
+
+        Warnings
+        --------
+        In order to avoid security vulnerability,
+        you MUST NOT load untrusted file, since this method is
+        based on `pickle` through `joblib.load`.
         """
 
         data = joblib.load(file)
