@@ -1162,7 +1162,7 @@ cdef class ReplayBuffer:
 
             if (data["safe"] or (not self.compress_any) or (not self.has_next_of)):
                 if version == 1:
-                    d = data["data"]
+                    d = data["data"][np.newaxis][0]
                     N = data["Nstep"]
 
                     if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
