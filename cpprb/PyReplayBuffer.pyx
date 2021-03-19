@@ -54,6 +54,11 @@ cdef inline const size_t [::1] Csize(array):
 cdef inline const float [::1] Cfloat(array):
     return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
 
+
+def unwrap(d):
+    return d[np.newaxis][0]
+
+
 @cython.embedsignature(True)
 cdef class Environment:
     """
@@ -1181,13 +1186,21 @@ cdef class ReplayBuffer:
 
             if data["safe"]:
                 if version == 1:
-                    d = data["data"][np.newaxis][0]
+                    d = unwrap(data["data"])
                     N = data["Nstep"]
                     self._load_transitions_v1(d, N)
                 else:
                     raise ValueError(f"Unkown Format Version: {version}")
             else:
-                raise NotImplementedError
+                if version == 1:
+                    d = unwrap(data["data"])
+                    N = data["Nstep"]
+                    c = unwrap(data["cache"])
+                    h = unwrap(data["next"])
+                    s = unwrap(data["stack"])
+
+                else:
+                    raise ValueError(f"Unknown Format Version: {version}")
 
     def _encode_sample(self,idx):
         cdef sample = {}
