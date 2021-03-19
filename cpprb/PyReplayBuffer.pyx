@@ -1170,9 +1170,11 @@ cdef class ReplayBuffer:
 
                 if N:
                     self.use_nstep = False
-                self.add(** d)
-                if N:
+                    self.add(** d)
                     self.use_nstep = True
+                else:
+                    self.add(** d)
+
             else:
                 raise ValueError(f"Unkown Format Version: {version}")
         else:
