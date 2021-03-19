@@ -1157,7 +1157,7 @@ cdef class ReplayBuffer:
         based on `pickle` through `joblib.load`.
         """
 
-        with np.load(file) as data:
+        with np.load(file, allow_pickle=True) as data:
             version = data["version"]
 
             if (data["safe"] or (not self.compress_any) or (not self.has_next_of)):
