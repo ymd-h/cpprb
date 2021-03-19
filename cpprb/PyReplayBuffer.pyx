@@ -1170,7 +1170,7 @@ cdef class ReplayBuffer:
         with np.load(file, allow_pickle=True) as data:
             version = data["version"]
 
-            if (data["safe"] or (not self.compress_any) or (not self.has_next_of)):
+            if data["safe"]:
                 if version == 1:
                     d = data["data"][np.newaxis][0]
                     N = data["Nstep"]
