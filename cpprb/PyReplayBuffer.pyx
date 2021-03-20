@@ -1158,7 +1158,8 @@ cdef class ReplayBuffer:
 
         if not data["safe"]:
             c = unwrap(data["cache"])
-            n = unwrap(data["next" ])
+            n_= unwrap(data["next"])
+            n = unwrap(data["next_of"])
             s = unwrap(data["stack"])
 
             for v in d.values():
@@ -1168,6 +1169,7 @@ cdef class ReplayBuffer:
             _buffer = self.buffer
             _cache = self.cache
 
+            _next = self.next_
             _next_of = self.next_of
             _has_next_of = self.has_next_of
 
@@ -1177,6 +1179,7 @@ cdef class ReplayBuffer:
             self.buffer = d
             self.cache = c
 
+            self.next_ = n_
             self.next_of = n
             self.has_next_of = True if n else False
 
@@ -1188,6 +1191,7 @@ cdef class ReplayBuffer:
             self.buffer = _buffer
             self.cache = _cache
 
+            self.next_ = _next
             self.next_of = _next_of
             self.has_next_of = _has_next_of
 
