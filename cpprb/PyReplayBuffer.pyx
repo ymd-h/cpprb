@@ -1140,6 +1140,7 @@ cdef class ReplayBuffer:
                     "Nstep": self.is_Nstep(),
                     "cache": None,
                     "next": None,
+                    "next_of": None,
                     "stack": None}
         else:
             data = {"safe": False,
@@ -1147,7 +1148,8 @@ cdef class ReplayBuffer:
                     "data": self.buffer,
                     "Nstep": self.is_Nstep(),
                     "cache": self.cache,
-                    "next": self.next_of,
+                    "next": self.next_,
+                    "next_of": self.next_of,
                     "stack": self.stack_compress}
         np.savez_compressed(file, **data)
 
