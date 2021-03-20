@@ -167,6 +167,11 @@ mp:
   script:
     - coverage run -m xmlrunner test/mp.py
 
+save_load:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/save_load.py
+
 coverage:
   <<: *setup
   stage: test_coverage
@@ -328,7 +333,7 @@ manylinux:
   stage: binary_build
   script:
     - for PIP in /opt/python/cp3{5..9}*/bin/pip; do ${PIP} install 'numpy<1.20.0' && ${PIP} wheel . -w wheelhouse/; done
-    - for WHL in wheelhouse/*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
+    - for WHL in wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
   artifacts:
     paths:
       - "wheelhouse-fix/cpprb-*.whl"

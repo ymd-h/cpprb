@@ -54,6 +54,11 @@ cdef inline const size_t [::1] Csize(array):
 cdef inline const float [::1] Cfloat(array):
     return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
 
+
+def unwrap(d):
+    return d[np.newaxis][0]
+
+
 @cython.embedsignature(True)
 cdef class Environment:
     """
@@ -1070,6 +1075,10 @@ cdef class ReplayBuffer:
             remain = end - self.buffer_size
             add_idx[add_idx >= self.buffer_size] -= self.buffer_size
 
+        if self.cache is not None:
+            for _i in add_idx:
+                self.cache.pop(_i, None)
+
         if self.compress_any and (remain or
                                   self.get_stored_size() == self.buffer_size):
             key_min = remain or end
@@ -1087,9 +1096,6 @@ cdef class ReplayBuffer:
                                                           copy=False,
                                                           ndmin=2),
                                                  self.env_dict[name]["add_shape"])[-1]
-
-        if (self.cache is not None) and (index in self.cache):
-            del self.cache[index]
 
         self.episode_len += N
         return index
@@ -1114,6 +1120,125 @@ cdef class ReplayBuffer:
             np.random.shuffle(idx)
 
         return self._encode_sample(idx)
+
+    def save_transitions(self, file, *, safe=True):
+        r"""
+        Save transitions to file
+
+        Parameters
+        ----------
+        file : str or file-like object
+            File to write data
+        safe : bool, optional
+            If `False`, we try more aggressive compression
+            which might encounter future incompatibility
+        """
+        FORMAT_VERSION = 1
+        if (safe or not (self.compress_any or self.has_next_of)):
+            data = {"safe": True,
+                    "version": FORMAT_VERSION,
+                    "data": self.get_all_transitions(),
+                    "Nstep": self.is_Nstep(),
+                    "cache": None,
+                    "next_of": None}
+        else:
+            self.add_cache()
+            N = self.get_stored_size()
+            if N == self.get_buffer_size():
+                b = self.buffer
+            else:
+                b = {k: v[:N] for k, v in self.buffer.items()}
+
+            data = {"safe": False,
+                    "version": FORMAT_VERSION,
+                    "data": b,
+                    "Nstep": self.is_Nstep(),
+                    "cache": self.cache,
+                    "next_of": self.next_of}
+        np.savez_compressed(file, **data)
+
+    def _load_transitions_v1(self, data):
+        d = unwrap(data["data"])
+        N = data["Nstep"]
+
+        if data["safe"]:
+            if N:
+                self.use_nstep = False
+                self.add(**d)
+                self.use_nstep = True
+            else:
+                self.add(**d)
+            return None
+
+        c = unwrap(data["cache"])
+        n = unwrap(data["next_of"])
+
+        cache_idx = np.sort([i for i in c.keys()])
+
+        for k, v in d.items():
+            _size = v.shape[0]
+            break
+
+        if N:
+            self.use_nstep = False
+
+        idx = 0
+        for i in cache_idx:
+            if idx < i:
+                merge = {k: v[idx:i] for k,v in d.items()}
+                if n is not None:
+                    merge = {**merge, **{f"next_{k}": d[k][idx+1:i+1] for k in n}}
+                self.add(**merge)
+            merge = {**{k: v[i] for k,v in d.items()}, **c[i]}
+            self.add(**merge)
+            self.on_episode_end()
+            idx = i+1
+
+        if idx < _size:
+            if idx < _size - 1:
+                merge = {k: v[idx:_size-1] for k,v in d.items()}
+                if n is not None:
+                    merge = {**merge, **{f"next_{k}": d[k][idx+1:_size] for k in n}}
+                self.add(**merge)
+
+            merge = {k: v[_size-1] for k,v in d.items()}
+            if n is not None:
+                merge = {**merge, **{f"next_{k}": d[k][0] for k in n}}
+            self.add(**merge)
+
+        if N:
+            self.use_nstep = True
+
+    def load_transitions(self, file):
+        r"""
+        Load transitions from file
+
+        Parameters
+        ----------
+        file : str or file-like object
+            File to read data
+
+        Raises
+        ------
+        ValueError : When file format is wrong.
+
+        Warnings
+        --------
+        In order to avoid security vulnerability,
+        you MUST NOT load untrusted file, since this method is
+        based on `pickle` through `joblib.load`.
+        """
+        with np.load(file, allow_pickle=True) as data:
+            version = data["version"]
+            N = data["Nstep"]
+
+            if (N and not self.is_Nstep()) or (not N and self.is_Nstep()):
+                raise ValueError(f"Stored data and Buffer mismatch for Nstep")
+
+            if version == 1:
+                self._load_transitions_v1(data)
+            else:
+                raise ValueError(f"Unknown Format Version: {version}")
 
     def _encode_sample(self,idx):
         cdef sample = {}
@@ -1279,8 +1404,6 @@ cdef class ReplayBuffer:
                 cache_key[name] = self.buffer[name][key].copy()
 
         self.cache[key] = cache_key
-
-
 
     cpdef void on_episode_end(self) except *:
         r"""Call on episode end
