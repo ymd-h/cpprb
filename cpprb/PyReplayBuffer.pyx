@@ -1178,6 +1178,10 @@ cdef class ReplayBuffer:
             _stack_compress = self.stack_compress
             _compress_any = self.compress_any
 
+            _next_index = self.get_next_index()
+            _stored_size = self.get_stored_size()
+            _buffer_size = self.get_buffer_size()
+
             self.buffer = d
             self.cache = c
 
@@ -1187,6 +1191,9 @@ cdef class ReplayBuffer:
 
             self.stack_compress = s
             self.compress_any = True if s else False
+
+            self.index.clear()
+            self.index.fetch_add(N)
 
             d = self._encode_sample([i for i in range(N)])
 
@@ -1199,6 +1206,10 @@ cdef class ReplayBuffer:
 
             self.stack_compress = _stack_compress
             self.compress_any = _compress_any
+
+            self.index.fetch_add(_next_index)
+            if _stored_size == _buffer_size:
+                self.index.fetch_add(_buffer_size)
 
         if data["Nstep"]:
             self.use_nstep = False
