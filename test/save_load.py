@@ -108,5 +108,28 @@ class TestReplayBuffer(unittest.TestCase):
 
         np.testing.assert_allclose(t1["done"], t2["done"])
 
+    def test_Nstep_incompatibility(self):
+        """
+        Raise ValueError when Nstep incompatibility
+        """
+        buffer_size = 10
+        env_dict = {"done": {}}
+        Nstep = {"size": 3, "gamma": 0.99}
+
+        rb1 = ReplayBuffer(buffer_size, env_dict, Nstep=Nstep)
+        rb2 = ReplayBuffer(buffer_size, env_dict)
+
+        d = [0, 0, 0, 0, 1]
+
+        rb1.add(done=d)
+        rb1.on_episode_end()
+
+        fname="Nstep_raise.npz"
+        rb1.save_transitions(fname)
+
+        with self.assertRaises(ValueError):
+            rb2.load_transitions(fname)
+
+
 if __name__ == "__main__":
     unittest.main()
