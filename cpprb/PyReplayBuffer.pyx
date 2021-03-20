@@ -1152,7 +1152,7 @@ cdef class ReplayBuffer:
 
         if not data["safe"]:
             c = unwrap(data["cache"])
-            N = d.shape[0]
+            N = next(d.values()).shape[0]
 
             _buffer = self.buffer
             _cache = self.cache
