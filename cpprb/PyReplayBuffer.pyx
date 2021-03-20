@@ -1143,9 +1143,10 @@ cdef class ReplayBuffer:
                     "next_of": None,
                     "stack": None}
         else:
+            N = self.get_stored_size()
             data = {"safe": False,
                     "version": FORMAT_VERSION,
-                    "data": self.buffer,
+                    "data": {k:v[:N] for k,v in self.buffer.items()},
                     "Nstep": self.is_Nstep(),
                     "cache": self.cache,
                     "next": self.next_,
