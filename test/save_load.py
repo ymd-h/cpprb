@@ -130,6 +130,30 @@ class TestReplayBuffer(unittest.TestCase):
         with self.assertRaises(ValueError):
             rb2.load_transitions(fname)
 
+    def test_next_of(self):
+        """
+        Load next_of transitions with safe mode
+
+        For safe mode, next_of is not neccessary at loaded buffer.
+        """
+        buffer_size = 10
+        env_dict = {"a": {}}
+
+        rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a")
+        rb2 = ReplayBuffer(buffer_size, env_dict)
+
+        a = [1, 2, 3, 4, 5, 6]
+
+        rb1.add(a=a[:-1], next_a=a[1:])
+
+        fname="next_of.npz"
+        rb1.save_transitions(fname)
+        rb2.load_transitions(fname)
+
+        t1 = rb1.get_all_transitions()
+        t2 = rb2.get_all_transitions()
+
+        np.testing.assert_allclose(t1["a"], t2["a"])
 
 if __name__ == "__main__":
     unittest.main()
