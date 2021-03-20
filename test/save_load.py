@@ -198,5 +198,32 @@ class TestReplayBuffer(unittest.TestCase):
         with self.assertRaises(ValueError):
             rb2.load_transitions(fname)
 
+    def test_stack_compress(self):
+        """
+        Load stack_compress transitions
+        """
+        buffer_size = 10
+        env_dict = {"a": {"shape": 3}}
+
+        rb1 = ReplayBuffer(buffer_size, env_dict, stack_compress="a")
+        rb2 = ReplayBuffer(buffer_size, env_dict, stack_compress="a")
+
+        a = [[1, 2, 3],
+             [2, 3, 4],
+             [3, 4, 5],
+             [4, 5, 6]]
+
+        rb1.add(a=a)
+
+        fname="stack_compress.npz"
+        rb1.save_transitions(fname)
+        rb2.load_transitions(fname)
+
+        t1 = rb1.get_all_transitions()
+        t2 = rb2.get_all_transitions()
+
+        np.testing.assert_allclose(t1["a"], t2["a"])
+
+
 if __name__ == "__main__":
     unittest.main()
