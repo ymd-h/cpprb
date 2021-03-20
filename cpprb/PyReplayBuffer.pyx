@@ -1147,9 +1147,7 @@ cdef class ReplayBuffer:
             if N == self.get_buffer_size():
                 b = self.buffer
             else:
-                b = {k: v[:N+1 if ((self.next_of is not None) and
-                                   (k in self.next_of)) else N]
-                     for k, v in self.buffer.items()}
+                b = {k: v[:N] for k, v in self.buffer.items()}
 
             data = {"safe": False,
                     "version": FORMAT_VERSION,
@@ -1178,7 +1176,7 @@ cdef class ReplayBuffer:
         cache_idx = np.sort([i for i in c.keys()])
 
         for k, v in d.items():
-            _size = v.shape[0] - 1 if ((n is not None) and (k in n)) else v.shape[0]
+            _size = v.shape[0]
             break
 
         if N:
@@ -1196,9 +1194,15 @@ cdef class ReplayBuffer:
             idx = i+1
 
         if idx < _size:
-            merge = {k: v[idx:_size] for k,v in d.items()}
+            if idx < _size - 1:
+                merge = {k: v[idx:_size-1] for k,v in d.items()}
+                if n is not None:
+                    merge = {**merge, **{f"next_{k}": d[k][idx+1:_size] for k in n}}
+                self.add(**merge)
+
+            merge = {k: v[_size-1] for k,v in d.items()}
             if n is not None:
-                merge = {**merge, **{f"next_{k}": d[k][idx+1:_size+1] for k in n}}
+                merge = {**merge, **{f"next_{k}": d[k][0] for k in n}}
             self.add(**merge)
 
         if N:
