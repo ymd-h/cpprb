@@ -137,10 +137,11 @@ class TestReplayBuffer(unittest.TestCase):
         For safe mode, next_of is not neccessary at loaded buffer.
         """
         buffer_size = 10
-        env_dict = {"a": {}}
+        env_dict1 = {"a": {}}
+        env_dict2 = {"a": {}, "next_a": {}}
 
-        rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a")
-        rb2 = ReplayBuffer(buffer_size, env_dict)
+        rb1 = ReplayBuffer(buffer_size, env_dict1, next_of="a")
+        rb2 = ReplayBuffer(buffer_size, env_dict2)
 
         a = [1, 2, 3, 4, 5, 6]
 
@@ -211,10 +212,11 @@ class TestReplayBuffer(unittest.TestCase):
         Load incompatible next_of transitions with unsafe mode
         """
         buffer_size = 10
-        env_dict = {"a": {}}
+        env_dict1 = {"a": {}}
+        env_dict2 = {"a": {}, "next_a": {}}
 
-        rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a")
-        rb2 = ReplayBuffer(buffer_size, env_dict)
+        rb1 = ReplayBuffer(buffer_size, env_dict1, next_of="a")
+        rb2 = ReplayBuffer(buffer_size, env_dict2)
 
         a = [1, 2, 3, 4, 5, 6]
 
