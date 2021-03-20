@@ -183,7 +183,7 @@ perfplot.plot(setup = lambda n: n,
               logy = False,
               equality_check=None)
 plt.title("Replay Buffer Sample Speed")
-plt.savefig(filename="ReplayBuffer_sample2.png",
+plt.savefig("ReplayBuffer_sample2.png",
             transparent=True,
             bbox_inches="tight")
 plt.close()
@@ -206,7 +206,7 @@ perfplot.plot(time_unit="ms",
               logy = False,
               equality_check=None)
 plt.title("Prioritized Replay Buffer Add Speed")
-plt.savefig(filename="PrioritizedReplayBuffer_add2.png",
+plt.savefig("PrioritizedReplayBuffer_add2.png",
             transparent=True,
             bbox_inches="tight")
 plt.close()
@@ -241,7 +241,7 @@ perfplot.plot(time_unit="ms",
               logy=False,
               equality_check=None)
 plt.title("Prioritized Replay Buffer Sample Speed")
-plt.savefig(filename="PrioritizedReplayBuffer_sample2.png",
+plt.savefig("PrioritizedReplayBuffer_sample2.png",
             transparent=True,
             bbox_inches="tight")
 plt.close()
