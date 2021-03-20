@@ -1146,7 +1146,8 @@ cdef class ReplayBuffer:
             if N == self.get_buffer_size():
                 b = self.buffer
             else:
-                b = {k: v[:N+1 if (self.next_of and (k in self.next_of)) else N]
+                b = {k: v[:N+1 if ((self.next_of is not None) and
+                                   (k in self.next_of)) else N]
                      for k, v in self.buffer.items()}
 
             data = {"safe": False,
