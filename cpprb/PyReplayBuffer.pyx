@@ -1150,18 +1150,27 @@ cdef class ReplayBuffer:
     def _load_transitions_v1(self, data):
         d = unwrap(data["data"])
 
-        if data["safe"]:
-            if data["Nstep"]:
-                self.use_nstep = False
-                self.add(**d)
-                self.use_nstep = True
-            else:
-                self.add(**d)
-        else:
+        if not data["safe"]:
             c = unwrap(data["cache"])
             N = d.shape[0]
-            index = self.index.fetch_add(N)
 
+            _buffer = self.buffer
+            _cache = self.cache
+
+            self.buffer = d
+            self.cache = c
+
+            d = self._encode_sample([i for i in range(N)])
+
+            self.buffer = _buffer
+            self.cache = _cache
+
+        if data["Nstep"]:
+            self.use_nstep = False
+            self.add(**d)
+            self.use_nstep = True
+        else:
+            self.add(**d)
 
     def load_transitions(self, file):
         r"""
