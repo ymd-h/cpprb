@@ -83,5 +83,30 @@ class TestReplayBuffer(unittest.TestCase):
 
         np.testing.assert_allclose(t1["a"], t2["a"][len(b):])
 
+    def test_load_Nstep(self):
+        """
+        Load Nstep transitions
+        """
+        buffer_size = 10
+        env_dict = {"done": {}}
+        Nstep = {"size": 3, "gamma": 0.99}
+
+        rb1 = ReplayBuffer(buffer_size, env_dict, Nstep=Nstep)
+        rb2 = ReplayBuffer(buffer_size, env_dict, Nstep=Nstep)
+
+        d = [0, 0, 0, 0, 1]
+
+        rb1.add(done=d)
+        rb1.on_episode_end()
+
+        fname="Nstep.npz"
+        rb1.save_transitions(fname)
+        rb2.load_transitions(fname)
+
+        t1 = rb1.get_all_transitions()
+        t2 = rb2.get_all_transitions()
+
+        np.testing.assert_allclose(t1["done"], t2["done"])
+
 if __name__ == "__main__":
     unittest.main()
