@@ -1167,7 +1167,6 @@ cdef class ReplayBuffer:
 
         c = unwrap(data["cache"])
         n = unwrap(data["next_of"])
-        s = unwrap(data["stack"])
 
         cache_idx = np.sort([i for i in c.keys()])
 
