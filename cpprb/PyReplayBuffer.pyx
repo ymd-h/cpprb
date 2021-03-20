@@ -1176,7 +1176,7 @@ cdef class ReplayBuffer:
         cache_idx = np.sort([i for i in c.keys()])
 
         for k, v in d.items():
-            _size = v.shape[0] - 1 if k in n else v.shape[0]
+            _size = v.shape[0] - 1 if (n and (k in n)) else v.shape[0]
             break
 
         if N:
