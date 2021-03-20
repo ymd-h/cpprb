@@ -1139,10 +1139,9 @@ cdef class ReplayBuffer:
                     "data": self.get_all_transitions(),
                     "Nstep": self.is_Nstep(),
                     "cache": None,
-                    "next": None,
-                    "next_of": None,
-                    "stack": None}
+                    "next_of": None}
         else:
+            self.add_cache()
             N = self.get_stored_size()
             data = {"safe": False,
                     "version": FORMAT_VERSION,
@@ -1150,73 +1149,50 @@ cdef class ReplayBuffer:
                              for k,v in self.buffer.items()},
                     "Nstep": self.is_Nstep(),
                     "cache": self.cache,
-                    "next": self.next_,
-                    "next_of": self.next_of,
-                    "stack": self.stack_compress}
+                    "next_of": self.next_of}
         np.savez_compressed(file, **data)
 
     def _load_transitions_v1(self, data):
         d = unwrap(data["data"])
+        N = data["Nstep"]
 
-        if not data["safe"]:
-            c = unwrap(data["cache"])
-            n_= unwrap(data["next"])
-            n = unwrap(data["next_of"])
-            s = unwrap(data["stack"])
+        if data["safe"]:
+            if N:
+                self.use_nstep = False
+                self.add(**d)
+                self.use_nstep = True
+            else:
+                self.add(**d)
+            return None
 
-            for v in d.values():
-                N = v.shape[0]
-                break
+        c = unwrap(data["cache"])
+        n = unwrap(data["next_of"])
+        s = unwrap(data["stack"])
 
-            _buffer = self.buffer
-            _cache = self.cache
+        cache_idx = np.sort([for i in cache.keys()])
 
-            _next = self.next_
-            _next_of = self.next_of
-            _has_next_of = self.has_next_of
+        _size = None
+        for v in d.values():
+            if _size is None:
+                _size = v.shape[0]
+            else:
+                _size = min(_size, v.shape[0])
 
-            _stack_compress = self.stack_compress
-            _compress_any = self.compress_any
-
-            _next_index = self.get_next_index()
-            _stored_size = self.get_stored_size()
-            _buffer_size = self.get_buffer_size()
-
-            self.buffer = d
-            self.cache = c
-
-            self.next_ = n_
-            self.next_of = n
-            self.has_next_of = True if n else False
-
-            self.stack_compress = s
-            self.compress_any = True if s else False
-
-            self.index.clear()
-            self.index.fetch_add(N)
-
-            d = self._encode_sample([i for i in range(N)])
-
-            self.buffer = _buffer
-            self.cache = _cache
-
-            self.next_ = _next
-            self.next_of = _next_of
-            self.has_next_of = _has_next_of
-
-            self.stack_compress = _stack_compress
-            self.compress_any = _compress_any
-
-            self.index.fetch_add(_next_index)
-            if _stored_size == _buffer_size:
-                self.index.fetch_add(_buffer_size)
-
-        if data["Nstep"]:
+        if N:
             self.use_nstep = False
-            self.add(**d)
+
+        idx = 0
+        for i in cache_idx:
+            self.add(**{k: v[idx:i] in d.items()},
+                     **{f"next_{k}": d[k][idx+1:i+1] for k in n})
+            self.add(**c[i])
+            idx = i
+
+        self.add(**{k: v[idx:_size] for d.items()},
+                 **{f"next_{k}": d[k][idx+1:_size+1] for k in n})
+
+        if N:
             self.use_nstep = True
-        else:
-            self.add(**d)
 
     def load_transitions(self, file):
         r"""
