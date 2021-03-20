@@ -201,13 +201,13 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
 
-        self.assertEqual(rb1.get_stored_size()+len(b), rb2.get_stored_size())
+        self.assertEqual(rb1.get_stored_size()+len(b)-1, rb2.get_stored_size())
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
 
-        np.testing.assert_allclose(t1["a"], t2["a"][len(b):])
-        np.testing.assert_allclose(t1["next_a"], t2["next_a"][len(b):])
+        np.testing.assert_allclose(t1["a"], t2["a"][len(b)-1:])
+        np.testing.assert_allclose(t1["next_a"], t2["next_a"][len(b)-1:])
 
     def test_raise_unsafe_next_of(self):
         """
