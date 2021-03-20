@@ -328,7 +328,7 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a)
 
         fname="incompatible_unsafe_stack_compress.npz"
-        rb1.save_transitions(fname)
+        rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
 
         t1 = rb1.get_all_transitions()
@@ -385,7 +385,7 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a[:-1], next_a=a[1:])
 
         fname="next_of_stack_compress.npz"
-        rb1.save_transitions(fname)
+        rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
 
         t1 = rb1.get_all_transitions()
@@ -419,7 +419,7 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a[:-1], next_a=a[1:])
 
         fname="next_of_stack_compress.npz"
-        rb1.save_transitions(fname)
+        rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
 
         t1 = rb1.get_all_transitions()
