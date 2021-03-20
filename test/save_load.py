@@ -226,9 +226,13 @@ class TestReplayBuffer(unittest.TestCase):
 
         fname="unsafe_incompatible_next_of.npz"
         rb1.save_transitions(fname, safe=False)
+        rb2.load_transitions(fname)
 
-        with self.assertRaises(ValueError):
-            rb2.load_transitions(fname)
+        t1 = rb1.get_all_transitions()
+        t2 = rb2.get_all_transitions()
+
+        np.testing.assert_allclose(t1["a"], t2["a"])
+        np.testing.assert_allclose(t1["next_a"], t2["next_a"])
 
     def test_stack_compress(self):
         """
