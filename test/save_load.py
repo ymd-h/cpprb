@@ -209,7 +209,7 @@ class TestReplayBuffer(unittest.TestCase):
         np.testing.assert_allclose(t1["a"], t2["a"][len(b)-1:])
         np.testing.assert_allclose(t1["next_a"], t2["next_a"][len(b)-1:])
 
-    def test_raise_unsafe_next_of(self):
+    def test_incompatible_unsafe_next_of(self):
         """
         Load incompatible next_of transitions with unsafe mode
         """
