@@ -336,5 +336,34 @@ class TestReplayBuffer(unittest.TestCase):
 
         np.testing.assert_allclose(t1["a"], t2["a"])
 
+    def test_next_of_stack_compress(self):
+        """
+        Load next_of and stack_compress transitions
+        """
+        buffer_size = 10
+        env_dict = {"a": {"shape": 3}}
+
+        rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
+        rb2 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
+
+        a = [[1, 2, 3],
+             [2, 3, 4],
+             [3, 4, 5],
+             [4, 5, 6],
+             [5, 6, 7],
+             [6, 7, 8]]
+
+        rb1.add(a=a[:-1], next_a=a[1:])
+
+        fname="next_of_stack_compress.npz"
+        rb1.save_transitions(fname)
+        rb2.load_transitions(fname)
+
+        t1 = rb1.get_all_transitions()
+        t2 = rb2.get_all_transitions()
+
+        np.testing.assert_allclose(t1["a"], t2["a"])
+        np.testing.assert_allclose(t1["next_a"], t2["next_a"])
+
 if __name__ == "__main__":
     unittest.main()
