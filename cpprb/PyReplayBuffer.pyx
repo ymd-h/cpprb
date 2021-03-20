@@ -1184,7 +1184,7 @@ cdef class ReplayBuffer:
         for i in cache_idx:
             self.add(**{k: v[idx:i] for k,v in d.items()},
                      **{f"next_{k}": d[k][idx+1:i+1] for k in n})
-            self.add({**{k: v[i] for k,v in d.items()}, **c[i]})
+            self.add(**{**{k: v[i] for k,v in d.items()}, **c[i]})
             idx = i+1
 
         self.add(**{k: v[idx:_size] for k,v in d.items()},
