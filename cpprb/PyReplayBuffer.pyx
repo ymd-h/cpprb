@@ -1156,6 +1156,8 @@ cdef class ReplayBuffer:
 
         if not data["safe"]:
             c = unwrap(data["cache"])
+            n = unwrap(data["next" ])
+            s = unwrap(data["stack"])
 
             for v in d.values():
                 N = v.shape[0]
@@ -1164,13 +1166,31 @@ cdef class ReplayBuffer:
             _buffer = self.buffer
             _cache = self.cache
 
+            _next_of = self.next_of
+            _has_next_of = self.has_next_of
+
+            _stack_compress = self.stack_compress
+            _compress_any = self.compress_any
+
             self.buffer = d
             self.cache = c
+
+            self.next_of = n
+            self.has_next_of = True if n else False
+
+            self.stack_compress = s
+            self.compress_any = True if s else False
 
             d = self._encode_sample([i for i in range(N)])
 
             self.buffer = _buffer
             self.cache = _cache
+
+            self.next_of = _next_of
+            self.has_next_of = _has_next_of
+
+            self.stack_compress = _stack_compress
+            self.compress_any = _compress_any
 
         if data["Nstep"]:
             self.use_nstep = False
