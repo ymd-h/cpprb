@@ -156,6 +156,7 @@ plt.title("Replay Buffer Add Speed")
 plt.savefig("ReplayBuffer_add2.png",
             transparent=True,
             bbox_inches="tight")
+plt.close()
 
 
 # Fill Buffers
