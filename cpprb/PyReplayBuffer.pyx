@@ -1191,6 +1191,7 @@ cdef class ReplayBuffer:
                 self.add(**merge)
             merge = {**{k: v[i] for k,v in d.items()}, **c[i]}
             self.add(**merge)
+            self.on_episode_end()
             idx = i+1
 
         if idx < _size:
