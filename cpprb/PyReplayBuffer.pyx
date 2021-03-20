@@ -1075,6 +1075,10 @@ cdef class ReplayBuffer:
             remain = end - self.buffer_size
             add_idx[add_idx >= self.buffer_size] -= self.buffer_size
 
+        if self.cache is not None:
+            for _i in add_idx:
+                self.cache.pop(_i, None)
+
         if self.compress_any and (remain or
                                   self.get_stored_size() == self.buffer_size):
             key_min = remain or end
@@ -1092,9 +1096,6 @@ cdef class ReplayBuffer:
                                                           copy=False,
                                                           ndmin=2),
                                                  self.env_dict[name]["add_shape"])[-1]
-
-        if (self.cache is not None) and (index in self.cache):
-            del self.cache[index]
 
         self.episode_len += N
         return index
