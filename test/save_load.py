@@ -178,6 +178,31 @@ class TestReplayBuffer(unittest.TestCase):
 
         np.testing.assert_allclose(t1["a"], t2["a"])
 
+    def test_unsafe_next_of_already_filled(self):
+        """
+        Load unsafe next_of transitions with already filled buffer
+        """
+        buffer_size = 10
+        env_dict = {"a": {}}
+
+        rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a")
+        rb2 = ReplayBuffer(buffer_size, env_dict, next_of="a")
+
+        a = [1, 2, 3, 4, 5, 6]
+        b = [7, 8, 9]
+
+        rb1.add(a=a[:-1], next_a=a[1:])
+        rb2.add(a=b[:-1], next_a=b[1:])
+
+        fname="unsafe_next_of.npz"
+        rb1.save_transitions(fname, safe=False)
+        rb2.load_transitions(fname)
+
+        t1 = rb1.get_all_transitions()
+        t2 = rb2.get_all_transitions()
+
+        np.testing.assert_allclose(t1["a"], t2["a"][len(b):])
+
     def test_raise_unsafe_next_of(self):
         """
         Load incompatible next_of transitions with unsafe mode
