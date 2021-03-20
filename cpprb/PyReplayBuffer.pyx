@@ -1187,7 +1187,8 @@ cdef class ReplayBuffer:
             if idx < i:
                 self.add(**{k: v[idx:i] for k,v in d.items()},
                          **{f"next_{k}": d[k][idx+1:i+1] for k in n})
-            self.add(**{**{k: v[i] for k,v in d.items()}, **c[i]})
+            merge = {**{k: v[i] for k,v in d.items()}, **c[i]}
+            self.add(**merge)
             idx = i+1
 
         if idx < _size:
