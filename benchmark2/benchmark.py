@@ -167,8 +167,7 @@ for _ in range(buffer_size):
 
 
 # ReplayBuffer.sample
-perfplot.save(filename="ReplayBuffer_sample2.png",
-              setup = lambda n: n,
+perfplot.plot(setup = lambda n: n,
               time_unit="ms",
               kernels = [sample_client(client,"ReplayBuffer"),
                          sample_tf_client(tf_client,"ReplayBuffer"),
@@ -180,15 +179,18 @@ perfplot.save(filename="ReplayBuffer_sample2.png",
                         "cpprb"],
               n_range = [2**n for n in range(1,8)],
               xlabel = "Batch size",
-              title = "Replay Buffer Sample Speed",
               logx = False,
               logy = False,
               equality_check=None)
+plt.title("Replay Buffer Sample Speed")
+plt.savefig(filename="ReplayBuffer_sample2.png",
+            transparent=True,
+            bbox_inches="tight")
+plt.close()
 
 
 # PrioritizedReplayBuffer.add
-perfplot.save(filename="PrioritizedReplayBuffer_add2.png",
-              time_unit="ms",
+perfplot.plot(time_unit="ms",
               setup = env,
               kernels = [add_client_insert(client,"PrioritizedReplayBuffer"),
                          add_client(client,"PrioritizedReplayBuffer"),
@@ -200,10 +202,14 @@ perfplot.save(filename="PrioritizedReplayBuffer_add2.png",
                         "cpprb"],
               n_range = [n for n in range(1,102,10)],
               xlabel = "Step size added at once",
-              title = "Prioritized Replay Buffer Add Speed",
               logx = False,
               logy = False,
               equality_check=None)
+plt.title("Prioritized Replay Buffer Add Speed")
+plt.savefig(filename="PrioritizedReplayBuffer_add2.png",
+            transparent=True,
+            bbox_inches="tight")
+plt.close()
 
 
 # Fill Buffers
@@ -219,8 +225,7 @@ for _ in range(buffer_size):
     prb.add(obs=o,act=a,rew=r,next_obs=o,done=d,priority=p)
 
 
-perfplot.save(filename="PrioritizedReplayBuffer_sample2.png",
-              time_unit="ms",
+perfplot.plot(time_unit="ms",
               setup = lambda n: n,
               kernels = [sample_client(client,"PrioritizedReplayBuffer"),
                          sample_tf_client(tf_client,"PrioritizedReplayBuffer"),
@@ -232,7 +237,11 @@ perfplot.save(filename="PrioritizedReplayBuffer_sample2.png",
                         "cpprb"],
               n_range = [2**n for n in range(1,9)],
               xlabel = "Batch size",
-              title = "Prioritized Replay Buffer Sample Speed",
               logx=False,
               logy=False,
               equality_check=None)
+plt.title("Prioritized Replay Buffer Sample Speed")
+plt.savefig(filename="PrioritizedReplayBuffer_sample2.png",
+            transparent=True,
+            bbox_inches="tight")
+plt.close()

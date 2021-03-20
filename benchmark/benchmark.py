@@ -126,8 +126,7 @@ def sample_c(_rb):
 
 
 # ReplayBuffer.add
-perfplot.save(filename="ReplayBuffer_add.png",
-              setup = env,
+perfplot.plot(setup = env,
               time_unit="ms",
               kernels = [add_b(brb),
                          add_r(rrb),
@@ -136,11 +135,14 @@ perfplot.save(filename="ReplayBuffer_add.png",
               labels = ["OpenAI/Baselines","Ray/RLlib","Chainer/ChainerRL","cpprb"],
               n_range = [n for n in range(1,102,10)],
               xlabel = "Step size added at once",
-              title = "Replay Buffer Add Speed",
               logx = False,
               logy = False,
               equality_check = None)
-
+plt.title("Replay Buffer Add Speed")
+plt.savefig(filename="ReplayBuffer_add.png",
+            transparent=True,
+            bbox_inches="tight")
+plt.close()
 
 # Fill Buffers
 o = np.random.rand(buffer_size,obs_shape)
@@ -156,8 +158,7 @@ add_c(crb)(e)
 rb.add(**e)
 
 # ReplayBuffer.sample
-perfplot.save(filename="ReplayBuffer_sample.png",
-              setup = lambda n: n,
+perfplot.plot(setup = lambda n: n,
               time_unit="ms",
               kernels = [brb.sample,
                          rrb.sample,
@@ -169,15 +170,17 @@ perfplot.save(filename="ReplayBuffer_sample.png",
                         "cpprb"],
               n_range = [2**n for n in range(1,8)],
               xlabel = "Batch size",
-              title = "Replay Buffer Sample Speed",
               logx = False,
               logy = False,
               equality_check=None)
-
+plt.title("Replay Buffer Sample Speed")
+plt.savefig(filename="ReplayBuffer_sample.png",
+            transparent=True,
+            bbox_inches="tight")
+plt.close()
 
 # PrioritizedReplayBuffer.add
-perfplot.save(filename="PrioritizedReplayBuffer_add.png",
-              time_unit="ms",
+perfplot.plot(time_unit="ms",
               setup = env,
               kernels = [add_b(bprb),
                          add_r(rprb),
@@ -189,10 +192,14 @@ perfplot.save(filename="PrioritizedReplayBuffer_add.png",
                         "cpprb"],
               n_range = [n for n in range(1,102,10)],
               xlabel = "Step size added at once",
-              title = "Prioritized Replay Buffer Add Speed",
               logx = False,
               logy = False,
               equality_check=None)
+plt.title("Prioritized Replay Buffer Add Speed")
+plt.savefig(filename="PrioritizedReplayBuffer_add.png",
+            transparent=True,
+            bbox_inches="tight")
+plt.close()
 
 
 # Fill Buffers
@@ -230,8 +237,7 @@ for i in range(buffer_size):
                        priority=p)
 
 
-perfplot.save(filename="PrioritizedReplayBuffer_sample.png",
-              time_unit="ms",
+perfplot.plot(time_unit="ms",
               setup = lambda n: n,
               kernels = [lambda n: bprb.sample(n,beta=beta),
                          lambda n: rprb.sample(n,beta=beta),
@@ -243,7 +249,11 @@ perfplot.save(filename="PrioritizedReplayBuffer_sample.png",
                         "cpprb"],
               n_range = [2**n for n in range(1,9)],
               xlabel = "Batch size",
-              title = "Prioritized Replay Buffer Sample Speed",
               logx=False,
               logy=False,
               equality_check=None)
+plt.title("Prioritized Replay Buffer Sample Speed")
+plt.savefig(filename="PrioritizedReplayBuffer_sample.png",
+            transparent=True,
+            bbox_inches="tight")
+plt.close()
