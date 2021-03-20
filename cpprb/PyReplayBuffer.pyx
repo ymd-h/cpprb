@@ -1143,10 +1143,15 @@ cdef class ReplayBuffer:
         else:
             self.add_cache()
             N = self.get_stored_size()
+            if N == self.get_buffer_size():
+                b = self.buffer
+            else:
+                b = {k: v[:N+1 if k in self.next_of else N]
+                     for k, v in self.buffer.items()}
+
             data = {"safe": False,
                     "version": FORMAT_VERSION,
-                    "data": {k: v[:N+1 if k in self.next_of else N]
-                             for k,v in self.buffer.items()},
+                    "data": b,
                     "Nstep": self.is_Nstep(),
                     "cache": self.cache,
                     "next_of": self.next_of}
