@@ -137,8 +137,7 @@ def sample_tf_client_dataset(_rb,table):
 
 
 # ReplayBuffer.add
-perfplot.save(filename="ReplayBuffer_add2.png",
-              setup = env,
+perfplot.plot(setup = env,
               time_unit="ms",
               kernels = [add_client_insert(client,"ReplayBuffer"),
                          add_client(client,"ReplayBuffer"),
@@ -150,10 +149,13 @@ perfplot.save(filename="ReplayBuffer_add2.png",
                         "cpprb"],
               n_range = [n for n in range(1,102,10)],
               xlabel = "Step size added at once",
-              title = "Replay Buffer Add Speed",
               logx = False,
               logy = False,
               equality_check = None)
+plt.title("Replay Buffer Add Speed")
+plt.savefig("ReplayBuffer_add2.png",
+            transparent=True,
+            bbox_inches="tight")
 
 
 # Fill Buffers
