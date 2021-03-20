@@ -65,7 +65,23 @@ class TestReplayBuffer(unittest.TestCase):
         buffer_size2 = 10
         env_dict = {"a": {}}
 
-        rb1 = ReplayBuffer(buffer_size1, )
+        rb1 = ReplayBuffer(buffer_size1, env_dict)
+        rb2 = ReplayBuffer(buffer_size2, env_dict)
+
+        a = [1, 2, 3, 4]
+        b = [5, 6]
+
+        rb1.add(a=a)
+        rb2.add(a=b)
+
+        fname="filled.npz"
+        rb1.save_transitions(fname)
+        rb2.load_transitions(fname)
+
+        t1 = rb1.get_all_transitions()
+        t2 = rb2.get_all_transitions()
+
+        np.testing.assert_allclose(t1["a"], t2["a"][len(b):])
 
 if __name__ == "__main__":
     unittest.main()
