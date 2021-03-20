@@ -2,8 +2,7 @@ import unittest
 
 import numpy as np
 
-from cpprb import (ReplayBuffer, PrioritizedReplayBuffer,
-                   MPReplayBuffer, MPPrioritizedReplayBuffer)
+from cpprb import ReplayBuffer, PrioritizedReplayBuffer
 
 
 class TestReplayBuffer(unittest.TestCase):
@@ -55,6 +54,18 @@ class TestReplayBuffer(unittest.TestCase):
         t2 = rb2.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"][-buffer_size2:],t2["a"])
+
+    def test_load_to_filled_buffer(self):
+        """
+        Load to already filled buffer
+
+        Add to transitions
+        """
+        buffer_size1 = 10
+        buffer_size2 = 10
+        env_dict = {"a": {}}
+
+        rb1 = ReplayBuffer(buffer_size1, )
 
 if __name__ == "__main__":
     unittest.main()
