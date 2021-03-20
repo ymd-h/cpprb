@@ -1,7 +1,7 @@
 import gc
 import itertools
 
-
+import matplotlib.pyplot as plt
 import numpy as np
 import perfplot
 import tensorflow as tf
