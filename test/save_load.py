@@ -155,5 +155,28 @@ class TestReplayBuffer(unittest.TestCase):
 
         np.testing.assert_allclose(t1["a"], t2["a"])
 
+    def test_unsafe_next_of(self):
+        """
+        Load next_of transitions with unsafe mode
+        """
+        buffer_size = 10
+        env_dict = {"a": {}}
+
+        rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a")
+        rb2 = ReplayBuffer(buffer_size, env_dict, next_of="a")
+
+        a = [1, 2, 3, 4, 5, 6]
+
+        rb1.add(a=a[:-1], next_a=a[1:])
+
+        fname="unsafe_next_of.npz"
+        rb1.save_transitions(fname, safe=False)
+        rb2.load_transitions(fname)
+
+        t1 = rb1.get_all_transitions()
+        t2 = rb2.get_all_transitions()
+
+        np.testing.assert_allclose(t1["a"], t2["a"])
+
 if __name__ == "__main__":
     unittest.main()
