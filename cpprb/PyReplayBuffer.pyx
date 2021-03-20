@@ -1391,8 +1391,6 @@ cdef class ReplayBuffer:
 
         self.cache[key] = cache_key
 
-
-
     cpdef void on_episode_end(self) except *:
         r"""Call on episode end
 
