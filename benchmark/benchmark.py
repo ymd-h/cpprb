@@ -41,6 +41,8 @@ env_dict = {"obs": {"shape": obs_shape},
 # Initialize Replay Buffer
 brb = bRB(buffer_size)
 rrb = rRB(buffer_size)
+rrb._num_sampled = 0 # Fix: https://github.com/ray-project/ray/issues/14818
+
 crb = cRB(buffer_size)
 rb  =  RB(buffer_size,env_dict)
 
