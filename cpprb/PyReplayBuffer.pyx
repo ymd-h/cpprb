@@ -1138,13 +1138,17 @@ cdef class ReplayBuffer:
                     "version": FORMAT_VERSION,
                     "data": self.get_all_transitions(),
                     "Nstep": self.is_Nstep(),
-                    "cache": None}
+                    "cache": None,
+                    "next": None,
+                    "stack": None}
         else:
             data = {"safe": False,
                     "version": FORMAT_VERSION,
                     "data": self.buffer,
                     "Nstep": self.is_Nstep(),
-                    "cache": self.cache}
+                    "cache": self.cache,
+                    "next": self.next_of,
+                    "stack": self.stack_compress}
         np.savez_compressed(file, **data)
 
     def _load_transitions_v1(self, data):
