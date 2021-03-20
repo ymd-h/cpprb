@@ -201,6 +201,8 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
 
+        self.assertEqual(rb1.get_stored_size()+len(b), rb2.get_stored_size())
+
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
 
