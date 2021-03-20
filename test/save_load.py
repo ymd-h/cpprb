@@ -289,8 +289,6 @@ class TestReplayBuffer(unittest.TestCase):
     def test_incompatible_unsafe_stack_compress(self):
         """
         Load incompatible stack_compress transitions with unsafe mode
-
-        Raise ValueError
         """
         buffer_size = 10
         env_dict = {"a": {"shape": 3}}
@@ -307,10 +305,12 @@ class TestReplayBuffer(unittest.TestCase):
 
         fname="incompatible_unsafe_stack_compress.npz"
         rb1.save_transitions(fname)
+        rb2.load_transitions(fname)
 
-        with self.assertRaises(ValueError):
-            rb2.load_transitions(fname)
+        t1 = rb1.get_all_transitions()
+        t2 = rb2.get_all_transitions()
 
+        np.testing.assert_allclose(t1["a"], t2["a"])
 
 if __name__ == "__main__":
     unittest.main()
