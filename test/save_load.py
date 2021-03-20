@@ -154,6 +154,7 @@ class TestReplayBuffer(unittest.TestCase):
         t2 = rb2.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
+        np.testing.assert_allclose(t1["next_a"], t2["next_a"])
 
     def test_unsafe_next_of(self):
         """
@@ -177,6 +178,7 @@ class TestReplayBuffer(unittest.TestCase):
         t2 = rb2.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
+        np.testing.assert_allclose(t1["next_a"], t2["next_a"])
 
     def test_unsafe_next_of_already_filled(self):
         """
@@ -202,6 +204,7 @@ class TestReplayBuffer(unittest.TestCase):
         t2 = rb2.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"][len(b):])
+        np.testing.assert_allclose(t1["next_a"], t2["next_a"][len(b):])
 
     def test_raise_unsafe_next_of(self):
         """
