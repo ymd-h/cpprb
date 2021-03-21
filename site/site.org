@@ -1512,7 +1512,9 @@ CLOSED: [2020-06-06 Sat 13:50]
 :EXPORT_HUGO_WEIGHT: 900
 :END:
 
+#+HTML: {{% notice note %}} <p>
 Please see [[https://github.com/ymd-h/cpprb/discussions][discussions]], too.
+#+HTML: </p>{{% /notice %}}
 
 ** Can I save/load ReplayBuffer?
 
