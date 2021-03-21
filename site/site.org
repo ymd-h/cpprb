@@ -748,6 +748,65 @@ simultaneously.
 *** Example Code
 #+INCLUDE: "../example/apex.py" src python
 
+** DONE Save / Load Transitions
+CLOSED: [2021-03-21 Sun 09:13]
+:PROPERTIES:
+:EXPORT_FILE_NAME: save_load_transitions
+:END:
+
+*** Overview
+
+From version 10.1.0, ~ReplayBuffer~ (and its sub-classes) supports
+save and load transitions (not entire buffer).
+
+#+HTML: {{% notice warning %}} <p>
+Since this functionality is based on Python pickle serialization, you
+MUST NOT load untrusted file, otherwise you might introduce security
+vulnerability.
+#+HTML: </p>{{% /notice %}}
+
+
+The API are ~save_transitions(self, file, *, safe=True)~ and
+~load_transitions(self, file)~. The ~file~ parameter is
+~str~. Internally, cpprb utilizes [[https://numpy.org/doc/stable/reference/generated/numpy.savez_compressed.html][numpy.savez_compressed]], so that the
+file name have to end with ~".npz"~. (If not, automatically the suffix
+is added.)
+
+**** save
+When ~safe=True~ (default), stored transitions are once dumped with
+~get_all_transitions()~, then the well-organized transitions are
+saved. This is much safer configuration in terms of future
+compatibility. We highly recommend this whenever you can.
+
+When ~safe=False~ and at least one of ~next_of~ and ~stack_compress~
+are enabled, cpprb tries to reduce file size by dumping internal
+compressed data structure directly. (If none of the options are
+enabled, it fallbacks to ~safe=True~.) This also saves some internal
+meta-data for reconstruction of transitions, so that it is possible
+that file size can be larger than ~safe=True~ for small data.
+
+**** load
+You have to initialize ~ReplayBuffer~ with compatible configuration
+before load transitions, otherwise you will get errors (~ValueError~,
+~KeyError~, etc.) or unintentional silent bug.
+
+~load_transitions~ does not overwrite existent transitions but adds,
+so that if you want to delete, please call ~clear()~ manually.
+
+*** Technical Detail
+
+**** v1 format
+| key     | value                                        | description                                                         |
+|---------+----------------------------------------------+---------------------------------------------------------------------|
+| safe    | ~True~ or ~False~                            |                                                                     |
+| version | ~1~                                          |                                                                     |
+| data    | ~dict[str, np.ndarray]~                      | If ~safe=True~, ~get_all_transitions()~. Otherwise internal buffer. |
+| Nstep   | ~True~ or ~False~                            |                                                                     |
+| cache   | ~dict[int, dict[str, np.ndarray]]~ or ~None~ | If ~safe=True~, ~None~. Otherwise internal cache.                   |
+| next_of | ~np.ndarray~ or ~None~                       | If ~safe=True~, ~None~. Otherwise internal meta-data for ~next_of~. |
+
+
+
 * Contributing
 :PROPERTIES:
 :EXPORT_HUGO_SECTION*: contributing
