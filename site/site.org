@@ -1519,10 +1519,9 @@ Please see [[https://github.com/ymd-h/cpprb/discussions][discussions]], too.
 No. Unfortunately, save/load full ~ReplayBuffer~ object state is not
 supported.
 
-However, you can get all the stored transisions (without "priority" in
-~PrioritizedReplayBuffer~) by calling
-~ReplayBuffer.get_all_transitions()~ and a set of transitions can be
-stored at the same time by calling ~ReplayBuffer.add(**kwargs)~.
+
+However, you can save stored transitions. (See [[https://ymd_h.gitlab.io/cpprb/features/save_load_transitions/][document]])
+
 
 ** "IlIegal instruction (core dumped)" when "import cpprb"
 
