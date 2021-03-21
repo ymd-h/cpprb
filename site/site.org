@@ -1404,7 +1404,7 @@ The following table summarizes functionalities of replay buffers.
 | *Flexible Environment*    | Yes                                   | No                                        | No                                                         | Yes                        | Yes             |
 | *Nstep*                   | Yes                                   | No                                        | Yes                                                        | Yes                        | No              |
 | *Parellel Exploration*    | Yes (Support Ape-X on single machine) | Yes (Avarages gradients of MPI processes) | Yes (Concatenates sample batches from distributed buffers) | No                         | Yes             |
-| *Save/Load*               | No (Cannot =pickle=)                  | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                        | Yes             |
+| *Save/Load*               | Only transitions ([[https://ymd_h.gitlab.io/cpprb/features/save_load_transitions/][document]])           | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                        | Yes             |
 | *Deep Learning Framework* | Anything                              | TensorFlow 1.14 (only this version)       | Anything (Helper functions for [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-tensorflow][TensorFlow]] and [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-pytorch][PyTorch]])     | [[https://chainer.org/][Chainer]] ([[https://chainer.org/announcement/2019/12/05/released-v7.html][maintenance only]]) | TensorFlow 2.3  |
 
 
