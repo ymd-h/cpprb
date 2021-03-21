@@ -1512,6 +1512,8 @@ CLOSED: [2020-06-06 Sat 13:50]
 :EXPORT_HUGO_WEIGHT: 900
 :END:
 
+Please see [[https://github.com/ymd-h/cpprb/discussions][discussions]], too.
+
 ** Can I save/load ReplayBuffer?
 
 No. Unfortunately, save/load full ~ReplayBuffer~ object state is not
