@@ -6,7 +6,7 @@ import numpy as np
 from cpprb import ReplayBuffer, PrioritizedReplayBuffer
 
 def v(num: int, fname: str):
-    return os.path.join(f"v{num}", fname)
+    return os.path.join(os.path.dirname(__file__), f"v{num}", fname)
 
 
 class TestReplayBuffer(unittest.TestCase):
