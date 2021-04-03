@@ -151,7 +151,7 @@ class TestReplayBuffer(unittest.TestCase):
         with self.assertRaises(ValueError):
             rb2.load_transitions(fname)
 
-        with.self.assertRaises(ValueError):
+        with self.assertRaises(ValueError):
             rb3.load_transitions(v(1,fname))
 
     def test_next_of(self):
