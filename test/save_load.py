@@ -233,7 +233,7 @@ class TestReplayBuffer(unittest.TestCase):
         rb2.add(a=b[:-1], next_a=b[1:])
         rb3.add(a=b[:-1], next_a=b[1:])
 
-        fname="unsafe_next_of.npz"
+        fname="unsafe_next_of_already.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
         rb3.load_transitions(v(1,fname))
@@ -453,7 +453,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1.add(a=a[:-1], next_a=a[1:])
 
-        fname="next_of_stack_compress.npz"
+        fname="unsafe_next_of_stack_compress.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
         rb3.load_transitions(v(1,fname))
@@ -492,7 +492,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1.add(a=a[:-1], next_a=a[1:])
 
-        fname="next_of_stack_compress.npz"
+        fname="unsafe_fulled_next_of_stack_compress.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
         rb3.load_transitions(v(1,fname))
