@@ -378,6 +378,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, stack_compress="a")
         rb2 = ReplayBuffer(buffer_size, env_dict)
+        rb3 = ReplayBuffer(buffer_size, env_dict)
 
         a = [[1, 2, 3],
              [2, 3, 4],
