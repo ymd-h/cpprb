@@ -1,8 +1,12 @@
+import os
 import unittest
 
 import numpy as np
 
 from cpprb import ReplayBuffer, PrioritizedReplayBuffer
+
+def v(num: int, fname: str):
+    return os.path.join(os.path.dirname(__file__), f"v{num}", fname)
 
 
 class TestReplayBuffer(unittest.TestCase):
@@ -17,6 +21,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict)
         rb2 = ReplayBuffer(buffer_size, env_dict)
+        rb3 = ReplayBuffer(buffer_size, env_dict)
 
         a = [1, 2, 3, 4]
 
@@ -25,11 +30,14 @@ class TestReplayBuffer(unittest.TestCase):
         fname = "basic.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
 
     def test_smaller_buffer(self):
         """
@@ -43,15 +51,18 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size1, env_dict)
         rb2 = ReplayBuffer(buffer_size2, env_dict)
+        rb3 = ReplayBuffer(buffer_size2, env_dict)
 
         a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
         fname = "smaller.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"][-buffer_size2:],t2["a"])
 
@@ -67,21 +78,26 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size1, env_dict)
         rb2 = ReplayBuffer(buffer_size2, env_dict)
+        rb3 = ReplayBuffer(buffer_size2, env_dict)
 
         a = [1, 2, 3, 4]
         b = [5, 6]
 
         rb1.add(a=a)
         rb2.add(a=b)
+        rb3.add(a=b)
 
         fname="filled.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"][len(b):])
+        np.testing.assert_allclose(t1["a"], t3["a"][len(b):])
 
     def test_load_Nstep(self):
         """
@@ -93,6 +109,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, Nstep=Nstep)
         rb2 = ReplayBuffer(buffer_size, env_dict, Nstep=Nstep)
+        rb3 = ReplayBuffer(buffer_size, env_dict, Nstep=Nstep)
 
         d = [0, 0, 0, 0, 1]
 
@@ -102,11 +119,14 @@ class TestReplayBuffer(unittest.TestCase):
         fname="Nstep.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["done"], t2["done"])
+        np.testing.assert_allclose(t1["done"], t3["done"])
 
     def test_Nstep_incompatibility(self):
         """
@@ -118,6 +138,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, Nstep=Nstep)
         rb2 = ReplayBuffer(buffer_size, env_dict)
+        rb3 = ReplayBuffer(buffer_size, env_dict)
 
         d = [0, 0, 0, 0, 1]
 
@@ -129,6 +150,9 @@ class TestReplayBuffer(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             rb2.load_transitions(fname)
+
+        with self.assertRaises(ValueError):
+            rb3.load_transitions(v(1,fname))
 
     def test_next_of(self):
         """
@@ -142,6 +166,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict1, next_of="a")
         rb2 = ReplayBuffer(buffer_size, env_dict2)
+        rb3 = ReplayBuffer(buffer_size, env_dict2)
 
         a = [1, 2, 3, 4, 5, 6]
 
@@ -150,12 +175,16 @@ class TestReplayBuffer(unittest.TestCase):
         fname="next_of.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
         np.testing.assert_allclose(t1["next_a"], t2["next_a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
+        np.testing.assert_allclose(t1["next_a"], t3["next_a"])
 
     def test_unsafe_next_of(self):
         """
@@ -166,6 +195,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a")
         rb2 = ReplayBuffer(buffer_size, env_dict, next_of="a")
+        rb3 = ReplayBuffer(buffer_size, env_dict, next_of="a")
 
         a = [1, 2, 3, 4, 5, 6]
 
@@ -174,12 +204,16 @@ class TestReplayBuffer(unittest.TestCase):
         fname="unsafe_next_of.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
         np.testing.assert_allclose(t1["next_a"], t2["next_a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
+        np.testing.assert_allclose(t1["next_a"], t3["next_a"])
 
     def test_unsafe_next_of_already_filled(self):
         """
@@ -190,24 +224,31 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a")
         rb2 = ReplayBuffer(buffer_size, env_dict, next_of="a")
+        rb3 = ReplayBuffer(buffer_size, env_dict, next_of="a")
 
         a = [1, 2, 3, 4, 5, 6]
         b = [7, 8, 9]
 
         rb1.add(a=a[:-1], next_a=a[1:])
         rb2.add(a=b[:-1], next_a=b[1:])
+        rb3.add(a=b[:-1], next_a=b[1:])
 
-        fname="unsafe_next_of.npz"
+        fname="unsafe_next_of_already.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         self.assertEqual(rb1.get_stored_size()+len(b)-1, rb2.get_stored_size())
+        self.assertEqual(rb1.get_stored_size()+len(b)-1, rb3.get_stored_size())
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"][len(b)-1:])
         np.testing.assert_allclose(t1["next_a"], t2["next_a"][len(b)-1:])
+        np.testing.assert_allclose(t1["a"], t3["a"][len(b)-1:])
+        np.testing.assert_allclose(t1["next_a"], t3["next_a"][len(b)-1:])
 
     def test_incompatible_unsafe_next_of(self):
         """
@@ -219,6 +260,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict1, next_of="a")
         rb2 = ReplayBuffer(buffer_size, env_dict2)
+        rb3 = ReplayBuffer(buffer_size, env_dict2)
 
         a = [1, 2, 3, 4, 5, 6]
 
@@ -227,12 +269,16 @@ class TestReplayBuffer(unittest.TestCase):
         fname="unsafe_incompatible_next_of.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
         np.testing.assert_allclose(t1["next_a"], t2["next_a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
+        np.testing.assert_allclose(t1["next_a"], t3["next_a"])
 
     def test_fulled_unsafe_next_of(self):
         """
@@ -243,6 +289,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a")
         rb2 = ReplayBuffer(buffer_size, env_dict, next_of="a")
+        rb3 = ReplayBuffer(buffer_size, env_dict, next_of="a")
 
         a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
@@ -251,12 +298,16 @@ class TestReplayBuffer(unittest.TestCase):
         fname="fulled_unsafe_next_of.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
         np.testing.assert_allclose(t1["next_a"], t2["next_a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
+        np.testing.assert_allclose(t1["next_a"], t3["next_a"])
 
     def test_stack_compress(self):
         """
@@ -267,6 +318,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, stack_compress="a")
         rb2 = ReplayBuffer(buffer_size, env_dict, stack_compress="a")
+        rb3 = ReplayBuffer(buffer_size, env_dict, stack_compress="a")
 
         a = [[1, 2, 3],
              [2, 3, 4],
@@ -278,11 +330,14 @@ class TestReplayBuffer(unittest.TestCase):
         fname="stack_compress.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
 
     def test_incompatible_stack_compress(self):
         """
@@ -293,6 +348,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, stack_compress="a")
         rb2 = ReplayBuffer(buffer_size, env_dict)
+        rb3 = ReplayBuffer(buffer_size, env_dict)
 
         a = [[1, 2, 3],
              [2, 3, 4],
@@ -304,11 +360,14 @@ class TestReplayBuffer(unittest.TestCase):
         fname="incompatible_stack_compress.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
+        rb3.load_transitions(fname)
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
 
     def test_incompatible_unsafe_stack_compress(self):
         """
@@ -319,6 +378,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, stack_compress="a")
         rb2 = ReplayBuffer(buffer_size, env_dict)
+        rb3 = ReplayBuffer(buffer_size, env_dict)
 
         a = [[1, 2, 3],
              [2, 3, 4],
@@ -330,11 +390,14 @@ class TestReplayBuffer(unittest.TestCase):
         fname="incompatible_unsafe_stack_compress.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
+        rb3.load_transitions(fname)
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
 
     def test_next_of_stack_compress(self):
         """
@@ -345,6 +408,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
         rb2 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
+        rb3 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
 
         a = [[1, 2, 3],
              [2, 3, 4],
@@ -358,12 +422,16 @@ class TestReplayBuffer(unittest.TestCase):
         fname="next_of_stack_compress.npz"
         rb1.save_transitions(fname)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
         np.testing.assert_allclose(t1["next_a"], t2["next_a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
+        np.testing.assert_allclose(t1["next_a"], t3["next_a"])
 
     def test_unsafe_next_of_stack_compress(self):
         """
@@ -374,6 +442,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
         rb2 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
+        rb3 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
 
         a = [[1, 2, 3],
              [2, 3, 4],
@@ -384,15 +453,19 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1.add(a=a[:-1], next_a=a[1:])
 
-        fname="next_of_stack_compress.npz"
+        fname="unsafe_next_of_stack_compress.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
         np.testing.assert_allclose(t1["next_a"], t2["next_a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
+        np.testing.assert_allclose(t1["next_a"], t3["next_a"])
 
     def test_unsafe_fulled_next_of_stack_compress(self):
         """
@@ -403,6 +476,7 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
         rb2 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
+        rb3 = ReplayBuffer(buffer_size, env_dict, next_of="a", stack_compress="a")
 
         a = [[1, 2, 3],
              [2, 3, 4],
@@ -418,15 +492,19 @@ class TestReplayBuffer(unittest.TestCase):
 
         rb1.add(a=a[:-1], next_a=a[1:])
 
-        fname="next_of_stack_compress.npz"
+        fname="unsafe_fulled_next_of_stack_compress.npz"
         rb1.save_transitions(fname, safe=False)
         rb2.load_transitions(fname)
+        rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
+        t3 = rb3.get_all_transitions()
 
         np.testing.assert_allclose(t1["a"], t2["a"])
         np.testing.assert_allclose(t1["next_a"], t2["next_a"])
+        np.testing.assert_allclose(t1["a"], t3["a"])
+        np.testing.assert_allclose(t1["next_a"], t3["next_a"])
 
 if __name__ == "__main__":
     unittest.main()
