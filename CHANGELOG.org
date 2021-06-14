@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.1.1][v10.1.1]]
+- Fix: Numpy version at build from source
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.1.0][v10.1.0]]
 - Add: ~save_transitions~ / ~load_transitions~ ([[https://gitlab.com/ymd_h/cpprb/-/issues/138][138]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.0.0][v10.0.0]]
