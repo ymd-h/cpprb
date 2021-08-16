@@ -138,8 +138,9 @@ for installation.
 On supported platflorms (Linux x86-64 and Windows amd64), binary
 packages hosted on PyPI can be used, so that you don't need C++ compiler.
 
-If you have trouble to install from binary, you can fall back to
-source installation to passk ~--no-binary~ option to the above pip command.
+If you have any troubles to install from binary, you can fall back to
+source installation by passing ~--no-binary~ option to the above pip
+command.
 
 Currently, no other platforms, such as macOS, and 32bit or
 arm-architectured Linux and Windows, cannot install from binary, and
