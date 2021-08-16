@@ -115,10 +115,9 @@ cpprb requires following softwares before installation.
 Cuurently, [[https://clang.llvm.org/][clang]], which is a default Xcode C/C++ compiler at Apple macOS,
 cannot compile cpprb.
 
-If you are macOS user, you need to install GCC and set environment values
-of =CC= and =CXX= to =g++=, or just use virtual environment (e.g. [[https://www.docker.com/][Docker]]).
-
-Step by step installation is described [[https://ymd_h.gitlab.io/cpprb/installation/install_on_macos/][here]].
+If you are macOS user, you need to install GCC and set environment
+values of =CC= and =CXX= to =g++=, or just use virtual environment
+(e.g. [[https://www.docker.com/][Docker]]). Step by step installation is described [[https://ymd_h.gitlab.io/cpprb/installation/install_on_macos/][here]].
 
 Additionally, here are user's good feedbacks for installation at [[https://github.com/keiohta/tf2rl/issues/75][macOS]] and [[https://gitlab.com/ymd_h/cpprb/issues/73][Ubuntu]].
 (Thanks!)
