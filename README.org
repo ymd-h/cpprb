@@ -148,9 +148,9 @@ pip install numpy
 pip install --no-binary cpprb
 #+end_src
 
-Currently, no other platforms, such as macOS, and 32bit or
-arm-architectured Linux and Windows, cannot install from binary, and
-need to compile by yourself. Please be patient, we will plan to
+Currently, on the other platforms, such as macOS, and 32bit or
+arm-architectured Linux and Windows, you cannot install from binary,
+and you need to compile by yourself. Please be patient, we plan to
 support wider platforms in future.
 
 ** Install from source code
