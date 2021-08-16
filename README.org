@@ -135,7 +135,12 @@ Depending on your environment, you might need =sudo= or =--user= flag
 for installation.
 
 On supported platflorms (Linux x86-64 and Windows amd64), binary
-packages hosted on PyPI can be used, so that you don't need C++ compiler.
+packages hosted on PyPI can be used, so that you don't need C++
+compiler. On the other platforms, such as macOS, and 32bit or
+arm-architectured Linux and Windows, you cannot install from binary,
+and you need to compile by yourself. Please be patient, we plan to
+support wider platforms in future.
+
 
 If you have any troubles to install from binary, you can fall back to
 source installation by passing ~--no-binary~ option to the above pip
@@ -146,11 +151,6 @@ install NumPy beforehand.)
 pip install numpy
 pip install --no-binary cpprb
 #+end_src
-
-Currently, on the other platforms, such as macOS, and 32bit or
-arm-architectured Linux and Windows, you cannot install from binary,
-and you need to compile by yourself. Please be patient, we plan to
-support wider platforms in future.
 
 ** Install from source code
 
