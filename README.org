@@ -161,7 +161,7 @@ First, download source code manually or clone the repository;
 git clone https://gitlab.com/ymd_h/cpprb.git
 #+end_src
 
-Then you can install same way;
+Then you can install in the same way;
 
 #+begin_src shell
 cd cpprb
