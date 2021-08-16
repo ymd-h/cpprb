@@ -90,7 +90,7 @@ prioritized experience replay) are offloaded onto C++.
 (The name cpprb comes from "C++ Replay Buffer".)
 
 In terms of API, initially cpprb referred to [[https://github.com/openai/baselines][OpenAI Baselines]]'
-implementation. In the current version, cpprb has much more
+implementation. The current version of cpprb has much more
 flexibility. Any [[https://numpy.org/][NumPy]] compatible types of any numbers of values can
 be stored (as long as memory capacity is sufficient). For example, you
 can store the next action and the next next observation, too.
