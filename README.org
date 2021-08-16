@@ -136,7 +136,7 @@ Depending on your environment, you might need =sudo= or =--user= flag
 for installation.
 
 On supported platflorms (Linux x86-64 and Windows amd64), binary
-packages are hosted on PyPI can be used, so that you don't need C++ compiler.
+packages hosted on PyPI can be used, so that you don't need C++ compiler.
 
 If you have trouble to install from binary, you can fall back to
 source installation to passk ~--no-binary~ option to the above pip command.
