@@ -140,7 +140,13 @@ packages hosted on PyPI can be used, so that you don't need C++ compiler.
 
 If you have any troubles to install from binary, you can fall back to
 source installation by passing ~--no-binary~ option to the above pip
-command.
+command. (In order to avoid NumPy source installation, it is better to
+install NumPy beforehand.)
+
+#+begin_src shell
+pip install numpy
+pip install --no-binary cpprb
+#+end_src
 
 Currently, no other platforms, such as macOS, and 32bit or
 arm-architectured Linux and Windows, cannot install from binary, and
