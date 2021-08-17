@@ -90,7 +90,7 @@ prioritized experience replay) are offloaded onto C++.
 (The name cpprb comes from "C++ Replay Buffer".)
 
 In terms of API, initially cpprb referred to [[https://github.com/openai/baselines][OpenAI Baselines]]'
-implementation. In the current version, cpprb has much more
+implementation. The current version of cpprb has much more
 flexibility. Any [[https://numpy.org/][NumPy]] compatible types of any numbers of values can
 be stored (as long as memory capacity is sufficient). For example, you
 can store the next action and the next next observation, too.
@@ -115,10 +115,9 @@ cpprb requires following softwares before installation.
 Cuurently, [[https://clang.llvm.org/][clang]], which is a default Xcode C/C++ compiler at Apple macOS,
 cannot compile cpprb.
 
-If you are macOS user, you need to install GCC and set environment values
-of =CC= and =CXX= to =g++=, or just use virtual environment (e.g. [[https://www.docker.com/][Docker]]).
-
-Step by step installation is described [[https://ymd_h.gitlab.io/cpprb/installation/install_on_macos/][here]].
+If you are macOS user, you need to install GCC and set environment
+values of =CC= and =CXX= to =g++=, or just use virtual environment
+(e.g. [[https://www.docker.com/][Docker]]). Step by step installation is described [[https://ymd_h.gitlab.io/cpprb/installation/install_on_macos/][here]].
 
 Additionally, here are user's good feedbacks for installation at [[https://github.com/keiohta/tf2rl/issues/75][macOS]] and [[https://gitlab.com/ymd_h/cpprb/issues/73][Ubuntu]].
 (Thanks!)
@@ -136,15 +135,22 @@ Depending on your environment, you might need =sudo= or =--user= flag
 for installation.
 
 On supported platflorms (Linux x86-64 and Windows amd64), binary
-packages are hosted on PyPI can be used, so that you don't need C++ compiler.
-
-If you have trouble to install from binary, you can fall back to
-source installation to passk ~--no-binary~ option to the above pip command.
-
-Currently, no other platforms, such as macOS, and 32bit or
-arm-architectured Linux and Windows, cannot install from binary, and
-need to compile by yourself. Please be patient, we will plan to
+packages hosted on PyPI can be used, so that you don't need C++
+compiler. On the other platforms, such as macOS, and 32bit or
+arm-architectured Linux and Windows, you cannot install from binary,
+and you need to compile by yourself. Please be patient, we plan to
 support wider platforms in future.
+
+
+If you have any troubles to install from binary, you can fall back to
+source installation by passing ~--no-binary~ option to the above pip
+command. (In order to avoid NumPy source installation, it is better to
+install NumPy beforehand.)
+
+#+begin_src shell
+pip install numpy
+pip install --no-binary cpprb
+#+end_src
 
 ** Install from source code
 
@@ -154,7 +160,7 @@ First, download source code manually or clone the repository;
 git clone https://gitlab.com/ymd_h/cpprb.git
 #+end_src
 
-Then you can install same way;
+Then you can install in the same way;
 
 #+begin_src shell
 cd cpprb
