@@ -150,6 +150,17 @@ TF2RL uses cpprb for off-policy algorithm.
 
 #+html: {{% button-center href="https://github.com/keiohta/tf2rl" icon="fab fa-github" icon-position="right" %}}TF2RL{{% /button-center %}}
 
+{{< /col >}} {{< col size="md">}}
+
+{{% markdownify %}}
+*** User Repos
+You can find awesome repositories using cpprb. We're looking forward
+to seeing your great work will show up.
+
+{{% /markdownify %}}
+
+#+html: {{% button-center href="https://github.com/ymd-h/cpprb/network/dependents" icon="fab fa-github" icon-position="right" %}}User Repos{{% /button-center %}}
+
 {{< /col >}} {{< /row >}} {{< /container >}}
 
 * Installation
