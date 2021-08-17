@@ -1979,11 +1979,11 @@ computational cost.
 
 * Footnotes
 
-[fn:12] [[https://openreview.net/forum?id=H1Dy---0Z][D. Hogan /et al/., "Distributed Prioritized Experience Replay", ICLR (2018)]] ([[https://arxiv.org/abs/1803.00933][arXiv cs.LG 1803.00933]]) 
+[fn:12] [[https://openreview.net/forum?id=H1Dy---0Z][D. Hogan /et al/., "Distributed Prioritized Experience Replay", ICLR (2018)]] ([[https://arxiv.org/abs/1803.00933][arXiv cs.LG 1803.00933]])
 
-[fn:11] [[https://www.nature.com/articles/nature14236][V. Mnhi /et al/., "Human-level control through deep reinforcement learning", Nature 518, 529-533 (2015)]] 
+[fn:11] [[https://www.nature.com/articles/nature14236][V. Mnhi /et al/., "Human-level control through deep reinforcement learning", Nature 518, 529-533 (2015)]]
 
-[fn:10] [[https://ojs.aaai.org/index.php/AAAI/article/view/10295][H. Hasselt /et al/., "Deep Reinforcement Learning with Double Q-Learning", Proc. AAAI 30, 1 (2016)]] ([[https://arxiv.org/abs/1509.06461][arXiv cs.LG 1509.06461]]) 
+[fn:10] [[https://ojs.aaai.org/index.php/AAAI/article/view/10295][H. Hasselt /et al/., "Deep Reinforcement Learning with Double Q-Learning", Proc. AAAI 30, 1 (2016)]] ([[https://arxiv.org/abs/1509.06461][arXiv cs.LG 1509.06461]])
 
 [fn:9] [[https://arxiv.org/abs/2007.06049][S. Fujimoto /et al/., "An Equivalence between Loss Functions and Non-Uniform Sampling in Experience Replay" (2020) arXiv:2007.06049]]
 
