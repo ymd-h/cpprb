@@ -189,8 +189,8 @@ Basic usage is following step;
 
 
 ** Example Code
-Here is a simple example for storing standard environment (aka. ="obs"=,
-="act"=, ="rew"=, ="next_obs"=, and ="done"=).
+Here is a simple example for storing standard environment (aka. ~obs~,
+~act~, ~rew~, ~next_obs~, and ~done~).
 
 #+BEGIN_SRC python
 from cpprb import ReplayBuffer
