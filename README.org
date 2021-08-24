@@ -335,6 +335,8 @@ CLOSED: [2020-01-17 Fri 23:09]
 ** cpprb users' repositories
 - [[https://github.com/keiohta/tf2rl][keiohta/TF2RL]] :: TensorFlow2.x Reinforcement Learning
 
+** Example usage at Kaggle competition
+- [[https://www.kaggle.com/ymdhryk/ape-x-dqn-lap-safeguard-rewardredesign][Ape-X DQN-LAP: SafeGuard & RewardRedesign]] | [[https://www.kaggle.com/c/hungry-geese][Hungry Geese]]
 
 * DONE Lisence
 CLOSED: [2020-01-17 Fri 23:09]
