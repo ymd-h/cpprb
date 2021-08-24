@@ -343,7 +343,7 @@ CLOSED: [2020-01-17 Fri 23:09]
 - [[https://qiita.com/ymd_h/items/505c607c40cf3e42d080][【強化学習】cpprb で Experience Replay を簡単に！| Qiita]]
 - [[https://qiita.com/ymd_h/items/ac9e3f1315d56a1b2718][【強化学習】Ape-X の高速な実装を簡単に！| Qiita]]
 - [[https://qiita.com/ymd_h/items/21071d7778cfb3cd596a][【強化学習】自作ライブラリでDQN | Qiita]]
-- [[https://zenn.dev/ymd_h/articles/03edcaa47a3b1c][[強化学習] Ape-Xの高速化を実現 | Zenn]]
+- [[https://zenn.dev/ymd_h/articles/03edcaa47a3b1c][【強化学習】Ape-Xの高速化を実現 | Zenn]]
 - [[https://zenn.dev/ymd_h/articles/e65fed3b7991c9][【強化学習】cpprb に遷移のファイル保存機能を追加 | Zenn]]
 
 * DONE Lisence
