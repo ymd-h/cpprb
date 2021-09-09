@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Yamada
+    given-names: Hiroyuki
+title: "cpprb"
+license: MIT
+repository-code: "https://gitlab.com/ymd_h/cpprb"
+type: software
+url: "https://ymd_h.gitlab.io/cpprb/"
