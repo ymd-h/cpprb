@@ -355,3 +355,15 @@ CLOSED: [2020-01-17 Fri 23:09]
 cpprb is available under MIT lisence.
 
 #+INCLUDE: "./LICENSE" src plaintext
+
+
+* Citation
+#+begin_src
+@misc{Yamada_cpprb_2019,
+author = {Yamada, Hiroyuki},
+month = {1},
+title = {{cpprb}},
+url = {https://gitlab.com/ymd_h/cpprb},
+year = {2019}
+}
+#+end_src
