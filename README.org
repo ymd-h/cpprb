@@ -365,7 +365,7 @@ CLOSED: [2021-09-09 Thu 18:05]
 :END:
 
 
-#+begin_src
+#+begin_src bibtex
 @misc{Yamada_cpprb_2019,
 author = {Yamada, Hiroyuki},
 month = {1},
