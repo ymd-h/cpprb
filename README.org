@@ -357,7 +357,14 @@ cpprb is available under MIT lisence.
 #+INCLUDE: "./LICENSE" src plaintext
 
 
-* Citation
+* DONE Citation
+CLOSED: [2021-09-09 Thu 18:05]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: misc
+:EXPORT_FILE_NAME: citation
+:END:
+
+
 #+begin_src
 @misc{Yamada_cpprb_2019,
 author = {Yamada, Hiroyuki},
