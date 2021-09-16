@@ -333,7 +333,7 @@ CLOSED: [2019-11-10 Sun 13:26]
 :END:
 
 *** Overview
-Prioritized experience replay was proposed by [[https://arxiv.org/abs/1511.05952][T. Schaul et. al.]], and
+Prioritized experience replay was proposed by [[https://arxiv.org/abs/1511.05952][T. Schaul et al.]], and
 is widely used to speed up reinforcement learning (as far as I know).
 
 Roughly speaking, mis-predicted observations will be learned more
@@ -448,7 +448,7 @@ expanding Bellman equation, a N-step target of Q function becomes
 $\sum _{k=0}^{N-1} \gamma ^k r_{t+k} + \gamma ^N \max _{a}
 Q(s_{t+N},a)$.
 
-According to [[https://arxiv.org/abs/2007.06700][W. Fedus et. al.]], N-step reward can utilize larger buffer
+According to [[https://arxiv.org/abs/2007.06700][W. Fedus et al.]], N-step reward can utilize larger buffer
 more effectively. Even though theoretically N-step reward, which is
 based on a policy at exploration, is not justified for off-policy, it
 still works better.
@@ -1604,7 +1604,7 @@ need to implement neural network which infers probabilities of
 Bernoulli masks.
 
 ** References
-- [[https://www.ijcai.org/Proceedings/2019/589][D. Zha et. al., "Experience Replay Optimization", IJCAI (2019) 4243-4249]] ([[https://arxiv.org/abs/1906.08387][arXiv]])
+- [[https://www.ijcai.org/Proceedings/2019/589][D. Zha et al., "Experience Replay Optimization", IJCAI (2019) 4243-4249]] ([[https://arxiv.org/abs/1906.08387][arXiv]])
 
 * DONE Remember and Forget for Experience Replay (ReF-ER)
 CLOSED: [2021-01-24 Sun 11:39]
@@ -1670,7 +1670,7 @@ You can implement AER with simple =ReplayBuffer= class. Simply you can
 sample enlarged batch size then compute similarity.
 
 ** References
-- [[https://ojs.aaai.org//index.php/AAAI/article/view/6049][P. Sun et. al., "Attentive Experience Replay", AAAI (2020) 34, 5900-5907]]
+- [[https://ojs.aaai.org//index.php/AAAI/article/view/6049][P. Sun et al., "Attentive Experience Replay", AAAI (2020) 34, 5900-5907]]
 
 * DONE Competitive Eeperience Replay (CER)
 CLOSED: [2021-01-30 Sat 12:55]
@@ -1706,7 +1706,7 @@ transitions.
 
 
 ** References
-- [[https://iclr.cc/Conferences/2019/Schedule?showEvent=1091][H. Liu et. al., "Competitive Experience Replay", ICLR 2019]] ([[https://arxiv.org/abs/1902.00528][arXiv]])
+- [[https://iclr.cc/Conferences/2019/Schedule?showEvent=1091][H. Liu et al., "Competitive Experience Replay", ICLR 2019]] ([[https://arxiv.org/abs/1902.00528][arXiv]])
 
 * DONE Dynamic Experience Replay (DER)
 CLOSED: [2021-02-01 Mon 08:25]
@@ -1802,7 +1802,7 @@ to learn sampling probability.
 
 
 ** References
-- [[https://openreview.net/forum?id=gJYlaqL8i8][Y. Oh et. al., "Learning to Sample with Local and Global Contexts in Experience Replay Buffer", ICRL (2021)]] ([[https://arxiv.org/abs/2007.07358][arXiv]])
+- [[https://openreview.net/forum?id=gJYlaqL8i8][Y. Oh et al., "Learning to Sample with Local and Global Contexts in Experience Replay Buffer", ICRL (2021)]] ([[https://arxiv.org/abs/2007.07358][arXiv]])
 
 * DONE Understanding of Experience Replay
 CLOSED: [2021-02-13 Sat 16:28]
@@ -1869,7 +1869,7 @@ guaranteed.
 ** Prioritized Experience Replay
 One of the most well-known extension of Exparience Replay is
 Prioritized Experience Replay (PER) proposed by T. Schaul
-/et. al./[fn:3]
+/et al./[fn:3]
 
 The key concept of PER is utilizing TD error (\( \delta _i \)) for
 prioritization (\(p_i\)). There are 2 variants of PER,
@@ -1901,7 +1901,7 @@ error \(w_i\delta_i\) are used instead of \(\delta_i\).
 
 
 ** Theory of PER Success
-A. Ang /et. al./[fn:8] tried to explain the success of PER from
+A. Ang /et al./[fn:8] tried to explain the success of PER from
 theoretical view point. (Unfortunately, the paper itself was rejected
 by ICLR 2021. I hope to see the improved version in future.)
 
