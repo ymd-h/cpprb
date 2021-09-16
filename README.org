@@ -282,6 +282,7 @@ CLOSED: [2021-09-16 Thu 19:09]
 :EXPORT_HUGO_WEIGHT: 250
 :END:
 
+** Column-oriented and Flexible
 One of the most distinctive design of cpprb is column-oriented
 flexibly defined transitions. As far as we know, other replay buffer
 implementations adopt row-oriented flexible transitions (aka. array of
