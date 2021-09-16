@@ -274,7 +274,7 @@ cpprb features and its usage are described at following pages:
 - [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-X)]]
 - [[https://ymd_h.gitlab.io/cpprb/features/save_load_transitions/][Save/Load Transitions]]
 
-* DONE
+* DONE Design
 CLOSED: [2021-09-16 Thu 19:09]
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
