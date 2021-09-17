@@ -24,7 +24,3 @@ section.footnotes > ol > li > p > a
 {
     vertical-align: text-top;
 }
-
-div.progress {
-    display: none !important;
-}

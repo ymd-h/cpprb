@@ -17,6 +17,7 @@ publishDir = "../public"
   disableNextPrev = true
   themeVariant = "cpprb"
   disableInlineCopyToClipBoard = true
+  disableToc = true
   images = ["/cpprb/images/OGP.png"]
   custom_css = ["css/custom.css"]
 
