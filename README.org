@@ -301,6 +301,11 @@ buffers to a global buffer. Moreover it is more efficient because of
 not only removing pure-Python =for= loop but also suppressing
 unnecessary priority updates for PER.
 
+** Minimum Dependancy
+We try to minimize dependancy. Only NumPy is required during its
+execution. Small is always prefarable to avoid dependancy hell.
+
+
 * DONE Contributing to cpprb
 CLOSED: [2020-01-17 Fri 23:09]
 :PROPERTIES:
