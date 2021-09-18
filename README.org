@@ -292,14 +292,14 @@ transition class) or column-oriented non-flexible transitions.
 In deep reinforcement learning, sampled batch is divided into
 variables (i.e. =obs=, =act=, etc.). If the sampled batch is
 row-oriented, users (or library) need to convert it into
-column-oriented one.
+column-oriented one. (See [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][doc]], too)
 
 ** Batch Insertion
 cpprb can accept addition of multiple transitions simultaneously. This
 design is convenient when batch transitions are moved from local
 buffers to a global buffer. Moreover it is more efficient because of
 not only removing pure-Python =for= loop but also suppressing
-unnecessary priority updates for PER.
+unnecessary priority updates for PER. (See [[https://ymd_h.gitlab.io/cpprb/features/multistep_add/][doc]], too)
 
 ** Minimum Dependancy
 We try to minimize dependancy. Only NumPy is required during its
