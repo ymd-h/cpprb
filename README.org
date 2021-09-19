@@ -13,6 +13,7 @@
 
 #+HUGO_WITH_LOCALE:
 #+HUGO_FRONT_MATTER_FORMAT: toml
+#+HUGO_CUSTOM_FRONT_MATTER: :disableToc true
 #+HUGO_LEVEL_OFFSET: 1
 #+HUGO_PRESERVE_FILLING:
 #+HUGO_DELETE_TRAILING_WS:
@@ -273,6 +274,38 @@ cpprb features and its usage are described at following pages:
 - [[https://ymd_h.gitlab.io/cpprb/features/mmap/][Map Large Data on File]]
 - [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-X)]]
 - [[https://ymd_h.gitlab.io/cpprb/features/save_load_transitions/][Save/Load Transitions]]
+
+* DONE Design
+CLOSED: [2021-09-16 Thu 19:09]
+:PROPERTIES:
+:EXPORT_FILE_NAME: _index
+:EXPORT_HUGO_SECTION: design
+:EXPORT_HUGO_WEIGHT: 250
+:END:
+
+** Column-oriented and Flexible
+One of the most distinctive design of cpprb is column-oriented
+flexibly defined transitions. As far as we know, other replay buffer
+implementations adopt row-oriented flexible transitions (aka. array of
+transition class) or column-oriented non-flexible transitions.
+
+In deep reinforcement learning, sampled batch is divided into
+variables (i.e. =obs=, =act=, etc.). If the sampled batch is
+row-oriented, users (or library) need to convert it into
+column-oriented one. (See [[https://ymd_h.gitlab.io/cpprb/features/flexible_environment/][doc]], too)
+
+** Batch Insertion
+cpprb can accept addition of multiple transitions simultaneously. This
+design is convenient when batch transitions are moved from local
+buffers to a global buffer. Moreover it is more efficient because of
+not only removing pure-Python =for= loop but also suppressing
+unnecessary priority updates for PER. (See [[https://ymd_h.gitlab.io/cpprb/features/multistep_add/][doc]], too)
+
+** Minimum Dependancy
+We try to minimize dependancy. Only NumPy is required during its
+execution. Small dependancy is always prefarable to avoid dependancy
+hell.
+
 
 * DONE Contributing to cpprb
 CLOSED: [2020-01-17 Fri 23:09]
