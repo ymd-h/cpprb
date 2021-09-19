@@ -1804,6 +1804,27 @@ to learn sampling probability.
 ** References
 - [[https://openreview.net/forum?id=gJYlaqL8i8][Y. Oh et al., "Learning to Sample with Local and Global Contexts in Experience Replay Buffer", ICRL (2021)]] ([[https://arxiv.org/abs/2007.07358][arXiv]])
 
+* DONE Combined Experience Replay (CER)
+CLOSED: [2021-09-19 Sun 11:37]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: survey
+:EXPORT_FILE_NAME: combined_er
+:END:
+
+** Overview
+S. Zhang and R. Sutton discussed the effect of replay buffer
+size[fn:13]. After the famous DQN paper[fn:11], almost all experiments
+fixed the buffer size to \(10^6\). Their experiments indicated that
+larger buffer maked learning slower. Combined Experience Replay (CER)
+is a method where a latest transition is mixed with transitions from
+replay buffer. CER improves learning speed, especially for large
+replay buffer.
+
+** With cpprb
+You can sample =(batch_size - 1)= transitions from replay buffer and
+add the latest transition to the batch.
+
+
 * DONE Understanding of Experience Replay
 CLOSED: [2021-02-13 Sat 16:28]
 :PROPERTIES:
@@ -1978,6 +1999,7 @@ computational cost.
 
 
 * Footnotes
+[fn:13] [[https://sites.google.com/view/deeprl-symposium-nips2017/home][S. Zhang and R. Sutton, "A Deeper Look at Experience Replay", NIPS (2017)]], ([[https://arxiv.org/abs/1712.01275][arXiv cs.LG 1712.01275]])
 
 [fn:12] [[https://openreview.net/forum?id=H1Dy---0Z][D. Hogan /et al/., "Distributed Prioritized Experience Replay", ICLR (2018)]] ([[https://arxiv.org/abs/1803.00933][arXiv cs.LG 1803.00933]])
 
