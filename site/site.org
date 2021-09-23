@@ -1855,8 +1855,8 @@ Lemma;
 
 where \(D(\cdot\|\cdot)\) is f-divergence, \( f \) is any convex
 lower-semicontinuous function, \(f^{\prime}\) is the first order
-derivative, and \(f^{\ast}\) is the convex conjugate. The equality in
-the Lemma is achieved when \(w=dP/dQ\).
+derivative, and \(f^{\ast}\) is the convex conjugate. The equality is
+achieved when \(w=dP/dQ\).
 
 By minimizing
 \(L_{w}(\psi)=\mathbb{E}_{\mathcal{D}}[f^{\ast}(f^{\prime}(w_{\psi}(s,a)))]-\mathbb{E}_{\mathcal{D}_f}[f^{\prime}(w_{\psi}(s,a))]\),
