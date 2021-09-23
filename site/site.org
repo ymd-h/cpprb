@@ -1571,6 +1571,7 @@ If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpp
 - [[https://ymd_h.gitlab.io/cpprb/survey/der/][Dynamic Experience Replay (DER)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/ners/][Neural Experience Replay Sampler (NERS)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/combined_er/][Combined Experience Replay (CER)]]
+- [[https://ymd_h.gitlab.io/cpprb/survey/lfiw/][Likelihood-free Importance Weights (LFIW)]]
 
 
 
