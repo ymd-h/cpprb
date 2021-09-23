@@ -1843,10 +1843,9 @@ behavior policies).
 The concept is similar to V-trace[fn:15] and Retrace[fn:16], however,
 LFIW doesn't require episodic treatment and estimates probability
 ratio \(d^{\pi}/d^{\mathcal{D}}\) by using extra network
-\(w_{\psi}(s,a)\).
-
-The current distribution \( d^{\pi} \) is approximated by that in the
-secondary small (fast) replay buffer \( d^{\mathcal{D}_f} \).
+\(w_{\psi}(s,a)\). The current distribution \( d^{\pi} \) is
+approximated by that in the secondary small (fast) replay buffer \(
+d^{\mathcal{D}_f} \).
 
 The estimation of the probability ratio is based on the following
 Lemma;
