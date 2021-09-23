@@ -1873,7 +1873,8 @@ Unfortunately, this paper was [[https://openreview.net/forum?id=ioXEbG_Sf-a][rej
 improved paper will come up soon.
 
 ** With cpprb
-You can implement LFIW with cpprb. You can use 2 replay buffers.
+You can implement LFIW with cpprb. Two ~ReplayBuffer~ with different
+sizes are required.
 
 * DONE Understanding of Experience Replay
 CLOSED: [2021-02-13 Sat 16:28]
