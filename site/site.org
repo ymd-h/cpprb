@@ -1570,6 +1570,9 @@ If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpp
 - [[https://ymd_h.gitlab.io/cpprb/survey/cer/][Competitive Experience Replay (CER)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/der/][Dynamic Experience Replay (DER)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/ners/][Neural Experience Replay Sampler (NERS)]]
+- [[https://ymd_h.gitlab.io/cpprb/survey/combined_er/][Combined Experience Replay (CER)]]
+- [[https://ymd_h.gitlab.io/cpprb/survey/lfiw/][Likelihood-free Importance Weights (LFIW)]]
+
 
 
 * DONE Experience Replay Optimization (ERO)
@@ -1804,6 +1807,76 @@ to learn sampling probability.
 ** References
 - [[https://openreview.net/forum?id=gJYlaqL8i8][Y. Oh et al., "Learning to Sample with Local and Global Contexts in Experience Replay Buffer", ICRL (2021)]] ([[https://arxiv.org/abs/2007.07358][arXiv]])
 
+* DONE Combined Experience Replay (CER)
+CLOSED: [2021-09-19 Sun 11:37]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: survey
+:EXPORT_FILE_NAME: combined_er
+:END:
+
+** Overview
+S. Zhang and R. Sutton discussed the effect of replay buffer
+size[fn:13]. After the famous DQN paper[fn:11], almost all experiments
+fixed the buffer size to \(10^6\). Their experiments indicated that
+larger buffer maked learning slower. Combined Experience Replay (CER)
+is a method where a latest transition is mixed with transitions from
+replay buffer. CER improves learning speed, especially for large
+replay buffer.
+
+** With cpprb
+You can sample =(batch_size - 1)= transitions from replay buffer and
+add the latest transition to the batch.
+
+
+* DONE Likelihood-free Importance Weights (LFIW)
+CLOSED: [2021-09-22 Wed 08:26]
+:PROPERTIES:
+:EXPORT_FILE_NAME: lfiw
+:EXPORT_HUGO_SECTION*: survey
+:END:
+
+** Overview
+S. Shinha /et al/.[fn:14] proposed Likelihood-free Importance Weights
+(LFIW) to compensate distribution shift between transitions taken from
+the current policy and those in the replay buffer (taken from many
+behavior policies).
+
+The concept is similar to V-trace[fn:15] and Retrace[fn:16], however,
+LFIW doesn't require episodic treatment and estimates probability
+ratio \(d^{\pi}/d^{\mathcal{D}}\) by using extra network
+\(w_{\psi}(s,a)\). First of all, the current distribution \(d^{\pi}\)
+is approximated by that in the secondary small (fast) replay buffer
+\(d^{\mathcal{D}_f}\).
+
+The estimation of the probability ratio is based on the following
+Lemma;
+
+\[ D(P\|Q) \geq \mathbb{E}_P[f^{\prime}(w(x))] - \mathbb{E}_Q[f^{\ast}(f^{\prime}(w(x)))] \text{,}\]
+
+where \(D(\cdot\|\cdot)\) is f-divergence, \( f \) is any convex
+lower-semicontinuous function, \(f^{\prime}\) is the first order
+derivative, and \(f^{\ast}\) is the convex conjugate. The equality is
+achieved when \(w=dP/dQ\).
+
+By minimizing
+\(L_{w}(\psi)=\mathbb{E}_{\mathcal{D}}[f^{\ast}(f^{\prime}(w_{\psi}(s,a)))]-\mathbb{E}_{\mathcal{D}_f}[f^{\prime}(w_{\psi}(s,a))]\),
+the network \(w_{\psi}(s,a)\) approches to
+\(d^{\mathcal{D}_f}/d^{\mathcal{D}}\).
+
+Additionally, to stabilize network update, \(w_{\psi}(s,a)\) is
+normalized over the main (slow) replay buffer with temerature
+hyperparameter \(T\);
+
+\[\tilde{w}_{\psi}(s,a) = \frac{w_{\psi}(s,a)^{1/T}}{\mathbb{E}_{\mathcal{D}}[w_{\psi}(s,a)^{1/T}]}\]
+
+
+Unfortunately, this paper was [[https://openreview.net/forum?id=ioXEbG_Sf-a][rejected at ICLR 2021]]. We hope an
+improved paper will come up soon.
+
+** With cpprb
+You can implement LFIW with cpprb. Two ~ReplayBuffer~ with different
+sizes are required.
+
 * DONE Understanding of Experience Replay
 CLOSED: [2021-02-13 Sat 16:28]
 :PROPERTIES:
@@ -1978,6 +2051,14 @@ computational cost.
 
 
 * Footnotes
+
+[fn:16] [[https://proceedings.neurips.cc/paper/2016/hash/c3992e9a68c5ae12bd18488bc579b30d-Abstract.html][R. Munos /et al/., "Safe and Efficient Off-Policy Reinforcement Learning", NeurIPS (2016)]] ([[https://arxiv.org/abs/1606.02647][arXiv:1606.02647]])
+
+[fn:15] [[http://proceedings.mlr.press/v80/espeholt18a.html][L. Espeholt /et al/., "IMPALA: Scalable Distributed Deep-RL with Importance Weighted Actor-Learner Architectures", ICML (2018), PMLR 80:1407-1416]] ([[https://arxiv.org/abs/1802.01561][arXiv:1802.01561]], [[https://github.com/deepmind/scalable_agent][code]])
+
+[fn:14] [[https://arxiv.org/abs/2006.13169][S. Shinha /et al/., "Experience Replay with Likelihood-free Importance Weights", (2020) arXiv:2006.13169]]
+
+[fn:13] [[https://sites.google.com/view/deeprl-symposium-nips2017/home][S. Zhang and R. Sutton, "A Deeper Look at Experience Replay", NIPS (2017)]], ([[https://arxiv.org/abs/1712.01275][arXiv cs.LG 1712.01275]])
 
 [fn:12] [[https://openreview.net/forum?id=H1Dy---0Z][D. Hogan /et al/., "Distributed Prioritized Experience Replay", ICLR (2018)]] ([[https://arxiv.org/abs/1803.00933][arXiv cs.LG 1803.00933]])
 
