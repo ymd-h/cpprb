@@ -1827,6 +1827,35 @@ You can sample =(batch_size - 1)= transitions from replay buffer and
 add the latest transition to the batch.
 
 
+* DONE Likelihood-free Importance Weights (LFIW)
+CLOSED: [2021-09-22 Wed 08:26]
+:PROPERTIES:
+:EXPORT_FILE_NAME: lfiw
+:EXPORT_HUGO_SECTION*: survey
+:END:
+
+** Overview
+S. Shinha /et al/.[fn:14] proposed Likelihood-free Importance Weights
+(LFIW) to compensate distribution shift between transitions taken from
+the current policy and those in replay buffer (taken from many
+behavior policies).
+
+The concept is similar to V-trace and Retrace, however, LFIW doesn't
+require episodic treatment and estimates probability ratio
+\(d^{\pi}/d^{\mathcal{D}}\) by using extra network \(w_{\psi}(s, a)\).
+
+The estimation is based on the following Lemma;
+
+\[ D(P\|Q) \geq \mathbb{E}_P[f^{\prime}(w(x))] - \mathbb{E}_Q[f^{\ast}(f^{\prime}(w(x)))] \]
+
+The equality is achieved when \( w = dP/dQ \).
+
+Unfortunately, this paper was [[https://openreview.net/forum?id=ioXEbG_Sf-a][rejected at ICLR 2021]]. We hope an
+improved paper will come up soon.
+
+** With cpprb
+You can implement LFIW with cpprb. You can use 2 replay buffers.
+
 * DONE Understanding of Experience Replay
 CLOSED: [2021-02-13 Sat 16:28]
 :PROPERTIES:
@@ -2001,6 +2030,9 @@ computational cost.
 
 
 * Footnotes
+
+[fn:14] [[https://arxiv.org/abs/2006.13169][S. Shinha /et al/., "Experience Replay with Likelihood-free Importance Weights", (2020) arXiv:2006.13169]]
+
 [fn:13] [[https://sites.google.com/view/deeprl-symposium-nips2017/home][S. Zhang and R. Sutton, "A Deeper Look at Experience Replay", NIPS (2017)]], ([[https://arxiv.org/abs/1712.01275][arXiv cs.LG 1712.01275]])
 
 [fn:12] [[https://openreview.net/forum?id=H1Dy---0Z][D. Hogan /et al/., "Distributed Prioritized Experience Replay", ICLR (2018)]] ([[https://arxiv.org/abs/1803.00933][arXiv cs.LG 1803.00933]])
