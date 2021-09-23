@@ -1837,7 +1837,7 @@ CLOSED: [2021-09-22 Wed 08:26]
 ** Overview
 S. Shinha /et al/.[fn:14] proposed Likelihood-free Importance Weights
 (LFIW) to compensate distribution shift between transitions taken from
-the current policy and those in replay buffer (taken from many
+the current policy and those in the replay buffer (taken from many
 behavior policies).
 
 The concept is similar to V-trace[fn:15] and Retrace[fn:16], however,
