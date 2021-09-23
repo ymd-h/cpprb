@@ -1840,15 +1840,34 @@ S. Shinha /et al/.[fn:14] proposed Likelihood-free Importance Weights
 the current policy and those in replay buffer (taken from many
 behavior policies).
 
-The concept is similar to V-trace and Retrace, however, LFIW doesn't
-require episodic treatment and estimates probability ratio
-\(d^{\pi}/d^{\mathcal{D}}\) by using extra network \(w_{\psi}(s, a)\).
+The concept is similar to V-trace[fn:15] and Retrace[fn:16], however,
+LFIW doesn't require episodic treatment and estimates probability
+ratio \(d^{\pi}/d^{\mathcal{D}}\) by using extra network
+\(w_{\psi}(s,a)\).
 
-The estimation is based on the following Lemma;
+The current distribution \( d^{\pi} \) is approximated by that in the
+secondary small (fast) replay buffer \( d^{\mathcal{D}_f} \).
+
+The estimation of the probability ratio is based on the following
+Lemma;
 
 \[ D(P\|Q) \geq \mathbb{E}_P[f^{\prime}(w(x))] - \mathbb{E}_Q[f^{\ast}(f^{\prime}(w(x)))] \]
 
-The equality is achieved when \( w = dP/dQ \).
+, where \( f \) is any convex lower-semicontinuous function,
+\(f^{\prime}\) is the first order derivative, and \(f^{\ast}\) is the
+convex conjugate. The equality in the Lemma is achieved when
+\(w=dP/dQ\).
+
+By minimizing
+\(L_{w}(\psi)=\mathbb{E}_{\mathcal{D}}[f^{\ast}(f^{\prime}(w_{\psi}(s,a)))]-\mathbb{E}_{\mathcal{D}_f}[f^{\prime}(w_{\psi}(s,a))]\),
+\(w_{\psi}(s,a)\) approches to \(d^{\mathcal{D}_f}/d^{\mathcal{D}}\).
+
+Additionally, to stabilize network update, \(w_{\psi}(s,a)\) is
+normalized over the main (slow) replay buffer with temerature
+hyperparameter \(T\);
+
+\[\tilde{w}_{\psi}(s,a) = \frac{w_{\psi}(s,a)^{1/T}}{\mathbb{E}_{\mathcal{D}_s}[w_{\psi}(s,a)^{1/T}]}\]
+
 
 Unfortunately, this paper was [[https://openreview.net/forum?id=ioXEbG_Sf-a][rejected at ICLR 2021]]. We hope an
 improved paper will come up soon.
@@ -2030,6 +2049,10 @@ computational cost.
 
 
 * Footnotes
+
+[fn:16] [[https://proceedings.neurips.cc/paper/2016/hash/c3992e9a68c5ae12bd18488bc579b30d-Abstract.html][R. Munos /et al/., "Safe and Efficient Off-Policy Reinforcement Learning", NeurIPS (2016)]] ([[https://arxiv.org/abs/1606.02647][arXiv:1606.02647]])
+
+[fn:15] [[http://proceedings.mlr.press/v80/espeholt18a.html][L. Espeholt /et al/., "IMPALA: Scalable Distributed Deep-RL with Importance Weighted Actor-Learner Architectures", ICML (2018), PMLR 80:1407-1416]] ([[https://arxiv.org/abs/1802.01561][arXiv:1802.01561]], [[https://github.com/deepmind/scalable_agent][code]])
 
 [fn:14] [[https://arxiv.org/abs/2006.13169][S. Shinha /et al/., "Experience Replay with Likelihood-free Importance Weights", (2020) arXiv:2006.13169]]
 
