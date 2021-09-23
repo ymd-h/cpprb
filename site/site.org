@@ -1852,14 +1852,15 @@ Lemma;
 
 \[ D(P\|Q) \geq \mathbb{E}_P[f^{\prime}(w(x))] - \mathbb{E}_Q[f^{\ast}(f^{\prime}(w(x)))] \]
 
-, where \( f \) is any convex lower-semicontinuous function,
-\(f^{\prime}\) is the first order derivative, and \(f^{\ast}\) is the
-convex conjugate. The equality in the Lemma is achieved when
-\(w=dP/dQ\).
+, where \(D(\cdot\|\codt)\) is f-divergence, \( f \) is any convex
+lower-semicontinuous function, \(f^{\prime}\) is the first order
+derivative, and \(f^{\ast}\) is the convex conjugate. The equality in
+the Lemma is achieved when \(w=dP/dQ\).
 
 By minimizing
 \(L_{w}(\psi)=\mathbb{E}_{\mathcal{D}}[f^{\ast}(f^{\prime}(w_{\psi}(s,a)))]-\mathbb{E}_{\mathcal{D}_f}[f^{\prime}(w_{\psi}(s,a))]\),
-\(w_{\psi}(s,a)\) approches to \(d^{\mathcal{D}_f}/d^{\mathcal{D}}\).
+the network \(w_{\psi}(s,a)\) approches to
+\(d^{\mathcal{D}_f}/d^{\mathcal{D}}\).
 
 Additionally, to stabilize network update, \(w_{\psi}(s,a)\) is
 normalized over the main (slow) replay buffer with temerature
