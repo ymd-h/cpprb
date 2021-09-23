@@ -1851,9 +1851,9 @@ d^{\mathcal{D}_f} \).
 The estimation of the probability ratio is based on the following
 Lemma;
 
-\[ D(P\|Q) \geq \mathbb{E}_P[f^{\prime}(w(x))] - \mathbb{E}_Q[f^{\ast}(f^{\prime}(w(x)))] \]
+\[ D(P\|Q) \geq \mathbb{E}_P[f^{\prime}(w(x))] - \mathbb{E}_Q[f^{\ast}(f^{\prime}(w(x)))] \text{,}\]
 
-, where \(D(\cdot\|\cdot)\) is f-divergence, \( f \) is any convex
+where \(D(\cdot\|\cdot)\) is f-divergence, \( f \) is any convex
 lower-semicontinuous function, \(f^{\prime}\) is the first order
 derivative, and \(f^{\ast}\) is the convex conjugate. The equality in
 the Lemma is achieved when \(w=dP/dQ\).
