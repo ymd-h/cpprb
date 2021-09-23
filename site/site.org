@@ -1866,7 +1866,7 @@ Additionally, to stabilize network update, \(w_{\psi}(s,a)\) is
 normalized over the main (slow) replay buffer with temerature
 hyperparameter \(T\);
 
-\[\tilde{w}_{\psi}(s,a) = \frac{w_{\psi}(s,a)^{1/T}}{\mathbb{E}_{\mathcal{D}_s}[w_{\psi}(s,a)^{1/T}]}\]
+\[\tilde{w}_{\psi}(s,a) = \frac{w_{\psi}(s,a)^{1/T}}{\mathbb{E}_{\mathcal{D}}[w_{\psi}(s,a)^{1/T}]}\]
 
 
 Unfortunately, this paper was [[https://openreview.net/forum?id=ioXEbG_Sf-a][rejected at ICLR 2021]]. We hope an
