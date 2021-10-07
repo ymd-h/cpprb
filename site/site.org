@@ -1499,6 +1499,7 @@ In this section, cpprb related miscellaneous information are described.
 - [[https://ymd_h.gitlab.io/cpprb/misc/links/][Links]]
 - [[https://ymd_h.gitlab.io/cpprb/misc/lisence/][License]]
 - [[https://ymd_h.gitlab.io/cpprb/misc/logo/][Logo]]
+- [[https://ymd_h.gitlab.io/cpprb/misc/citation/][Citation]]
 
 * DONE Logo
 CLOSED: [2020-08-04 Tue 09:19]
