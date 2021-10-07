@@ -24,3 +24,8 @@ section.footnotes > ol > li > p > a
 {
     vertical-align: text-top;
 }
+
+
+#body-inner pre {
+    white-space: pre !important;
+}
