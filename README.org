@@ -410,5 +410,5 @@ year = {2019}
 #+end_src
 
 
-** 3rd Party Papers citing cpprb
-- [[https://www.sciencedirect.com/science/article/pii/S187705092100990X][E. Aitygulov and A. I. Panov, "Transfer Learning with Demonstration Forgetting for Robotic Manipulator", Proc. Comp. Sci. 186 (2021), 374-380, https://doi.org/10.1016/j.procs.2021.04.159]]
+- 3rd Party Papers citing cpprb
+  - [[https://www.sciencedirect.com/science/article/pii/S187705092100990X][E. Aitygulov and A. I. Panov, "Transfer Learning with Demonstration Forgetting for Robotic Manipulator", Proc. Comp. Sci. 186 (2021), 374-380, https://doi.org/10.1016/j.procs.2021.04.159]]
