@@ -879,6 +879,83 @@ Merge request can be created from the web, the detail is described at
 There is [[https://stackoverflow.com/a/14681796][a good explanation]] for making good Pull Request (merge
 request equivalent on GitHub.com)
 
+** DONE Developer Guide
+CLOSED: [2021-10-08 Fri 12:18]
+:PROPERTIES:
+:EXPORT_FILE_NAME: dev_guide
+:END:
+
+*** Source Code Layout
+The main source code of cpprb is =cpprb/PyReplayBuffer.pyx=. Almost
+all the public classes and functions are implemented in this
+file. This file contains more than 2K lines (including blank lines),
+so that maybe we should divide it. However, if we want to utilize full
+=cdef= functionality, (as far as we know) we have to keep =def= in
+=.pyx= and =cdef= in =.pxd= separately. We feel that makes much harder
+to maintain and just put everything in the single file.
+
+=cpprb/VectorWrapper.pyx= and =cpprb/VectorWrapper.pxd= have interface
+classes between =.pyx= and C++. These classes utilize [[https://docs.python.org/ja/3/c-api/buffer.html][buffer protocol]],
+which enables for us to share large data without copy.
+
+
+=cpprb/ReplayBuffer.hh= contains C++ implementation of PER
+sampling. In this file, there are a lot of template and SFINAE
+meta-programming. By using =if constexpr=, multi-thread
+(multi-process) version switches algorithm without runtime cost. In
+order to support multi-process shared memory, the classes can accept
+(shared) memory acquired at Python side. For such memory management,
+use array specialized =std::shared_ptr=. [[http://clang.llvm.org/][clang]] does not support
+=reset= method for specialized version. This is the reason we cannot
+distribute binary wheel for Apple macOS. ([[https://gitlab.com/ymd_h/cpprb/-/issues/71][#71]])
+
+
+=cpprb/SegmentTree.hh= is the one of the oldest code and has segment
+tree implementation. It can accept shared memory for multi-processing,
+too. The multi-processing version updates its tree lazily.
+
+
+=cpprb/ReplayBuffer.pxd= defines interface classes and functions of
+=cpprb/ReplayBuffer.hh= in order to use them in
+=cpprb/PyReplayBuffer.pyx=.
+
+
+=test/*.py= have unit tests. A lot of regression tests are included,
+too.
+
+
+
+
+*** Build System
+Build system is defined at =setup.py=. We don't use =pyproject.toml=
+nor =requirements.txt=. We know declarative programming is preferable,
+however, it cannot handle complicated conditional build rules,
+yet. For example, we would like to use Cython only when =.pyx= files
+exist and they are newer than corresponding =.cpp= ones. Source codes
+hosted at PyPI (not GitLab/GitHub) don't include =.pyx=, then users
+who use pip command don't need to prepare Cython at all.
+
+In order to realize one command installation, NumPy and Cython are
+lazily imported after =setup_requires= become available.
+
+Exported markdown of README is re-used as =long_description= at PyPI
+package page.
+
+Additionally, by setting =DEBUG_CPPRB= environment value, we enable
+debug mode build, where Cython line trace is enabled.
+
+*** Documentation
+Project site are build by Hugo and hosted at GitLab Pages.
+
+*** CI Configuration
+We mainly utilize GitLab CI/CD.
+
+Additionally, GitHub Actions are used for specific purpose. We can use
+Windows and macOS for free. We execute test script on them and upload
+Windows binary wheel package to PyPI. When we fix the macOS build
+problem, we will upload the binary wheel for macOS, too.
+
+
 * DONE Examples
 CLOSED: [2020-02-15 Sat 09:23]
 :PROPERTIES:
