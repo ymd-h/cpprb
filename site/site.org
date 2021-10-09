@@ -921,10 +921,39 @@ too. The multi-processing version updates its tree lazily.
 
 
 =test/*.py= have unit tests. A lot of regression tests are included,
-too.
+too. =Dockerfile= is used for build and test
+environment. =.coveragerc= defines coverage configuration.
 
 
+Under =site= directory, there are project site source and config file.
+=sphinx= directory contains main page and config file of API
+documentation. These documentation system is described "Documentation"
+section below.
 
+=benchmark= and =benchmark2= directory contain benchmark script and
+Dockerfile using at [[https://ymd_h.gitlab.io/cpprb/comparison/benchmark/][Benchmark page]]. These benchmarks might be outdated
+and need to be updated.
+
+
+=example= directory has example codes. We need more examples.
+
+
+=CHANGELOG.org= contains change log.
+
+
+=CITATION.cff= is used for citation management at GitHub.
+
+
+=setup.py= used for package build. =MANIFEST.in= specifies package
+additional files.
+
+
+=.gitlab-ci.yml= defines CI on GitLab CI/CD platform. =.github=
+directory contains CI config files for GitHub Actions. CI settings are
+described at "CI Configuration" section.
+
+
+=crean_reinstall.sh= is old script. Recently, we don't use it.
 
 *** Build System
 Build system is defined at =setup.py=. We don't use =pyproject.toml=
