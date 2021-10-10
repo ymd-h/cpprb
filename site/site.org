@@ -947,7 +947,7 @@ and need to be updated.
 [[https://github.blog/2021-08-19-enhanced-support-citations-github/][GitHub official blog post]].
 
 
-=setup.py= used for package build. =MANIFEST.in= specifies package
+=setup.py= is used for package build. =MANIFEST.in= specifies package
 additional files.
 
 
