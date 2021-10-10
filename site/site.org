@@ -976,7 +976,7 @@ Additionally, by setting =DEBUG_CPPRB= environment value, we enable
 debug mode build, where Cython line trace is enabled.
 
 *** Documentation
-Project site are build by [[https://gohugo.io/][Hugo]] and hosted at [[https://docs.gitlab.com/ee/user/project/pages/][GitLab Pages]]. The
+Project site are built by [[https://gohugo.io/][Hugo]] and hosted at [[https://docs.gitlab.com/ee/user/project/pages/][GitLab Pages]]. The
 documents are written in [[https://www.orgmode.org/index.html][Org Mode]] (=site/site.org=) and exported with
 [[https://ox-hugo.scripter.co/][ox-hugo]]. (aka. =.org= -> =.md= -> =.html=) This sequence is very
 useful to reuse (partial) README in the project site. The disadvantage
