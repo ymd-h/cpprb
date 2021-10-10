@@ -969,7 +969,7 @@ exist and they are newer than corresponding =.cpp= ones. Source codes
 hosted at PyPI (not GitLab/GitHub) don't include =.pyx=, then users
 who use pip command don't need to prepare Cython at all.
 
-In order to realize one command installation, NumPy and Cython are
+In order to realize single command installation, NumPy and Cython are
 lazily imported after =setup_requires= become available.
 
 Exported markdown of README is re-used as =long_description=
