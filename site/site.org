@@ -956,7 +956,7 @@ directory contains CI config files for GitHub Actions. CI settings are
 described at "CI Configuration" section.
 
 
-=crean_reinstall.sh= is old script. Recently, we don't use it.
+=crean_reinstall.sh= is old build script. Recently, we don't use it.
 
 *** Build System
 Build system is defined at =setup.py=. We don't use =pyproject.toml=
