@@ -879,6 +879,152 @@ Merge request can be created from the web, the detail is described at
 There is [[https://stackoverflow.com/a/14681796][a good explanation]] for making good Pull Request (merge
 request equivalent on GitHub.com)
 
+** DONE Developer Guide
+CLOSED: [2021-10-08 Fri 12:18]
+:PROPERTIES:
+:EXPORT_FILE_NAME: dev_guide
+:END:
+
+*** Source Code Layout
+The main source code of cpprb is =cpprb/PyReplayBuffer.pyx=. Almost
+all the public classes and functions are implemented in this
+file. This file contains more than 2K lines (including blank lines),
+so that maybe we should divide it. However, if we want to utilize full
+=cdef= functionality, (as far as we know) we have to keep =def= in
+=.pyx= and =cdef= in =.pxd= separately. We feel that makes much harder
+to maintain and just put everything in the single file.
+
+=cpprb/VectorWrapper.pyx= and =cpprb/VectorWrapper.pxd= have interface
+classes between =.pyx= and C++. These classes utilize [[https://docs.python.org/ja/3/c-api/buffer.html][buffer protocol]],
+which enables for us to share large data without copy.
+
+
+=cpprb/ReplayBuffer.hh= contains C++ implementation of PER
+sampling. In this file, there are a lot of template and SFINAE
+meta-programming. By using =if constexpr=, multi-thread
+(multi-process) version switches algorithm without runtime cost. In
+order to support multi-process shared memory, the classes can accept
+(shared) memory acquired at Python side. For such memory management,
+we use array specialized =std::shared_ptr=. [[http://clang.llvm.org/][Clang]] does not support
+=reset= method for specialized version. This is the reason we cannot
+distribute binary wheel for Apple macOS. ([[https://gitlab.com/ymd_h/cpprb/-/issues/71][#71]])
+
+
+=cpprb/SegmentTree.hh= is the one of the oldest code and has segment
+tree implementation. It can accept shared memory for multi-processing,
+too. The multi-processing version updates its tree lazily. Internal
+data structure is described at [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][here]].
+
+
+=cpprb/ReplayBuffer.pxd= defines interface classes and functions of
+=cpprb/ReplayBuffer.hh= in order to use them in
+=cpprb/PyReplayBuffer.pyx=.
+
+
+=test/*.py= have unit tests. A lot of regression tests are included,
+too. =Dockerfile= is used for build and test
+environment. =.coveragerc= defines coverage configuration for
+[[https://coverage.readthedocs.io][Coverage.py]].
+
+
+Under =site= directory, there are project site source and config file.
+=sphinx= directory contains main page and config file of API
+documentation. These documentation system is described "Documentation"
+section below.
+
+=benchmark= and =benchmark2= directory contain benchmark script and
+Dockerfile using at [[https://ymd_h.gitlab.io/cpprb/comparison/benchmark/][Benchmark page]]. These benchmarks might be outdated
+and need to be updated.
+
+
+=example= directory has example codes. We need more examples.
+
+
+=CHANGELOG.org= contains change log.
+
+
+=CITATION.cff= is used for citation management at GitHub. Please read
+[[https://github.blog/2021-08-19-enhanced-support-citations-github/][GitHub official blog post]].
+
+
+=setup.py= is used for package build. =MANIFEST.in= specifies package
+additional files.
+
+
+=.gitlab-ci.yml= defines CI on GitLab CI/CD platform. =.github=
+directory contains CI config files for GitHub Actions. CI settings are
+described at "CI Configuration" section.
+
+
+=crean_reinstall.sh= is old build script for local
+development. Recently, we don't use it and we might remove it in the
+future.
+
+*** Build System
+Build system is defined at =setup.py=. We don't use =pyproject.toml=
+nor =requirements.txt=. We know declarative programming is preferable,
+however, it cannot handle complicated conditional build rules,
+yet. For example, we would like to use Cython only when =.pyx= files
+exist and they are newer than corresponding =.cpp= ones. Source codes
+hosted at PyPI (not GitLab/GitHub) don't include =.pyx=, then users
+who use pip command don't need to prepare Cython at all.
+
+In order to realize single command installation, NumPy and Cython are
+lazily imported after =setup_requires= become available.
+
+Generated markdown of README is re-used as =long_description=
+describing PyPI package page. A unrosolved problem is that we cannot
+show the cpprb logo on the PyPI page.
+
+Additionally, by setting =DEBUG_CPPRB= environment value, we enable
+debug mode build, where Cython line trace is enabled.
+
+*** Documentation
+Project site are built by [[https://gohugo.io/][Hugo]] and hosted at [[https://docs.gitlab.com/ee/user/project/pages/][GitLab Pages]]. The
+documents are written in [[https://www.orgmode.org/index.html][Org Mode]] (=site/site.org=) and exported with
+[[https://ox-hugo.scripter.co/][ox-hugo]]. (aka. =.org= -> =.md= -> =.html=) This sequence is very
+useful to reuse (partial) README in the project site. The disadvantage
+is Org Mode is minor to markdown. =site/init.el= defines ox-hugo
+configuration.
+
+We use [[https://learn.netlify.app/en/][Hugo Learn Theme]]. We also make custom shortcodes at
+=site/layouts/shortcodes= in order to create the highly customized
+[[https://ymd_h.gitlab.io/cpprb/][landing page]]. We still need design improvement to make it easier and
+more understandable for new commers.
+
+To show star and fork counts on the side bar, we use custom JavaScript
+defined at =site/static/js/custom.js=. We utilize [[https://docs.gitlab.com/ee/api/api_resources.html][GitLab REST API]] and
+[[https://docs.github.com/en/rest][GitHub REST API]].
+
+[[https://ymd_h.gitlab.io/cpprb/api/index.html][API reference]] is built with [[https://www.sphinx-doc.org/en/master/index.html][Sphinx]] from docstring at the source
+codes. The docstring adopts [[https://numpydoc.readthedocs.io/en/latest/format.html][NumPy style]], so that [[https://sphinxcontrib-napoleon.readthedocs.io/en/latest/][Napoleon extension]] is
+enabled. By using custom CSS (aka. =sphinx/static/custom.css=), we try
+to match the look and feel with that of the Hugo part. Additionally,
+we use [[https://sphinx-automodapi.readthedocs.io/en/latest/][sphinx-automodapi]] to build the module structure. Unfortunately,
+there is an unfixed bug [[https://gitlab.com/ymd_h/cpprb/-/issues/118][#118]], all methods are described twice (Why?).
+
+[[https://ymd_h.gitlab.io/cpprb/coverage/][Unit test coverage report]] are hosted, too. The report is generated by
+unit test.
+
+
+*** CI Configuration
+We mainly utilize [[https://docs.gitlab.com/ee/ci/][GitLab CI/CD]]. We execute binary build, unit test,
+test coverage aggregation, PyPI upload, and project site build and
+deploy. The configuration is defined at =.gitlab-ci.yml=.
+
+Unfortunately, schedule trigger jobs have not been working
+recently. We have to investigate it.
+
+Additionally, [[https://github.co.jp/features/actions][GitHub Actions]] are used for specific purpose. Since we
+can use Windows and macOS for free, we execute test script on them and
+upload Windows binary to PyPI. When we fix the macOS build problem, we
+will upload the macOS binary, too.
+
+We utilize [[https://codeql.github.com/][CodeQL]] for code security and quality analysis. The results
+are shown [[https://github.com/ymd-h/cpprb/security/code-scanning][here]] (Is the page public?). To be honest, we are not sure
+whether this analysis is meaningful for us.
+
+
 * DONE Examples
 CLOSED: [2020-02-15 Sat 09:23]
 :PROPERTIES:
