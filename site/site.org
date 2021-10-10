@@ -968,8 +968,9 @@ who use pip command don't need to prepare Cython at all.
 In order to realize one command installation, NumPy and Cython are
 lazily imported after =setup_requires= become available.
 
-Exported markdown of README is re-used as =long_description= at PyPI
-package page.
+Exported markdown of README is re-used as =long_description=
+describing PyPI package page. A unrosolved problem is that we cannot
+show the cpprb logo on the PyPI page.
 
 Additionally, by setting =DEBUG_CPPRB= environment value, we enable
 debug mode build, where Cython line trace is enabled.
