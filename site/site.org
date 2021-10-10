@@ -989,7 +989,8 @@ configuration.
 
 We use [[https://learn.netlify.app/en/][Hugo Learn Theme]]. We also make custom shortcodes at
 =site/layouts/shortcodes= in order to create the highly customized
-[[https://ymd_h.gitlab.io/cpprb/][landing page]].
+[[https://ymd_h.gitlab.io/cpprb/][landing page]]. We still need design improvement to make it easier and
+more understandable for new commers.
 
 To show star and fork counts on the side bar, we use custom JavaScript
 defined at =site/static/js/custom.js=.
