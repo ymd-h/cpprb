@@ -1017,8 +1017,8 @@ recently. We have to investigate it.
 
 Additionally, [[https://github.co.jp/features/actions][GitHub Actions]] are used for specific purpose. Since we
 can use Windows and macOS for free, we execute test script on them and
-upload Windows binary wheel package to PyPI. When we fix the macOS
-build problem, we will upload the binary wheel for macOS, too.
+upload Windows binary to PyPI. When we fix the macOS build problem, we
+will upload the macOS binary, too.
 
 We utilize [[https://codeql.github.com/][CodeQL]] for code security and quality analysis. The results
 are shown [[https://github.com/ymd-h/cpprb/security/code-scanning][here]] (Is the page public?). To be honest, we are not sure
