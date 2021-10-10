@@ -993,7 +993,8 @@ We use [[https://learn.netlify.app/en/][Hugo Learn Theme]]. We also make custom 
 more understandable for new commers.
 
 To show star and fork counts on the side bar, we use custom JavaScript
-defined at =site/static/js/custom.js=.
+defined at =site/static/js/custom.js=. We utilize [[https://docs.gitlab.com/ee/api/api_resources.html][GitLab REST API]] and
+[[https://docs.github.com/en/rest][GitHub REST API]].
 
 [[https://ymd_h.gitlab.io/cpprb/api/index.html][API reference]] is built with [[https://www.sphinx-doc.org/en/master/index.html][Sphinx]] from docstring at the source
 codes. The docstring adopts [[https://numpydoc.readthedocs.io/en/latest/format.html][NumPy doc style]], so that [[https://sphinxcontrib-napoleon.readthedocs.io/en/latest/][Napoleon
