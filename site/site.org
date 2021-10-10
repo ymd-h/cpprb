@@ -905,7 +905,7 @@ meta-programming. By using =if constexpr=, multi-thread
 (multi-process) version switches algorithm without runtime cost. In
 order to support multi-process shared memory, the classes can accept
 (shared) memory acquired at Python side. For such memory management,
-we use array specialized =std::shared_ptr=. [[http://clang.llvm.org/][clang]] does not support
+we use array specialized =std::shared_ptr=. [[http://clang.llvm.org/][Clang]] does not support
 =reset= method for specialized version. This is the reason we cannot
 distribute binary wheel for Apple macOS. ([[https://gitlab.com/ymd_h/cpprb/-/issues/71][#71]])
 
