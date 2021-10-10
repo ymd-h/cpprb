@@ -912,7 +912,8 @@ distribute binary wheel for Apple macOS. ([[https://gitlab.com/ymd_h/cpprb/-/iss
 
 =cpprb/SegmentTree.hh= is the one of the oldest code and has segment
 tree implementation. It can accept shared memory for multi-processing,
-too. The multi-processing version updates its tree lazily.
+too. The multi-processing version updates its tree lazily. Internal
+data structure is described at [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][here]].
 
 
 =cpprb/ReplayBuffer.pxd= defines interface classes and functions of
