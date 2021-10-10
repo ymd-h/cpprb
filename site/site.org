@@ -1007,6 +1007,9 @@ We mainly utilize [[https://docs.gitlab.com/ee/ci/][GitLab CI/CD]]. We execute b
 test coverage aggregation, PyPI upload, and project site build and
 deploy. The configuration is defined at =.gitlab-ci.yml=.
 
+Unfortunately, schedule trigger jobs have not been working
+recently. We have to investigate it.
+
 Additionally, [[https://github.co.jp/features/actions][GitHub Actions]] are used for specific purpose. Since we
 can use Windows and macOS for free, we execute test script on them and
 upload Windows binary wheel package to PyPI. When we fix the macOS
