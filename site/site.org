@@ -1001,9 +1001,11 @@ unit test.
 
 
 *** CI Configuration
-We mainly utilize GitLab CI/CD.
+We mainly utilize [[https://docs.gitlab.com/ee/ci/][GitLab CI/CD]]. We execute build binary, unit test,
+test coverage aggregation, upload to PyPI, project site build, and
+project site deploy. The configuration is defined at =.gitlab-ci.yml=.
 
-Additionally, GitHub Actions are used for specific purpose. We can use
+Additionally, [[https://github.co.jp/features/actions][GitHub Actions]] are used for specific purpose. We can use
 Windows and macOS for free. We execute test script on them and upload
 Windows binary wheel package to PyPI. When we fix the macOS build
 problem, we will upload the binary wheel for macOS, too.
