@@ -943,7 +943,8 @@ and need to be updated.
 =CHANGELOG.org= contains change log.
 
 
-=CITATION.cff= is used for citation management at GitHub.
+=CITATION.cff= is used for citation management at GitHub. Please read
+[[https://github.blog/2021-08-19-enhanced-support-citations-github/][GitHub official blog post]].
 
 
 =setup.py= used for package build. =MANIFEST.in= specifies package
