@@ -1003,8 +1003,8 @@ unit test.
 
 
 *** CI Configuration
-We mainly utilize [[https://docs.gitlab.com/ee/ci/][GitLab CI/CD]]. We execute build binary, unit test,
-test coverage aggregation, upload to PyPI, project site build, and
+We mainly utilize [[https://docs.gitlab.com/ee/ci/][GitLab CI/CD]]. We execute binary build, unit test,
+test coverage aggregation, PyPI upload, project site build, and
 project site deploy. The configuration is defined at =.gitlab-ci.yml=.
 
 Additionally, [[https://github.co.jp/features/actions][GitHub Actions]] are used for specific purpose. We can use
