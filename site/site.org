@@ -923,7 +923,8 @@ data structure is described at [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][
 
 =test/*.py= have unit tests. A lot of regression tests are included,
 too. =Dockerfile= is used for build and test
-environment. =.coveragerc= defines coverage configuration.
+environment. =.coveragerc= defines coverage configuration for
+[[https://coverage.readthedocs.io][Coverage.py]].
 
 
 Under =site= directory, there are project site source and config file.
