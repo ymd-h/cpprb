@@ -972,7 +972,7 @@ who use pip command don't need to prepare Cython at all.
 In order to realize single command installation, NumPy and Cython are
 lazily imported after =setup_requires= become available.
 
-Exported markdown of README is re-used as =long_description=
+Generated markdown of README is re-used as =long_description=
 describing PyPI package page. A unrosolved problem is that we cannot
 show the cpprb logo on the PyPI page.
 
