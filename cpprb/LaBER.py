@@ -32,6 +32,8 @@ class LaBER:
         ----------
         priorities : array-like of float
             Surrogate priorities.
+        **kwargs : key-value
+            Large batch sampled from `ReplayBuffer`.
         """
         p = np.asarray(priorities) + self.eps
         p = p / p.sum()
