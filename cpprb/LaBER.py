@@ -40,7 +40,11 @@ class LaBER:
 
         _idx = self.rng.choice(self.idx, self.batch_size, p=p)
 
-        kwargs = {k: v[_idx] for k, v in kwargs.items()}
+        if kwargs is None:
+            kwargs = {}
+        else:
+            kwargs = {k: v[_idx] for k, v in kwargs.items()}
+
         kwargs["weights"] = self._normalize_weight(p, _idx)
         kwargs["indexes"] = _idx
 
