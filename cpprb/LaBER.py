@@ -54,17 +54,17 @@ class LaBER:
         raise NotImplementedError
 
 
-def LaBERmean(LaBER):
+class LaBERmean(LaBER):
     def _normalize_weight(self, p, _idx):
         return p.mean() / p[_idx]
 
 
-def LaBERlazy(LaBER):
+class LaBERlazy(LaBER):
     def _normalize_weight(self, p, _idx):
         return 1.0 / p[_idx]
 
 
-def LaBERmax(LaBER):
+class LaBERmax(LaBER):
     def _normalize_weight(self, p, _idx):
         p_idx = 1.0 / p[_idx]
         return p_idx / p_idx.max()
