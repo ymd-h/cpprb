@@ -1,6 +1,9 @@
 from .PyReplayBuffer import (ReplayBuffer,PrioritizedReplayBuffer,
                              MPReplayBuffer, MPPrioritizedReplayBuffer,
                              SelectiveReplayBuffer)
+
+from .LaBER import LaBERmean, LaBERlazy, LaBERmax
+
 from .PyReplayBuffer import create_buffer, train
 
 try:
@@ -8,4 +11,3 @@ try:
 except ImportError:
     # If gym is not installed, util functions are not defined.
     pass
-
