@@ -48,7 +48,6 @@ eval_env = gym.make('CartPole-v1')
 # For CartPole: input 4, output 2
 model = Sequential([Dense(64,activation='relu',
                           input_shape=(env.observation_space.shape)),
-                    Dense(64,activation='relu'),
                     Dense(env.action_space.n)])
 target_model = clone_model(model)
 
