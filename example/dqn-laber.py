@@ -177,6 +177,7 @@ for n_step in range(N_iteration):
                                                 tf.constant(sample["done"].ravel()),
                                                 discount,
                                                 tf.constant(env.action_space.n)))
+        tf.summary.scalar("Target Q", data=tf.reduce_mean(target_Q), step=n_step)
         absTD = tf.math.abs(target_Q - Q)
 
         # Sub-sample according to surrogate priorities
