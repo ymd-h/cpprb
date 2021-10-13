@@ -21,11 +21,12 @@ from cpprb import ReplayBuffer, LaBERmean
 gamma = 0.99
 batch_size = 64
 
-N_iteration = int(1e+5)
-target_update_freq = 1000
-eval_freq = 100
+N_iteration = int(1e+6)
+target_update_freq = 10000
+eval_freq = 1000
 
-egreedy = 0.1
+egreedy = 1.0
+decay_egreedy = lambda e: max(e*0.99, 0.1)
 
 
 # Use 4 times larger batch for initial uniform sampling
@@ -152,6 +153,8 @@ for n_step in range(N_iteration):
     else:
         Q = tf.squeeze(model(observation.reshape(1,-1)))
         action = np.argmax(Q)
+
+    egreedy = decay_egreedy(egreedy)
 
     next_observation, reward, done, info = env.step(action)
     rb.add(obs=observation,
