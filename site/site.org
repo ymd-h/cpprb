@@ -539,6 +539,114 @@ configuration, you must add a single episode simultaneously.
 
 *** Technical Detail
 
+** DONE Large Batch Experience Replay
+CLOSED: [2021-10-12 Tue 22:27]
+:PROPERTIES:
+:EXPORT_FILE_NAME: laber
+:END:
+
+*** Overview
+Large Batch Experience Replay (LaBER) was proposed by T. Lahire /et al/.[fn:17]
+
+The authors theoretically derived the best sampling probability \( p_i ^{\ast} \) to
+minimize performance variance;
+
+\[ p_i^{\ast} \propto \| \nabla _{\theta} L(Q_{\theta}(s_i, a_i), y_i) \| \text{,}\]
+
+where \(L(\cdot,\, \cdot)\) is a loss function.
+
+This requires full backpropagation and is costful, so that the authors
+proposed surrogate priority
+\(\hat{p}_i \prompt \| \partial L(q_i, y_i) / \partial q_i \| \).
+
+Since \( \| \nabla _{\theta} L(Q_{\theta}(s_i, a_i), y_i) \| = \| \partial L(q_i, y_i) / \partial q_i \cdot \nabla _{\theta} Q_{\theta}(s_i, a_i) \| \),
+the surrogate priority is good approximation when
+\( \nabla _{\theta} Q_{\theta}(s_i, a_i) \)
+is almost constant across samples.
+
+Moreover, when loss function is L2-norm, the surrogate priority
+becomes TD error.
+
+Although using TD error as priority is not so bad, one of the biggest
+problems at PER is that the priorities are always outdated. Hoever,
+re-computing priorities of all transitions in the buffer at every time
+step is too expensive.
+
+LaBER first samples \(m\)-times larger batch from the buffer
+uniformly, then compute surrogate priorities for them, and samples
+final batch according to the priorities.
+
+According to the authors LaBER can be used together with non-uniform
+sampling like PER (they called it as PER-LaBER), however, the
+combination doesn't improve the performance so much, even though there
+are additional computational cost.
+
+
+cpprb provides three helper classes =LaBERmean=, =LaBERlazy=, and
+=LaBERmax=. If you don't have any special reasons, it is better to use
+=LaBERmean=, which is theoretically and experimentally best. These
+classes are constructed with following parameters;
+
+
+| Parameters   | Type    | Description                                            | Default |
+|--------------+---------+--------------------------------------------------------+---------|
+| =batch_size= | =int=   | Desired final batch size (output size)                 |         |
+| =m=          | =int=   | Multiplication factor (input size is =m * batch_size=) | =4=     |
+| =eps=        | =float= | Small positive constant to avoid 0 priority            | =1e-6=  |
+
+
+*** Example Usage
+
+#+begin_src python
+from cpprb import ReplayBuffer, LaBERmean
+
+buffer_size = int(1e+6)
+batch_size = 32
+m = 4
+
+n_iteration = int(1e+6)
+
+rb = ReplayBuffer(buffer_size, )
+
+laber = LaBERmean(batch_size, m)
+
+env = # Create Env
+policy = # Create Policy Network
+
+observation = env.reset()
+for _ in range(n_iteration):
+    action = policy(observation)
+    next_observation, reward, done, _ = env.step(action)
+
+    rb.add(obs=observation,
+           act=action,
+           rew=reward,
+           next_obs=next_observation,
+           done=done)
+
+    sample = rb.sample(batch_size * m)
+
+    absTD = # Calculate surrogate priority using network
+
+    idx_weights = laber(priorities=absTD)
+
+    indexes = idx_weights["indexes"]
+    weights = idx_weights["weights"]
+
+    policy.train((absTD[indexes] * weights).mean())
+
+    if done:
+        observation = env.reset()
+        rb.on_episode_end()
+    else:
+        observation = next_observation
+#+end_src
+
+*** Notes
+
+
+*** Technical Detail
+
 ** DONE Memory Compression
 CLOSED: [2019-11-10 Sun 13:33]
 :PROPERTIES:
@@ -2199,6 +2307,7 @@ computational cost.
 
 
 * Footnotes
+[fn:17] [[https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528][T. Lahire /et al/., "Large Batch Experience Replay", CoRR (2021)]] ([[https://arxiv.org/abs/2110.01528][arXiv:2110.01528]], [[https://github.com/SuReLI/laber][code]])
 
 [fn:16] [[https://proceedings.neurips.cc/paper/2016/hash/c3992e9a68c5ae12bd18488bc579b30d-Abstract.html][R. Munos /et al/., "Safe and Efficient Off-Policy Reinforcement Learning", NeurIPS (2016)]] ([[https://arxiv.org/abs/1606.02647][arXiv:1606.02647]])
 
