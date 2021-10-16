@@ -673,7 +673,7 @@ constant, you can pass ~eps=0~ to the constructor (aka. =__init__=).
 Since the surrogate priority usually requires network's forward
 caluculation, we implement LaBER separetely from replay buffer.
 
-Then =LaBERmean= etc. become simple classes, so that these are
+Then =LaBERmean= etc. become simple classes, so that they are
 implemented as ordinal Python classes insted of Cython =cdef= classes.
 
 
