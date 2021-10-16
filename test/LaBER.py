@@ -55,7 +55,7 @@ class TestLaBER:
         laber.eps = 0 # Hack for test
 
         sample = laber(priorities=[1, 0, 0, 0])
-        np.testing.assert_array_equal(sample["indexes"], [0, 0, 0, 0])
+        np.testing.assert_array_equal(sample["indexes"], [0, 0])
         np.testing.assert_array_equal(sample["weights"], self.onehot)
 
 
