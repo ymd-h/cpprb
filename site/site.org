@@ -576,7 +576,7 @@ LaBER first samples \(m\)-times larger batch from the buffer
 uniformly, then computes surrogate priorities for them, and samples
 final batch according to the priorities.
 
-According to the authors LaBER can be used together with non-uniform
+According to the authors, LaBER can be used together with non-uniform
 sampling like PER (they called it as PER-LaBER), however, the
 combination doesn't improve the performance so much, even though there
 are additional computational cost.
