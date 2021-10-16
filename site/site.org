@@ -595,6 +595,19 @@ classes are constructed with following parameters;
 | =eps=        | =float= | Small positive constant to avoid 0 priority            | =1e-6=  |
 
 
+After construction, these classes can be used as functor. You can call
+with =priorities= keyword and any other environment values.
+
+#+begin_src python
+laber = LaBERmean(32, 4)
+
+sample = laber(priorities= [ ... ], # 32 * 4 surrogate priorities.
+               # optional: any additional environment values can be passed and subsampled together
+               obs= # ...
+               act= # ...
+               )
+#+end_src
+
 *** Example Usage
 
 The following psuedo code shows usage.
