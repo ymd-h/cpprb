@@ -570,7 +570,7 @@ becomes TD error.
 Although using TD error as priority is not so bad, one of the biggest
 problems at PER is that the priorities are always outdated. However,
 re-computing priorities of all transitions in the buffer at every
-sample is too expensive.
+sampling is too expensive.
 
 LaBER first samples \(m\)-times larger batch from the buffer
 uniformly, then computes surrogate priorities for them, and samples
