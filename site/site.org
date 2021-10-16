@@ -661,7 +661,7 @@ for _ in range(n_iteration):
 
 The full example code are as follow;
 
-#+INCLUDE: "../examples/dqn-laber.py" src python
+#+INCLUDE: "../example/dqn-laber.py" src python
 
 *** Notes
 We add =eps= to avoid zero priority, however, the original
