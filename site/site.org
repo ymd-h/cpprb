@@ -557,7 +557,7 @@ where \(L(\cdot,\, \cdot)\) is a loss function.
 
 This requires full backpropagation and is costful, so that the authors
 proposed surrogate priority
-\(\hat{p}_i \prompt \| \partial L(q_i, y_i) / \partial q_i \| \).
+\(\hat{p}_i \propto \| \partial L(q_i, y_i) / \partial q_i \| \).
 
 Since \( \| \nabla _{\theta} L(Q_{\theta}(s_i, a_i), y_i) \| = \| \partial L(q_i, y_i) / \partial q_i \cdot \nabla _{\theta} Q_{\theta}(s_i, a_i) \| \),
 the surrogate priority is good approximation when
