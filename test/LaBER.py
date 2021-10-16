@@ -64,7 +64,7 @@ class TestLaBERmean(TestLaBER, unittest.TestCase):
     def setUpClass(cls):
         cls.cls = LaBERmean
         cls.uniform = (1, 1)
-        cls.onehot = (1, 1)
+        cls.onehot = (0.25, 0.25)
 
 
 class TestLaBERlazy(TestLaBER, unittest.TestCase):
