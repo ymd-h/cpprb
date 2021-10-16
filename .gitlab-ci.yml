@@ -172,6 +172,11 @@ save_load:
   script:
     - coverage run -m xmlrunner test/save_load.py
 
+LaBER:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/LaBER.py
+
 coverage:
   <<: *setup
   stage: test_coverage
