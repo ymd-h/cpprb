@@ -596,7 +596,7 @@ classes are constructed with following parameters;
 
 
 After construction, these classes can be used as functor. You can call
-with =priorities= keyword and any other environment values.
+with =priorities= keyword and any other optional environment values.
 
 #+begin_src python
 laber = LaBERmean(32, 4)
