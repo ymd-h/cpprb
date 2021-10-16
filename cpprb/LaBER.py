@@ -44,6 +44,9 @@ class LaBER:
             Large batch sampled from `ReplayBuffer`.
         """
         p = np.asarray(priorities) + self.eps
+        if p.shape != self.idx.shape:
+            raise ValueError("`priorities` size must be `batch_size * m`")
+
         p = p / p.sum()
 
         _idx = self.rng.choice(self.idx, self.batch_size, p=p)
