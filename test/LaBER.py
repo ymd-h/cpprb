@@ -44,21 +44,43 @@ class TestLaBER:
         self.assertEqual(sample["indexes"].shape, (batch_size, ))
         self.assertEqual(sample["weights"].shape, (batch_size, ))
 
+    def test_uniform(self):
+        laber = self.cls(2, 2)
+
+        sample = laber(priorities=[1,1,1,1])
+        np.testing.assert_array_equal(sample["weights"], self.uniform)
+
+    def test_onehot(self):
+        laber = self.cls(2, 2)
+        laber.eps = 0 # Hack for test
+
+        sample = laber(priorities=[1, 0, 0, 0])
+        np.testing.assert_array_equal(sample["indexes"], [0, 0, 0, 0])
+        np.testing.assert_array_equal(sample["weights"], self.onehot)
+
+
 class TestLaBERmean(TestLaBER, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cls = LaBERmean
+        cls.uniform = (1, 1)
+        cls.onehot = (1, 1)
+
 
 class TestLaBERlazy(TestLaBER, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cls = LaBERlazy
+        cls.uniform = (0.25, 0.25)
+        cls.onehot = (1, 1)
 
 
 class TestLaBERmax(TestLaBER, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cls = LaBERmax
+        cls.uniform = (1, 1)
+        cls.onehot = (1, 1)
 
 
 if __name__ == "__main__":
