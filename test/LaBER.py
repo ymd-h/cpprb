@@ -40,8 +40,9 @@ class TestLaBER:
         with self.assertRaises(ValueError):
             laber(priorities=[])
 
-        self.assertEqual(laber(priorities=[1.0]*m_batch)["indexes"].shape,
-                         (batch_size, ))
+        sample = laber(priorities=[1.0]*m_batch)
+        self.assertEqual(sample["indexes"].shape, (batch_size, ))
+        self.assertEqual(sample["weights"].shape, (batch_size, ))
 
 class TestLaBERmean(TestLaBER, unittest.TestCase):
     @classmethod
