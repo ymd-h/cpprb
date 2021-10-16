@@ -659,6 +659,10 @@ for _ in range(n_iteration):
         observation = next_observation
 #+end_src
 
+The full example code are as follow;
+
+#+INCLUDE: "../examples/dqn-laber.py" src python
+
 *** Notes
 We add =eps= to avoid zero priority, however, the original
 implementation don't have it. If you don't want to add small positive
