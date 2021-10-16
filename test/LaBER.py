@@ -71,7 +71,7 @@ class TestLaBERlazy(TestLaBER, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cls = LaBERlazy
-        cls.uniform = (0.25, 0.25)
+        cls.uniform = (4, 4)
         cls.onehot = (1, 1)
 
 
