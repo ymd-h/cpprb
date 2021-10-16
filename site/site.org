@@ -601,12 +601,14 @@ classes are constructed with following parameters;
 from cpprb import ReplayBuffer, LaBERmean
 
 buffer_size = int(1e+6)
+env_dict = # Define environment values
+
 batch_size = 32
 m = 4
 
 n_iteration = int(1e+6)
 
-rb = ReplayBuffer(buffer_size, )
+rb = ReplayBuffer(buffer_size, env_dict)
 
 laber = LaBERmean(batch_size, m)
 
