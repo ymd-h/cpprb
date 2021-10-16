@@ -588,11 +588,11 @@ cpprb provides three helper classes =LaBERmean=, =LaBERlazy=, and
 classes are constructed with following parameters;
 
 
-| Parameters   | Type    | Description                                            | Default |
-|--------------+---------+--------------------------------------------------------+---------|
-| =batch_size= | =int=   | Desired final batch size (output size)                 |         |
-| =m=          | =int=   | Multiplication factor (input size is =m * batch_size=) | =4=     |
-| =eps=        | =float= | Small positive constant to avoid 0 priority            | =1e-6=  |
+| Parameters   | Type    | Description                                                 | Default |
+|--------------+---------+-------------------------------------------------------------+---------|
+| =batch_size= | =int=   | Desired final batch size (output size)                      |         |
+| =m=          | =int=   | Multiplication factor (input size is =m * batch_size=)      | =4=     |
+| =eps=        | =float= | Small positive constant to avoid 0 priority. (keyword only) | =1e-6=  |
 
 
 After construction, these classes can be used as functor. You can call
