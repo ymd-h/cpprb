@@ -4,13 +4,13 @@ from cpprb import LaBERmean, LaBERlazy, LaBERmax
 
 class TestLaBER:
     def test_negative(self):
-        with unittest.assertRaises(ValueError):
+        with self.assertRaises(ValueError):
             self.cls(-12)
 
-        with unittest.assertRaises(ValueError):
+        with self.assertRaises(ValueError):
             self.cls(12, -4)
 
-        with unittest.assertRaises(ValueError):
+        with self.assertRaises(ValueError):
             self.cls(12, 4, -2)
 
 class TestLaBERmean(TestLaBER, unittest.TestCase):
