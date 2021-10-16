@@ -3,7 +3,7 @@ import unittest
 from cpprb import LaBERmean, LaBERlazy, LaBERmax
 
 class TestLaBER:
-    def test_negative(self):
+    def test_init(self):
         with self.assertRaises(ValueError):
             self.cls(-12)
 
