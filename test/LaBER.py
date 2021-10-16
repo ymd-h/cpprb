@@ -51,8 +51,7 @@ class TestLaBER:
         np.testing.assert_array_equal(sample["weights"], self.uniform)
 
     def test_onehot(self):
-        laber = self.cls(2, 2)
-        laber.eps = 0 # Hack for test
+        laber = self.cls(2, 2, 0)
 
         sample = laber(priorities=[1, 0, 0, 0])
         np.testing.assert_array_equal(sample["indexes"], [0, 0])
