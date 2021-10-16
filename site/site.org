@@ -647,7 +647,9 @@ for _ in range(n_iteration):
 #+end_src
 
 *** Notes
-
+We add =eps= to avoid zero priority, however, the original
+implementation don't have it. If you don't add small positive
+constant, you can pass ~eps=0~ to the constructor (aka. =__init__=).
 
 *** Technical Detail
 
