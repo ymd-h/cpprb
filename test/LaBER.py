@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 
 from cpprb import LaBERmean, LaBERlazy, LaBERmax
 
@@ -7,7 +8,7 @@ class TestLaBER:
 
         laber = self.cls(12)
         self.assertEqual(laber.batch_size, 12)
-        self.assertEqual(laber.idx, [i for i in range(12*4)])
+        np.testing.assert_array_equal(laber.idx, [i for i in range(12*4)])
         self.assertEqual(laber.eps, 1e-6)
 
         with self.assertRaises(ValueError):
@@ -15,7 +16,7 @@ class TestLaBER:
 
         laber = self.cls(12, 5)
         self.assertEqual(laber.batch_size, 12)
-        self.assertEqual(laber.idx, [i for i in range(12*5)])
+        np.testing.assert_array_equal(laber.idx, [i for i in range(12*5)])
         self.assertEqual(laber.eps, 1e-6)
 
         with self.assertRaises(ValueError):
@@ -23,7 +24,7 @@ class TestLaBER:
 
         laber = self.cls(12, 5, eps=1e-4)
         self.assertEqual(laber.batch_size, 12)
-        self.assertEqual(laber.idx, [i for i in range(12*5)])
+        np.testing.assert_array_equal(laber.idx, [i for i in range(12*5)])
         self.assertEqual(laber.eps, 1e-4)
 
         with self.assertRaises(ValueError):
