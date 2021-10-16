@@ -573,7 +573,7 @@ re-computing priorities of all transitions in the buffer at every
 sample is too expensive.
 
 LaBER first samples \(m\)-times larger batch from the buffer
-uniformly, then compute surrogate priorities for them, and samples
+uniformly, then computes surrogate priorities for them, and samples
 final batch according to the priorities.
 
 According to the authors LaBER can be used together with non-uniform
