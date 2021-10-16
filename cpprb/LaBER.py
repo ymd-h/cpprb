@@ -20,9 +20,17 @@ class LaBER:
         self.rng = np.random.default_rng()
 
         self.batch_size = int(batch_size)
+        if self.batch_size <= 0:
+            raise ValueError("`batch_size` must be positive integer.")
+
+        if m <= 0:
+            raise ValueError("`m` must be positive integer")
+
         self.idx = np.arange(int(self.batch_size * m))
 
         self.eps = float(eps)
+        if self.eps <= 0:
+            raise ValueError("`eps` must be positive")
 
     def __call__(self, *, priorities, **kwargs):
         """
