@@ -5,19 +5,19 @@ from cpprb import LaBERmean, LaBERlazy, LaBERmax
 class TestLaBER:
     def test_negative(self):
         with self.assertRaises(ValueError):
-            self.cls(-12)
+            self.cls.__class__(-12)
 
         with self.assertRaises(ValueError):
-            self.cls(12, -4)
+            self.cls.__class__(12, -4)
 
         with self.assertRaises(ValueError):
-            self.cls(12, 4, -2)
+            self.cls.__class__(12, 4, -2)
 
     def test_call(self):
         batch_size = 32
         m = 4
         m_batch = batch_size * m
-        laber = self.cls(batch_size, m)
+        laber = self.cls.__class__(batch_size, m)
 
         with self.assertRaises(ValueError):
             laber(priorities=[])
