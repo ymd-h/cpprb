@@ -1166,6 +1166,12 @@ See [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-
 
 #+INCLUDE: "../example/apex.py" src python
 
+** Large Batch Experience Replay (LaBER)
+The following is a LaBER[fn:17] example code.
+See [[https://ymd_h.gitlab.io/cpprb/features/laber/][Large Batch Experience Replay]] for detail.
+
+#+INCLUDE: "../example/dqn-laber.py" src python
+
 
 ** Create ~ReplayBuffer~ for non-simple =gym.Env= with helper functions
 
