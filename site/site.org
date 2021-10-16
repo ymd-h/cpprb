@@ -597,6 +597,8 @@ classes are constructed with following parameters;
 
 *** Example Usage
 
+The following psuedo code shows usage.
+
 #+begin_src python
 from cpprb import ReplayBuffer, LaBERmean
 
