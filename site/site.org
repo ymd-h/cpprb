@@ -652,6 +652,12 @@ implementation don't have it. If you don't add small positive
 constant, you can pass ~eps=0~ to the constructor (aka. =__init__=).
 
 *** Technical Detail
+Since the surrogate priority usually requires network's forward
+caluculation, we implement LaBER separetely from replay buffer.
+
+Then =LaBERmean= etc. become simple classes, so that these are ordinal
+Python classes insted of Cython =cdef= classes.
+
 
 ** DONE Memory Compression
 CLOSED: [2019-11-10 Sun 13:33]
