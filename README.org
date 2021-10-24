@@ -126,7 +126,7 @@ Additionally, here are user's good feedbacks for installation at [[https://githu
 
 ** Install from [[https://pypi.org/][PyPI]] (Recommended)
 
-The following command installs cpprb together with other dependancies.
+The following command installs cpprb together with other dependencies.
 
 #+BEGIN_SRC shell
 pip install cpprb
@@ -302,9 +302,9 @@ buffers to a global buffer. Moreover it is more efficient because of
 not only removing pure-Python =for= loop but also suppressing
 unnecessary priority updates for PER. (See [[https://ymd_h.gitlab.io/cpprb/features/multistep_add/][doc]], too)
 
-** Minimum Dependancy
-We try to minimize dependancy. Only NumPy is required during its
-execution. Small dependancy is always prefarable to avoid dependancy
+** Minimum Dependency
+We try to minimize dependency. Only NumPy is required during its
+execution. Small dependency is always prefarable to avoid dependency
 hell.
 
 
