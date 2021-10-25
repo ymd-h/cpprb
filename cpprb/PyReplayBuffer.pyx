@@ -2230,7 +2230,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     def sample(self,batch_size,beta = 0.4):
         r"""Sample the stored transitions.
 
-        Transisions are sampled depending on correspoinding priorities
+        Transitions are sampled depending on correspoinding priorities
         with speciped size. This method can be called from single learner process.
 
         Parameters
