@@ -2156,7 +2156,7 @@ the network \(w_{\psi}(s,a)\) approches to
 \(d^{\mathcal{D}_f}/d^{\mathcal{D}}\).
 
 Additionally, to stabilize network update, \(w_{\psi}(s,a)\) is
-normalized over the main (slow) replay buffer with temerature
+normalized over the main (slow) replay buffer with temperature
 hyperparameter \(T\);
 
 \[\tilde{w}_{\psi}(s,a) = \frac{w_{\psi}(s,a)^{1/T}}{\mathbb{E}_{\mathcal{D}}[w_{\psi}(s,a)^{1/T}]}\]
