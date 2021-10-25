@@ -2110,7 +2110,7 @@ CLOSED: [2021-09-19 Sun 11:37]
 S. Zhang and R. Sutton discussed the effect of replay buffer
 size[fn:13]. After the famous DQN paper[fn:11], almost all experiments
 fixed the buffer size to \(10^6\). Their experiments indicated that
-larger buffer maked learning slower. Combined Experience Replay (CER)
+larger buffer made learning slower. Combined Experience Replay (CER)
 is a method where a latest transition is mixed with transitions from
 replay buffer. CER improves learning speed, especially for large
 replay buffer.
