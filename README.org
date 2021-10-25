@@ -380,13 +380,13 @@ CLOSED: [2020-01-17 Fri 23:09]
 - [[https://zenn.dev/ymd_h/articles/03edcaa47a3b1c][【強化学習】Ape-Xの高速化を実現 | Zenn]]
 - [[https://zenn.dev/ymd_h/articles/e65fed3b7991c9][【強化学習】cpprb に遷移のファイル保存機能を追加 | Zenn]]
 
-* DONE Lisence
+* DONE License
 CLOSED: [2020-01-17 Fri 23:09]
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: misc
-:EXPORT_FILE_NAME: lisence
+:EXPORT_FILE_NAME: license
 :END:
-cpprb is available under MIT lisence.
+cpprb is available under MIT license.
 
 #+INCLUDE: "./LICENSE" src plaintext
 
