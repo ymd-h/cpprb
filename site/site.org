@@ -1732,7 +1732,7 @@ We use following docker image to take benchmarks;
 
 - OpenAI Baselines requires TensorFlow 1.14
 - OpenAI Baselines at PyPI seems to be obsolete and requires non-free MuJoCo.
-- RLlib requres Pandas, too.
+- RLlib requires Pandas, too.
 
 
 The benchmark script is as follows;
