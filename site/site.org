@@ -1428,7 +1428,7 @@ Ordinary and prioritized experience replay are implemented with
 from chainerrl.replay_buffers import ReplayBuffer, PrioritizedReplayBuffer
 #+end_src
 
-ChainerRL has slighly different API from OpenAI Baselines' one.
+ChainerRL has slightly different API from OpenAI Baselines' one.
 
 ~ReplayBuffer~ is initialized with ~capacity=None~ parameter for
 buffer size and ~num_steps=1~ parameter for Nstep configuration.
