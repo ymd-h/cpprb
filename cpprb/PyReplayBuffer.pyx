@@ -1556,7 +1556,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             priorities = np.ravel(np.array(priorities,copy=False,
                                            ndmin=1,dtype=np.single))
             if N != priorities.shape[0]:
-                raise ValueError("`priorities` shape is imcompatible")
+                raise ValueError("`priorities` shape is incompatible")
 
         if self.use_nstep:
             if priorities is None:
