@@ -611,7 +611,7 @@ sample = laber(priorities= [ ... ], # 32 * 4 surrogate priorities.
 
 *** Example Usage
 
-The following psuedo code shows usage.
+The following pseudo code shows usage.
 
 #+begin_src python
 from cpprb import ReplayBuffer, LaBERmean
@@ -671,7 +671,7 @@ constant, you can pass ~eps=0~ to the constructor (aka. =__init__=).
 
 *** Technical Detail
 Since the surrogate priority usually requires network's forward
-caluculation, we implement LaBER separetely from replay buffer.
+caluculation, we implement LaBER separately from replay buffer.
 
 Then =LaBERmean= etc. become simple classes, so that they are
 implemented as ordinal Python classes insted of Cython =cdef= classes.
@@ -1326,7 +1326,7 @@ The source code is published with Apache-2.0 license.
 Ordinary and prioritized experience replay are implemented with
 ~ReplayBuffer~ and ~PrioritizedReplayBuffer~ classes, respectively.
 
-These classes are decorated with ~@DeveloperAPI~, which are intented
+These classes are decorated with ~@DeveloperAPI~, which are intended
 to be used by developer when making custom algorithms.
 
 #+begin_src python
@@ -1428,7 +1428,7 @@ Ordinary and prioritized experience replay are implemented with
 from chainerrl.replay_buffers import ReplayBuffer, PrioritizedReplayBuffer
 #+end_src
 
-ChainerRL has slighly different API from OpenAI Baselines' one.
+ChainerRL has slightly different API from OpenAI Baselines' one.
 
 ~ReplayBuffer~ is initialized with ~capacity=None~ parameter for
 buffer size and ~num_steps=1~ parameter for Nstep configuration.
@@ -1732,7 +1732,7 @@ We use following docker image to take benchmarks;
 
 - OpenAI Baselines requires TensorFlow 1.14
 - OpenAI Baselines at PyPI seems to be obsolete and requires non-free MuJoCo.
-- RLlib requres Pandas, too.
+- RLlib requires Pandas, too.
 
 
 The benchmark script is as follows;
@@ -1787,7 +1787,7 @@ CLOSED: [2020-01-17 Fri 22:31]
 In this section, cpprb related miscellaneous information are described.
 
 - [[https://ymd_h.gitlab.io/cpprb/misc/links/][Links]]
-- [[https://ymd_h.gitlab.io/cpprb/misc/lisence/][License]]
+- [[https://ymd_h.gitlab.io/cpprb/misc/license/][License]]
 - [[https://ymd_h.gitlab.io/cpprb/misc/logo/][Logo]]
 - [[https://ymd_h.gitlab.io/cpprb/misc/citation/][Citation]]
 
@@ -1986,7 +1986,7 @@ re-labelling is executed per mini-batch.
 
 Depending on initializing methods, there are two variants of
 CER. Independent-CER initializes \(\pi _B\) with the task's initial
-distribution. Interect-CER initializes \(\pi _B\) with random
+distribution. Interact-CER initializes \(\pi _B\) with random
 off-policy sample of \(\pi _A\).
 
 
@@ -2022,7 +2022,7 @@ DER uses multiple (global) replay buffers
 \(\lbrace\mathbb{B}_0\dots\mathbb{B}_n\rbrace\) which have
 demonstration zone. On the episode end, explorers randomly picked one
 of the replay buffers \(\mathbb{B}_i\) and stores
-transisions. Additionally, if the episode succeeds, it is stored at
+transitions. Additionally, if the episode succeeds, it is stored at
 another (ordinary) replay buffer \(\mathbb{T}\) for successful
 transitions.
 
@@ -2035,7 +2035,7 @@ transition replay buffer \(\mathbb{T}\).
 
 
 ** With cpprb
-DER requires specialized demonstration zone where transisions are
+DER requires specialized demonstration zone where transitions are
 keeped. Naively speaking, it can be realized by using 2 replay
 buffers. However, to sample from this joint replay buffer with
 prioritized way, cpprb need some modification. We might implement
@@ -2092,7 +2092,7 @@ the following gradients are used;
 ** With cpprb
 You can implement NERS with the current cpprb. For main replay buffer,
 you can use =PrioritizedReplayBuffer=. For index collection, you can
-use =ReplayBuffer=. Additionaly you need to implement neural network
+use =ReplayBuffer=. Additionally you need to implement neural network
 to learn sampling probability.
 
 
@@ -2110,7 +2110,7 @@ CLOSED: [2021-09-19 Sun 11:37]
 S. Zhang and R. Sutton discussed the effect of replay buffer
 size[fn:13]. After the famous DQN paper[fn:11], almost all experiments
 fixed the buffer size to \(10^6\). Their experiments indicated that
-larger buffer maked learning slower. Combined Experience Replay (CER)
+larger buffer made learning slower. Combined Experience Replay (CER)
 is a method where a latest transition is mixed with transitions from
 replay buffer. CER improves learning speed, especially for large
 replay buffer.
@@ -2156,7 +2156,7 @@ the network \(w_{\psi}(s,a)\) approches to
 \(d^{\mathcal{D}_f}/d^{\mathcal{D}}\).
 
 Additionally, to stabilize network update, \(w_{\psi}(s,a)\) is
-normalized over the main (slow) replay buffer with temerature
+normalized over the main (slow) replay buffer with temperature
 hyperparameter \(T\);
 
 \[\tilde{w}_{\psi}(s,a) = \frac{w_{\psi}(s,a)^{1/T}}{\mathbb{E}_{\mathcal{D}}[w_{\psi}(s,a)^{1/T}]}\]
@@ -2207,7 +2207,7 @@ the number of gradient steps taken by the learner since the transition
 was generated.
 
 Usually, Replay Buffer is implemented with a fixed size ring buffer,
-where the oldest transition is overwritten by a newly comming
+where the oldest transition is overwritten by a newly coming
 transition when the capacity is already full. Therefore, replay ratio
 (\(=\frac{\text{gradient update}}{\text{environment transition}}\)) is
 a good factor to adjust the oldest age of transition stored in the
@@ -2313,7 +2313,7 @@ By minimizing mean squared error (MSE) of TD error, Q-function is
 optimized to mean of target
 \(y(i)=r+\gamma\mathbb{E}_{s^{\prime},a^{\prime}}[Q(s^{\prime},a^{\prime})]\). By
 minimizing L1 loss of TD error, Q-function is optimized to median of
-target. If the objective loss is intermidiate of MSE and L1
+target. If the objective loss is intermediate of MSE and L1
 (\(\frac{1}{\tau}|\delta(i)|^{\tau}, \tau\in(1,2)\)), the result
 is somehow mixed of the above.
 

@@ -1556,7 +1556,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             priorities = np.ravel(np.array(priorities,copy=False,
                                            ndmin=1,dtype=np.single))
             if N != priorities.shape[0]:
-                raise ValueError("`priorities` shape is imcompatible")
+                raise ValueError("`priorities` shape is incompatible")
 
         if self.use_nstep:
             if priorities is None:
@@ -1594,7 +1594,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     def sample(self,batch_size,beta = 0.4):
         r"""Sample the stored transitions.
 
-        Transisions are sampled depending on correspoinding priorities
+        Transitions are sampled depending on correspoinding priorities
         with speciped size
 
         Parameters
@@ -2193,7 +2193,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
             priorities = np.ravel(np.array(priorities,copy=False,
                                            ndmin=1,dtype=np.single))
             if N != priorities.shape[0]:
-                raise ValueError("`priorities` shape is imcompatible")
+                raise ValueError("`priorities` shape is incompatible")
 
         cdef size_t index = self.index.fetch_add(N)
         cdef size_t end = index + N
@@ -2230,7 +2230,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     def sample(self,batch_size,beta = 0.4):
         r"""Sample the stored transitions.
 
-        Transisions are sampled depending on correspoinding priorities
+        Transitions are sampled depending on correspoinding priorities
         with speciped size. This method can be called from single learner process.
 
         Parameters

@@ -9,7 +9,7 @@ from baselines.deepq.replay_buffer import (ReplayBuffer as bRB,
                                            PrioritizedReplayBuffer as bPRB)
 
 # Ray/RLlib: https://github.com/ray-project/ray
-# Requires Pandas, even though wich is not in `install_requires`
+# Requires Pandas, even though which is not in `install_requires`
 from ray.rllib.execution.replay_buffer import (ReplayBuffer as rRB,
                                                PrioritizedReplayBuffer as rPRB)
 from ray.rllib.policy.sample_batch import SampleBatch

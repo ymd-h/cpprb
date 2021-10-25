@@ -37,7 +37,7 @@ rb  =  RB(buffer_size,env_dict)
 prb  =  PRB(buffer_size,env_dict,alpha=alpha)
 
 
-# Initalize Reverb Server
+# Initialize Reverb Server
 server = reverb.Server(tables =[
     reverb.Table(name='ReplayBuffer',
                  sampler=reverb.selectors.Uniform(),
