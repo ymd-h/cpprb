@@ -1326,7 +1326,7 @@ The source code is published with Apache-2.0 license.
 Ordinary and prioritized experience replay are implemented with
 ~ReplayBuffer~ and ~PrioritizedReplayBuffer~ classes, respectively.
 
-These classes are decorated with ~@DeveloperAPI~, which are intented
+These classes are decorated with ~@DeveloperAPI~, which are intended
 to be used by developer when making custom algorithms.
 
 #+begin_src python
