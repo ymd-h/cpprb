@@ -1986,7 +1986,7 @@ re-labelling is executed per mini-batch.
 
 Depending on initializing methods, there are two variants of
 CER. Independent-CER initializes \(\pi _B\) with the task's initial
-distribution. Interect-CER initializes \(\pi _B\) with random
+distribution. Interact-CER initializes \(\pi _B\) with random
 off-policy sample of \(\pi _A\).
 
 
