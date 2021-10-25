@@ -2207,7 +2207,7 @@ the number of gradient steps taken by the learner since the transition
 was generated.
 
 Usually, Replay Buffer is implemented with a fixed size ring buffer,
-where the oldest transition is overwritten by a newly comming
+where the oldest transition is overwritten by a newly coming
 transition when the capacity is already full. Therefore, replay ratio
 (\(=\frac{\text{gradient update}}{\text{environment transition}}\)) is
 a good factor to adjust the oldest age of transition stored in the
