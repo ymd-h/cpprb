@@ -1594,7 +1594,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     def sample(self,batch_size,beta = 0.4):
         r"""Sample the stored transitions.
 
-        Transisions are sampled depending on correspoinding priorities
+        Transitions are sampled depending on correspoinding priorities
         with speciped size
 
         Parameters
