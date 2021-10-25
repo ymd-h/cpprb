@@ -2193,7 +2193,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
             priorities = np.ravel(np.array(priorities,copy=False,
                                            ndmin=1,dtype=np.single))
             if N != priorities.shape[0]:
-                raise ValueError("`priorities` shape is imcompatible")
+                raise ValueError("`priorities` shape is incompatible")
 
         cdef size_t index = self.index.fetch_add(N)
         cdef size_t end = index + N
