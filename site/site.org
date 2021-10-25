@@ -2313,7 +2313,7 @@ By minimizing mean squared error (MSE) of TD error, Q-function is
 optimized to mean of target
 \(y(i)=r+\gamma\mathbb{E}_{s^{\prime},a^{\prime}}[Q(s^{\prime},a^{\prime})]\). By
 minimizing L1 loss of TD error, Q-function is optimized to median of
-target. If the objective loss is intermidiate of MSE and L1
+target. If the objective loss is intermediate of MSE and L1
 (\(\frac{1}{\tau}|\delta(i)|^{\tau}, \tau\in(1,2)\)), the result
 is somehow mixed of the above.
 
