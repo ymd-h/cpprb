@@ -2022,7 +2022,7 @@ DER uses multiple (global) replay buffers
 \(\lbrace\mathbb{B}_0\dots\mathbb{B}_n\rbrace\) which have
 demonstration zone. On the episode end, explorers randomly picked one
 of the replay buffers \(\mathbb{B}_i\) and stores
-transisions. Additionally, if the episode succeeds, it is stored at
+transitions. Additionally, if the episode succeeds, it is stored at
 another (ordinary) replay buffer \(\mathbb{T}\) for successful
 transitions.
 
@@ -2035,7 +2035,7 @@ transition replay buffer \(\mathbb{T}\).
 
 
 ** With cpprb
-DER requires specialized demonstration zone where transisions are
+DER requires specialized demonstration zone where transitions are
 keeped. Naively speaking, it can be realized by using 2 replay
 buffers. However, to sample from this joint replay buffer with
 prioritized way, cpprb need some modification. We might implement
