@@ -2092,7 +2092,7 @@ the following gradients are used;
 ** With cpprb
 You can implement NERS with the current cpprb. For main replay buffer,
 you can use =PrioritizedReplayBuffer=. For index collection, you can
-use =ReplayBuffer=. Additionaly you need to implement neural network
+use =ReplayBuffer=. Additionally you need to implement neural network
 to learn sampling probability.
 
 
