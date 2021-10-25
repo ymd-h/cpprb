@@ -611,7 +611,7 @@ sample = laber(priorities= [ ... ], # 32 * 4 surrogate priorities.
 
 *** Example Usage
 
-The following psuedo code shows usage.
+The following pseudo code shows usage.
 
 #+begin_src python
 from cpprb import ReplayBuffer, LaBERmean
