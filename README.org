@@ -304,7 +304,7 @@ unnecessary priority updates for PER. (See [[https://ymd_h.gitlab.io/cpprb/featu
 
 ** Minimum Dependency
 We try to minimize dependency. Only NumPy is required during its
-execution. Small dependency is always prefarable to avoid dependency
+execution. Small dependency is always preferable to avoid dependency
 hell.
 
 
