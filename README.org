@@ -413,3 +413,4 @@ year = {2019}
 
 - 3rd Party Papers citing cpprb
   - [[https://www.sciencedirect.com/science/article/pii/S187705092100990X][E. Aitygulov and A. I. Panov, "Transfer Learning with Demonstration Forgetting for Robotic Manipulator", Proc. Comp. Sci. 186 (2021), 374-380, https://doi.org/10.1016/j.procs.2021.04.159]]
+  - [[https://nips.cc/Conferences/2021/Schedule?showEvent=21848][T. Kitamura and R. Yonetani, "ShinRL: A Library for Evaluating RL Algorithms from Theoretical and Practical Perspectives", NeurIPS Deep RL Workshop (2021)]] ([[https://arxiv.org/abs/2112.04123][arXiv]], [[https://github.com/omron-sinicx/ShinRL][code]])
