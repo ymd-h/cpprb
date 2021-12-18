@@ -390,7 +390,7 @@ class TestReverseReplayBuffer(unittest.TestCase):
             with self.subTest(n=i):
                 self.assertEqual(s["obs"][0, 0], t)
             t -= 1
-            if bsize - t > 2*stride:
+            if bsize-1 - t >= 2*stride:
                 t = bsize - 1
 
 
