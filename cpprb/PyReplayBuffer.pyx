@@ -1812,6 +1812,8 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
                 tmp += ssize
             assert tmp >= ssize
             idx[i] = tmp
+            while tmp < self.stride:
+                tmp += ssize
             tmp -= self.stride
 
         return self._encode_sample(idx)
