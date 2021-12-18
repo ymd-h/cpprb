@@ -364,7 +364,7 @@ class TestReverseReplayBuffer(unittest.TestCase):
         for i in range(9):
             s = rb.sample(1)
             with self.subTest(n=i):
-                self.assertEqual(s["obs"][0], bsize-i-1)
+                self.assertEqual(s["obs"][0, 0], bsize-i-1)
 
     def test_batch(self):
         bsize = 20
@@ -375,7 +375,7 @@ class TestReverseReplayBuffer(unittest.TestCase):
         for i in range(9):
             s = rb.sample(2)
             with self.subTest(n=i):
-                np.testing.assert_equal(s["obs"],
+                np.testing.assert_equal(s["obs"][:, 0],
                                         np.asarray([bsize-i-1, bsize-i-stride-1]))
 
     def test_reset(self):
@@ -388,7 +388,7 @@ class TestReverseReplayBuffer(unittest.TestCase):
         for i in range(10):
             s = rb.sample(1)
             with self.subTest(n=i):
-                self.assertEqual(s["obs"][0], t)
+                self.assertEqual(s["obs"][0, 0], t)
             t -= 1
             if bsize - t > 2*stride:
                 t = bsize - 1
@@ -403,7 +403,7 @@ class TestReverseReplayBuffer(unittest.TestCase):
         for i in range(9):
             s = rb.sample(1)
             with self.subTest(n=i):
-                self.assertEqual(s["obs"][0], 0)
+                self.assertEqual(s["obs"][0, 0], 0)
 
 
 if __name__ == '__main__':
