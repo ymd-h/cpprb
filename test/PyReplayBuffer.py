@@ -358,7 +358,7 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
 class TestReverseReplayBuffer(unittest.TestCase):
     def test_simple(self):
         bsize = 20
-        rb = ReverseReplayBuffer(bsize, {"osb": {}}, stride=5)
+        rb = ReverseReplayBuffer(bsize, {"obs": {}}, stride=5)
         rb.add(obs=np.arange(bsize))
 
         for i in range(9):
