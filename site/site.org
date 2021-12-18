@@ -677,6 +677,49 @@ Then =LaBERmean= etc. become simple classes, so that they are
 implemented as ordinal Python classes insted of Cython =cdef= classes.
 
 
+** DONE Reverse Experience Replay
+CLOSED: [2021-12-18 Sat 16:40]
+:PROPERTIES:
+:EXPORT_FILE_NAME: rer
+:END:
+
+
+*** Overview
+Reverse Experience Replay (RER) was proposed by E. Rotinov[fn:18] to
+overcome environments with delayed (sparse) rewards. Since many
+transitions doesn't have immediate reward, random sampling is
+inefficient.
+
+In RER, equally strided transitions are sampled from the latest
+transition. The next sample containes one step older transions.
+
+\[ \begin{align}
+B_1 &= &\lbrace T_{t}  &, T_{t-stride}  &, \dots &, T_{t-batch_size \times stride}     &\rbrace \\
+B_2 &= &\lbrace T_{t-1}&, T_{t-stride-1}&, \dots &, T_{t-batch_size \times stride - 1} &\rbrace \\
+&\vdots&&&&&
+\end{align} \]
+
+If the first sample index ($t-i$) becomes $2 \times stride$ old from
+the latest transition. The first sample index is reset to the latest
+transition.
+
+#+CAPTION: Parameter Definition
+| Parameters | Default | Description   |
+|------------+---------+---------------|
+| stride     |     300 | Sample stride |
+
+
+*** Example Usage
+
+*** Notes
+The author indicated ~stride~ size must not be multiple of the length
+of episode horizon to avoid sampling similar transitions
+simultaneously.
+
+
+*** Technical Detail
+
+
 ** DONE Memory Compression
 CLOSED: [2019-11-10 Sun 13:33]
 :PROPERTIES:
@@ -2343,6 +2386,9 @@ computational cost.
 
 
 * Footnotes
+
+[fn:18] E. Rotinov, "Reverse Experience Replay" (2019), ([[https://arxiv.org/abs/1910.08780][arXiv:1910.08780]])
+
 [fn:17] [[https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528][T. Lahire /et al/., "Large Batch Experience Replay", CoRR (2021)]] ([[https://arxiv.org/abs/2110.01528][arXiv:2110.01528]], [[https://github.com/SuReLI/laber][code]])
 
 [fn:16] [[https://proceedings.neurips.cc/paper/2016/hash/c3992e9a68c5ae12bd18488bc579b30d-Abstract.html][R. Munos /et al/., "Safe and Efficient Off-Policy Reinforcement Learning", NeurIPS (2016)]] ([[https://arxiv.org/abs/1606.02647][arXiv:1606.02647]])
