@@ -1793,8 +1793,8 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
             self.last_sampled_index = nidx-1
         else:
             self.last_sampled_index -= 1
-            if self.last_sampled_index < 0:
-                self.last_sampled_index += ssize
+        if self.last_sampled_index < 0:
+            self.last_sampled_index += ssize
 
         cdef idx = np.zeros(batch_size, dtype = np.uint)
         assert idx.shape[0] == batch_size
