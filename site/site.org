@@ -84,46 +84,46 @@ implementing troublesome replay buffer.
 :UNNUMBERED: t
 :END:
 
-{{< container >}}{{< row >}}{{< col size="md">}}
+#+html: {{< container >}}{{< row >}}{{< col size="md">}}
 
-{{% markdownify %}}
+#+html: {{% markdownify %}}
 *** Native
 Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. cpprb is usually
 faster than Python naive implementation.
-{{% /markdownify %}}
+#+html: {{% /markdownify %}}
 
 #+html: {{% button-center href="/cpprb/comparison/benchmark/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
 
-{{< /col >}}{{< col size="md">}}
+#+html: {{< /col >}}{{< col size="md">}}
 
-{{% markdownify %}}
+#+html: {{% markdownify %}}
 *** Multiprocessing
 cpprb supports [[https://arxiv.org/abs/1803.00933][Ape-X]] on single computer. You don't need to think
 problematic lock. cpprb locks only critical section internally well.
-{{% /markdownify %}}
+#+html: {{% /markdownify %}}
 
 #+html: {{% button-center href="/cpprb/features/ape-x/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
 
-{{< /col >}}{{< col size="md">}}
+#+html: {{< /col >}}{{< col size="md">}}
 
-{{% markdownify %}}
+#+html: {{% markdownify %}}
 *** Flexible Environment
 cpprb adopts flexible environment. Any numbers of [[https://numpy.org/][Numpy]] compatible
 environment values can be stored.
-{{% /markdownify %}}
+#+html: {{% /markdownify %}}
 
 #+html: {{% button-center href="/cpprb/features/flexible_environment/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
 
-{{< /col >}}{{< col size="md">}}
+#+html: {{< /col >}}{{< col size="md">}}
 
-{{% markdownify %}}
+#+html: {{% markdownify %}}
 *** Framework Free
 You can build your own reinforcement learning algorithms together with
 your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorFlow]], [[https://pytorch.org/][PyTorch]]).
-{{% /markdownify %}}
+#+html: {{% /markdownify %}}
 
 
-{{< /col >}} {{< /row >}} {{< /container >}}
+#+html: {{< /col >}} {{< /row >}} {{< /container >}}
 
 ---
 
@@ -132,37 +132,37 @@ your favorite deep learning library (e.g. [[https://www.tensorflow.org/][TensorF
 :UNNUMBERED: t
 :END:
 
-{{< container >}} {{< row >}} {{< col size="md">}}
+#+html: {{< container >}} {{< row >}} {{< col size="md">}}
 
-{{% markdownify %}}
+#+html: {{% markdownify %}}
 *** Duscussion
 Any questions, requests, and so on are welcome.
-{{% /markdownify %}}
+#+html: {{% /markdownify %}}
 
 #+html: {{% button-center href="https://github.com/ymd-h/cpprb/discussions" icon="fas fa-comments" icon-position="right" %}}User Forum{{% /button-center %}}
 
-{{< /col >}} {{< col size="md">}}
+#+html: {{< /col >}} {{< col size="md">}}
 
-{{% markdownify %}}
+#+html: {{% markdownify %}}
 *** TF2RL
 TF2RL provides a set of reinforcement learning algorithms for TensorFlow 2.
 TF2RL uses cpprb for off-policy algorithm.
-{{% /markdownify %}}
+#+html: {{% /markdownify %}}
 
 #+html: {{% button-center href="https://github.com/keiohta/tf2rl" icon="fab fa-github" icon-position="right" %}}TF2RL{{% /button-center %}}
 
-{{< /col >}} {{< col size="md">}}
+#+html: {{< /col >}} {{< col size="md">}}
 
-{{% markdownify %}}
+#+html: {{% markdownify %}}
 *** User Repos
 You can find awesome repositories using cpprb. We're looking forward
 to seeing your great work will show up.
 
-{{% /markdownify %}}
+#+html: {{% /markdownify %}}
 
 #+html: {{% button-center href="https://github.com/ymd-h/cpprb/network/dependents" icon="fab fa-github" icon-position="right" %}}User Repos{{% /button-center %}}
 
-{{< /col >}} {{< /row >}} {{< /container >}}
+#+html: {{< /col >}} {{< /row >}} {{< /container >}}
 
 * Installation
 :PROPERTIES:
