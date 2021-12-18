@@ -1719,6 +1719,96 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
 
 @cython.embedsignature(True)
+cdef class ReverseReplayBuffer(ReplayBuffer):
+    r"""Replay Buffer class for Reverse Experience Replay (RER)
+
+    RER samples equally strided transitions reversely.
+
+    sample1: T_t    , T_{t-stride}  , ..., T_{t-batch_size*stride}
+    sample2: T_{t-1}, T_{t-stride-1}, ..., T_{t-batch_size*stride-1}
+    ...
+
+    When the first index ``t-i`` is delayed from the latest index more
+    than ``2*tride``, the first index will be reset to the latest one.
+
+    Ref: https://arxiv.org/abs/1910.08780
+    """
+    cdef size_t stride
+    cdef size_t last_sampled_index
+    def __cinit__(self, size, env_dict=None, *, stride = 300, **kwargs):
+        self.stride = stride
+        self.last_sampled_index = 0
+
+    def __init__(self, size, env_dict=None,*, stride = 300, **kwargs):
+        r"""
+        Initialize ReverseReplayBuffer
+
+        Parameters
+        ----------
+        size : int
+            buffer size
+        next_of : str or array like of str, optional
+            next item of specified environemt variables (eg. next_obs for next) are
+            also sampled without duplicated values
+        stack_compress : str or array like of str, optional
+            compress memory of specified stacked values.
+        default_dtype : numpy.dtype, optional
+            fallback dtype for not specified in `env_dict`. default is numpy.single
+        Nstep : dict, optional
+            `Nstep["size"]` is `int` specifying step size of Nstep reward.
+            `Nstep["rew"]` is `str` or array like of `str` specifying
+            Nstep reward to be summed. `Nstep["gamma"]` is float specifying
+            discount factor, its default is 0.99. `Nstep["next"]` is `str` or
+            list of `str` specifying next values to be moved.
+        mmap_prefix : str, optional
+            File name prefix to save buffer data using mmap. If `None` (default),
+            save only on memory.
+        stride : int, optional
+            stride size. The default is ``300``.
+        """
+        super().__init__(size, env_dict, **kwargs)
+
+    def sample(self, batch_size):
+        r"""Sample the stored transitions reversely
+
+        Parameters
+        ----------
+        batch_size : int
+            sampled batch size
+
+        Returns
+        -------
+        sample : dict of ndarray
+            Batch size of sampled transitions, which might contains
+            the same transition multiple times.
+        """
+        cdef size_t nidx = self.get_next_index()
+        cdef size_t ssize = self.get_stored_size()
+
+        cdef size_t tmp_nidx = nidx
+        if tmp_nidx <= self.last_sampled_index:
+            tmp_nidx += ssize
+
+        if (tmp_nidx - self.last_sampled_index) >= 2 * self.stride:
+            self.last_sampled_index = (nidx or ssize) - 1
+        else:
+            self.last_sampled_index = (self.last_sampled_index or ssize) - 1
+
+        cdef idx = np.zeros(batch_size, dtype = np.uint)
+
+        # Ensure (idx >= 0).all()
+        cdef size_t i
+        cdef size_t tmp = self.last_sampled_index
+        for i in range(batch_size):
+            idx[i] = tmp
+            while tmp < self.stride:
+                tmp += ssize
+            tmp -= self.stride
+
+        return self._encode_sample(idx)
+
+
+@cython.embedsignature(True)
 cdef class MPReplayBuffer:
     r"""Multi-process support Replay Buffer class to store transitions and to sample them randomly.
 

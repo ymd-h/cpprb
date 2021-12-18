@@ -1,6 +1,6 @@
 from .PyReplayBuffer import (ReplayBuffer,PrioritizedReplayBuffer,
                              MPReplayBuffer, MPPrioritizedReplayBuffer,
-                             SelectiveReplayBuffer)
+                             SelectiveReplayBuffer, ReverseReplayBuffer)
 
 from .LaBER import LaBERmean, LaBERlazy, LaBERmax
 

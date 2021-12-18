@@ -263,6 +263,7 @@ cpprb provides buffer classes for building following algorithms.
 | [[https://ymd_h.gitlab.io/cpprb/features/nstep/][Multi-step (Nstep) Learning]]           | =ReplayBuffer=, =PrioritizedReplayBuffer=    |                   |
 | [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-X)]]         | =MPReplayBuffer= =MPPrioritizedReplayBuffer= | [[https://arxiv.org/abs/1803.00933][D. Horgan et. al.]] |
 | [[https://ymd_h.gitlab.io/cpprb/features/laber/][Large Batch Experience Replay (LaBER)]] | =LaBERmean=, =LaBERlazy=, =LaBERmax=         | [[https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528][T. Lahire et al.]]  |
+| [[https://ymd_h.gitlab.io/cpprb/features/rer/][Reverse Experience Replay (RER)]]       | =ReverseReplayBuffer=                        | [[https://arxiv.org/abs/1910.08780][E. Rotinov]]        |
 
 
 
