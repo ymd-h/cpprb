@@ -1808,9 +1808,7 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
         cdef size_t i
         cdef size_t tmp = self.last_sampled_index
         for i in range(batch_size):
-            while tmp < 0:
-                tmp += ssize
-            assert tmp >= ssize
+            assert tmp < ssize
             idx[i] = tmp
             while tmp < self.stride:
                 tmp += ssize
