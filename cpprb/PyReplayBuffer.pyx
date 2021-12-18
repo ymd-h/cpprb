@@ -1805,6 +1805,7 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
         for i in range(batch_size):
             while tmp < 0:
                 tmp += ssize
+            assert tmp >= ssize
             idx[i] = tmp
             tmp -= self.stride
 
