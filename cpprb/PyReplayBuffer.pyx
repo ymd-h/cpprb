@@ -1790,15 +1790,9 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
             tmp_nidx += ssize
 
         if (tmp_nidx - self.last_sampled_index) >= 2 * self.stride:
-            if nidx == 0:
-                self.last_sampled_index = ssize-1
-            else:
-                self.last_sampled_index = nidx-1
+            self.last_sampled_index = (nidx or ssize) - 1
         else:
-            if self.last_sampled_index == 0:
-                self.last_sampled_index = ssize-1
-            else:
-                self.last_sampled_index -= 1
+            self.last_sampled_index = (self.last_sampled_index or ssize) - 1
         assert self.last_sampled_index < ssize
 
         cdef idx = np.zeros(batch_size, dtype = np.uint)
