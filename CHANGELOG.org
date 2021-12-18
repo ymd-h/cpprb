@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.3.0][v10.3.0]]
+- Add: ~ReverseReplayBuffer~
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.2.0][v10.2.0]]
 - Add: ~LaBERmean~, ~LaBERlazy~, and ~LaBERmax~
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.1.1][v10.1.1]]
