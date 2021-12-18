@@ -354,5 +354,57 @@ class TestSelectiveReplayBuffer(TestReplayBuffer):
         delete_len = self.srb.delete_episode(2)
         self.assertEqual(self.srb.get_next_index(), old_index - delete_len)
 
+
+class TestReverseReplayBuffer(unittest.TestCase):
+    def test_simple(self):
+        bsize = 20
+        rb = ReverseReplayBuffer(bsize, {"osb": {}}, stride=5)
+        rb.add(obs=np.arange(bsize))
+
+        for i in range(9):
+            s = rb.sample(1)
+            with self.subTest(n=i):
+                self.assertEqual(s["obs"][0], bsize-i-1)
+
+    def test_batch(self):
+        bsize = 20
+        stride = 5
+        rb = ReverseReplayBuffer(bsize, {"obs": {}}, stride=stride)
+        rb.add(obs=np.arange(bsize))
+
+        for i in range(9):
+            s = rb.sample(2)
+            with self.subTest(n=i):
+                np.testing.assert_equal(s["obs"],
+                                        np.asarray([bsize-i-1, bsize-i-stride-1]))
+
+    def test_reset(self):
+        bsize = 20
+        stride = 2
+        rb = ReverseReplayBuffer(bsize, {"obs": {}}, stride=stride)
+        rb.add(obs=np.arange(bsize))
+
+        t = bsize - 1
+        for i in range(10):
+            s = rb.sample(1)
+            with self.subTest(n=i):
+                self.assertEqual(s["obs"][0], t)
+            t -= 1
+            if bsize - t > 2*stride:
+                t = bsize - 1
+
+
+    def test_non_full(self):
+        bsize = 20
+        stride = 5
+        rb = ReverseReplayBuffer(bsize, {"obs": {}}, stride=stride)
+        rb.add(obs=0)
+
+        for i in range(9):
+            s = rb.sample(1)
+            with self.subTest(n=i):
+                self.assertEqual(s["obs"][0], 0)
+
+
 if __name__ == '__main__':
     unittest.main()
