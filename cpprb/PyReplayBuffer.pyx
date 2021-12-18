@@ -1790,7 +1790,7 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
             tmp_nidx += ssize
 
         if (tmp_nidx - self.last_sampled_index) > 2 * self.stride:
-            self.last_sampled_index = tmp_nidx-1
+            self.last_sampled_index = nidx-1
         else:
             self.last_sampled_index -= 1
             if self.last_sampled_index < 0:
