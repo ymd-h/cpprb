@@ -710,6 +710,41 @@ transition.
 
 
 *** Example Usage
+The usage of =ReverseReplayBuffer= is same as the usage of ordinary =ReplayBuffer=.
+
+#+begin_src python
+from cpprb import ReverseReplayBuffer
+
+buffer_size = 256
+obs_shape = 3
+act_dim = 1
+stride = 20
+
+rb = ReverseReplayBuffer(buffer_size,
+                         env_dict = {"obs": {"shape": obs_shape},
+                                     "act": {"shape": act_dim},
+                                     "rew": {},
+                                     "next_obs": {"shape": obs_shape},
+                                     "done": {}},
+                         stride = stride)
+
+obs = np.ones(shape=(obs_shape))
+act = np.ones(shape=(act_dim))
+rew = 0
+next_obs = np.ones(shape=(obs_shape))
+done = 0
+
+for i in range(500):
+    rb.add(obs=obs,act=act,rew=rew,next_obs=next_obs,done=done)
+
+    if done:
+        # Together with resetting environment, call ReplayBuffer.on_episode_end()
+        rb.on_episode_end()
+
+batch_size = 32
+sample = rb.sample(batch_size)
+# sample is a dictionary whose keys are 'obs', 'act', 'rew', 'next_obs', and 'done'
+#+end_src
 
 *** Notes
 The author indicated ~stride~ size must not be multiple of the length
