@@ -38,7 +38,7 @@ jobs:
       - run: pip install wheel
       - run: pip install cython setuptools twine gym 'numpy<1.20.0'
       - name: Install cpprb for macOS
-        run: CC=gcc-9 CXX=g++-9 pip install '.[gym]'
+        run: pip install '.[gym]'
         if: startsWith(runner.os, 'macOS')
       - name: Install cpprb for others
         run: pip install '.[gym]'
