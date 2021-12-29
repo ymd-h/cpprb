@@ -1018,7 +1018,7 @@ You have to initialize ~ReplayBuffer~ with compatible configuration
 before load transitions, otherwise you will get errors (~ValueError~,
 ~KeyError~, etc.) or unintentional silent bug.
 
-~load_transitions~ does not overwrite existent transitions but adds,
+~load_transitions~ does not overwrite existing transitions but adds,
 so that if you want to delete, please call ~clear()~ manually.
 
 *** Technical Detail
