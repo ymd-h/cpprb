@@ -74,7 +74,7 @@ jobs:
           name: README
       - run: mv README/README.md README.md
       - run: |
-          docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/cp3{5..9}*/bin/pip; do ${PIP} install "numpy<1.20.0" && ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
+          docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/cp3{6m,7m,8,9}/bin/pip; do ${PIP} install "numpy<1.20.0" && ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
       - run: |
           docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
       - uses: actions/upload-artifact@v1
