@@ -140,7 +140,7 @@ for n_step in range(100):
            done=done)
     observation = next_observation
     if done:
-        env.reset()
+        observation = env.reset()
         rb.on_episode_end()
 
 
@@ -200,7 +200,7 @@ for n_step in range(N_iteration):
 
 
     if done:
-        env.reset()
+        observation = env.reset()
         rb.on_episode_end()
         n_episode += 1
 
