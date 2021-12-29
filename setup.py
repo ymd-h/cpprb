@@ -1,5 +1,6 @@
 import os
 import platform
+import sys
 import warnings
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -7,7 +8,12 @@ from setuptools.command.build_ext import build_ext
 debug = os.getenv('DEBUG_CPPRB')
 
 requires = ["numpy"]
-setup_requires = ["numpy<1.20"]
+
+if sys.version_info.minor <= 9:
+    setup_requires = ["numpy<1.20"]
+else:
+    # Numpy 1.19.5 doesn't support Python 3.10
+    setup_requires = ["numpy"]
 
 rb_source = "cpprb/PyReplayBuffer"
 cpp_ext = ".cpp"
