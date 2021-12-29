@@ -58,6 +58,9 @@ jobs:
         continue-on-error: true
   build_aarch64:
     needs: readme
+    strategy:
+      matrix:
+        py: ['cp36-cp36m', 'cp37-cp37m', 'cp38-cp38', 'cp39-cp39']
     runs-on: ubuntu-latest
     env:
       img: quay.io/pypa/manylinux2014_aarch64
@@ -74,7 +77,7 @@ jobs:
           name: README
       - run: mv README/README.md README.md
       - run: |
-          docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/cp3{6-cp36m,7-cp37m,8-cp38,9-cp39}/bin/pip; do ${PIP} install "numpy<1.20.0" && ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
+          docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/'${{ matrix.py }}'/bin/pip; do ${PIP} install "numpy<1.20.0" && ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
       - run: |
           docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
       - uses: actions/upload-artifact@v1
