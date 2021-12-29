@@ -60,7 +60,7 @@ jobs:
     needs: readme
     runs-on: ubuntu-latest
     env:
-      img: quay.io/pypa/manylinux2010_aarch64
+      img: quay.io/pypa/manylinux2014_aarch64
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
