@@ -1878,7 +1878,7 @@ CLOSED: [2020-08-04 Tue 09:19]
 
 [[https://ymd_h.gitlab.io/cpprb/images/logo.png]]
 
-The cpprb logo was degined by the author (H. Yamada) at the beginning
+The cpprb logo was designed by the author (H. Yamada) at the beginning
 of 2020. The logo comes from the package name "cpprb". The first "c"
 letter imitates "replay" button, indicating the key feature of
 experience replay. The "r" letter represents reward in formula
