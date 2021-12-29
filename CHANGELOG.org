@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.3.1][v10.3.1]]
+- Add: Binary distibution for macOS x86_64, and Linux AArch64
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.3.0][v10.3.0]]
 - Add: ~ReverseReplayBuffer~
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.2.0][v10.2.0]]
