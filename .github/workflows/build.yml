@@ -56,3 +56,32 @@ jobs:
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v') && startsWith(runner.os, 'Windows')
         continue-on-error: true
+  build_aarch64:
+    needs: readme
+    runs-on: ubuntu-latest
+    env:
+      img: quay.io/pypa/manylinux2010_aarch64
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - uses: docker/setup-qemu-action@v1
+        with:
+          platforms: arm64
+      - uses: actions/download-artifact@v1
+        with:
+          name: README
+      - run: mv README/README.md README.md
+      - run: |
+          docker run -v .:/cpprb bash -c 'for PIP in /opt/python/cp3{5..9}*/bin/pip; do ${PIP} install "numpy<1.20.0" && ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
+      - run: |
+          docker run -v .:/cpprb bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
+      - uses: actions/upload-artifact@v1
+        with:
+          name: dist
+          path: dist
+      - run: pip install twine
+      - name: Upload to PyPI
+        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
