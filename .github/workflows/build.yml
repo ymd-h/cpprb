@@ -37,12 +37,8 @@ jobs:
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
       - run: pip install wheel
       - run: pip install cython setuptools twine gym 'numpy<1.20.0'
-      - name: Install cpprb for macOS
+      - name: Install cpprb
         run: pip install '.[gym]'
-        if: startsWith(runner.os, 'macOS')
-      - name: Install cpprb for others
-        run: pip install '.[gym]'
-        if: startsWith(runner.os, 'macOS') != true
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - uses: actions/download-artifact@v1
