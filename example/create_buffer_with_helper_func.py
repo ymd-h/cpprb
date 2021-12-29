@@ -42,6 +42,7 @@ for i in range(400):
 
     if done:
         obs = env.reset()
+        rb.on_episode_end()
     else:
         obs = next_obs
 
