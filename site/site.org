@@ -2250,7 +2250,7 @@ CLOSED: [2021-12-30 Thu 16:35]
 C. Zhang /et al/.[fn:19] proposed a framework for generating scalable
 RL which consists of parallel actors and parallel learners.
 
-One of the major difference is implementing Segment Tree for PER with
+One of the major differences is implementing Segment Tree for PER with
 K-ary tree instead of ordinary binary tree. According to the authors,
 K-ary tree reduces the depth of intermediate levels, which speeds up
 priority update during insertion. Moreover, K-ary tree reduces total
