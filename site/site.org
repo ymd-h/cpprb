@@ -945,10 +945,10 @@ parallelly.[fn:1]
 
 We adopt exclusive-read concurrent-write model for access control. We
 allow multiple writing parallelly and atomically trace the number of
-writers in the critical section. Read has higher priority and prevents
-writers (aka. actors) from entering the critical section again. When
-all writers exit the critical section, reader (aka. learner) starts
-working in the critical section.
+writers in the critical section. Reading has higher priority and
+prevents writers (aka. actors) from entering the critical section
+again. When all writers exit the critical section, reader
+(aka. learner) starts working in the critical section.
 
 We restrict the number of learner to 1. If we allow multiple learners,
 which have higher priorities, it is possible that actors will never
