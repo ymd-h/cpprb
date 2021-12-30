@@ -2464,7 +2464,7 @@ computational cost.
 
 [fn:21] [[https://icml.cc/Conferences/2018/Schedule?showEvent=2116][E. Liang /et al/., "RLlib: Abstractions for Distributed Reinforcement Learning", ICML (2018)]], ([[https://arxiv.org/abs/1712.09381][arXiv]], [[https://github.com/ray-project/ray/tree/master/rllib][code]])
 
-[fn:20] It is not clear how they manage min tree. Does they use only sum tree?
+[fn:20] It is not clear how they manage min tree. Do they use only sum tree?
 
 [fn:19] [[https://hipc.org/accepted-papers/][C. Zang /et al/., "Parallel Actors and Learners: A Framework for Generating Scalable RL Implementations", HiPC (2021)]] ([[https://arxiv.org/abs/2110.01101][arXiv]])
 
