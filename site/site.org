@@ -1918,6 +1918,8 @@ If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpp
 - [[https://ymd_h.gitlab.io/cpprb/survey/ners/][Neural Experience Replay Sampler (NERS)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/combined_er/][Combined Experience Replay (CER)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/lfiw/][Likelihood-free Importance Weights (LFIW)]]
+- [[https://ymd_h.gitlab.io/cpprb/survey/parallel/][Parallel Actors and Learners]]
+
 
 
 
@@ -2223,6 +2225,54 @@ improved paper will come up soon.
 You can implement LFIW with cpprb. Two ~ReplayBuffer~ with different
 sizes are required.
 
+* DONE Parallel Actors and Learners
+CLOSED: [2021-12-30 Thu 16:35]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: survey
+:EXPORT_FILE_NAME: parallel
+:END:
+
+** Overview
+C. Zhang /et al/.[fn:19] proposed a framework for generating scalable
+RL which consists of parallel actors and parallel learners.
+
+One of the mejor difference is implementing Segment Tree for PER with
+K-ary tree instead of ordinary binary tree. According to the authors,
+K-ary tree reduces the depth of intermediate levels, which speeds up
+priority update during insertion. Moreover, K-ary tree reduces total
+memory size, and reduces the number of cache misses. (To be honest, 1
+million size segment tree can be loaded on L2 cache of their CPU, and
+it is not so critical as the authors had considered.)
+
+In order to allow parallel read and write transitions, the authors
+proposed "lazy writing", which first sets priorities to 0 to avoid
+sampling, then updates transition data, and finally sets true
+priorities. This approach achieves lockless parallelism for transition
+data (not for the segment tree).
+
+The authors devide segment tree lock into global lock and last level
+lock in order to read priorities during intermediate update.
+
+Additionally, their program can decide the number of actors and
+learners from the hardware configuration and the desired throughput.
+
+** Comparison with cpprb
+As far as we know, they don't publish their source code. Once they
+disclose it, we would like to compare it with our implementation.
+
+
+|                                               | The Paper's Framework                                                 | ~cpprb.MPPrioritizedReplayBuffer~                                                                                                                                                                                                                                                                             |
+|-----------------------------------------------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Multiple Actors                               | Yes                                                                   | Yes                                                                                                                                                                                                                                                                                                           |
+| Multiple Learners                             | Yes. Gradients are summarized at parameter server.                    | No                                                                                                                                                                                                                                                                                                            |
+| Segment Tree                                  | K-ary Tree on 1-d Contiguous Array. Propagate only diff value[fn:20]. | Binary Tree on 1-d Contiguous Array. Propagate value itself.                                                                                                                                                                                                                                                  |
+| Priority Update                               | Write the last level and update intermediate levels with lock.        | Write the last level parallelly. Update intermidiate levels with lock just before ~sample~ to avoid inconsistency.                                                                                                                                                                                            |
+| Lock                                          | Segment Tree Global and Last Level Locks. (and Atomic Index?)         | Atomic Index, Transition Data Lock and Segment Tree Lock. (See [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Ape-X]])                                                                                                                                                                                                                                         |
+| Lock Architecture                             | (Maybe) Ordinary Exclusive Lock                                       | Parallel writing is allowed (because writing at different address) and the number of writers in the critical section is atomically traced. Reading has higher priority and prevents writers from entering the critical section again. Reader starts working after all writers exit from the critical section. |
+| Inconsistency of Sampling and Priority Update | Allow weight inconsistence because of little impact in practice       | Atomically extract weights, too. (Always consistent)                                                                                                                                                                                                                                                          |
+| Implementation                                | Wrtten in C++. There is Python binding to plugin into [[https://github.com/ray-project/ray/tree/master/rllib][RLlib]][fn:21]    | Written in C++ and Cython.                                                                                                                                                                                                                                                                                    |
+
+
 * DONE Understanding of Experience Replay
 CLOSED: [2021-02-13 Sat 16:28]
 :PROPERTIES:
@@ -2397,6 +2447,12 @@ computational cost.
 
 
 * Footnotes
+
+[fn:21] [[https://icml.cc/Conferences/2018/Schedule?showEvent=2116][E. Liang /et al/., "RLlib: Abstractions for Distributed Reinforcement Learning", ICML (2018)]], ([[https://arxiv.org/abs/1712.09381][arXiv]], [[https://github.com/ray-project/ray/tree/master/rllib][code]])
+
+[fn:20] It is not clear how they manage min tree. Does they use only sum tree?
+
+[fn:19] [[https://hipc.org/accepted-papers/][C. Zang /et al/., "Parallel Actors and Learners: A Framework for Generating Scalable RL Implementations", HiPC (2021)]] ([[https://arxiv.org/abs/2110.01101][arXiv]])
 
 [fn:18] E. Rotinov, "Reverse Experience Replay" (2019), ([[https://arxiv.org/abs/1910.08780][arXiv:1910.08780]])
 
