@@ -2274,6 +2274,7 @@ learners from the hardware configuration and the desired throughput.
 As far as we know, they don't publish their source code. Once they
 disclose it, we would like to compare it with our implementation.
 
+We try to summarize similarities and differences between their framework and our ~MPPrioritizedReplayBuffer~.
 
 |                                               | The Paper's Framework                                                 | ~cpprb.MPPrioritizedReplayBuffer~                                                                                                                                                                                                                                                                             |
 |-----------------------------------------------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
