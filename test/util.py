@@ -3,6 +3,8 @@ import platform
 import unittest
 
 import gym
+import gym_algorithmic
+import gym_toytext
 
 if platform.system() == 'Linux':
     import pyvirtualdisplay

@@ -16,6 +16,8 @@ RUN pip3 install -U pip setuptools \
     coverage \
     cython \
     gym[box2d] \
+    gym-algorithmic \
+    gym-legacy-toytext \
     jax[cpu] \
     matplotlib \
     'numpy<1.20.0' \
