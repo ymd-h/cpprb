@@ -1,12 +1,14 @@
 import sys
 import unittest
 
-import jax.numpy as jnp
-
 from cpprb import ReplayBuffer
 
 @unittest.skipIf(sys.platform.startswith("win"), "JAX doesn't support Windows")
 class TestJAX(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import jax.numpy as jnp
+
     def test_add(self):
         rb = ReplayBuffer(32, {"done": {}})
 
