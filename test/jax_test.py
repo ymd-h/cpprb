@@ -1,6 +1,8 @@
 import sys
 import unittest
 
+import numpy as np
+
 try:
     import jax.numpy as jnp
 except ImportError:
@@ -50,6 +52,44 @@ class TestJAX(unittest.TestCase):
         rew = jnp.asarray([1,1,1,1])
         done = jnp.asarray([1,1,1,1])
         next_obs = jnp.asarray([1,1,1,1])
+
+        for i in range(7):
+            with self.subTest(i=i):
+                rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
+
+
+class TestUnwriteable(unittest.TestCase):
+    def test_nstep(self):
+        rb = ReplayBuffer(6, {"obs": {}, "rew": {}, "done": {}, "next_obs":{}},
+                          Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
+
+        obs = np.asarray(1)
+        rew = np.asarray(1)
+        done = np.asarray(1)
+        next_obs = np.asarray(1)
+
+        obs.flags.writeable = False
+        rew.flags.writeable = False
+        done.flags.writeable = False
+        next_obs.flags.writeable = False
+
+        for i in range(7):
+            with self.subTest(i=i):
+                rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
+
+    def tet_nstep_multistep_add(self):
+        rb = ReplayBuffer(6, {"obs": {}, "rew": {}, "done": {}, "next_obs":{}},
+                          Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
+
+        obs = np.asarray([1,1,1,1])
+        rew = np.asarray([1,1,1,1])
+        done = np.asarray([1,1,1,1])
+        next_obs = np.asarray([1,1,1,1])
+
+        obs.flags.writeable = False
+        rew.flags.writeable = False
+        done.flags.writeable = False
+        next_obs.flags.writeable = False
 
         for i in range(7):
             with self.subTest(i=i):
