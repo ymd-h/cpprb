@@ -9,9 +9,22 @@ except ImportError:
     pass
 
 from cpprb import ReplayBuffer
+from cpprb.PyReplayBuffer import NstepBuffer
 
 @unittest.skipIf(sys.platform.startswith("win"), "JAX doesn't support Windows")
 class TestJAX(unittest.TestCase):
+    def test_nstep_buffer(self):
+        buffer = NstepBuffer({"obs": {}, "rew": {},  "done": {}, "next_obs": {}},
+                             Nstep={"size": 3, "rew": "rew", "next": "next_obs"})
+        obs = jnp.asarray([1])
+        rew = jnp.asarray([1])
+        done = jnp.asarray([1])
+        next_obs = jnp.asarray([1])
+
+        for i in range(4):
+            with self.subTest(i=i):
+                buffer.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
+
     def test_add(self):
         rb = ReplayBuffer(4, {"done": {}})
 
