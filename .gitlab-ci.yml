@@ -177,6 +177,11 @@ LaBER:
   script:
     - coverage run -m xmlrunner test/LaBER.py
 
+jax:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/jax.py
+
 coverage:
   <<: *setup
   stage: test_coverage
