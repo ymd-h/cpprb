@@ -5,11 +5,8 @@ from cpprb import ReplayBuffer
 
 @unittest.skipIf(sys.platform.startswith("win"), "JAX doesn't support Windows")
 class TestJAX(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        import jax.numpy as jnp
-
     def test_add(self):
+        import jax.numpy as jnp
         rb = ReplayBuffer(32, {"done": {}})
 
         done = jnp.asarray(1)
@@ -17,6 +14,7 @@ class TestJAX(unittest.TestCase):
         rb.add(done=done)
 
     def test_nstep(self):
+        import jax.numpy as jnp
         rb = ReplayBuffer(32, {"obs": {}, "rew": {}, "done": {}, "next_obs":{}},
                           Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
 
