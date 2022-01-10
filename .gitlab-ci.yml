@@ -180,7 +180,7 @@ LaBER:
 jax:
   <<: *py_setup
   script:
-    - coverage run -m xmlrunner test/jax.py
+    - coverage run -m xmlrunner test/jax_test.py
 
 coverage:
   <<: *setup
