@@ -28,17 +28,14 @@ def default_logger(level=INFO):
     logger = getLogger("cpprb")
     logger.setLevel(level)
 
-    handler = StreamHandler()
-    handler.setLevel(level)
+    if not logger.hasHandlers():
+        handler = StreamHandler()
+        handler.setLevel(level)
 
-    format = Formatter("%(asctime)s.%(msecs)03d [%(levelname)s] " +
-                       "(%(filename)s:%(lineno)s) %(message)s",
-                       "%Y%m%d-%H%M%S")
-    handler.setFormatter(format)
-
-    if logger.hasHandlers():
-        logger.handlers[0] = handler
-    else:
+        format = Formatter("%(asctime)s.%(msecs)03d [%(levelname)s] " +
+                           "(%(filename)s:%(lineno)s) %(message)s",
+                           "%Y%m%d-%H%M%S")
+        handler.setFormatter(format)
         logger.addHandler(handler)
         logger.propagate = False
 
