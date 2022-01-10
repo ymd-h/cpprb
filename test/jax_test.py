@@ -11,7 +11,9 @@ class TestJAX(unittest.TestCase):
 
         done = jnp.asarray(1)
 
-        rb.add(done=done)
+        for i in range(33):
+            with self.subTest(i=i):
+                rb.add(done=done)
 
     def test_nstep(self):
         import jax.numpy as jnp
@@ -23,10 +25,12 @@ class TestJAX(unittest.TestCase):
         done = jnp.asarray(1)
         next_obs = jnp.asarray(1)
 
-        rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
-        rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
-        rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
-        rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
+        for i in range(33):
+            with self.subTest(i=i):
+                rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
+                rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
+                rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
+                rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
 
 
 if __name__ == "__main__":
