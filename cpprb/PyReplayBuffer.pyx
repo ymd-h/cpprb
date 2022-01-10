@@ -580,7 +580,8 @@ cdef class StepChecker:
         kwargs: dict
             Added values.
         """
-        return np.reshape(kwargs[self.check_str],self.check_shape,order='A').shape[0]
+        return np.reshape(np.array(kwargs[self.check_str], copy=False),
+                          self.check_shape,order='A').shape[0]
 
 @cython.embedsignature(True)
 cdef class NstepBuffer:
