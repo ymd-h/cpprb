@@ -12,18 +12,18 @@ RUN apt update \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install -U pip setuptools \
-	&& pip3 install -U \
-	coverage \
-	cython \
-	gym[box2d] \
-	matplotlib \
-	'numpy<1.20.0' \
-	pyvirtualdisplay \
-	sphinx \
-	sphinx-automodapi \
-	sphinx_rtd_theme \
-	twine \
-	unittest-xml-reporting \
-	wheel
+    && pip3 install -U \
+    coverage \
+    cython \
+    gym[box2d] \
+    matplotlib \
+    'numpy<1.20.0' \
+    pyvirtualdisplay \
+    sphinx \
+    sphinx-automodapi \
+    sphinx_rtd_theme \
+    twine \
+    unittest-xml-reporting \
+    wheel
 
 CMD ["/bin/bash"]
