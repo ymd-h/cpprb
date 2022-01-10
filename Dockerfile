@@ -4,7 +4,7 @@ RUN apt update \
     && apt install -y --no-install-recommends \
     build-essential \
     graphviz \
-    python-opengl \
+    python3-opengl \
     tk-dev \
     x11-utils \
     xvfb \
