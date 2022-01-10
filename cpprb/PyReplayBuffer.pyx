@@ -784,19 +784,21 @@ cdef class NstepBuffer:
     cdef void _roll(self,stored_b,ext_b,
                     ssize_t end,bool NisBigger,kwargs,name,size_t add_N):
         # Swap numpy.ndarray
-        # https://stackoverflow.com/a/33362030
-        stored_b[:end], ext_b[-end:] = ext_b[-end:], stored_b[:end].copy()
+        copy_ext = ext_b.copy() # ext_b might be unwriteable, so that copy it.
+        copy_ext[-end:] = stored_b[:end]
+        stored_b[:end] = ext_b[-end:]
+
         if NisBigger:
             # buffer: XXXX, add: YYYYY
             # buffer: YYYY, add: YXXXX
-            ext_b = np.roll(ext_b,end,axis=0)
+            copy_ext = np.roll(copy_ext,end,axis=0)
             # buffer: YYYY, add: XXXXY
         else:
             # buffer: XXXZZZZ, add: YYY
             # buffer: YYYZZZZ, add: XXX
             stored_b[:] = np.roll(stored_b,-end,axis=0)[:]
             # buffer: ZZZZYYY, add: XXX
-        kwargs[name] = ext_b[:add_N]
+        kwargs[name] = copy_ext[:add_N]
 
     cpdef void clear(self):
         """Clear the bufer.
