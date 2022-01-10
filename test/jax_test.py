@@ -7,17 +7,17 @@ from cpprb import ReplayBuffer
 class TestJAX(unittest.TestCase):
     def test_add(self):
         import jax.numpy as jnp
-        rb = ReplayBuffer(32, {"done": {}})
+        rb = ReplayBuffer(4, {"done": {}})
 
         done = jnp.asarray(1)
 
-        for i in range(33):
+        for i in range(5):
             with self.subTest(i=i):
                 rb.add(done=done)
 
     def test_nstep(self):
         import jax.numpy as jnp
-        rb = ReplayBuffer(32, {"obs": {}, "rew": {}, "done": {}, "next_obs":{}},
+        rb = ReplayBuffer(6, {"obs": {}, "rew": {}, "done": {}, "next_obs":{}},
                           Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
 
         obs = jnp.asarray(1)
@@ -25,7 +25,7 @@ class TestJAX(unittest.TestCase):
         done = jnp.asarray(1)
         next_obs = jnp.asarray(1)
 
-        for i in range(33):
+        for i in range(7):
             with self.subTest(i=i):
                 rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
                 rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
