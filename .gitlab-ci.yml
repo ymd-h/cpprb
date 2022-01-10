@@ -177,6 +177,11 @@ LaBER:
   script:
     - coverage run -m xmlrunner test/LaBER.py
 
+jax:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/jax.py
+
 coverage:
   <<: *setup
   stage: test_coverage
@@ -337,7 +342,7 @@ manylinux:
   image: quay.io/pypa/manylinux2010_x86_64
   stage: binary_build
   script:
-    - for PIP in /opt/python/cp3{6..9}*/bin/pip; do ${PIP} install 'numpy<1.20.0' && ${PIP} wheel . -w wheelhouse/; done
+    - for PIP in /opt/python/cp3{6..9}*/bin/pip; do ${PIP} install 'numpy<1.20.0' && ${PIP} wheel . -w wheelhouse/ --no-deps; done
     - for WHL in wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
   artifacts:
     paths:

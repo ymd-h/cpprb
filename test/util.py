@@ -3,6 +3,8 @@ import platform
 import unittest
 
 import gym
+import gym_algorithmic
+import gym_toytext
 
 if platform.system() == 'Linux':
     import pyvirtualdisplay
@@ -86,7 +88,7 @@ class TestMountainCarContinuous(TestEnv,unittest.TestCase):
 
 class TestPendulum(TestEnv,unittest.TestCase):
     def setUp(self):
-        self.env = gym.make("Pendulum-v0")
+        self.env = gym.make("Pendulum-v1")
 
 class TestBipedalWalker(TestEnv,unittest.TestCase):
     def setUp(self):
@@ -110,15 +112,15 @@ class TestLunarLanderContinuous(TestEnv,unittest.TestCase):
 
 class TestBlackjack(TestEnv,unittest.TestCase):
     def setUp(self):
-        self.env = gym.make("Blackjack-v0")
+        self.env = gym.make("Blackjack-v1")
 
 class TestFrozenLake(TestEnv,unittest.TestCase):
     def setUp(self):
-        self.env = gym.make("FrozenLake-v0")
+        self.env = gym.make("FrozenLake-v1")
 
 class TestFrozenLake8x8(TestEnv,unittest.TestCase):
     def setUp(self):
-        self.env = gym.make("FrozenLake8x8-v0")
+        self.env = gym.make("FrozenLake8x8-v1")
 
 class TestGuessingGame(TestEnv,unittest.TestCase):
     def setUp(self):
