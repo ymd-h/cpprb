@@ -16,6 +16,7 @@ RUN pip3 install -U pip setuptools \
     coverage \
     cython \
     gym[box2d] \
+    jax \
     matplotlib \
     'numpy<1.20.0' \
     pyvirtualdisplay \
