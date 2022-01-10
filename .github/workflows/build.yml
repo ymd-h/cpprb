@@ -37,6 +37,8 @@ jobs:
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
       - run: pip install wheel
       - run: pip install cython setuptools twine gym gym-algorithmic gym-legacy-toytext 'numpy<1.20.0'
+      - run: pip install jax[cpu]
+        if: startsWith(runner.os, 'Windows') != true
       - name: Install cpprb
         run: pip install '.[gym]'
       - run: python -m unittest discover . '*.py'
