@@ -1,12 +1,16 @@
 import sys
 import unittest
 
+try:
+    import jax.numpy as jnp
+except ImportError:
+    pass
+
 from cpprb import ReplayBuffer
 
 @unittest.skipIf(sys.platform.startswith("win"), "JAX doesn't support Windows")
 class TestJAX(unittest.TestCase):
     def test_add(self):
-        import jax.numpy as jnp
         rb = ReplayBuffer(4, {"done": {}})
 
         done = jnp.asarray(1)
@@ -16,7 +20,6 @@ class TestJAX(unittest.TestCase):
                 rb.add(done=done)
 
     def test_multistep_add(self):
-        import jax.numpy as jnp
         rb = ReplayBuffer(4, {"done": {}})
 
         done = jnp.asarray([1,1,1])
@@ -27,7 +30,6 @@ class TestJAX(unittest.TestCase):
 
 
     def test_nstep(self):
-        import jax.numpy as jnp
         rb = ReplayBuffer(6, {"obs": {}, "rew": {}, "done": {}, "next_obs":{}},
                           Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
 
@@ -41,7 +43,6 @@ class TestJAX(unittest.TestCase):
                 rb.add(obs=obs, rew=rew, done=done, next_obs=next_obs)
 
     def tet_nstep_multistep_add(self):
-        import jax.numpy as jnp
         rb = ReplayBuffer(6, {"obs": {}, "rew": {}, "done": {}, "next_obs":{}},
                           Nstep={"size": 4, "rew": "rew", "next": "next_obs"})
 
