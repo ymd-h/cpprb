@@ -208,7 +208,7 @@ for n_step in range(N_iteration):
     if done or (ep >= max_episode_len):
         obs = env.reset()
         goal = env.goal.copy().reshape((1, -1))
-        rb.on_episode_end()
+        rb.on_episode_end(goal)
         n_episode += 1
         ep = 0
     else:
