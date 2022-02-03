@@ -95,7 +95,7 @@ class HindsightReplayBuffer:
         **kwargs : array like or float or int
             Transitions to be stored.
         """
-        if self.episoderb.get_stored_size() >= self.max_episode_len:
+        if self.episode_rb.get_stored_size() >= self.max_episode_len:
             raise ValueError("Exceed Max Episode Length")
         self.episode_rb.add(**kwargs)
 
