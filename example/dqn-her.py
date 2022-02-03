@@ -66,7 +66,7 @@ writer.set_as_default()
 env = BitFlippingEnv(nbit)
 eval_env = BitFlippingEnv(nbit)
 
-# For CartPole: input 4, output 2
+
 model = Sequential([Dense(64,activation='relu',
                           input_shape=(env.observation_space.shape[0] * 2,)),
                     Dense(64,activation='relu'),
