@@ -59,8 +59,8 @@ class TestHER(unittest.TestCase):
         self.assertEqual(hrb.get_stored_size(), 6)
 
         sample = hrb.get_all_transitions()
-        self.assertIsIn("rew", sample)
-        self.assertIsIn("goal", sample)
+        self.assertIn("rew", sample)
+        self.assertIn("goal", sample)
         self.assertEqual(sample["obs"].shape, (6,1))
         self.assertTrue((sample["obs"] < sample["goal"]).all())
         np.testing.assert_allclose(sample["rew"],
@@ -83,8 +83,8 @@ class TestHER(unittest.TestCase):
         self.assertEqual(hrb.get_stored_size(), 6)
 
         sample = hrb.get_all_transitions()
-        self.assertIsIn("rew", sample)
-        self.assertIsIn("goal", sample)
+        self.assertIn("rew", sample)
+        self.assertIn("goal", sample)
         self.assertEqual(sample["obs"].shape, (6,1))
         np.testing.assert_allclose(sample["rew"],
                                    rew_func(sample["obs"],
@@ -107,8 +107,8 @@ class TestHER(unittest.TestCase):
         self.assertEqual(hrb.get_stored_size(), 6)
 
         sample = hrb.get_all_transitions()
-        self.assertIsIn("rew", sample)
-        self.assertIsIn("goal", sample)
+        self.assertIn("rew", sample)
+        self.assertIn("goal", sample)
         self.assertEqual(sample["obs"].shape, (6,1))
         np.testing.assert_allclose(sample["rew"],
                                    rew_func(sample["obs"],
@@ -134,8 +134,8 @@ class TestHER(unittest.TestCase):
         self.assertEqual(hrb.get_stored_size(), 4)
 
         sample = hrb.get_all_transitions()
-        self.assertIsIn("rew", sample)
-        self.assertIsIn("goal", sample)
+        self.assertIn("rew", sample)
+        self.assertIn("goal", sample)
         self.assertEqual(sample["obs"].shape, (4,1))
         np.testing.assert_allclose(sample["goal"][2:],
                                    np.broadcast_to(2, (2,1)))
