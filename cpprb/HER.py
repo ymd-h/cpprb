@@ -138,7 +138,7 @@ class HindsightReplayBuffer:
         self.rb.add(**trajectory, goal=goal, rew=rew)
 
         if self.strategy == "future":
-            idx = np.zeros((self.additional_goals, episode_len))
+            idx = np.zeros((self.additional_goals, episode_len), dtype=np.int64)
             for i in range(episode_len):
                 idx[:,i] = self.rng.integers(low=i, high=episode_len,
                                              size=self.additional_goals)
