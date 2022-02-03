@@ -1370,6 +1370,12 @@ See [[https://ymd_h.gitlab.io/cpprb/features/laber/][Large Batch Experience Repl
 
 #+INCLUDE: "../example/dqn-laber.py" src python
 
+** Hindsight Experience Replay (HER)
+The following is a HER[fn:22] example code.
+See [[https://ymd_h.gitlab.io/cpprb/features/her/][Hindsight Experience Replay]] for detail.
+
+#+INCLUDE: "../example/dqn-her.py" src python
+
 
 ** Create ~ReplayBuffer~ for non-simple =gym.Env= with helper functions
 
