@@ -174,9 +174,9 @@ class HindsightReplayBuffer:
             #   Although this has overhead, it is fine
             #   becaue "random" strategy is used only for
             #   strategy comparison.
-            idx = self.rng.integer(low=0,
-                                   high=self.rb.stored_size(),
-                                   size=self.additional_goals*episode_len)
+            idx = self.rng.integers(low=0,
+                                    high=self.rb.stored_size(),
+                                    size=self.additional_goals*episode_len)
             goal = self.rb._encode_sample(idx)[self.next_state]
             goal = goal.reshape((self.additional_goals,
                                  episode_len,
