@@ -17,7 +17,7 @@ class HindsightReplayBuffer:
                  max_episode_len: int,
                  reward_func: Callable, *,
                  state: str = "obs",
-                 action: str, = "act",
+                 action: str = "act",
                  next_state: str = "next_obs",
                  strategy: str = "future",
                  additional_goals: int = 8,
