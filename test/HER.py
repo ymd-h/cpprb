@@ -10,7 +10,7 @@ class TestHER(unittest.TestCase):
         hrb = HindsightReplayBuffer(size=buffer_size,
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
-                                    reward_func=lambda s,a,g: -1*(s==g),
+                                    reward_func=lambda s,a,g: -1*(s!=g),
                                     additonal_goals=1,
                                     prioritized=False)
         self.assertEqual(hrb.get_buffer_size(), buffer_size)
@@ -22,7 +22,7 @@ class TestHER(unittest.TestCase):
         hrb = HindsightReplayBuffer(size=10,
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
-                                    reward_func=lambda s,a,g: -1*(s==g),
+                                    reward_func=lambda s,a,g: -1*(s!=g),
                                     additonal_goals=1,
                                     prioritized=False)
         # Buffer is initialized without data
@@ -45,7 +45,7 @@ class TestHER(unittest.TestCase):
         self.assertEqual(hrb.get_stored_size(), 0)
 
     def test_future(self):
-        rew_func = lambda s,a,g: -1*(s==g)
+        rew_func = lambda s,a,g: -1*(s!=g)
         hrb = HindsightReplayBuffer(size=10,
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
@@ -69,7 +69,7 @@ class TestHER(unittest.TestCase):
                                             sample["goal"]))
 
     def test_episode(self):
-        rew_func = lambda s,a,g: -1*(s==g)
+        rew_func = lambda s,a,g: -1*(s!=g)
         hrb = HindsightReplayBuffer(size=10,
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
@@ -93,7 +93,7 @@ class TestHER(unittest.TestCase):
 
 
     def test_random(self):
-        rew_func = lambda s,a,g: -1*(s==g)
+        rew_func = lambda s,a,g: -1*(s!=g)
         hrb = HindsightReplayBuffer(size=10,
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
@@ -116,7 +116,7 @@ class TestHER(unittest.TestCase):
                                             sample["goal"]))
 
     def test_final(self):
-        rew_func = lambda s,a,g: -1*(s==g)
+        rew_func = lambda s,a,g: -1*(s!=g)
         hrb = HindsightReplayBuffer(size=10,
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
@@ -142,7 +142,7 @@ class TestHER(unittest.TestCase):
 
 
     def test_unknown_strategy(self):
-        rew_func = lambda s,a,g: -1*(s==g)
+        rew_func = lambda s,a,g: -1*(s!=g)
         with self.assertRaises(ValueError):
             hrb = HindsightReplayBuffer(size=10,
                                         env_dict={"obs": {},"act": {},"next_obs": {}},
@@ -154,7 +154,7 @@ class TestHER(unittest.TestCase):
 
 
     def test_assert_exceed_max_episode(self):
-        rew_func = lambda s,a,g: -1*(s==g)
+        rew_func = lambda s,a,g: -1*(s!=g)
         hrb = HindsightReplayBuffer(size=10,
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
@@ -169,7 +169,7 @@ class TestHER(unittest.TestCase):
             hrb.add(obs=2, act=0, next_obs=3)
 
     def test_assert_PER(self):
-        rew_func = lambda s,a,g: -1*(s==g)
+        rew_func = lambda s,a,g: -1*(s!=g)
         hrb = HindsightReplayBuffer(size=10,
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
