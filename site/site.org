@@ -792,6 +792,42 @@ hrb.on_episode_end(goal)
 The following pseudo code shows example usage;
 
 #+begin_src python
+from cpprb import HindsightReplayBuffer
+
+buffer_size = 1e+6
+nsteps = 1e+6
+max_episode_len = 100
+nwarmup = 100
+batch_size = 32
+
+hrb = HindsightReplayBuffer(buffer_size,
+                            {"obs": {}, "act": {}, "next_obs": {}},
+                            max_episode_len=max_episode_len,
+                            reward_func=lambda s,a,g: -1*(s!=g))
+
+
+env =  # Initialize Environment
+policy =  # Initialize Policy
+
+obs = env.reset()
+goal = # Set Goal
+for i in range(nsteps):
+    act = policy(obs, goal)
+    next_obs, _, done, _ = env.step(act)
+
+    hrb.add(obs=obs, act=act, next_obs=next_obs)
+    if done or (i >= max_episode_len):
+        hrb.on_episode_end(goal)
+        obs = env.reset()
+        goal = # Set Goal
+    else:
+        obs = next_obs
+
+    if hrb.get_stored_size() < nwarmup:
+        continue
+
+    sample = hrb.sample(batch_size)
+    policy.train(sample)
 #+end_src
 
 The full example code is as follows;
