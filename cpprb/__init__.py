@@ -3,6 +3,7 @@ from .PyReplayBuffer import (ReplayBuffer,PrioritizedReplayBuffer,
                              SelectiveReplayBuffer, ReverseReplayBuffer)
 
 from .LaBER import LaBERmean, LaBERlazy, LaBERmax
+from .HER import HindsightReplayBuffer
 
 from .PyReplayBuffer import create_buffer, train
 
