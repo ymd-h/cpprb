@@ -20,7 +20,7 @@ class HindsightReplayBuffer:
                  action: str = "act",
                  next_state: str = "next_obs",
                  strategy: str = "future",
-                 additional_goals: int = 8,
+                 additional_goals: int = 4,
                  prioritized = True,
                  **kwargs):
         """
@@ -53,7 +53,7 @@ class HindsightReplayBuffer:
             ``additonal_goals`` is ignored.
             The default is "future"
         additional_goals : int, optional
-            Number of additional goals. The default is ``8``.
+            Number of additional goals. The default is ``4``.
         prioritized : bool, optional
             Whether use Prioritized Experience Replay. The default is ``True``.
         """
