@@ -104,6 +104,8 @@ discount = tf.constant(gamma)
 prioritized = True
 
 
+# Hindsigh Experience Replay : https://arxiv.org/abs/1707.01495
+# See https://ymd_h.gitlab.io/cpprb/features/her/
 rb = HindsightReplayBuffer(buffer_size, env_dict,
                            max_episode_len = max_episode_len,
                            rew_func = lambda x,a,g: -1*(s!=g),
