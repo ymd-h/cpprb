@@ -104,10 +104,10 @@ discount = tf.constant(gamma)
 prioritized = True
 
 
-rb = PrioritizedReplayBuffer(buffer_size, env_dict,
-                             max_episode_len = max_episode_len,
-                             rew_func = lambda x,a,g: -1*(s!=g),
-                             prioritized = prioritized)
+rb = HindsightReplayBuffer(buffer_size, env_dict,
+                           max_episode_len = max_episode_len,
+                           rew_func = lambda x,a,g: -1*(s!=g),
+                           prioritized = prioritized)
 
 if prioritized:
     # Beta linear annealing
