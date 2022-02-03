@@ -769,7 +769,7 @@ constructed with following parameters;
 | Parameter               | Type                                                         | Description                                          |
 |-------------------------+--------------------------------------------------------------+------------------------------------------------------|
 | ~size~                  | ~int~                                                        | Buffer Size                                          |
-| ~env_dict~              | ~dict~                                                       | Specifying environment. (See)                        |
+| ~env_dict~              | ~dict~                                                       | Specifying environment. (See [[https://ymd_h.gitlab.io/cpprb/features/simple_usage/][here]])             |
 | ~max_episode_len~       | ~int~                                                        | Maximum episode length                               |
 | ~reward_func~           | ~Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray]~ | Batch reward function of $S \times A \times G \to R$ |
 | ~state="obs"~           | ~str~                                                        | State name in ~env_dict~                             |
