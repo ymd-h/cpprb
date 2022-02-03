@@ -85,7 +85,7 @@ class HindsightReplayBuffer:
         self.rng = np.random.default_rng()
 
 
-    def add(self,* , **kwargs):
+    def add(self, **kwargs):
         r"""Add transition(s) into replay buffer.
 
         Multple sets of transitions can be added simultaneously.
