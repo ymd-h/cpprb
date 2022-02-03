@@ -735,6 +735,73 @@ simultaneously.
 *** Technical Detail
 
 
+** DONE Hindsight Experience Replay (HER)
+CLOSED: [2022-02-03 Thu 18:53]
+:PROPERTIES:
+:EXPORT_FILE_NAME: her
+:END:
+
+*** Overview
+Hindsight Experience Replay (HER) was proposed by M. Andrychowicz /et al/.[fn:22]
+
+The algorithm performs well for goal oriented, sparse binary reward
+environment without manual reward shaping. (Moreover reward shaping
+harms HER permormance.) HER utilizes unsuccessful episodes as if the
+policy could reach their goals by re-labeling goal afterwards.
+
+There are 4 strategies to pick up pseudo goals.
+
+- final :: A goal become the end of the state in the episode.
+- future :: ~k~-goals are randomly selected from future states in the episode.
+- episode :: ~k~-goals are randomly selected from states in the episode.
+- random :: ~k~-goals are randomly selected from all the states in the replay buffer.
+
+Except for "final" strategy, hyper parameter ~k~ defines the number of
+additional goals for each tansition. According to the authors,
+"future" strategy with ~k=4~ or ~k=8~ performs best for "pusing",
+"sliding", and "pick-and-place" environment.
+
+
+cpprb provides =HindsightReplayBuffer= class. The class can be
+constructed with following parameters;
+
+
+| Parameter               | Type                                                         | Description                                          |
+|-------------------------+--------------------------------------------------------------+------------------------------------------------------|
+| ~size~                  | ~int~                                                        | Buffer Size                                          |
+| ~env_dict~              | ~dict~                                                       | Specifying environment. (See)                        |
+| ~max_episode_len~       | ~int~                                                        | Maximum episode length                               |
+| ~reward_func~           | ~Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray]~ | Batch reward function of $S \times A \times G \to R$ |
+| ~state="obs"~           | ~str~                                                        | State name in ~env_dict~                             |
+| ~action="act"~          | ~str~                                                        | Action name in ~env_dict~                            |
+| ~next_state="next_obs"~ | ~str~                                                        | Next state name in ~env_dict~                        |
+| ~strategy="future"~     | ~"future"~, ~"episode"~, ~"random"~, or ~"final"~            | Goal sampling strategy                               |
+| ~additional_goals=4~    | ~int~                                                        | The number of additional goals per a transition      |
+| ~prioritized=True~      | ~bool~                                                       | Whether use PER                                      |
+
+
+The usage is similar to other Replay Buffer classes. One of the major
+difference in usage is passing ~goal~ to ~on_episode_end~ method.
+
+#+begin_src python
+hrb.on_episode_end(goal)
+#+end_src
+
+*** Example Usage
+
+The following pseudo code shows example usage;
+
+#+begin_src python
+#+end_src
+
+The full example code is as follows;
+
+
+
+*** Notes
+
+*** Technical Detail
+
 ** DONE Memory Compression
 CLOSED: [2019-11-10 Sun 13:33]
 :PROPERTIES:
@@ -2462,6 +2529,7 @@ computational cost.
 
 
 * Footnotes
+[fn:22] [[https://papers.nips.cc/paper/2017/hash/453fadbd8a1a3af50a9df4df899537b5-Abstract.html][M. Andrychowicz /et al/., "Hindsight Experience Replay", NeurIPS (2017)]] ([[https://arxiv.org/abs/1707.01495][arXiv:1707.01495]])
 
 [fn:21] [[https://icml.cc/Conferences/2018/Schedule?showEvent=2116][E. Liang /et al/., "RLlib: Abstractions for Distributed Reinforcement Learning", ICML (2018)]], ([[https://arxiv.org/abs/1712.09381][arXiv]], [[https://github.com/ray-project/ray/tree/master/rllib][code]])
 
