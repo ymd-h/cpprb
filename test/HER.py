@@ -11,7 +11,7 @@ class TestHER(unittest.TestCase):
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
                                     reward_func=lambda s,a,g: -1*(s!=g),
-                                    additonal_goals=1,
+                                    additional_goals=1,
                                     prioritized=False)
         self.assertEqual(hrb.get_buffer_size(), buffer_size)
 
@@ -23,11 +23,11 @@ class TestHER(unittest.TestCase):
                                     env_dict={"obs": {}, "act": {}, "next_obs": {}},
                                     max_episode_len=2,
                                     reward_func=lambda s,a,g: -1*(s!=g),
-                                    additonal_goals=1,
+                                    additional_goals=1,
                                     prioritized=False)
         # Buffer is initialized without data
         self.assertEqual(hrb.get_stored_size(), 0)
-        self.assertEqual(hrb.additonal_goals, 1)
+        self.assertEqual(hrb.additional_goals, 1)
 
         # During episode, stored size doesn't increase
         hrb.add(obs=0, act=0, next_obs=0)
@@ -52,7 +52,7 @@ class TestHER(unittest.TestCase):
                                     max_episode_len=2,
                                     strategy = "future",
                                     reward_func=rew_func,
-                                    additonal_goals=2,
+                                    additional_goals=2,
                                     prioritized=False)
         hrb.add(obs=0, act=0, next_obs=1)
         hrb.add(obs=1, act=0, next_obs=2)
@@ -76,7 +76,7 @@ class TestHER(unittest.TestCase):
                                     max_episode_len=2,
                                     strategy = "episode",
                                     reward_func=rew_func,
-                                    additonal_goals=2,
+                                    additional_goals=2,
                                     prioritized=False)
         hrb.add(obs=0, act=0, next_obs=1)
         hrb.add(obs=1, act=0, next_obs=2)
@@ -100,7 +100,7 @@ class TestHER(unittest.TestCase):
                                     max_episode_len=2,
                                     strategy = "random",
                                     reward_func=rew_func,
-                                    additonal_goals=2,
+                                    additional_goals=2,
                                     prioritized=False)
         hrb.add(obs=0, act=0, next_obs=1)
         hrb.add(obs=1, act=0, next_obs=2)
@@ -123,10 +123,10 @@ class TestHER(unittest.TestCase):
                                     max_episode_len=2,
                                     strategy = "final",
                                     reward_func=rew_func,
-                                    additonal_goals=2,
+                                    additional_goals=2,
                                     prioritized=False)
 
-        # additonal_goals is ignored
+        # additional_goals is ignored
         self.assertEqual(hrb.additional_goals, 1)
 
         hrb.add(obs=0, act=0, next_obs=1)
@@ -150,7 +150,7 @@ class TestHER(unittest.TestCase):
                                         max_episode_len=2,
                                         strategy = "__UNKNOWN_STRATEGY__",
                                         reward_func=rew_func,
-                                        additonal_goals=2,
+                                        additional_goals=2,
                                         prioritized=False)
 
 
@@ -161,7 +161,7 @@ class TestHER(unittest.TestCase):
                                     max_episode_len=2,
                                     strategy = "future",
                                     reward_func=rew_func,
-                                    additonal_goals=2,
+                                    additional_goals=2,
                                     prioritized=False)
 
         hrb.add(obs=0, act=0, next_obs=1)
@@ -176,7 +176,7 @@ class TestHER(unittest.TestCase):
                                     max_episode_len=2,
                                     strategy = "future",
                                     reward_func=rew_func,
-                                    additonal_goals=2,
+                                    additional_goals=2,
                                     prioritized=False)
 
         hrb.add(obs=0, act=0, next_obs=1)
