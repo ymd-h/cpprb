@@ -25,7 +25,8 @@ class BitFlippingEnv(gym.Env):
         self.action_space = Discrete(self.n, seed=seeds[1])
 
     def step(self, action):
-        self.bit[action] = ~(self.bit[action])
+        action = int(action)
+        self.bit[action] = 1 - self.bit[action]
         done = (self.bit == self.goal).all()
         rew = 0 if done else -1
         return self.bit.copy(), rew, done, {}
