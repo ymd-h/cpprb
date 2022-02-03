@@ -188,5 +188,28 @@ class TestHER(unittest.TestCase):
         with self.assertRaises(ValueError):
             hrb.update_priorities([], [])
 
+    def test_PER(self):
+        rew_func = lambda s,a,g: -1*(s!=g)
+        batch_size = 4
+
+        hrb = HindsightReplayBuffer(size=10,
+                                    env_dict={"obs": {}, "act": {}, "next_obs": {}},
+                                    max_episode_len=2,
+                                    strategy = "future",
+                                    reward_func=rew_func,
+                                    additional_goals=2,
+                                    prioritized=True)
+
+        hrb.add(obs=0, act=0, next_obs=1)
+        hrb.add(obs=1, act=0, next_obs=2)
+
+        hrb.on_episode_end(3)
+        self.assertEqual(hrb.get_stored_size(), 6)
+
+        sample = hrb.sample(batch_size)
+        hrb.update_priorities(indexes=sample["indexes"],
+                              priorities=np.zeros_like(sample["indexes"],
+                                                       dtype=np.float))
+
 if __name__ == "__main__":
     unittest.main()
