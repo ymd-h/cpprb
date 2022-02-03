@@ -142,8 +142,8 @@ class HindsightReplayBuffer:
             for i in range(episode_len):
                 idx[:,i] = self.rng.integers(low=i, high=episode_len,
                                              size=self.additional_goals)
-            for _i in idx:
-                goal = trajectory[self.next_state][_i]
+            for i in range(self.additional_goals):
+                goal = trajectory[self.next_state][idx[i]]
                 rew = self.reward_func(trajectory[self.state],
                                        trajectory[self.action],
                                        goal)
