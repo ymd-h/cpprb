@@ -17,6 +17,16 @@ from cpprb import HindsightReplayBuffer
 
 
 class BitFlippingEnv(gym.Env):
+    """
+    bit-flipping environment: https://arxiv.org/abs/1707.01495
+
+    * Environment has n-bit state.
+    * Initial state and goal state are randomly selected.
+    * Action is one of the 0, ..., n-1, which flips single bit
+    * Reward is 0 if state == goal, otherwise reward is -1. (Sparse Binary Reward)
+
+    Simple RL algorithms tend to fail for large ``n`` like ``n > 40``
+    """
     def __init__(self, n):
         self.np_random = np.random.default_rng()
         seeds = self.np_random.spawn(2)
