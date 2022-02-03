@@ -120,7 +120,7 @@ if prioritized:
 def sg(state, goal):
     state = state.reshape((state.shape[0], 1))
     goal = goal.reshape((goal.shape[0], 1))
-    return tf.constant(np.concatenate((state, goal), axis=1))
+    return tf.constant(np.concatenate((state, goal), axis=1), dtype=tf.float32)
 
 @tf.function
 def Q_func(model,obs,act,act_shape):
