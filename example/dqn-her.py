@@ -120,7 +120,7 @@ prioritized = True
 # See https://ymd_h.gitlab.io/cpprb/features/her/
 rb = HindsightReplayBuffer(buffer_size, env_dict,
                            max_episode_len = max_episode_len,
-                           rew_func = lambda x,a,g: -1*(s!=g),
+                           rewward_func = lambda x,a,g: -1*(s!=g),
                            prioritized = prioritized)
 
 if prioritized:
