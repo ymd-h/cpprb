@@ -28,11 +28,12 @@ class BitFlippingEnv(gym.Env):
     Simple RL algorithms tend to fail for large ``n`` like ``n > 40``
     """
     def __init__(self, n):
-        self.np_random = np.random.default_rng()
-        seeds = self.np_random.spawn(2)
-        self.observation_space = Box(low=0, high=1, shape=(n,), dtype=int,
-                                     seed=np.random.SeedSequence(seeds[0]))
-        self.action_space = Discrete(self.n, seed=seeds[1])
+        seeds = np.random.SeedSequence().spawn(3)
+        self.np_random = np.random.default_rng(seeds[0])
+        self.observation_space = Box(low=0, high=1, shape=(n,), dtype=int)
+        self.action_space = Discrete(self.n)
+        self.observation_space.seed(seeds[1].entropy)
+        self.action_space.seed(seeds[2].entropy)
 
     def step(self, action):
         action = int(action)
