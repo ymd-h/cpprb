@@ -165,7 +165,19 @@ class HindsightReplayBuffer:
                                    goal)
             self.rb.add(**trajectory, rew=rew, goal=goal)
         else: # random
-            goal = self.rb.sample(self.additional_goals*episode_len)[self.next_state]
+            # Note 1:
+            #   We should not prioritize goal selection,
+            #   so that we manually create indices.
+            # Note 2:
+            #   Since we cannot access internal data directly,
+            #   we have to extract set of transitions.
+            #   Although this has overhead, it is fine
+            #   becaue "random" strategy is used only for
+            #   strategy comparison.
+            idx = self.rng.integer(low=0,
+                                   high=self.rb.stored_size(),
+                                   size=self.additional_goals*episode_len)
+            goal = self.rb._encode_sample(idx)[self.next_state]
             goal = goal.reshape((self.additional_goals,
                                  episode_len,
                                  *(goal.shape[1:])))
