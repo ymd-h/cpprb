@@ -27,6 +27,7 @@ class TestHER(unittest.TestCase):
                                     prioritized=False)
         # Buffer is initialized without data
         self.assertEqual(hrb.get_stored_size(), 0)
+        self.assertEqual(hrb.additonal_goals, 1)
 
         # During episode, stored size doesn't increase
         hrb.add(obs=0, act=0, next_obs=0)
