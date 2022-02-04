@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.5.0][v10.5.0]]
+- Add: ~HindsightReplayBuffer~
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.4.2][v10.4.2]]
 - Fix: Nstep accepts JAX array
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.4.1][v10.4.1]]
