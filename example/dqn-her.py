@@ -196,7 +196,7 @@ for n_step in range(N_iteration):
         Q = tf.squeeze(model(sg(obs.reshape(1, -1), goal)))
         act = np.argmax(Q)
 
-    next_obs, _, _, info = env.step(act)
+    next_obs, _, done, info = env.step(act)
     ep += 1
 
     rb.add(obs=obs,
