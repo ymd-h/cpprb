@@ -54,7 +54,7 @@ class BitFlippingEnv(gym.Env):
 gamma = 0.99
 batch_size = 64
 
-N_iteration = int(1e+5)
+N_iteration = int(1.5e+4)
 nwarmup = 100
 
 target_update_freq = 1000
