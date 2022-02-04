@@ -182,6 +182,13 @@ jax:
   script:
     - coverage run -m xmlrunner test/jax_test.py
 
+
+HER:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/HER.py
+
+
 coverage:
   <<: *setup
   stage: test_coverage
