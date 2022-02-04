@@ -196,14 +196,12 @@ for n_step in range(N_iteration):
         Q = tf.squeeze(model(sg(obs.reshape(1, -1), goal)))
         act = np.argmax(Q)
 
-    next_obs, rew, done, info = env.step(act)
+    next_obs, _, _, info = env.step(act)
     ep += 1
 
     rb.add(obs=obs,
            act=act,
-           rew=rew,
-           next_obs=next_obs,
-           done=done)
+           next_obs=next_obs)
 
     if done or (ep >= max_episode_len):
         obs = env.reset()
