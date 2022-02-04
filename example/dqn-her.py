@@ -64,7 +64,7 @@ egreedy = 0.1
 
 max_episode_len = 100
 
-nbit = 40
+nbit = 10
 
 
 # Log
