@@ -229,10 +229,12 @@ for n_step in range(N_iteration):
                     sg(sample["obs"], sample["goal"]),
                     tf.constant(sample["act"].ravel()),
                     tf.constant(env.action_space.n))
+        sample_rew = tf.constant(sample["rew"].ravel())
+        sample_done = 1.0 + sample_rew
         target_Q = tf.stop_gradient(target_func(model,target_model,
                                                 sg(sample["next_obs"],sample["goal"]),
-                                                tf.constant(sample["rew"].ravel()),
-                                                tf.constant(sample["done"].ravel()),
+                                                sample_rew,
+                                                sample_done,
                                                 discount,
                                                 tf.constant(env.action_space.n)))
         absTD = tf.math.abs(target_Q - Q)
