@@ -65,7 +65,7 @@ class TestHER(unittest.TestCase):
         self.assertEqual(sample["obs"].shape, (6,1))
         self.assertTrue((sample["obs"] < sample["goal"]).all())
         np.testing.assert_allclose(sample["rew"],
-                                   rew_func(sample["obs"],
+                                   rew_func(sample["next_obs"],
                                             sample["act"],
                                             sample["goal"]))
 
@@ -88,7 +88,7 @@ class TestHER(unittest.TestCase):
         self.assertIn("goal", sample)
         self.assertEqual(sample["obs"].shape, (6,1))
         np.testing.assert_allclose(sample["rew"],
-                                   rew_func(sample["obs"],
+                                   rew_func(sample["next_obs"],
                                             sample["act"],
                                             sample["goal"]))
 
@@ -112,7 +112,7 @@ class TestHER(unittest.TestCase):
         self.assertIn("goal", sample)
         self.assertEqual(sample["obs"].shape, (6,1))
         np.testing.assert_allclose(sample["rew"],
-                                   rew_func(sample["obs"],
+                                   rew_func(sample["next_obs"],
                                             sample["act"],
                                             sample["goal"]))
 
