@@ -165,7 +165,7 @@ def evaluate(model,env):
     success = 0
     ep = 0
     while i_episode < n_episode:
-        Q = tf.squeeze(model(sg(obs.reshape((1, -1), goal))))
+        Q = tf.squeeze(model(sg(obs.reshape((1, -1)), goal)))
         act = np.argmax(Q)
         obs, _, done, _ = env.step(act)
         ep += 1
