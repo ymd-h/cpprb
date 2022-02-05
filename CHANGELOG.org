@@ -66,6 +66,9 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.5.1][v10.5.1]]
+- Fix: Pass next_state (instead of state) to reward function in ~HindsightReplayBuffer~
+- Fix: Take ~goal_func~ to convert state to goal in ~HindsightReplayBuffer~
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.5.0][v10.5.0]]
 - Add: ~HindsightReplayBuffer~
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.4.2][v10.4.2]]
