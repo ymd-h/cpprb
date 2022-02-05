@@ -1,4 +1,4 @@
-from typing import Dict, Callable
+from typing import Dict, Callable, Optional, Iterable
 
 import numpy as np
 
@@ -16,6 +16,8 @@ class HindsightReplayBuffer:
                  env_dict: Dict,
                  max_episode_len: int,
                  reward_func: Callable, *,
+                 goal_func: Optional[Callable] = None,
+                 goal_shape: Optional[Iterable[int]] = None,
                  state: str = "obs",
                  action: str = "act",
                  next_state: str = "next_obs",
@@ -38,6 +40,11 @@ class HindsightReplayBuffer:
             Maximum episode length.
         reward_func : Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray]
             Batch calculation of reward function SxAxG -> R.
+        goal_func : Callable[[np.ndarray], np.ndarray], optional
+            Batch extraction function for goal from state: S->G.
+            If ``None`` (default), identity function is used (goal = state).
+        goal_shape : Iterable[int], optional
+            Shape of goal. If ``None`` (default), state shape is used.
         state : str, optional
             State name in ``env_dict``. The default is "obs".
         action : str, optional
@@ -59,6 +66,7 @@ class HindsightReplayBuffer:
         """
         self.max_episode_len = max_episode_len
         self.reward_func = reward_func
+        self.goal_func = goal_func or (lambda s: s)
 
         self.state = state
         self.action = action
@@ -76,9 +84,14 @@ class HindsightReplayBuffer:
 
         self.prioritized = prioritized
 
+        if goal_shape:
+            goal_dict = {**env_dict[state], "shape": goal_shape}
+            self.goal_shape = np.array(goal_shape, ndmin=1)
+        else:
+            goal_dict = env_dict[state]
+            self.goal_shape = np.array(env_dict[state].get("shape", 1), ndmin=1)
         RB = PrioritizedReplayBuffer if self.prioritized else ReplayBuffer
-        self.rb = RB(size, {**env_dict, "rew": {}, "goal": env_dict[state]},
-                     **kwargs)
+        self.rb = RB(size, {**env_dict, "rew": {}, "goal": goal_dict}, **kwargs)
 
         self.episode_rb = ReplayBuffer(self.max_episode_len, env_dict)
 
@@ -131,8 +144,9 @@ class HindsightReplayBuffer:
             return None
 
         trajectory = self.episode_rb.get_all_transitions()
+        add_shape = (trajectory[self.state].shape[0], *self.goal_shape)
 
-        goal = np.broadcast_to(np.asarray(goal), trajectory[self.state].shape)
+        goal = np.broadcast_to(np.asarray(goal), add_shape)
         rew = self.reward_func(trajectory[self.state], trajectory[self.action], goal)
 
         self.rb.add(**trajectory, goal=goal, rew=rew)
@@ -143,7 +157,7 @@ class HindsightReplayBuffer:
                 idx[:,i] = self.rng.integers(low=i, high=episode_len,
                                              size=self.additional_goals)
             for i in range(self.additional_goals):
-                goal = trajectory[self.next_state][idx[i]]
+                goal = self.goal_func(trajectory[self.next_state][idx[i]])
                 rew = self.reward_func(trajectory[self.state],
                                        trajectory[self.action],
                                        goal)
@@ -152,14 +166,14 @@ class HindsightReplayBuffer:
             idx = self.rng.integers(low=0, high=episode_len,
                                     size=(self.additional_goals, episode_len))
             for _i in idx:
-                goal = trajectory[self.next_state][_i]
+                goal = self.goal_func(trajectory[self.next_state][_i])
                 rew = self.reward_func(trajectory[self.state],
                                        trajectory[self.action],
                                        goal)
                 self.rb.add(**trajectory, rew=rew, goal=goal)
         elif self.strategy == "final":
-            goal = np.broadcast_to(trajectory[self.next_state][-1],
-                                   trajectory[self.next_state].shape)
+            goal = self.goal_func(np.broadcast_to(trajectory[self.next_state][-1],
+                                                  trajectory[self.next_state].shape))
             rew = self.reward_func(trajectory[self.state],
                                    trajectory[self.action],
                                    goal)
@@ -177,7 +191,7 @@ class HindsightReplayBuffer:
             idx = self.rng.integers(low=0,
                                     high=self.rb.get_stored_size(),
                                     size=self.additional_goals*episode_len)
-            goal = self.rb._encode_sample(idx)[self.next_state]
+            goal = self.goal_func(self.rb._encode_sample(idx)[self.next_state])
             goal = goal.reshape((self.additional_goals,
                                  episode_len,
                                  *(goal.shape[1:])))
