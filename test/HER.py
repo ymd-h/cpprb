@@ -65,7 +65,7 @@ class TestHER(unittest.TestCase):
         self.assertEqual(sample["obs"].shape, (6,1))
         self.assertTrue((sample["obs"] < sample["goal"]).all())
         np.testing.assert_allclose(sample["rew"],
-                                   rew_func(sample["obs"],
+                                   rew_func(sample["next_obs"],
                                             sample["act"],
                                             sample["goal"]))
 
@@ -88,7 +88,7 @@ class TestHER(unittest.TestCase):
         self.assertIn("goal", sample)
         self.assertEqual(sample["obs"].shape, (6,1))
         np.testing.assert_allclose(sample["rew"],
-                                   rew_func(sample["obs"],
+                                   rew_func(sample["next_obs"],
                                             sample["act"],
                                             sample["goal"]))
 
@@ -112,7 +112,7 @@ class TestHER(unittest.TestCase):
         self.assertIn("goal", sample)
         self.assertEqual(sample["obs"].shape, (6,1))
         np.testing.assert_allclose(sample["rew"],
-                                   rew_func(sample["obs"],
+                                   rew_func(sample["next_obs"],
                                             sample["act"],
                                             sample["goal"]))
 
@@ -210,6 +210,62 @@ class TestHER(unittest.TestCase):
         hrb.update_priorities(indexes=sample["indexes"],
                               priorities=np.zeros_like(sample["indexes"],
                                                        dtype=np.float))
+
+    def test_goal_func(self):
+        rew_func = lambda s,a,g: -1*(s[:,:3]!=g).any(axis=1)
+        goal_func = lambda s: s[:,:3]
+
+        hrb = HindsightReplayBuffer(10,
+                                    {"obs": {"shape": 5},
+                                     "act": {},
+                                     "next_obs": {"shape": 5}},
+                                    max_episode_len=10,
+                                    reward_func=rew_func,
+                                    goal_func=goal_func,
+                                    goal_shape=3,
+                                    additional_goals=2)
+
+        hrb.add(obs=(0,0,0,0,0), act=0, next_obs=(1,1,1,1,1))
+        hrb.add(obs=(1,1,1,1,1), act=0, next_obs=(2,2,2,2,2))
+        self.assertEqual(hrb.get_stored_size(), 0)
+
+        hrb.on_episode_end((3,3,3))
+        self.assertEqual(hrb.get_stored_size(), 6)
+
+        sample = hrb.get_all_transitions()
+        self.assertIn("goal", sample)
+        self.assertEqual(sample["goal"].shape, (6,3))
+
+    def test_goal_final(self):
+        rew_func = lambda s,a,g: -1*(s[:,:3]!=g).any(axis=1)
+        goal_func = lambda s: s[:,:3]
+
+        hrb = HindsightReplayBuffer(10,
+                                    {"obs": {"shape": 5},
+                                     "act": {},
+                                     "next_obs": {"shape": 5}},
+                                    max_episode_len=10,
+                                    reward_func=rew_func,
+                                    goal_func=goal_func,
+                                    goal_shape=3,
+                                    strategy="final")
+
+        hrb.add(obs=(0,0,0,0,0), act=0, next_obs=(1,1,1,1,1))
+        hrb.add(obs=(1,1,1,1,1), act=0, next_obs=(2,2,2,2,2))
+        self.assertEqual(hrb.get_stored_size(), 0)
+
+        hrb.on_episode_end((3,3,3))
+        self.assertEqual(hrb.get_stored_size(), 4)
+
+        sample = hrb.get_all_transitions()
+        self.assertIn("goal", sample)
+        self.assertEqual(sample["goal"].shape, (4,3))
+        np.testing.assert_allclose(sample["goal"],
+                                   [[3,3,3],
+                                    [3,3,3],
+                                    [2,2,2],
+                                    [2,2,2]])
+
 
 if __name__ == "__main__":
     unittest.main()

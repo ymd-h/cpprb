@@ -772,6 +772,8 @@ constructed with following parameters;
 | ~env_dict~              | ~dict~                                                       | Specifying environment. (See [[https://ymd_h.gitlab.io/cpprb/features/simple_usage/][here]]) ~"goal"~ and ~"rew"~ are added automatically, user should not specify them. |
 | ~max_episode_len~       | ~int~                                                        | Maximum episode length                                                                                         |
 | ~reward_func~           | ~Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray]~ | Batch reward function of $S \times A \times G \to R$                                                           |
+| ~goal_func=None~        | ~Callable[[np.ndarray], np.ndarray]~                         | Batch function for goal from state: $S \to G$. If ~None~ (default), state itself is considered as goal.        |
+| ~goal_shape=None~       | ~Iterable[int]~                                              | Goal shape. If ~None~ (default), state shape is used.                                                          |
 | ~state="obs"~           | ~str~                                                        | State name in ~env_dict~                                                                                       |
 | ~action="act"~          | ~str~                                                        | Action name in ~env_dict~                                                                                      |
 | ~next_state="next_obs"~ | ~str~                                                        | Next state name in ~env_dict~                                                                                  |
@@ -836,8 +838,18 @@ The full example code is as follows;
 
 
 *** Notes
+The number of stored transitions (=get_stored_size()=) is increased by
+calling =on_episode_end(goal)=.
 
 *** Technical Detail
+~HindsightReplayBuffer~ internally contains two replay buffers. The
+one (=rb=) is for main buffer, the other (=episode_rb=) is for the
+current episode. At first, transitions are inserted to
+=episode_rb=. At the episode end (=on_episode_end=), goal relabeling
+are executed, and those transitions are moved to =rb=.
+
+This architecture might be helpful for similar needs such as
+reward-to-go.
 
 ** DONE Memory Compression
 CLOSED: [2019-11-10 Sun 13:33]
