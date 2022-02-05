@@ -261,10 +261,10 @@ class TestHER(unittest.TestCase):
         self.assertIn("goal", sample)
         self.assertEqual(sample["goal"].shape, (4,3))
         np.testing.assert_allclose(sample["goal"],
-                                   [[2,2,2],
-                                    [2,2,2],
+                                   [[3,3,3],
                                     [3,3,3],
-                                    [3,3,3]])
+                                    [2,2,2],
+                                    [2,2,2]])
 
 
 if __name__ == "__main__":
