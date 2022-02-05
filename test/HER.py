@@ -212,7 +212,7 @@ class TestHER(unittest.TestCase):
                                                        dtype=np.float))
 
     def test_goal_func(self):
-        rew_func = lambda s,a,g: -1*(np.asarray(s)!=np.asarray(g)).any(axis=1)
+        rew_func = lambda s,a,g: -1*(s[:,:3]!=g).any(axis=1)
         goal_func = lambda s: s[:,:3]
 
         hrb = HindsightReplayBuffer(10,
@@ -237,7 +237,7 @@ class TestHER(unittest.TestCase):
         self.assertEqual(sample["goal"].shape, (8,3))
 
     def test_goal_final(self):
-        rew_func = lambda s,a,g: -1*(np.asarray(s)!=np.asarray(g)).any(axis=1)
+        rew_func = lambda s,a,g: -1*(s[:,:3]!=g).any(axis=1)
         goal_func = lambda s: s[:,:3]
 
         hrb = HindsightReplayBuffer(10,
