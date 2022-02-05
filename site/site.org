@@ -838,8 +838,18 @@ The full example code is as follows;
 
 
 *** Notes
+The number of stored transitions (=get_stored_size()=) is increased by
+calling =on_episode_end(goal)=.
 
 *** Technical Detail
+~HindsightReplayBuffer~ internally contains two replay buffers. The
+one (=rb=) is for main buffer, the other (=episode_rb=) is for the
+current episode. At first, transitions are inserted to
+=episode_rb=. At the episode end (=on_episode_end=), goal relabeling
+are executed, and those transitions are moved to =rb=.
+
+This architecture might be helpful for similar needs such as
+reward-to-go.
 
 ** DONE Memory Compression
 CLOSED: [2019-11-10 Sun 13:33]
