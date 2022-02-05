@@ -234,7 +234,7 @@ class TestHER(unittest.TestCase):
 
         sample = hrb.get_all_transitions()
         self.assertIn("goal", sample)
-        self.assertEqual(sample["goal"].shape, (8,3))
+        self.assertEqual(sample["goal"].shape, (6,3))
 
     def test_goal_final(self):
         rew_func = lambda s,a,g: -1*(s[:,:3]!=g).any(axis=1)
