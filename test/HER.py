@@ -230,7 +230,7 @@ class TestHER(unittest.TestCase):
         self.assertEqual(hrb.get_stored_size(), 0)
 
         hrb.on_episode_end((3,3,3))
-        self.assertEqual(hrb.get_stored_size(), 8)
+        self.assertEqual(hrb.get_stored_size(), 6)
 
         sample = hrb.get_all_transitions()
         self.assertIn("goal", sample)
