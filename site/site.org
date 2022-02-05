@@ -773,7 +773,7 @@ constructed with following parameters;
 | ~max_episode_len~       | ~int~                                                        | Maximum episode length                                                                                         |
 | ~reward_func~           | ~Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray]~ | Batch reward function of $S \times A \times G \to R$                                                           |
 | ~goal_func=None~        | ~Callable[[np.ndarray], np.ndarray]~                         | Batch function for goal from state: $S \to G$. If ~None~ (default), state itself is considered as goal.        |
-| ~goal_shape~            | ~Iterable[int]~                                              | Goal shape. If ~None~ (default), state shape is used.                                                          |
+| ~goal_shape=None~       | ~Iterable[int]~                                              | Goal shape. If ~None~ (default), state shape is used.                                                          |
 | ~state="obs"~           | ~str~                                                        | State name in ~env_dict~                                                                                       |
 | ~action="act"~          | ~str~                                                        | Action name in ~env_dict~                                                                                      |
 | ~next_state="next_obs"~ | ~str~                                                        | Next state name in ~env_dict~                                                                                  |
