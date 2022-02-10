@@ -2425,7 +2425,11 @@ state with shared weights.
 
 In MaPER, the combination of TD error and model prediction errors is
 considered as transition priority
-$\sigma_i = \xi_1 |\delta Q_{\theta}|_{MSE} + \xi_2 |\delta R_{\theta}|_{MSE} + \xi_3 |\delta S_{\theta}|_{MSE}$.
+$\sigma_i = \xi_Q |\delta Q_{\theta}|_{MSE} + \xi_R |\delta R_{\theta}|_{MSE} + \xi_S |\delta S_{\theta}|_{MSE}$.
+
+The coefficients are adaptively changed with following rule;
+
+\[ \xi_j = \frac{1}{Z}\exp \frac{\mathcal{L}_j^{t-1}}{\mathcal{L}_j^{t-2}T}~\text{where}~j=Q,R,S \]
 
 MaPER works as a kind of curriculum learning. It starts learning from
 transitions with high prediction errors. Then, after learning model
