@@ -2429,7 +2429,7 @@ $\sigma_i = \xi_Q |\delta Q_{\theta}|_{MSE} + \xi_R |\delta R_{\theta}|_{MSE} + 
 
 The coefficients are adaptively changed with following rule;
 
-\[ \xi_j = \frac{1}{Z}\exp \frac{\mathcal{L}_j^{t-1}}{\mathcal{L}_j^{t-2}T}~\text{where}~j=Q,R,S \]
+\[ \xi_j = \frac{1}{Z}\exp \left ( \frac{\mathcal{L}_j^{t-1}}{\mathcal{L}_j^{t-2}T}\right )~\text{where}~j=Q,R,S \]
 
 MaPER works as a kind of curriculum learning. It starts learning from
 transitions with high prediction errors. Then, after learning model
