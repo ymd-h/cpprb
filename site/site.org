@@ -2420,7 +2420,7 @@ CLOSED: [2022-02-09 Wed 07:22]
 Model-augumented Prioritized Experience Replay (MaPER), which was
 proposed by Y. Oh /et al/.[fn:23], extends critic network in order to
 predict Q-value better. The critic network, Model-augumented Critic
-Network (MaCN), predict not only Q-value but also reward and next
+Network (MaCN), predicts not only Q-value but also reward and next
 state with shared weights.
 
 In MaPER, the combination of TD error and model prediction errors is
