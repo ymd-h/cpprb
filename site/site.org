@@ -2409,6 +2409,36 @@ We try to summarize similarities and differences between their framework and our
 | Inconsistency of Sampling and Priority Update | Allow weight inconsistence because of little impact in practice       | Atomically extract weights, too. (Always consistent)                                                                                                                                                                                                                                                          |
 | Implementation                                | Wrtten in C++. There is Python binding to plugin into [[https://github.com/ray-project/ray/tree/master/rllib][RLlib]][fn:21]    | Written in C++ (Segment Tree) and Cython (Buffer). Provided as Python class.                                                                                                                                                                                                                                  |
 
+* DONE Model-augmented Prioritized Experience Replay (MaPER)
+CLOSED: [2022-02-09 Wed 07:22]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: survey
+:EXPORT_FILE_NAME: maper
+:END:
+
+** Overview
+Model-augumented Prioritized Experience Replay (MaPER), which was
+proposed by Y. Oh /et al/.[fn:23], extends critic network in order to
+predict Q-value better. The critic network, Model-augumented Critic
+Network (MaCN), predicts not only Q-value but also reward and next
+state with shared weights.
+
+In MaPER, the combination of TD error and model prediction errors is
+considered as transition priority
+$\sigma_i = \xi_Q |\delta Q_{\theta}|_{MSE} + \xi_R |\delta R_{\theta}|_{MSE} + \xi_S |\delta S_{\theta}|_{MSE}$.
+
+The coefficients are adaptively changed with following rule;
+
+\[ \xi_j = \frac{1}{Z}\exp \left ( \frac{\mathcal{L}_j^{t-1}}{\mathcal{L}_j^{t-2}T}\right )~\text{where}~j=Q,R,S \]
+
+MaPER works as a kind of curriculum learning. It starts learning from
+transitions with high prediction errors. Then, after learning model
+dynamism, transitions with large TD error are used. According to their
+experiments, TD error decreases faster and estimated Q values are
+match to the returns (aka. episode rewards) well.
+
+** With cpprb
+You can implement MaPER with ~PrioritizedReplayBuffer~.
 
 * DONE Understanding of Experience Replay
 CLOSED: [2021-02-13 Sat 16:28]
@@ -2584,6 +2614,9 @@ computational cost.
 
 
 * Footnotes
+
+[fn:23] [[https://openreview.net/forum?id=WuEiafqdy9H][Y. Oh /et al/., "Model-augmented Prioritized Experience Replay", ICLR (2022)]]
+
 [fn:22] [[https://papers.nips.cc/paper/2017/hash/453fadbd8a1a3af50a9df4df899537b5-Abstract.html][M. Andrychowicz /et al/., "Hindsight Experience Replay", NeurIPS (2017)]] ([[https://arxiv.org/abs/1707.01495][arXiv:1707.01495]])
 
 [fn:21] [[https://icml.cc/Conferences/2018/Schedule?showEvent=2116][E. Liang /et al/., "RLlib: Abstractions for Distributed Reinforcement Learning", ICML (2018)]], ([[https://arxiv.org/abs/1712.09381][arXiv]], [[https://github.com/ray-project/ray/tree/master/rllib][code]])
