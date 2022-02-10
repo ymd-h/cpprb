@@ -2055,6 +2055,7 @@ If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpp
 - [[https://ymd_h.gitlab.io/cpprb/survey/combined_er/][Combined Experience Replay (CER)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/lfiw/][Likelihood-free Importance Weights (LFIW)]]
 - [[https://ymd_h.gitlab.io/cpprb/survey/parallel/][Parallel Actors and Learners]]
+- [[https://ymd_h.gitlab.io/cpprb/survey/maper/][Model-augmented Prioritized Experience Replay (MaPER)]]
 
 
 
@@ -2417,7 +2418,7 @@ CLOSED: [2022-02-09 Wed 07:22]
 :END:
 
 ** Overview
-Model-augumented Prioritized Experience Replay (MaPER), which was
+Model-augmented Prioritized Experience Replay (MaPER), which was
 proposed by Y. Oh /et al/.[fn:23], extends critic network in order to
 predict Q-value better. The critic network, Model-augumented Critic
 Network (MaCN), predicts not only Q-value but also reward and next
