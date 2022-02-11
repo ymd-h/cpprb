@@ -486,13 +486,6 @@ namespace ymd {
     void set_eps(Priority eps){
       this->eps = eps;
     }
-
-    void weak_update_changed(){
-      if constexpr (MultiThread) {
-	sum.weak_update_changed();
-	min.weak_update_changed();
-      }
-    }
   };
 
   template<typename Priority>
