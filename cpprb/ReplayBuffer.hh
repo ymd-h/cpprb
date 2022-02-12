@@ -376,7 +376,7 @@ namespace ymd {
 	sum{PowerOf2(buffer_size),[](auto a,auto b){ return a+b; },
 	    Priority{0},
 	    sum_ptr,sum_anychanged,initialize},
-	min{PowerOf2(buffer_size),[](Priority a,Priority b){ return  std::min(a,b); },
+	min{PowerOf2(buffer_size),[](Priority a,Priority b){ return std::min(a,b); },
 	    std::numeric_limits<Priority>::max(),
 	    min_ptr,min_anychanged,initialize},
 	g{std::random_device{}()},
