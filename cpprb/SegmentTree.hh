@@ -181,7 +181,8 @@ namespace ymd {
     }
 
     auto largest_region_index(std::function<bool(T)> condition,
-			      std::size_t n=std::size_t(0)) {
+			      std::size_t n=std::size_t(0),
+			      T init = T{0}) {
       // max index of reduce( [0,index) ) -> true
 
       constexpr const std::size_t zero = 0;
@@ -194,21 +195,30 @@ namespace ymd {
 	}
       }
 
-      std::size_t min = zero;
-      auto max = (zero != n) ? n: buffer_size;
+      if(n == zero){ n = buffer_size; }
+      auto b = zero;
 
-      auto index = (min + max)/two;
+      if(condition(buffer[b])){ return n-1; }
+
+      auto min = zero;
+      auto max = buffer_size;
+      auto cond = condition;
+      auto red = init;
 
       while(max - min > one){
-	if( condition(_reduce(zero,index,zero,zero,buffer_size)) ){
-	  min = index;
+	auto b_left = child_left(b);
+	if(cond(buffer[b_left])){
+	  min = (min + max) / two;
+	  red = f(red, buffer[b_left]);
+	  cond = [=](auto v){ return  condition(f(red,v)); };
+	  b = b_left;
 	}else{
-	  max = index;
+	  max = (min + max) / two;
+	  b = child_right(b);
 	}
-	index = (min + max)/two;
       }
 
-      return index;
+      return std::min(min, n-1);
     }
 
     void clear(T v = T{0}){
