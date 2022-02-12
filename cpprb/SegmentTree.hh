@@ -150,28 +150,14 @@ namespace ymd {
 
       while(N){
 	auto copy_N = std::min(N,max-i);
-	std::generate_n(buffer+access_index(i),copy_N,f);
-
-	if constexpr (!MultiThread){
-	  for(auto n = std::size_t(0); n < copy_N; ++n){
-	    auto _i = access_index(i+n);
-	    if(_i != 0){
-	      will_update.insert(parent(_i));
-	    }
-	  }
+	if constexpr (MultiThread){
+	  std::generate_n(buffer+access_index(i),copy_N,f);
+	}else{
+	  for(auto n = std::size_t(0); n < copy_N; ++n){ set(i+n, f()); }
 	}
 
 	N = (N > copy_N) ? N - copy_N: zero;
 	i = zero;
-      }
-
-      if constexpr (!MultiThread) {
-	while(!will_update.empty()){
-	  i = *(will_update.rbegin());
-	  auto updated = update_buffer(i);
-	  will_update.erase(i);
-	  if(i && updated){ will_update.insert(parent(i)); }
-	}
       }
     }
 
