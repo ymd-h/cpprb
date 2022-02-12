@@ -78,6 +78,22 @@ namespace ymd {
       }
     }
 
+    void update_all(){
+      constexpr const std::size_t zero = 0;
+      const auto end = parent(access_index(buffer_size-1))+1;
+      for(auto i = parent(access_index(0)); i != end; ++i){
+	auto updated = update_buffer(i);
+	auto _i = i;
+	while((_i != zero) && updated){
+	  _i = parent(_i);
+	  updated = update_buffer(_i);
+	}
+      }
+      if constexpr (MultiThread){
+	any_changed->store(false,std::memory_order_release);
+      }
+    }
+
   public:
     SegmentTree(std::size_t n,F f, T v = T{0},
 		T* buffer_ptr = nullptr,
