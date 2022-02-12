@@ -142,8 +142,6 @@ namespace ymd {
       constexpr const std::size_t zero = 0;
       if(zero == max){ max = buffer_size; }
 
-      std::set<std::size_t> will_update{};
-
       if constexpr (MultiThread){
 	if(N){ any_changed->store(true,std::memory_order_release); }
       }
@@ -155,23 +153,16 @@ namespace ymd {
 	if constexpr (!MultiThread){
 	  for(auto n = std::size_t(0); n < copy_N; ++n){
 	    auto _i = access_index(i+n);
-	    if(_i != 0){
-	      will_update.insert(parent(_i));
+	    auto updated = true;
+	      if((_i != zero) && updated){
+		_i = parent(_i);
+		updated = update_buffer(_i);
 	    }
 	  }
 	}
 
 	N = (N > copy_N) ? N - copy_N: zero;
 	i = zero;
-      }
-
-      if constexpr (!MultiThread) {
-	while(!will_update.empty()){
-	  i = *(will_update.rbegin());
-	  auto updated = update_buffer(i);
-	  will_update.erase(i);
-	  if(i && updated){ will_update.insert(parent(i)); }
-	}
       }
     }
 
