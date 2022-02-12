@@ -211,10 +211,10 @@ namespace ymd {
 	  min = (min + max) / two;
 	  red = f(red, buffer[b_left]);
 	  cond = [=](auto v){ return condition(f(red,v)); };
-	  b = b_left;
+	  b = child_right(b);
 	}else{
 	  max = (min + max) / two;
-	  b = child_right(b);
+	  b = b_left;
 	}
       }
 
