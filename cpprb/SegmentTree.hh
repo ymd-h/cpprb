@@ -142,8 +142,6 @@ namespace ymd {
       constexpr const std::size_t zero = 0;
       if(zero == max){ max = buffer_size; }
 
-      std::set<std::size_t> will_update{};
-
       if constexpr (MultiThread){
 	if(N){ any_changed->store(true,std::memory_order_release); }
       }
