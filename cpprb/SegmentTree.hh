@@ -210,7 +210,7 @@ namespace ymd {
 	if(cond(buffer[b_left])){
 	  min = (min + max) / two;
 	  red = f(red, buffer[b_left]);
-	  cond = [=](auto v){ return  condition(f(red,v)); };
+	  cond = [=](auto v){ return condition(f(red,v)); };
 	  b = b_left;
 	}else{
 	  max = (min + max) / two;
