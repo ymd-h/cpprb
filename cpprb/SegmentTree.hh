@@ -151,7 +151,7 @@ namespace ymd {
 	if constexpr (MultiThread){
 	  std::generate_n(buffer+access_index(i),copy_N,f);
 	}else{
-	  for(auto n = std::size_t(0); n < copy_N; ++n){ set(i+n, f()); }
+	  for(auto n = std::size_t(0); n < copy_N; ++n){ this->set(i+n, f()); }
 	}
 
 	N = (N > copy_N) ? N - copy_N: zero;
