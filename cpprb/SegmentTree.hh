@@ -154,7 +154,7 @@ namespace ymd {
 	  for(auto n = std::size_t(0); n < copy_N; ++n){
 	    auto _i = access_index(i+n);
 	    auto updated = true;
-	      if((_i != zero) && updated){
+	      while((_i != zero) && updated){
 		_i = parent(_i);
 		updated = update_buffer(_i);
 	    }
