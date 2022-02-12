@@ -69,7 +69,7 @@ namespace ymd {
       return tmp != buffer[i];
     }
 
-    void update_all(){
+    void update_init(){
       for(std::size_t i = access_index(0) -1, end = -1; i != end; --i){
 	update_buffer(i);
       }
@@ -105,7 +105,7 @@ namespace ymd {
       if(initialize){
 	std::fill_n(buffer+access_index(0),n,v);
 
-	update_all();
+	update_init();
       }
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
