@@ -69,9 +69,25 @@ namespace ymd {
       return tmp != buffer[i];
     }
 
-    void update_all(){
+    void update_init(){
       for(std::size_t i = access_index(0) -1, end = -1; i != end; --i){
 	update_buffer(i);
+      }
+      if constexpr (MultiThread){
+	any_changed->store(false,std::memory_order_release);
+      }
+    }
+
+    void update_all(){
+      constexpr const std::size_t zero = 0;
+      const auto end = parent(access_index(buffer_size-1))+1;
+      for(auto i = parent(access_index(0)); i != end; ++i){
+	auto updated = update_buffer(i);
+	auto _i = i;
+	while((_i != zero) && updated){
+	  _i = parent(_i);
+	  updated = update_buffer(_i);
+	}
       }
       if constexpr (MultiThread){
 	any_changed->store(false,std::memory_order_release);
@@ -105,7 +121,7 @@ namespace ymd {
       if(initialize){
 	std::fill_n(buffer+access_index(0),n,v);
 
-	update_all();
+	update_init();
       }
     }
     SegmentTree(): SegmentTree{2,[](auto a,auto b){ return a+b; }} {}
@@ -142,8 +158,6 @@ namespace ymd {
       constexpr const std::size_t zero = 0;
       if(zero == max){ max = buffer_size; }
 
-      std::set<std::size_t> will_update{};
-
       if constexpr (MultiThread){
 	if(N){ any_changed->store(true,std::memory_order_release); }
       }
@@ -155,23 +169,16 @@ namespace ymd {
 	if constexpr (!MultiThread){
 	  for(auto n = std::size_t(0); n < copy_N; ++n){
 	    auto _i = access_index(i+n);
-	    if(_i != 0){
-	      will_update.insert(parent(_i));
+	    auto updated = true;
+	      while((_i != zero) && updated){
+		_i = parent(_i);
+		updated = update_buffer(_i);
 	    }
 	  }
 	}
 
 	N = (N > copy_N) ? N - copy_N: zero;
 	i = zero;
-      }
-
-      if constexpr (!MultiThread) {
-	while(!will_update.empty()){
-	  i = *(will_update.rbegin());
-	  auto updated = update_buffer(i);
-	  will_update.erase(i);
-	  if(i && updated){ will_update.insert(parent(i)); }
-	}
       }
     }
 
@@ -190,7 +197,8 @@ namespace ymd {
     }
 
     auto largest_region_index(std::function<bool(T)> condition,
-			      std::size_t n=std::size_t(0)) {
+			      std::size_t n=std::size_t(0),
+			      T init = T{0}) {
       // max index of reduce( [0,index) ) -> true
 
       constexpr const std::size_t zero = 0;
@@ -203,21 +211,30 @@ namespace ymd {
 	}
       }
 
-      std::size_t min = zero;
-      auto max = (zero != n) ? n: buffer_size;
+      if(n == zero){ n = buffer_size; }
+      auto b = zero;
 
-      auto index = (min + max)/two;
+      if(condition(buffer[b])){ return n-1; }
+
+      auto min = zero;
+      auto max = buffer_size;
+      auto cond = condition;
+      auto red = init;
 
       while(max - min > one){
-	if( condition(_reduce(zero,index,zero,zero,buffer_size)) ){
-	  min = index;
+	auto b_left = child_left(b);
+	if(cond(buffer[b_left])){
+	  min = (min + max) / two;
+	  red = f(red, buffer[b_left]);
+	  cond = [=](auto v){ return condition(f(red,v)); };
+	  b = child_right(b);
 	}else{
-	  max = index;
+	  max = (min + max) / two;
+	  b = b_left;
 	}
-	index = (min + max)/two;
       }
 
-      return index;
+      return std::min(min, n-1);
     }
 
     void clear(T v = T{0}){
