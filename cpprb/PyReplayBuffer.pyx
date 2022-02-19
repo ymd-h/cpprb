@@ -1,10 +1,13 @@
 # distutils: language = c++
 # cython: linetrace=True
-
+import copy
 import ctypes
+import multiprocessing
 from logging import getLogger, StreamHandler, Formatter, INFO
-from multiprocessing import Event, Lock, Process
+from multiprocessing import Event, Lock, Process, process
+from multiprocessing import shared_memory
 from multiprocessing.sharedctypes import Value, RawValue, RawArray
+from multiprocessing.managers import SyncManager
 import time
 from typing import Any, Dict, Callable, Optional
 import warnings
@@ -464,10 +467,108 @@ cdef class SharedBuffer:
         return (SharedBuffer,(self.view.shape,self.dtype,self.data))
 
 
+@cython.embedsignature(True)
+cdef class SharedMemoryBuffer:
+    cdef dtype
+    cdef data
+    cdef data_ndarray
+    cdef view
+    cdef str shm_name
+    cdef i_am_the_creator
+    cdef shape
+
+    def __init__(self,shape,dtype,data=None,shm_name=None):
+        self.shm_name = shm_name
+        self.dtype = np.dtype(dtype)
+        self.i_am_the_creator = False
+
+
+        if isinstance(shape,np.ndarray):
+            self.shape = shape.tolist()
+
+        self.shape = tuple(shape)
+
+        if data is None:
+
+            n_elems = int(np.array(shape,copy=False,dtype="int").prod())
+            size = self.dtype.itemsize * n_elems
+            self.data = shared_memory.SharedMemory(name=shm_name, create=True, size=size)
+            self.i_am_the_creator = True
+
+        elif data is not None:
+            self.data = data
+
+        self.data_ndarray = np.ndarray(shape=self.shape,
+                                       dtype=self.dtype,
+                                       buffer=self.data.buf)
+
+
+        # Reinterpretation
+        if self.dtype != self.data_ndarray.dtype:
+            self.view = self.data_ndarray.view(self.dtype)
+        else:
+            self.view = self.data_ndarray
+
+
+
+
+    def __getitem__(self,key):
+        return self.view[key]
+
+    def __setitem__(self,key,value):
+        self.view[key] = value
+
+    # def __reduce__(self):
+    #     return SharedMemoryBuffer,self.view.shape,self.dtype,None,self.shm_name,True
+
+    def __getstate__(self):
+        # Copy the object's state from self.__dict__ which contains
+        # all our instance attributes. Always use the dict.copy()
+        # method to avoid modifying the original state.
+        state  = {"shm_name": self.shm_name,
+                 "dtype": self.dtype,
+                 "i_am_the_creator": False,
+                 "shape": self.shape}
+
+        # Remove the unpicklable entries.
+        return state
+
+    def __setstate__(self, state):
+        # Restore instance attributes.
+
+        self.shm_name = state["shm_name"]
+        self.dtype = state["dtype"]
+        self.i_am_the_creator = False
+        self.shape = state["shape"]
+
+        # Restore shared memory
+        self.data = shared_memory.SharedMemory(name=self.shm_name, create=False)
+
+        self.data_ndarray = np.ndarray(shape=self.shape,
+                                       dtype=self.dtype,
+                                       buffer=self.data.buf)
+
+        # Reinterpretation
+        if self.dtype != self.data_ndarray.dtype:
+            self.view = self.data_ndarray.view(self.dtype)
+        else:
+            self.view = self.data_ndarray
+
+
+    def __del__(self):
+        if self.data is not None:
+            self.data.close()
+            if self.i_am_the_creator:
+                self.data.unlink()
+
+
+
+
 def dict2buffer(buffer_size: int,env_dict: Dict,*,
                 stack_compress = None, default_dtype = None,
                 mmap_prefix: Optional[str] = None,
-                shared: bool = False):
+                shared: bool = False,
+                shm_name = None):
     """Create buffer from env_dict
 
     Parameters
@@ -483,6 +584,8 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
     mmap_prefix : str, optional
         File name prefix to save buffer data using mmap. If `None` (default),
         save only on memory.
+    shm_name : str, optional
+        multiprocessing.SharedMemory string name
 
     Returns
     -------
@@ -494,8 +597,11 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
     default_dtype = default_dtype or np.single
 
     def zeros(name,shape,dtype):
-        if shared:
+        if shared and shm_name is None:
             return SharedBuffer(shape,dtype)
+
+        if shm_name:
+            return SharedMemoryBuffer(shape=shape,dtype=dtype,shm_name=shm_name+"."+name)
 
         if mmap_prefix:
             if not isinstance(shape,tuple):
@@ -527,6 +633,7 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
 
         shape[0] = -1
         defs["add_shape"] = shape
+
     return buffer
 
 def find_array(dict,key):
@@ -835,10 +942,16 @@ cdef class RingBufferIndex:
     cdef buffer_size
     cdef is_full
 
-    def __init__(self,buffer_size):
-        self.index = RawValue(ctypes.c_size_t,0)
-        self.buffer_size = RawValue(ctypes.c_size_t,buffer_size)
-        self.is_full = RawValue(ctypes.c_int,0)
+    def __init__(self,buffer_size,m=None):
+
+        if m is not None:
+            self.index = m.Value(ctypes.c_size_t,0)
+            self.buffer_size = m.Value(ctypes.c_size_t,buffer_size)
+            self.is_full = m.Value(ctypes.c_int,0)
+        else:
+            self.index = RawValue(ctypes.c_size_t, 0)
+            self.buffer_size = RawValue(ctypes.c_size_t, buffer_size)
+            self.is_full = RawValue(ctypes.c_int, 0)
 
     cdef size_t get_next_index(self):
         return self.index.value
@@ -884,9 +997,12 @@ cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
     """
     cdef lock
 
-    def __init__(self,buffer_size):
-        super().__init__(buffer_size)
-        self.lock = Lock()
+    def __init__(self,buffer_size,m=None):
+        super().__init__(buffer_size,m)
+        if m is not None:
+            self.lock = m.Lock()
+        else:
+            self.lock = Lock()
 
     cdef size_t get_next_index(self):
         with self.lock:
@@ -1843,9 +1959,11 @@ cdef class MPReplayBuffer:
     cdef StepChecker size_check
     cdef explorer_ready
     cdef explorer_count
+    cdef explorer_count_lock
     cdef learner_ready
+    cdef shm_name
 
-    def __init__(self,size,env_dict=None,*,default_dtype=None,logger=None,**kwargs):
+    def __init__(self,size,env_dict=None,*,default_dtype=None,logger=None,shm_name=None,**kwargs):
         r"""Initialize ReplayBuffer
 
         Parameters
@@ -1859,36 +1977,113 @@ cdef class MPReplayBuffer:
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
         """
+
+        self.shm_name = shm_name
+        authkey = b'abc'
+        m = SyncManager(authkey = b'abc')
+        m.start()
+
+
+        # self.env_dict_orig = copy.deepcopy(env_dict) if env_dict else {}
+        # self.env_dict = copy.deepcopy(self.env_dict_orig)
         self.env_dict = env_dict.copy() if env_dict else {}
+
         cdef special_keys = []
 
         self.buffer_size = size
-        self.index = ProcessSafeRingBufferIndex(self.buffer_size)
+        self.index = ProcessSafeRingBufferIndex(self.buffer_size,m)
 
         self.default_dtype = default_dtype or np.single
 
         # side effect: Add "add_shape" key into self.env_dict
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   default_dtype = self.default_dtype,
-                                  shared = True)
+                                  shared = True,
+                                  shm_name=shm_name)
+
+
+
 
         self.size_check = StepChecker(self.env_dict,special_keys)
 
-        self.learner_ready = Event()
+        self.learner_ready = m.Event()
         self.learner_ready.clear()
-        self.explorer_ready = Event()
+        self.explorer_ready = m.Event()
         self.explorer_ready.set()
 
-        self.explorer_count = Value(ctypes.c_size_t,0)
+        self.explorer_count = m.Value(ctypes.c_size_t,0)
+        self.explorer_count_lock = m.Lock()
+        multiprocessing.current_process().authkey = authkey
+
+
+
+
+    def __getstate__(self):
+        # Copy the object's state from self.__dict__ which contains
+        # all our instance attributes. Always use the dict.copy()
+        # method to avoid modifying the original state.
+        authkey = b'abc'
+        multiprocessing.current_process().authkey = authkey
+        state = dict()
+
+        state["shm_name"]= self.shm_name
+        state["buffer"] = self.buffer
+        state["buffer_size"] = self.buffer_size
+        state["env_dict"] = self.env_dict
+
+        self.index.lock._authkey = authkey
+        self.index.index._authkey = authkey
+        self.index.buffer_size._authkey = authkey
+        self.index.is_full._authkey = authkey
+
+        self.explorer_ready._authkey = authkey
+        self.explorer_count._authkey = authkey
+        self.explorer_count_lock._authkey = authkey
+        self.learner_ready._authkey = authkey
+
+        state["index"] = self.index
+        state["default_dtype"] = self.default_dtype
+        state["size_check"] = self.size_check
+
+        state["explorer_ready"] = self.explorer_ready
+        state["explorer_count"] = self.explorer_count
+        state["explorer_count_lock"] = self.explorer_count_lock
+        state["learner_ready"] = self.learner_ready
+
+
+       # Remove the unpicklable entries.
+       # None
+        return state
+
+    def __setstate__(self, state):
+        # this auth code should be placed in every process wich does not inherit from fork or spawn
+        # e.g. ray workers
+        authkey = b'abc'
+        multiprocessing.current_process().authkey = authkey
+
+        # Restore instance attributes.
+        self.shm_name = state["shm_name"]
+        self.buffer = state["buffer"]
+        self.buffer_size = state["buffer_size"]
+        self.env_dict = state["env_dict"]
+
+        self.index = state["index"]
+        self.default_dtype = state["default_dtype"]
+        self.size_check = state["size_check"]
+        self.explorer_ready = state["explorer_ready"]
+        self.explorer_count = state["explorer_count"]
+        self.explorer_count_lock = state["explorer_count_lock"]
+        self.learner_ready = state["learner_ready"]
+
 
     cdef void _lock_explorer(self) except *:
         self.explorer_ready.wait() # Wait permission
         self.learner_ready.clear()  # Block learner
-        with self.explorer_count.get_lock():
+        with self.explorer_count_lock:
             self.explorer_count.value += 1
 
     cdef void _unlock_explorer(self) except *:
-        with self.explorer_count.get_lock():
+        with self.explorer_count_lock:
             self.explorer_count.value -= 1
         if self.explorer_count.value == 0:
             self.learner_ready.set()
