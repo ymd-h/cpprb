@@ -2335,6 +2335,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef helper
     cdef terminate
     cdef explorer_per_count
+    cdef explorer_per_count_lock
     cdef learner_per_ready
     cdef explorer_per_ready
     cdef vector[size_t] idx_vec
@@ -2376,32 +2377,75 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
-        shm = RawArray(np.ctypeslib.as_ctypes_type(np.bool_),
-                       int(np.array(size,copy=False,dtype='int').prod()))
+        shm = self.memory_manager.Array('b',
+                       np.ones(shape=size, dtype='int').flatten())
+
         self.unchange_since_sample = np.ctypeslib.as_array(shm)
         self.unchange_since_sample[:] = True
 
         self.helper = None
-        self.terminate = Value(ctypes.c_bool)
+        self.terminate = self.memory_manager.Value(ctypes.c_bool,0)
         self.terminate.value = False
 
-        self.learner_per_ready = Event()
+        self.learner_per_ready = self.memory_manager.Event()
         self.learner_per_ready.clear()
-        self.explorer_per_ready = Event()
+        self.explorer_per_ready = self.memory_manager.Event()
         self.explorer_per_ready.set()
-        self.explorer_per_count = Value(ctypes.c_size_t,0)
+        self.explorer_per_count = self.memory_manager.Value(ctypes.c_size_t, 0)
+        self.explorer_per_count_lock = self.memory_manager.Lock()
+
 
         self.idx_vec = vector[size_t]()
         self.ps_vec = vector[float]()
 
+
+    def __getstate__(self):
+
+        state = super().__getstate__()
+
+        # Save instance persistent attributes.
+        state["weights"] = self.weights
+        state["indexes"] = self.indexes
+        state["per"] = self.per
+        state["unchange_since_sample"] = self.unchange_since_sample
+        state["helper"] = self.helper
+        state["terminate"] = self.terminate
+        state["explorer_per_count"] = self.explorer_per_count
+        state["explorer_per_count_lock"] = self.explorer_per_count_lock
+        state["learner_per_ready"] = self.learner_per_ready
+        state["explorer_per_ready"] = self.explorer_per_ready
+        state["idx_vec"] = self.idx_vec
+        state["ps_vec"] = self.ps_vec
+
+        return state
+
+    def __setstate__(self, state):
+
+        super().__setstate__(state)
+
+        # Restore instance attributes.
+        self.weights = state["weights"]
+        self.indexes = state["indexes"]
+        self.per = state["per"]
+        self.unchange_since_sample = state["unchange_since_sample"]
+        self.helper = state["helper"]
+        self.terminate = state["terminate"]
+        self.explorer_per_count = state["explorer_per_count"]
+        self.explorer_per_count_lock = state["explorer_per_count_lock"]
+        self.learner_per_ready = state["learner_per_ready"]
+        self.explorer_per_ready = state["explorer_per_ready"]
+        self.idx_vec = state["idx_vec"]
+        self.ps_vec = state["ps_vec"]
+
+
     cdef void _lock_explorer_per(self) except *:
         self.explorer_per_ready.wait() # Wait permission
         self.learner_per_ready.clear()  # Block learner
-        with self.explorer_per_count.get_lock():
+        with self.explorer_per_count_lock:
             self.explorer_per_count.value += 1
 
     cdef void _unlock_explorer_per(self) except *:
-        with self.explorer_per_count.get_lock():
+        with self.explorer_per_count_lock:
             self.explorer_per_count.value -= 1
         if self.explorer_per_count.value == 0:
             self.learner_per_ready.set()
