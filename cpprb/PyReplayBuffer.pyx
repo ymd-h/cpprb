@@ -35,7 +35,7 @@ def default_logger(level=INFO):
 
         format = Formatter("%(asctime)s.%(msecs)03d [%(levelname)s] " +
                            "(%(filename)s:%(lineno)s) %(message)s",
-                           "%Y%memory_manager%d-%H%M%S")
+                           "%Y%m%d-%H%M%S")
         handler.setFormatter(format)
         logger.addHandler(handler)
         logger.propagate = False
