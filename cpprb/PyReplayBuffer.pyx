@@ -1,28 +1,26 @@
 # distutils: language = c++
 # cython: linetrace=True
-import copy
+import base64
 import ctypes
 import multiprocessing
-from logging import getLogger, StreamHandler, Formatter, INFO
-from multiprocessing import Event, Lock, Process, process
-from multiprocessing import shared_memory
-from multiprocessing.sharedctypes import Value, RawValue, RawArray
-from multiprocessing.managers import SyncManager
+import multiprocessing as mp
 import time
-from typing import Any, Dict, Callable, Optional
 import warnings
+from functools import partial
+from logging import getLogger, StreamHandler, Formatter, INFO
+from multiprocessing import Event, Lock
+from multiprocessing import shared_memory
+from multiprocessing.managers import SyncManager
+from multiprocessing.sharedctypes import Value, RawValue, RawArray
+from typing import Any, Dict, Callable, Optional
 
-cimport numpy as np
-import numpy as np
 import cython
-from cython.operator cimport dereference
-
+import numpy as np
 from cpprb.ReplayBuffer cimport *
 
 from .VectorWrapper cimport *
-from .VectorWrapper import (VectorWrapper,
-                            VectorInt,VectorSize_t,
-                            VectorDouble,PointerDouble,VectorFloat)
+from .VectorWrapper import (VectorSize_t,
+                            PointerDouble, VectorFloat)
 
 def default_logger(level=INFO):
     """
@@ -37,7 +35,7 @@ def default_logger(level=INFO):
 
         format = Formatter("%(asctime)s.%(msecs)03d [%(levelname)s] " +
                            "(%(filename)s:%(lineno)s) %(message)s",
-                           "%Y%m%d-%H%M%S")
+                           "%Y%memory_manager%d-%H%M%S")
         handler.setFormatter(format)
         logger.addHandler(handler)
         logger.propagate = False
@@ -1962,6 +1960,8 @@ cdef class MPReplayBuffer:
     cdef explorer_count_lock
     cdef learner_ready
     cdef shm_name
+    cdef sync_manager_owner
+    cdef memory_manager
 
     def __init__(self,size,env_dict=None,*,default_dtype=None,logger=None,shm_name=None,**kwargs):
         r"""Initialize ReplayBuffer
@@ -1979,19 +1979,16 @@ cdef class MPReplayBuffer:
         """
 
         self.shm_name = shm_name
-        authkey = b'abc'
-        m = SyncManager(authkey = b'abc')
-        m.start()
+        self.memory_manager = SyncManager()
+        self.memory_manager.start()
+        self.sync_manager_owner = True
 
-
-        # self.env_dict_orig = copy.deepcopy(env_dict) if env_dict else {}
-        # self.env_dict = copy.deepcopy(self.env_dict_orig)
         self.env_dict = env_dict.copy() if env_dict else {}
 
         cdef special_keys = []
 
         self.buffer_size = size
-        self.index = ProcessSafeRingBufferIndex(self.buffer_size,m)
+        self.index = ProcessSafeRingBufferIndex(self.buffer_size, self.memory_manager)
 
         self.default_dtype = default_dtype or np.single
 
@@ -2001,45 +1998,25 @@ cdef class MPReplayBuffer:
                                   shared = True,
                                   shm_name=shm_name)
 
-
-
-
         self.size_check = StepChecker(self.env_dict,special_keys)
 
-        self.learner_ready = m.Event()
+        self.learner_ready = self.memory_manager.Event()
         self.learner_ready.clear()
-        self.explorer_ready = m.Event()
+        self.explorer_ready = self.memory_manager.Event()
         self.explorer_ready.set()
-
-        self.explorer_count = m.Value(ctypes.c_size_t,0)
-        self.explorer_count_lock = m.Lock()
-        multiprocessing.current_process().authkey = authkey
-
-
+        self.explorer_count = self.memory_manager.Value(ctypes.c_size_t, 0)
+        self.explorer_count_lock = self.memory_manager.Lock()
 
 
     def __getstate__(self):
-        # Copy the object's state from self.__dict__ which contains
-        # all our instance attributes. Always use the dict.copy()
-        # method to avoid modifying the original state.
-        authkey = b'abc'
-        multiprocessing.current_process().authkey = authkey
+
         state = dict()
 
+        # Save instance persistent attributes.
         state["shm_name"]= self.shm_name
         state["buffer"] = self.buffer
         state["buffer_size"] = self.buffer_size
         state["env_dict"] = self.env_dict
-
-        self.index.lock._authkey = authkey
-        self.index.index._authkey = authkey
-        self.index.buffer_size._authkey = authkey
-        self.index.is_full._authkey = authkey
-
-        self.explorer_ready._authkey = authkey
-        self.explorer_count._authkey = authkey
-        self.explorer_count_lock._authkey = authkey
-        self.learner_ready._authkey = authkey
 
         state["index"] = self.index
         state["default_dtype"] = self.default_dtype
@@ -2050,16 +2027,9 @@ cdef class MPReplayBuffer:
         state["explorer_count_lock"] = self.explorer_count_lock
         state["learner_ready"] = self.learner_ready
 
-
-       # Remove the unpicklable entries.
-       # None
         return state
 
     def __setstate__(self, state):
-        # this auth code should be placed in every process wich does not inherit from fork or spawn
-        # e.g. ray workers
-        authkey = b'abc'
-        multiprocessing.current_process().authkey = authkey
 
         # Restore instance attributes.
         self.shm_name = state["shm_name"]
@@ -2074,6 +2044,7 @@ cdef class MPReplayBuffer:
         self.explorer_count = state["explorer_count"]
         self.explorer_count_lock = state["explorer_count_lock"]
         self.learner_ready = state["learner_ready"]
+        self.sync_manager_owner = False
 
 
     cdef void _lock_explorer(self) except *:
@@ -2275,6 +2246,13 @@ cdef class MPReplayBuffer:
         use_nstep : bool
         """
         return False
+
+    def __del__(self):
+        if self.sync_manager_owner:
+            self.memory_manager.shutdown()
+
+
+
 
 
 cdef class ThreadSafePrioritizedSampler:
