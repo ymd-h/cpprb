@@ -1,26 +1,30 @@
 # distutils: language = c++
 # cython: linetrace=True
+
 import base64
 import ctypes
-import multiprocessing
-import multiprocessing as mp
-import time
-import warnings
-from functools import partial
 from logging import getLogger, StreamHandler, Formatter, INFO
-from multiprocessing import Event, Lock
+from multiprocessing import Event, Lock, Process
 from multiprocessing import shared_memory
 from multiprocessing.managers import SyncManager
 from multiprocessing.sharedctypes import Value, RawValue, RawArray
+import sys
+import time
 from typing import Any, Dict, Callable, Optional
+import warnings
 
-import cython
+cimport numpy as np
 import numpy as np
+import cython
+from cython.operator cimport dereference
+
 from cpprb.ReplayBuffer cimport *
 
 from .VectorWrapper cimport *
-from .VectorWrapper import (VectorSize_t,
-                            PointerDouble, VectorFloat)
+from .VectorWrapper import (VectorWrapper,
+                            VectorInt,VectorSize_t,
+                            VectorDouble,PointerDouble,VectorFloat)
+
 
 def default_logger(level=INFO):
     """
