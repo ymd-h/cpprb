@@ -1,13 +1,11 @@
 # distutils: language = c++
 # cython: linetrace=True
 
+import atexit
 import base64
 import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
-from multiprocessing import Event, Lock, Process
-from multiprocessing import shared_memory
-from multiprocessing.managers import SyncManager
-from multiprocessing.sharedctypes import Value, RawValue, RawArray
+import multiprocessing as mp
 import sys
 import time
 from typing import Any, Dict, Callable, Optional
@@ -24,6 +22,65 @@ from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,
                             VectorInt,VectorSize_t,
                             VectorDouble,PointerDouble,VectorFloat)
+
+
+_has_SharedMemory = sys.version_info >= (3, 8)
+if _has_SharedMemory:
+    # `SharedMemory` class is prefarable since it can work even after
+    # serialization/deserialization by using unique name. This
+    # capability allows users to use buffers in Ray (https://ray.io/).
+    from multiprocessing.shared_memory import SharedMemory
+
+    def RawArray(ctx, ctype_, len_):
+        size = ctypes.sizeof(ctype_) * len_
+        shm = SharedMemory(create=True, size=size)
+
+        @atexit.register
+        def _cleanup():
+            shm.close()
+            shm.unlink()
+
+        return shm
+
+    class RawValue:
+        def __init__(self, ctx, ctype_, init_=None):
+            size = ctypes.sizeof(ctype_)
+            self.shm = SharedMemory(create=True, size=size)
+            self.dtype = np.dtype(ctype_)
+
+            self.ndarray = np.ndarray((1,), self.dtype, buffer=self.shm.buf)
+            if init_ is not None:
+                self.ndarray[0] = init_
+
+            self.owner = True
+
+        @property
+        def value(self):
+            return self.ndarray[0]
+
+        @value.setter
+        def value(self, v):
+            self.ndarray[0] = v
+
+        def __getstate__(self):
+            return (self.shm, self.dtype)
+
+        def __setstate__(self, shm_dtype):
+            self.shm, self.dtype = shm_dtype
+            self.ndarray = np.ndarray((1,), self.dtype, buffer=self.shm.buf)
+            self.owner = False
+
+        def __del__(self):
+            self.shm.close()
+            if self.owner:
+                self.shm.unlink()
+else:
+    def RawArray(ctx, ctype_, len_):
+        return ctx.Array(ctype_, len_, lock=False)
+
+    def RawValue(ctx, ctype_, init_=None):
+        return ctx.Value(ctype_, init_, lock=False)
+
 
 
 def default_logger(level=INFO):
@@ -427,8 +484,9 @@ cdef class SharedBuffer:
     cdef data
     cdef data_ndarray
     cdef view
-    def __init__(self,shape,dtype,data=None):
+    def __init__(self, shape, dtype, data=None, ctx=None):
         self.dtype = np.dtype(dtype)
+        ctx = ctx or mp.get_context()
 
         if data is None:
             try:
@@ -445,12 +503,15 @@ cdef class SharedBuffer:
                     raise
 
             len = int(np.array(shape,copy=False,dtype="int").prod())
-            self.data = RawArray(ctype,len)
+            self.data = RawArray(ctx,ctype,len)
         else:
             self.data = data
 
-        self.data_ndarray = np.ctypeslib.as_array(self.data)
-        self.data_ndarray.shape = shape
+        if _has_SharedMemory:
+            self.data_ndarray = np.ndarray(shape, self.dtype, buffer=self.data.buf)
+        else:
+            self.data_ndarray = np.ctypeslib.as_array(self.data)
+            self.data_ndarray.shape = shape
 
         # Reinterpretation
         if self.dtype != self.data_ndarray.dtype:
@@ -469,108 +530,11 @@ cdef class SharedBuffer:
         return (SharedBuffer,(self.view.shape,self.dtype,self.data))
 
 
-@cython.embedsignature(True)
-cdef class SharedMemoryBuffer:
-    cdef dtype
-    cdef data
-    cdef data_ndarray
-    cdef view
-    cdef str shm_name
-    cdef i_am_the_creator
-    cdef shape
-
-    def __init__(self,shape,dtype,data=None,shm_name=None):
-        self.shm_name = shm_name
-        self.dtype = np.dtype(dtype)
-        self.i_am_the_creator = False
-
-
-        if isinstance(shape,np.ndarray):
-            self.shape = shape.tolist()
-
-        self.shape = tuple(shape)
-
-        if data is None:
-
-            n_elems = int(np.array(shape,copy=False,dtype="int").prod())
-            size = self.dtype.itemsize * n_elems
-            self.data = shared_memory.SharedMemory(name=shm_name, create=True, size=size)
-            self.i_am_the_creator = True
-
-        elif data is not None:
-            self.data = data
-
-        self.data_ndarray = np.ndarray(shape=self.shape,
-                                       dtype=self.dtype,
-                                       buffer=self.data.buf)
-
-
-        # Reinterpretation
-        if self.dtype != self.data_ndarray.dtype:
-            self.view = self.data_ndarray.view(self.dtype)
-        else:
-            self.view = self.data_ndarray
-
-
-
-
-    def __getitem__(self,key):
-        return self.view[key]
-
-    def __setitem__(self,key,value):
-        self.view[key] = value
-
-    # def __reduce__(self):
-    #     return SharedMemoryBuffer,self.view.shape,self.dtype,None,self.shm_name,True
-
-    def __getstate__(self):
-        # Copy the object's state from self.__dict__ which contains
-        # all our instance attributes. Always use the dict.copy()
-        # method to avoid modifying the original state.
-        state  = {"shm_name": self.shm_name,
-                 "dtype": self.dtype,
-                 "i_am_the_creator": False,
-                 "shape": self.shape}
-
-        # Remove the unpicklable entries.
-        return state
-
-    def __setstate__(self, state):
-        # Restore instance attributes.
-
-        self.shm_name = state["shm_name"]
-        self.dtype = state["dtype"]
-        self.i_am_the_creator = False
-        self.shape = state["shape"]
-
-        # Restore shared memory
-        self.data = shared_memory.SharedMemory(name=self.shm_name, create=False)
-
-        self.data_ndarray = np.ndarray(shape=self.shape,
-                                       dtype=self.dtype,
-                                       buffer=self.data.buf)
-
-        # Reinterpretation
-        if self.dtype != self.data_ndarray.dtype:
-            self.view = self.data_ndarray.view(self.dtype)
-        else:
-            self.view = self.data_ndarray
-
-
-    def __del__(self):
-        if self.data is not None:
-            self.data.close()
-            if self.i_am_the_creator:
-                self.data.unlink()
-
-
-
-
 def dict2buffer(buffer_size: int,env_dict: Dict,*,
                 stack_compress = None, default_dtype = None,
                 mmap_prefix: Optional[str] = None,
                 shared: bool = False,
-                shm_name = None):
+                ctx = None):
     """Create buffer from env_dict
 
     Parameters
@@ -586,8 +550,6 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
     mmap_prefix : str, optional
         File name prefix to save buffer data using mmap. If `None` (default),
         save only on memory.
-    shm_name : str, optional
-        multiprocessing.SharedMemory string name
 
     Returns
     -------
@@ -599,11 +561,8 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
     default_dtype = default_dtype or np.single
 
     def zeros(name,shape,dtype):
-        if shared and shm_name is None:
-            return SharedBuffer(shape,dtype)
-
-        if shm_name:
-            return SharedMemoryBuffer(shape=shape,dtype=dtype,shm_name=shm_name+"."+name)
+        if shared:
+            return SharedBuffer(shape,dtype, ctx=ctx)
 
         if mmap_prefix:
             if not isinstance(shape,tuple):
@@ -944,16 +903,11 @@ cdef class RingBufferIndex:
     cdef buffer_size
     cdef is_full
 
-    def __init__(self,buffer_size,m=None):
-
-        if m is not None:
-            self.index = m.Value(ctypes.c_size_t,0)
-            self.buffer_size = m.Value(ctypes.c_size_t,buffer_size)
-            self.is_full = m.Value(ctypes.c_int,0)
-        else:
-            self.index = RawValue(ctypes.c_size_t, 0)
-            self.buffer_size = RawValue(ctypes.c_size_t, buffer_size)
-            self.is_full = RawValue(ctypes.c_int, 0)
+    def __init__(self, buffer_size, ctx = None):
+        ctx = ctx or mp.get_context()
+        self.index = RawValue(ctx, ctypes.c_size_t, 0)
+        self.buffer_size = RawValue(ctx, ctypes.c_size_t, buffer_size)
+        self.is_full = RawValue(ctx, ctypes.c_int, 0)
 
     cdef size_t get_next_index(self):
         return self.index.value
@@ -999,12 +953,10 @@ cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
     """
     cdef lock
 
-    def __init__(self,buffer_size,m=None):
-        super().__init__(buffer_size,m)
-        if m is not None:
-            self.lock = m.Lock()
-        else:
-            self.lock = Lock()
+    def __init__(self, buffer_size, ctx=None):
+        ctx = ctx or mp.get_context()
+        super().__init__(buffer_size, ctx)
+        self.lock = ctx.Lock()
 
     cdef size_t get_next_index(self):
         with self.lock:
@@ -1963,11 +1915,10 @@ cdef class MPReplayBuffer:
     cdef explorer_count
     cdef explorer_count_lock
     cdef learner_ready
-    cdef shm_name
-    cdef sync_manager_owner
-    cdef memory_manager
 
-    def __init__(self,size,env_dict=None,*,default_dtype=None,logger=None,shm_name=None,**kwargs):
+    def __init__(self, size, env_dict=None, *,
+                 default_dtype=None, logger=None, ctx_or_server=None,
+                 **kwargs):
         r"""Initialize ReplayBuffer
 
         Parameters
@@ -1980,19 +1931,17 @@ cdef class MPReplayBuffer:
             defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
+        ctx_or_server : ForkContext, SpawnContext, or SyncManager, optional
+            context created by `multiprocessing.get_context()` or `SyncManager`.
+            If None (default), the default context is used.
         """
-
-        self.shm_name = shm_name
-        self.memory_manager = SyncManager()
-        self.memory_manager.start()
-        self.sync_manager_owner = True
-
         self.env_dict = env_dict.copy() if env_dict else {}
+        ctx = ctx_or_server or mp.get_context()
 
         cdef special_keys = []
 
         self.buffer_size = size
-        self.index = ProcessSafeRingBufferIndex(self.buffer_size, self.memory_manager)
+        self.index = ProcessSafeRingBufferIndex(self.buffer_size, ctx)
 
         self.default_dtype = default_dtype or np.single
 
@@ -2000,56 +1949,16 @@ cdef class MPReplayBuffer:
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   default_dtype = self.default_dtype,
                                   shared = True,
-                                  shm_name=shm_name)
+                                  ctx = ctx)
 
         self.size_check = StepChecker(self.env_dict,special_keys)
 
-        self.learner_ready = self.memory_manager.Event()
+        self.learner_ready = ctx.Event()
         self.learner_ready.clear()
-        self.explorer_ready = self.memory_manager.Event()
+        self.explorer_ready = ctx.Event()
         self.explorer_ready.set()
-        self.explorer_count = self.memory_manager.Value(ctypes.c_size_t, 0)
-        self.explorer_count_lock = self.memory_manager.Lock()
-
-
-    def __getstate__(self):
-
-        state = dict()
-
-        # Save instance persistent attributes.
-        state["shm_name"]= self.shm_name
-        state["buffer"] = self.buffer
-        state["buffer_size"] = self.buffer_size
-        state["env_dict"] = self.env_dict
-
-        state["index"] = self.index
-        state["default_dtype"] = self.default_dtype
-        state["size_check"] = self.size_check
-
-        state["explorer_ready"] = self.explorer_ready
-        state["explorer_count"] = self.explorer_count
-        state["explorer_count_lock"] = self.explorer_count_lock
-        state["learner_ready"] = self.learner_ready
-
-        return state
-
-    def __setstate__(self, state):
-
-        # Restore instance attributes.
-        self.shm_name = state["shm_name"]
-        self.buffer = state["buffer"]
-        self.buffer_size = state["buffer_size"]
-        self.env_dict = state["env_dict"]
-
-        self.index = state["index"]
-        self.default_dtype = state["default_dtype"]
-        self.size_check = state["size_check"]
-        self.explorer_ready = state["explorer_ready"]
-        self.explorer_count = state["explorer_count"]
-        self.explorer_count_lock = state["explorer_count_lock"]
-        self.learner_ready = state["learner_ready"]
-        self.sync_manager_owner = False
-
+        self.explorer_count = RawValue(ctx, ctypes.c_size_t, 0)
+        self.explorer_count_lock = ctx.Lock()
 
     cdef void _lock_explorer(self) except *:
         self.explorer_ready.wait() # Wait permission
@@ -2251,13 +2160,6 @@ cdef class MPReplayBuffer:
         """
         return False
 
-    def __del__(self):
-        if self.sync_manager_owner:
-            self.memory_manager.shutdown()
-
-
-
-
 
 cdef class ThreadSafePrioritizedSampler:
     cdef size_t size
@@ -2272,27 +2174,51 @@ cdef class ThreadSafePrioritizedSampler:
 
     def __init__(self,size,alpha,eps,max_p=None,
                  sum=None,sum_a=None,
-                 min=None,min_a=None):
+                 min=None,min_a=None,
+                 ctx = None):
+        ctx = ctx or mp.get_context()
         self.size = size
         self.alpha = alpha
         self.eps = eps
 
-        self.max_p = max_p or RawArray(ctypes.c_float,1)
-        cdef float [:] view_max_p = self.max_p
+        self.max_p = max_p or RawArray(ctx, ctypes.c_float,1)
+        cdef float [:] view_max_p
+
+        if _has_SharedMemory:
+            nd_max_p = np.ndarray((1,), np.single, buffer=self.max_p.buf)
+            view_max_p = nd_max_p
+        else:
+            view_max_p = self.max_p
 
         cdef size_t pow2size = 1
         while pow2size < size:
             pow2size *= 2
 
-        self.sum   = sum   or RawArray(ctypes.c_float,2*pow2size-1)
-        self.sum_a = sum_a or RawArray(ctypes.c_bool ,1)
-        self.min   = min   or RawArray(ctypes.c_float,2*pow2size-1)
-        self.min_a = min_a or RawArray(ctypes.c_bool ,1)
+        self.sum   = sum   or RawArray(ctx, ctypes.c_float,2*pow2size-1)
+        self.sum_a = sum_a or RawArray(ctx, ctypes.c_bool ,1)
+        self.min   = min   or RawArray(ctx, ctypes.c_float,2*pow2size-1)
+        self.min_a = min_a or RawArray(ctx, ctypes.c_bool ,1)
 
-        cdef float [:] view_sum   = self.sum
-        cdef bool  [:] view_sum_a = self.sum_a
-        cdef float [:] view_min   = self.min
-        cdef bool  [:] view_min_a = self.min_a
+        cdef float [:] view_sum
+        cdef bool  [:] view_sum_a
+        cdef float [:] view_min
+        cdef bool  [:] view_min_a
+
+        if _has_SharedMemory:
+            nd_sum   = np.ndarray((2*pow2size-1,), np.single, buffer=self.sum.buf)
+            nd_sum_a = np.ndarray((1,), np.bool_, buffer=self.sum_a.buf)
+            nd_min   = np.ndarray((2*pow2size-1,), np.single, buffer=self.min.buf)
+            nd_min_a = np.ndarray((1,), np.bool_, buffer=self.min_a.buf)
+
+            view_sum   = nd_sum
+            view_sum_a = nd_sum_a
+            view_min   = nd_min
+            view_min_a = nd_min_a
+        else:
+            view_sum   = self.sum
+            view_sum_a = self.sum_a
+            view_min   = self.min
+            view_min_a = self.min_a
 
         cdef bool init = ((max_p is None) and
                           (sum   is None) and
@@ -2345,7 +2271,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef vector[size_t] idx_vec
     cdef vector[float] ps_vec
 
-    def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
+    def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,ctx=None,**kwargs):
         r"""Initialize PrioritizedReplayBuffer
 
         Parameters
@@ -2374,73 +2300,37 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         :math:`(p_{i} + \epsilon )^{ \alpha }` are stored with segment tree, which
         enable fast sampling.
         """
-        super().__init__(size,env_dict,**kwargs)
+        ctx = ctx or mp.get_context()
+        super().__init__(size,env_dict,ctx=ctx,**kwargs)
 
-        self.per = ThreadSafePrioritizedSampler(size,alpha,eps)
+        self.per = ThreadSafePrioritizedSampler(size,alpha,eps, ctx=ctx)
 
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
-        shm = self.memory_manager.Array('b',
-                       np.ones(shape=size, dtype='int').flatten())
+        shm_size = int(np.array(size,copy=False,dtype='int').prod())
+        shm = RawArray(ctx, np.ctypeslib.as_ctypes_type(np.bool_), shm_size)
 
-        self.unchange_since_sample = np.ctypeslib.as_array(shm)
+        if _has_SharedMemory:
+            self.unchange_since_sample = np.ndarray((shm_size,), np.bool_,
+                                                    buffer=shm.buf)
+        else:
+            self.unchange_since_sample = np.ctypeslib.as_array(shm)
         self.unchange_since_sample[:] = True
 
         self.helper = None
-        self.terminate = self.memory_manager.Value(ctypes.c_bool,0)
+        self.terminate = RawValue(ctx, ctypes.c_bool,0)
         self.terminate.value = False
 
-        self.learner_per_ready = self.memory_manager.Event()
+        self.learner_per_ready = ctx.Event()
         self.learner_per_ready.clear()
-        self.explorer_per_ready = self.memory_manager.Event()
+        self.explorer_per_ready = ctx.Event()
         self.explorer_per_ready.set()
-        self.explorer_per_count = self.memory_manager.Value(ctypes.c_size_t, 0)
-        self.explorer_per_count_lock = self.memory_manager.Lock()
-
+        self.explorer_per_count = RawValue(ctx, ctypes.c_size_t, 0)
+        self.explorer_per_count_lock = ctx.Lock()
 
         self.idx_vec = vector[size_t]()
         self.ps_vec = vector[float]()
-
-
-    def __getstate__(self):
-
-        state = super().__getstate__()
-
-        # Save instance persistent attributes.
-        state["weights"] = self.weights
-        state["indexes"] = self.indexes
-        state["per"] = self.per
-        state["unchange_since_sample"] = self.unchange_since_sample
-        state["helper"] = self.helper
-        state["terminate"] = self.terminate
-        state["explorer_per_count"] = self.explorer_per_count
-        state["explorer_per_count_lock"] = self.explorer_per_count_lock
-        state["learner_per_ready"] = self.learner_per_ready
-        state["explorer_per_ready"] = self.explorer_per_ready
-        state["idx_vec"] = self.idx_vec
-        state["ps_vec"] = self.ps_vec
-
-        return state
-
-    def __setstate__(self, state):
-
-        super().__setstate__(state)
-
-        # Restore instance attributes.
-        self.weights = state["weights"]
-        self.indexes = state["indexes"]
-        self.per = state["per"]
-        self.unchange_since_sample = state["unchange_since_sample"]
-        self.helper = state["helper"]
-        self.terminate = state["terminate"]
-        self.explorer_per_count = state["explorer_per_count"]
-        self.explorer_per_count_lock = state["explorer_per_count_lock"]
-        self.learner_per_ready = state["learner_per_ready"]
-        self.explorer_per_ready = state["explorer_per_ready"]
-        self.idx_vec = state["idx_vec"]
-        self.ps_vec = state["ps_vec"]
-
 
     cdef void _lock_explorer_per(self) except *:
         self.explorer_per_ready.wait() # Wait permission
