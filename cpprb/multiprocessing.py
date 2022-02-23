@@ -45,8 +45,8 @@ if _has_SharedMemory:
                 self.shm.unlink()
 
 
-def RawArray(ctx, ctype, len, use_SharedMemory=False):
-    if _has_SharedMemory and use_SharedMemory:
+def RawArray(ctx, ctype, len, backend="sharedctypes"):
+    if _has_SharedMemory and backend == "SharedMemory":
         size = ctypes.sizeof(ctype) * len
         shm = SharedMemory(create=True, size=size)
 
@@ -60,8 +60,8 @@ def RawArray(ctx, ctype, len, use_SharedMemory=False):
         return ctx.Array(ctype, len, lock=False)
 
 
-def RawValue(ctx, ctype, init, use_SharedMemory=False):
-    if _has_SharedMemory and use_SharedMemory:
+def RawValue(ctx, ctype, init, backend="sharedctypes"):
+    if _has_SharedMemory and backend == "SharedMemory":
         return _RawValue(ctx, ctype, init)
     else:
         return ctx.Value(ctype, init, lock=False)
