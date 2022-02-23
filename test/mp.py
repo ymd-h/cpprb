@@ -253,6 +253,86 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(),0)
         self.assertEqual(rb.get_stored_size(),0)
 
+    def test_context(self):
+        buffer_size = 500
+        obs_shape = (84,84,3)
+        act_dim = 10
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape},
+                                                  "act": {"shape": act_dim},
+                                                  "rew": {},
+                                                  "done": {}},
+                                     ctx=get_context("spawn"))
+
+        obs = np.zeros(obs_shape)
+        act = np.ones(act_dim)
+        rew = 1
+        done = 0
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = 1.5
+
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+        self.assertAlmostEqual(rb.get_max_priority(),1.5)
+
+        obs = np.stack((obs,obs))
+        act = np.stack((act,act))
+        rew = (1,0)
+        done = (0.0,1.0)
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = (0.2,0.4)
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+
+        rb.clear()
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+    @unittest.skipUnless(sys.version_info >= (3,8),
+                         "SharedMemory is supported Python 3.8+")
+    def test_backend(self):
+        buffer_size = 500
+        obs_shape = (84,84,3)
+        act_dim = 10
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape},
+                                                  "act": {"shape": act_dim},
+                                                  "rew": {},
+                                                  "done": {}},
+                                     backend="SharedMemory")
+
+        obs = np.zeros(obs_shape)
+        act = np.ones(act_dim)
+        rew = 1
+        done = 0
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = 1.5
+
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+        self.assertAlmostEqual(rb.get_max_priority(),1.5)
+
+        obs = np.stack((obs,obs))
+        act = np.stack((act,act))
+        rew = (1,0)
+        done = (0.0,1.0)
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = (0.2,0.4)
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+
+        rb.clear()
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
     def test_sample(self):
         buffer_size = 500
         obs_shape = (84,84,3)
