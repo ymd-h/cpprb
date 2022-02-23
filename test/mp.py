@@ -164,7 +164,7 @@ class TestReplayBuffer(unittest.TestCase):
         buffer_size = 256
 
         ctx = get_context("spawn")
-        rb = ReplayBuffer(buffer_size, {"done": {}}, ctx_or_server=ctx)
+        rb = ReplayBuffer(buffer_size, {"done": {}}, ctx=ctx)
 
         self.assertEqual(rb.get_next_index(), 0)
         self.assertEqual(rb.get_stored_size(), 0)
