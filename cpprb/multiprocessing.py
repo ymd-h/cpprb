@@ -62,4 +62,4 @@ def RawValue(ctx, ctype, init, use_SharedMemory=False):
     if _has_SharedMemory and use_SharedMemory:
         return _RawValue(ctx, ctype, init)
     else:
-        return ctx.Value(ctype_, init_, lock=False)
+        return ctx.Value(ctype, init, lock=False)
