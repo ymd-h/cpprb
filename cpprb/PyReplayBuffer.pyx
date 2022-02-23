@@ -1,12 +1,9 @@
 # distutils: language = c++
 # cython: linetrace=True
 
-import atexit
-import base64
 import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
 import multiprocessing as mp
-import sys
 import time
 from typing import Any, Dict, Callable, Optional
 import warnings
@@ -17,70 +14,12 @@ import cython
 from cython.operator cimport dereference
 
 from cpprb.ReplayBuffer cimport *
+from cpprb.multiprocessing import RawArray, RawValue, _has_SharedMemory
 
 from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,
                             VectorInt,VectorSize_t,
                             VectorDouble,PointerDouble,VectorFloat)
-
-
-_has_SharedMemory = sys.version_info >= (3, 8)
-if _has_SharedMemory:
-    # `SharedMemory` class is prefarable since it can work even after
-    # serialization/deserialization by using unique name. This
-    # capability allows users to use buffers in Ray (https://ray.io/).
-    from multiprocessing.shared_memory import SharedMemory
-
-    def RawArray(ctx, ctype_, len_):
-        size = ctypes.sizeof(ctype_) * len_
-        shm = SharedMemory(create=True, size=size)
-
-        @atexit.register
-        def _cleanup():
-            shm.close()
-            shm.unlink()
-
-        return shm
-
-    class RawValue:
-        def __init__(self, ctx, ctype_, init_=None):
-            size = ctypes.sizeof(ctype_)
-            self.shm = SharedMemory(create=True, size=size)
-            self.dtype = np.dtype(ctype_)
-
-            self.ndarray = np.ndarray((1,), self.dtype, buffer=self.shm.buf)
-            if init_ is not None:
-                self.ndarray[0] = init_
-
-            self.owner = True
-
-        @property
-        def value(self):
-            return self.ndarray[0]
-
-        @value.setter
-        def value(self, v):
-            self.ndarray[0] = v
-
-        def __getstate__(self):
-            return (self.shm, self.dtype)
-
-        def __setstate__(self, shm_dtype):
-            self.shm, self.dtype = shm_dtype
-            self.ndarray = np.ndarray((1,), self.dtype, buffer=self.shm.buf)
-            self.owner = False
-
-        def __del__(self):
-            self.shm.close()
-            if self.owner:
-                self.shm.unlink()
-else:
-    def RawArray(ctx, ctype_, len_):
-        return ctx.Array(ctype_, len_, lock=False)
-
-    def RawValue(ctx, ctype_, init_=None):
-        return ctx.Value(ctype_, init_, lock=False)
-
 
 
 def default_logger(level=INFO):
@@ -484,9 +423,11 @@ cdef class SharedBuffer:
     cdef data
     cdef data_ndarray
     cdef view
-    def __init__(self, shape, dtype, data=None, ctx=None):
+    cdef backend
+    def __init__(self, shape, dtype, data=None, ctx=None, backend="sharedctypes"):
         self.dtype = np.dtype(dtype)
         ctx = ctx or mp.get_context()
+        self.backend = backend
 
         if data is None:
             try:
@@ -503,11 +444,11 @@ cdef class SharedBuffer:
                     raise
 
             len = int(np.array(shape,copy=False,dtype="int").prod())
-            self.data = RawArray(ctx,ctype,len)
+            self.data = RawArray(ctx,ctype,len,self.backend)
         else:
             self.data = data
 
-        if _has_SharedMemory:
+        if self.backend == "SharedMemory":
             self.data_ndarray = np.ndarray(shape, self.dtype, buffer=self.data.buf)
         else:
             self.data_ndarray = np.ctypeslib.as_array(self.data)
@@ -527,13 +468,13 @@ cdef class SharedBuffer:
         self.view[key] = value
 
     def __reduce__(self):
-        return (SharedBuffer,(self.view.shape,self.dtype,self.data))
+        return (SharedBuffer,(self.view.shape,self.dtype,self.data,None,self.backend))
 
 
 def dict2buffer(buffer_size: int,env_dict: Dict,*,
                 stack_compress = None, default_dtype = None,
                 mmap_prefix: Optional[str] = None,
-                shared: bool = False,
+                shared: Optional[str] = None,
                 ctx = None):
     """Create buffer from env_dict
 
@@ -562,7 +503,7 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
 
     def zeros(name,shape,dtype):
         if shared:
-            return SharedBuffer(shape,dtype, ctx=ctx)
+            return SharedBuffer(shape,dtype, ctx=ctx, backend=shared)
 
         if mmap_prefix:
             if not isinstance(shape,tuple):
@@ -903,11 +844,11 @@ cdef class RingBufferIndex:
     cdef buffer_size
     cdef is_full
 
-    def __init__(self, buffer_size, ctx = None):
+    def __init__(self, buffer_size, ctx = None, backend = "sharedctypes"):
         ctx = ctx or mp.get_context()
-        self.index = RawValue(ctx, ctypes.c_size_t, 0)
-        self.buffer_size = RawValue(ctx, ctypes.c_size_t, buffer_size)
-        self.is_full = RawValue(ctx, ctypes.c_int, 0)
+        self.index = RawValue(ctx, ctypes.c_size_t, 0, backend)
+        self.buffer_size = RawValue(ctx, ctypes.c_size_t, buffer_size, backend)
+        self.is_full = RawValue(ctx, ctypes.c_int, 0, backend)
 
     cdef size_t get_next_index(self):
         return self.index.value
@@ -953,9 +894,9 @@ cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
     """
     cdef lock
 
-    def __init__(self, buffer_size, ctx=None):
+    def __init__(self, buffer_size, ctx=None, backend="sharedctypes"):
         ctx = ctx or mp.get_context()
-        super().__init__(buffer_size, ctx)
+        super().__init__(buffer_size, ctx, backend)
         self.lock = ctx.Lock()
 
     cdef size_t get_next_index(self):
@@ -1915,9 +1856,11 @@ cdef class MPReplayBuffer:
     cdef explorer_count
     cdef explorer_count_lock
     cdef learner_ready
+    cdef backend
 
     def __init__(self, size, env_dict=None, *,
-                 default_dtype=None, logger=None, ctx_or_server=None,
+                 default_dtype=None, logger=None,
+                 ctx=None, backend="sharedctypes",
                  **kwargs):
         r"""Initialize ReplayBuffer
 
@@ -1931,24 +1874,32 @@ cdef class MPReplayBuffer:
             defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
-        ctx_or_server : ForkContext, SpawnContext, or SyncManager, optional
+        ctx : ForkContext, SpawnContext, or SyncManager, optional
             context created by `multiprocessing.get_context()` or `SyncManager`.
             If None (default), the default context is used.
+        backend : "sharedctypes" or "SharedMemory", optional
+            shared memoery (shm) backend to map buffer. The default is "sharedctypes".
+            "SharedMemory" is available only for Python 3.8+.
         """
         self.env_dict = env_dict.copy() if env_dict else {}
-        ctx = ctx_or_server or mp.get_context()
+        ctx = ctx or mp.get_context()
+
+        if not _has_SharedMemory:
+            backend = "sharedctypes"
+        self.backend = backend
 
         cdef special_keys = []
 
         self.buffer_size = size
-        self.index = ProcessSafeRingBufferIndex(self.buffer_size, ctx)
+        self.index = ProcessSafeRingBufferIndex(self.buffer_size, ctx,
+                                                self.backend)
 
         self.default_dtype = default_dtype or np.single
 
         # side effect: Add "add_shape" key into self.env_dict
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   default_dtype = self.default_dtype,
-                                  shared = True,
+                                  shared = self.backend,
                                   ctx = ctx)
 
         self.size_check = StepChecker(self.env_dict,special_keys)
@@ -1957,7 +1908,7 @@ cdef class MPReplayBuffer:
         self.learner_ready.clear()
         self.explorer_ready = ctx.Event()
         self.explorer_ready.set()
-        self.explorer_count = RawValue(ctx, ctypes.c_size_t, 0)
+        self.explorer_count = RawValue(ctx, ctypes.c_size_t, 0, self.backend)
         self.explorer_count_lock = ctx.Lock()
 
     cdef void _lock_explorer(self) except *:
@@ -2165,6 +2116,7 @@ cdef class ThreadSafePrioritizedSampler:
     cdef size_t size
     cdef float alpha
     cdef float eps
+    cdef backend
     cdef max_p
     cdef sum
     cdef sum_a#nychanged
@@ -2175,16 +2127,18 @@ cdef class ThreadSafePrioritizedSampler:
     def __init__(self,size,alpha,eps,max_p=None,
                  sum=None,sum_a=None,
                  min=None,min_a=None,
-                 ctx = None):
+                 ctx = None,
+                 backend = "sharedctypes"):
         ctx = ctx or mp.get_context()
         self.size = size
         self.alpha = alpha
         self.eps = eps
+        self.backend = backend
 
-        self.max_p = max_p or RawArray(ctx, ctypes.c_float,1)
+        self.max_p = max_p or RawArray(ctx, ctypes.c_float,1,self.backend)
         cdef float [:] view_max_p
 
-        if _has_SharedMemory:
+        if self.backend == "SharedMemory":
             nd_max_p = np.ndarray((1,), np.single, buffer=self.max_p.buf)
             view_max_p = nd_max_p
         else:
@@ -2194,17 +2148,17 @@ cdef class ThreadSafePrioritizedSampler:
         while pow2size < size:
             pow2size *= 2
 
-        self.sum   = sum   or RawArray(ctx, ctypes.c_float,2*pow2size-1)
-        self.sum_a = sum_a or RawArray(ctx, ctypes.c_bool ,1)
-        self.min   = min   or RawArray(ctx, ctypes.c_float,2*pow2size-1)
-        self.min_a = min_a or RawArray(ctx, ctypes.c_bool ,1)
+        self.sum   = sum   or RawArray(ctx, ctypes.c_float,2*pow2size-1, self.backend)
+        self.sum_a = sum_a or RawArray(ctx, ctypes.c_bool ,1, self.backend)
+        self.min   = min   or RawArray(ctx, ctypes.c_float,2*pow2size-1, self.backend)
+        self.min_a = min_a or RawArray(ctx, ctypes.c_bool ,1, self.backend)
 
         cdef float [:] view_sum
         cdef bool  [:] view_sum_a
         cdef float [:] view_min
         cdef bool  [:] view_min_a
 
-        if _has_SharedMemory:
+        if self.backend == "SharedMemory":
             nd_sum   = np.ndarray((2*pow2size-1,), np.single, buffer=self.sum.buf)
             nd_sum_a = np.ndarray((1,), np.bool_, buffer=self.sum_a.buf)
             nd_min   = np.ndarray((2*pow2size-1,), np.single, buffer=self.min.buf)
@@ -2240,9 +2194,9 @@ cdef class ThreadSafePrioritizedSampler:
 
     def __reduce__(self):
         return (ThreadSafePrioritizedSampler,
-                (self.size,self.alpha,self.eps,self.max_p,
-                 self.sum,self.sum_a,
-                 self.min,self.min_a))
+                (self.size, self.alpha, self.eps, self.max_p,
+                 self.sum, self.sum_a, self.min, self.min_a,
+                 None, self.backend))
 
 
 @cython.embedsignature(True)
@@ -2309,9 +2263,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.indexes = VectorSize_t()
 
         shm_size = int(np.array(size,copy=False,dtype='int').prod())
-        shm = RawArray(ctx, np.ctypeslib.as_ctypes_type(np.bool_), shm_size)
+        shm = RawArray(ctx, ctypes.c_bool, shm_size, self.backend)
 
-        if _has_SharedMemory:
+        if self.backend == "SharedMemory":
             self.unchange_since_sample = np.ndarray((shm_size,), np.bool_,
                                                     buffer=shm.buf)
         else:
