@@ -1,5 +1,6 @@
 from multiprocessing import Process, get_context
 import unittest
+import sys
 
 import numpy as np
 
@@ -184,6 +185,34 @@ class TestReplayBuffer(unittest.TestCase):
 
         self.assertEqual(rb.get_next_index(), 200)
         self.assertEqual(rb.get_stored_size(), 200)
+
+    @unittest.skipUnless(sys.version_info >= (3,8),
+                         "SharedMemory is supported Python 3.8+")
+    def test_backend(self):
+        buffer_size = 256
+
+        ctx = get_context("spawn")
+        rb = ReplayBuffer(buffer_size, {"done": {}}, ctx=ctx, backend="SharedMemory")
+
+        self.assertEqual(rb.get_next_index(), 0)
+        self.assertEqual(rb.get_stored_size(), 0)
+
+        p = Process(target=add, args=[rb])
+        q = Process(target=add, args=[rb])
+        r = Process(target=sample, args=[rb, 32])
+
+        p.start()
+        p.join()
+
+        q.start()
+        r.start()
+
+        q.join()
+        r.join()
+
+        self.assertEqual(rb.get_next_index(), 200)
+        self.assertEqual(rb.get_stored_size(), 200)
+
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
