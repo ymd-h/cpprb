@@ -3,6 +3,8 @@ import ctypes
 import multiprocessing as mp
 import sys
 
+import numpy as np
+
 _has_SharedMemory = sys.version_info >= (3, 8)
 if _has_SharedMemory:
     # `SharedMemory` class is prefarable since it can work even after
