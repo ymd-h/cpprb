@@ -122,6 +122,24 @@ SegmentTree.cpp:
     - $CXX -o test/SegmentTree test/SegmentTree.cpp
     - test/SegmentTree
 
+
+cpp_bench:
+  image: *dev_image
+  stage: bench_mark_test
+  needs:
+    - job: ReplayBuffer.cpp
+      artifacts: false
+    - job: SegmentTree.cpp
+      artifacts: false
+  script:
+    - $CXX -o test/segmenttree_bench test/segmenttree_bench.cpp
+    - test/segmenttree_bench
+    - test/segmenttree_bench
+    - test/segmenttree_bench
+    - test/segmenttree_bench
+    - test/segmenttree_bench
+
+
 ReplayBuffer:
   <<: *py_setup
   script:

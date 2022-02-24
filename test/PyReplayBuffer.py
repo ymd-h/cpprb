@@ -95,8 +95,8 @@ class TestReplayBuffer(unittest.TestCase):
 class TestPrioritizedBase:
     def test_weights(self):
         self._check_ndarray(self.s['weights'],1,(self.batch_size,),"weights")
-        for w in self.s['weights']:
-            self.assertAlmostEqual(w,1.0)
+        np.testing.assert_allclose(self.s["weights"],
+                                   np.full_like(self.s["weights"], 1.0))
 
     def test_indexes(self):
         self._check_ndarray(self.s['indexes'],1,(self.batch_size,),"indexes")
