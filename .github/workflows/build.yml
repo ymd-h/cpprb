@@ -36,7 +36,7 @@ jobs:
           key: ${{ runner.os }}-pip${{ matrix.python }}
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
       - run: pip install wheel
-      - run: pip install cython setuptools twine scipy gym gym-algorithmic gym-legacy-toytext 'numpy<1.20.0'
+      - run: pip install cython setuptools twine scipy gym gym-algorithmic gym-legacy-toytext 'numpy<1.20.0' ray
       - run: pip install jax[cpu]
         if: startsWith(runner.os, 'Windows') != true
       - name: Install cpprb
