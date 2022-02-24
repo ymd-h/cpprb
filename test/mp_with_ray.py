@@ -3,7 +3,7 @@ import multiprocessing as mp
 import unittest
 import sys
 
-from cpprb import MPReplayBuffer
+from cpprb import MPReplayBuffer, MPPrioritizedReplayBuffer
 import numpy as np
 import ray
 
@@ -27,7 +27,7 @@ class TestRay(unittest.TestCase):
         ray.shutdown()
         cls.m.shutdown()
 
-    def test_add(self):
+    def test_er(self):
         rb = MPReplayBuffer(10, {"done": {}}, ctx=self.m, backend="SharedMemory")
 
         @ray.remote
@@ -39,6 +39,38 @@ class TestRay(unittest.TestCase):
         self.assertEqual(rb.get_stored_size(), 2)
         np.testing.assert_equal(rb.get_all_transitions()["done"].ravel(),
                                 np.asarray([0, 1]))
+
+        @ray.remote
+        def sample(rb):
+            return rb.sample(2)
+
+        s = ray.get(sample.remote(rb))
+        self.assertIn("done", s)
+        self.assertEqual(s["done"].shape[0], 2)
+
+    def test_per(self):
+        rb = MPPrioritizedReplayBuffer(10, {"done": {}},
+                                       ctx=self.m, backend="SharedMemory")
+
+        @ray.remote
+        def add(rb):
+            rb.add(done=0)
+            rb.add(done=1, priorities=0.1)
+
+        rb.get([add.remote(rb)])
+        self.assertEqual(rb.get_stored_size(), 2)
+        np.testing.assert_equal(rb.get_all_transitions()["done"].ravel(),
+                                np.asarray([0, 1]))
+
+        @ray.remote
+        def sample(rb):
+            return rb.sample(2)
+
+        s = ray.get(sample.remote(rb))
+        self.assertIn("done", s)
+        self.assertIn("weights", s)
+        self.assertIn("indexes", s)
+        self.assertEqual(s["done"].shape[0], 2)
 
 
 if __name__ == "__main__":
