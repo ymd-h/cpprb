@@ -57,7 +57,7 @@ class TestRay(unittest.TestCase):
             rb.add(done=0)
             rb.add(done=1, priorities=0.1)
 
-        rb.get([add.remote(rb)])
+        ray.get([add.remote(rb)])
         self.assertEqual(rb.get_stored_size(), 2)
         np.testing.assert_equal(rb.get_all_transitions()["done"].ravel(),
                                 np.asarray([0, 1]))
