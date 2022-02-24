@@ -254,7 +254,7 @@ run_bench_mark:
   image: $CI_REGISTRY_IMAGE/bench:latest
   stage: bench_mark_test
   script:
-    - pip install $(echo dist/*.whl)
+    - pip install .
     - cd benchmark
     - python benchmark.py
   artifacts:
@@ -269,7 +269,7 @@ run_bench_mark2:
   image: $CI_REGISTRY_IMAGE/bench2:latest
   stage: bench_mark_test
   script:
-    - pip install $(echo dist/*.whl)
+    - pip install .
     - cd benchmark2
     - python benchmark.py
   artifacts:
