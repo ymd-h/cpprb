@@ -1387,14 +1387,32 @@ CLOSED: [2020-02-15 Sat 09:23]
 :EXPORT_HUGO_WEIGHT: 800
 :END:
 
-** DQN with ~PrioritizedReplayBuffer~
+- [[https://ymd_h.gitlab.io/cpprb/examples/dqn_per/][DQN with PrioritizedReplayBuffer]]
+- [[https://ymd_h.gitlab.io/cpprb/examples/lap/][Loss Adjusted Prioritization (LAP)]]
+- [[https://ymd_h.gitlab.io/cpprb/examples/ape-x/][Multiprocess Learning (Ape-X) with MPPrioritizedReplayBuffer]]
+- [[https://ymd_h.gitlab.io/cpprb/examples/laber/][Large Batch Experience Replay (LaBER)]]
+- [[https://ymd_h.gitlab.io/cpprb/examples/her/][Hindsight Experience Replay (HER)]]
+- [[https://ymd_h.gitlab.io/cpprb/examples/env_helper/][Create ReplayBuffer for non-simple gym.Env with helper functions]]
+
+
+* DONE DQN with ~PrioritizedReplayBuffer~
+CLOSED: [2022-02-25 Fri 07:45]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: examples
+:EXPORT_FILE_NAME: dqn_per
+:END:
 
 The following is a DQN[fn:11] example. This also includes Double DQN[fn:10] and
 Prioritized Experience Replay[fn:3].
 
 #+INCLUDE: "../example/dqn.py" src python
 
-** Loss Adjusted Prioritization
+* DONE Loss Adjusted Prioritization
+CLOSED: [2022-02-25 Fri 07:48]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: examples
+:EXPORT_FILE_NAME: lap
+:END:
 
 The following is a LAP[fn:9] example.
 See [[https://ymd_h.gitlab.io/cpprb/understanding/#relation-between-loss-functions-and-non-uniform-sampling][the theory page]].
@@ -1402,26 +1420,46 @@ See [[https://ymd_h.gitlab.io/cpprb/understanding/#relation-between-loss-functio
 #+INCLUDE: "../example/dqn-lap.py" src python
 
 
-** Multiprocess Learning (Ape-X) with ~MPPrioritizedReplayBuffer~
+* DONE Multiprocess Learning (Ape-X) with ~MPPrioritizedReplayBuffer~
+CLOSED: [2022-02-25 Fri 07:48]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: examples
+:EXPORT_FILE_NAME: ape-x
+:END:
 This is a Ape-X[fn:12] example code.
 See [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-X)]] for detail.
 
 #+INCLUDE: "../example/apex.py" src python
 
-** Large Batch Experience Replay (LaBER)
+* DONE Large Batch Experience Replay (LaBER)
+CLOSED: [2022-02-25 Fri 07:49]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: examples
+:EXPORT_FILE_NAME: laber
+:END:
 The following is a LaBER[fn:17] example code.
 See [[https://ymd_h.gitlab.io/cpprb/features/laber/][Large Batch Experience Replay]] for detail.
 
 #+INCLUDE: "../example/dqn-laber.py" src python
 
-** Hindsight Experience Replay (HER)
+* DONE Hindsight Experience Replay (HER)
+CLOSED: [2022-02-25 Fri 07:49]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: examples
+:EXPORT_FILE_NAME: her
+:END:
 The following is a HER[fn:22] example code.
 See [[https://ymd_h.gitlab.io/cpprb/features/her/][Hindsight Experience Replay]] for detail.
 
 #+INCLUDE: "../example/dqn-her.py" src python
 
 
-** Create ~ReplayBuffer~ for non-simple =gym.Env= with helper functions
+* DONE Create ~ReplayBuffer~ for non-simple =gym.Env= with helper functions
+CLOSED: [2022-02-25 Fri 07:50]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: examples
+:EXPORT_FILE_NAME: env_helper
+:END:
 
 #+INCLUDE: "../example/create_buffer_with_helper_func.py" src python
 
