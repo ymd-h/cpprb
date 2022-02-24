@@ -100,7 +100,7 @@ class TestBipedalWalkerHardcore(TestEnv,unittest.TestCase):
 
 class TestCarRacing(TestEnv,unittest.TestCase):
     def setUp(self):
-        self.env = gym.make("CarRacing-v0")
+        self.env = gym.make("CarRacing-v1")
 
 class TestLunarLander(TestEnv,unittest.TestCase):
     def setUp(self):
