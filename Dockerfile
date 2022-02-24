@@ -22,6 +22,7 @@ RUN pip3 install -U pip setuptools \
     matplotlib \
     'numpy<1.20.0' \
     pyvirtualdisplay \
+    ray \
     sphinx \
     sphinx-automodapi \
     sphinx_rtd_theme \
