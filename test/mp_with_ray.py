@@ -72,6 +72,26 @@ class TestRay(unittest.TestCase):
         self.assertIn("indexes", s)
         self.assertEqual(s["done"].shape[0], 2)
 
+    def test_with_alpha(self):
+        rb = MPPrioritizedReplayBuffer(10, {"done": {}}, alpha=0.2,
+                                       ctx=self.m, backend="SharedMemory")
+
+        @ray.remote
+        def add(rb):
+            rb.add(done=[0, 1])
+
+        @ray.remote
+        def get_all_transitions(rb):
+            return rb.get_all_transitions()
+
+        ray.get([add.remote(rb), add.remote(rb)])
+
+        np.testing.assert_equal(rb.get_all_transitions()["done"],
+                                ray.get(get_all_transitions.remote(rb))["done"])
+        self.assertEqual(rb.stored_size(), 4)
+        np.testing.assert_equal(rb.get_all_transitions()["done"].ravel(),
+                                np.asarray([0, 1, 0, 1]))
+
 
 if __name__ == "__main__":
     unittest.main()
