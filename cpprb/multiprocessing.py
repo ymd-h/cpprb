@@ -1,6 +1,5 @@
 import atexit
 import ctypes
-import multiprocessing as mp
 import sys
 
 import numpy as np
@@ -10,30 +9,36 @@ if _has_SharedMemory:
     # `SharedMemory` class is prefarable since it can work even after
     # serialization/deserialization by using unique name. This
     # capability allows users to use buffers in Ray (https://ray.io/).
-    from multiprocessing.shared_memory import SharedMemory
+    from multiprocessing.shared_memory import SharedMemory, _USE_POSIX
     from multiprocessing.managers import SharedMemoryManager
 
-    _manager = None
+    def setup_unlink(shm):
+        # Work around a resource tracker issues;
+        # * Ref: https://bugs.python.org/issue41447
+        # * Ref: https://bugs.python.org/issue38119
+        if _USE_POSIX:
+            from multiprocessing.resource_tracker import unregister
+            import _posixshmem
 
-    def get_manager():
-        global _manager
-
-        if _manager is None:
-            _manager = SharedMemoryManager()
-            _manager.start()
+            name = shm._name
+            unregister(name, "shared_memory")
 
             @atexit.register
-            def shutdown(*args):
-                _manager.shutdown()
+            def unlink(*args):
+                try:
+                    _posixshmem.shm_unlink(name)
+                except FileNotFoundError:
+                    pass
 
-        return _manager
 
-
-    class _RawValue:
+    class SharedMemoryValue:
         def __init__(self, ctype, init=None):
             size = ctypes.sizeof(ctype)
-            self.shm = get_manager().SharedMemory(size=size)
+            self.shm = SharedMemory(create=True, size=size)
+            setup_unlink(self.shm)
+
             self.dtype = np.dtype(ctype)
+            assert self.dtype.itemsize == size, "BUG: data size mismutch"
 
             self.ndarray = np.ndarray((1,), self.dtype, buffer=self.shm.buf)
             if init is not None:
@@ -55,47 +60,76 @@ if _has_SharedMemory:
             self.ndarray = np.ndarray((1,), self.dtype, buffer=self.shm.buf)
 
 
-    class _RawArray:
+    class SharedMemoryArray:
         def __init__(self, ctype, len):
-            size = ctypes.sizeof(ctype) * len
-            self.shm = get_manager().SharedMemory(size=size)
+            self.len = len
+            self.dtype = np.dtype(ctype)
+
+            size = ctypes.sizeof(ctype) * self.len
+            self.shm = SharedMemory(create=True, size=size)
+            setup_unlink(self.shm)
+
+            self.ndarray = np.ndarray((self.len,), self.dtype, buffer=self.shm.buf)
 
         def __getstate__(self):
-            return self.shm
+            return (self.shm, self.dtype, self.len)
 
-        def __setstate__(self, shm):
-            self.shm = shm
+        def __setstate__(self, shm_dtype_len):
+            self.shm, self.dtype, self.len = shm_dtype_len
+            self.ndarray = np.ndarray((self.len,), self.dtype, buffer=self.shm.buf)
 
         def __len__(self):
-            return len(self.shm)
+            return len(self.ndarray)
 
         def __getitem__(self, i):
-            return self.shm[i]
+            return self.ndarray[i]
 
         def __setitem__(self, i, value):
-            self.shm[i] = value
+            self.ndarray[i] = value
 
         def __getslice__(self, start, stop):
-            return self.shm[start:stop]
+            return self.ndarray[start:stop]
 
         def __setslice__(self, start, stop, values):
-            self.shm[start:stop] = values
-
-        @property
-        def buf(self):
-            return self.shm.buf
+            self.ndarray[start:stop] = values
 
 
+class ctypesArray:
+    def __init__(self, ctx, ctype, len):
+        self.shm = ctx.Array(ctype, len, lock=False)
+        self.ndarray = np.ctypeslib.as_array(self.shm)
+
+    def __getstate__(self):
+        return self.shm
+
+    def __setstate__(self, shm):
+        self.shm = shm
+        self.ndarray = np.ctypeslib.as_array(self.shm)
+
+    def __len__(self):
+        return len(self.ndarray)
+
+    def __getitem__(self, i):
+        return self.ndarray[i]
+
+    def __setitem__(self, i, value):
+        self.ndarray[i] = value
+
+    def __getslice__(self, start, stop):
+        return self.ndarray[start:stop]
+
+    def __setslice__(self, start, stop, values):
+        self.ndarray[start:stop] = values
 
 def RawArray(ctx, ctype, len, backend="sharedctypes"):
     if _has_SharedMemory and backend == "SharedMemory":
-        return _RawArray(ctype, len)
+        return SharedMemoryArray(ctype, len)
     else:
-        return ctx.Array(ctype, len, lock=False)
+        return ctypesArray(ctx, ctype, len)
 
 
 def RawValue(ctx, ctype, init, backend="sharedctypes"):
     if _has_SharedMemory and backend == "SharedMemory":
-        return _RawValue(ctype, init)
+        return SharedMemoryValue(ctype, init)
     else:
         return ctx.Value(ctype, init, lock=False)

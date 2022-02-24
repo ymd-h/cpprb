@@ -448,11 +448,8 @@ cdef class SharedBuffer:
         else:
             self.data = data
 
-        if self.backend == "SharedMemory":
-            self.data_ndarray = np.ndarray(shape, self.dtype, buffer=self.data.buf)
-        else:
-            self.data_ndarray = np.ctypeslib.as_array(self.data)
-            self.data_ndarray.shape = shape
+        self.data_ndarray = self.data.ndarray
+        self.data_ndarray.shape = shape
 
         # Reinterpretation
         if self.dtype != self.data_ndarray.dtype:
@@ -2136,43 +2133,21 @@ cdef class ThreadSafePrioritizedSampler:
         self.backend = backend
 
         self.max_p = max_p or RawArray(ctx, ctypes.c_float,1,self.backend)
-        cdef float [:] view_max_p
-
-        if self.backend == "SharedMemory":
-            nd_max_p = np.ndarray((1,), np.single, buffer=self.max_p.buf)
-            view_max_p = nd_max_p
-        else:
-            view_max_p = self.max_p
+        cdef float [:] view_max_p = self.max_p.ndarray
 
         cdef size_t pow2size = 1
         while pow2size < size:
             pow2size *= 2
 
         self.sum   = sum   or RawArray(ctx, ctypes.c_float,2*pow2size-1, self.backend)
-        self.sum_a = sum_a or RawArray(ctx, ctypes.c_bool ,1, self.backend)
+        self.sum_a = sum_a or RawArray(ctx, ctypes.c_bool ,1           , self.backend)
         self.min   = min   or RawArray(ctx, ctypes.c_float,2*pow2size-1, self.backend)
-        self.min_a = min_a or RawArray(ctx, ctypes.c_bool ,1, self.backend)
+        self.min_a = min_a or RawArray(ctx, ctypes.c_bool ,1           , self.backend)
 
-        cdef float [:] view_sum
-        cdef bool  [:] view_sum_a
-        cdef float [:] view_min
-        cdef bool  [:] view_min_a
-
-        if self.backend == "SharedMemory":
-            nd_sum   = np.ndarray((2*pow2size-1,), np.single, buffer=self.sum.buf)
-            nd_sum_a = np.ndarray((1,), np.bool_, buffer=self.sum_a.buf)
-            nd_min   = np.ndarray((2*pow2size-1,), np.single, buffer=self.min.buf)
-            nd_min_a = np.ndarray((1,), np.bool_, buffer=self.min_a.buf)
-
-            view_sum   = nd_sum
-            view_sum_a = nd_sum_a
-            view_min   = nd_min
-            view_min_a = nd_min_a
-        else:
-            view_sum   = self.sum
-            view_sum_a = self.sum_a
-            view_min   = self.min
-            view_min_a = self.min_a
+        cdef float [:] view_sum   = self.sum.ndarray
+        cdef bool  [:] view_sum_a = self.sum_a.ndarray
+        cdef float [:] view_min   = self.min.ndarray
+        cdef bool  [:] view_min_a = self.min_a.ndarray
 
         cdef bool init = ((max_p is None) and
                           (sum   is None) and
@@ -2216,7 +2191,6 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef VectorSize_t indexes
     cdef ThreadSafePrioritizedSampler per
     cdef unchange_since_sample
-    cdef helper
     cdef terminate
     cdef explorer_per_count
     cdef explorer_per_count_lock
@@ -2257,22 +2231,15 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         ctx = ctx or mp.get_context()
         super().__init__(size,env_dict,ctx=ctx,**kwargs)
 
-        self.per = ThreadSafePrioritizedSampler(size,alpha,eps, ctx=ctx)
+        self.per = ThreadSafePrioritizedSampler(size,alpha,eps,
+                                                ctx=ctx, backend=self.backend)
 
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
-        shm_size = int(np.array(size,copy=False,dtype='int').prod())
-        shm = RawArray(ctx, ctypes.c_bool, shm_size, self.backend)
-
-        if self.backend == "SharedMemory":
-            self.unchange_since_sample = np.ndarray((shm_size,), np.bool_,
-                                                    buffer=shm.buf)
-        else:
-            self.unchange_since_sample = np.ctypeslib.as_array(shm)
+        self.unchange_since_sample = RawArray(ctx, ctypes.c_bool, size, self.backend)
         self.unchange_since_sample[:] = True
 
-        self.helper = None
         self.terminate = RawValue(ctx, ctypes.c_bool,0)
         self.terminate.value = False
 
@@ -2285,6 +2252,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         self.idx_vec = vector[size_t]()
         self.ps_vec = vector[float]()
+
 
     cdef void _lock_explorer_per(self) except *:
         self.explorer_per_ready.wait() # Wait permission
