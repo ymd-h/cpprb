@@ -5,6 +5,7 @@ RUN apt update \
     build-essential \
     graphviz \
     python3-opengl \
+    swig \
     tk-dev \
     x11-utils \
     xvfb \
