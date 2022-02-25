@@ -1486,6 +1486,9 @@ rb = MPReplayBuffer(buffer_size, {"done": {}},
                     ctx = m, backend="SharedMemory")
 #+end_src
 
+
+Finnaly, (pseudo) example is as follows;
+
 #+INCLUDE: "../example/multiprocessing-ray.py" src python
 
 
