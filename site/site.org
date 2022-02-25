@@ -1482,7 +1482,7 @@ import multiprocessing as mp
 from cpprb import MPReplayBuffer
 
 buffer_size = 1e+6
-m = mp.get_context().SyncManager()
+m = mp.get_context().Manager()
 
 rb = MPReplayBuffer(buffer_size, {"done": {}},
                     ctx = m, backend="SharedMemory")
