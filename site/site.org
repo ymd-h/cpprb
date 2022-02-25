@@ -1488,7 +1488,7 @@ rb = MPReplayBuffer(buffer_size, {"done": {}},
                     ctx = m, backend="SharedMemory")
 #+end_src
 
-
+#+INCLUDE: "../example/multiprocessing-ray.py"
 
 
 * DONE Large Batch Experience Replay (LaBER)
