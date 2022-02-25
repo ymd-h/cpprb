@@ -22,7 +22,7 @@ def explorer(global_rb, env_dict, q, stop):
     buffer_size = 100
 
     local_rb = ReplayBuffer(buffer_size, env_dict)
-    env = gym.make()
+    env = gym.make("CartPole-v1")
 
     model = Model()
 
