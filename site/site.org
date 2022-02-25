@@ -1439,7 +1439,8 @@ CLOSED: [2022-02-25 Fri 12:38]
 :EXPORT_FILE_NAME: mp_with_ray
 :END:
 
-[[https://ray.io/][Ray]] is a OSS framework to build distributed application easily.
+[[https://ray.io/][Ray]] is a OSS framework which allows users to build distributed
+application easily.
 
 Ray can utilize multiple machines, so that Ray architecture doesn't
 use shared memory except for immutable ~numpy.ndarray~.
