@@ -1,7 +1,10 @@
+# See: https://ymd_h.gitlab.io/cpprb/examples/mp_with_ray/
+
 import multiprocessing as mp
 import time
 
 from cpprb import ReplayBuffer, MPPrioritizedReplayBuffer
+import gym
 import numpy as np
 import ray
 
@@ -11,10 +14,17 @@ class Model:
         self.w = None
 
     def train(self, transitions):
-        # Update Weight and return |TD|
+        """
+        Update model weights and return |TD|
+        """
+        # omit
         return absTD
 
     def __call__(self, obs):
+        """
+        Choose action from observation
+        """
+        # omit
         return act
 
 @ray.remote
@@ -37,6 +47,7 @@ def explorer(global_rb, env_dict, q, stop):
         local_rb.add(obs=obs, act=act, rew=rew, next_obs=next_obs, done=done)
 
         if done or local_rb.get_stored_size() == buffer_size():
+            local_rb.on_episode_end()
             global_rb.add(**local_rb.get_all_transitions())
             local_rb.clear()
             obs = env.reset()
