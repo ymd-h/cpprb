@@ -1431,6 +1431,64 @@ See [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-
 
 #+INCLUDE: "../example/apex.py" src python
 
+* DONE Use ~MPReplayBuffer~ with Ray
+CLOSED: [2022-02-25 Fri 12:38]
+:PROPERTIES:
+:EXPORT_HUGO_SECTION*: examples
+:EXPORT_FILE_NAME: mp_with_ray
+:END:
+
+[[https://ray.io/][Ray]] is a OSS framework to build distributed application easily.
+
+Ray can utilize multiple machines, so that Ray architecture doesn't
+use shared memory except for immutable ~numpy.ndarray~.
+
+However, if you use only a single machine, you might want to use
+shared memory for replay buffer to avoid expensive inter process data
+sharing.
+
+With cpprb 10.6+ and Python 3.8+, you can use ~MPReplayBuffer~ and
+~MPPrioritizedReplayBuffer~ with Ray.
+
+A key trick is to set ~authkey~ inside Ray process, which allows Ray
+workers to communicate with ~SyncManager~ process.
+
+#+begin_src python
+import base64
+import multiprocessing as mp
+
+import ray
+
+ray.init()
+
+# Encode base64 to avoid following error:
+#   TypeError: Pickling an AuthenticationString object is disallowed for security reasons
+encoded = base64.b64encode(authkey)
+
+def auth_fn(*args):
+    mp.current_process().authkey = base64.b64decode(encoded)
+
+ray.worker.global_worker.run_function_on_all_workers(auth_fn)
+#+end_src
+
+
+We also have to select ~SharedMemory~ backend and ~SyncManager~ context.
+
+#+begin_src python
+import multiprocessing as mp
+
+from cpprb import MPReplayBuffer
+
+buffer_size = 1e+6
+m = mp.get_context().SyncManager()
+
+rb = MPReplayBuffer(buffer_size, {"done": {}},
+                    ctx = m, backend="SharedMemory")
+#+end_src
+
+
+
+
 * DONE Large Batch Experience Replay (LaBER)
 CLOSED: [2022-02-25 Fri 07:49]
 :PROPERTIES:
