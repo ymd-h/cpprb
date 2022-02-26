@@ -1478,7 +1478,10 @@ ray.worker.global_worker.run_function_on_all_workers(auth_fn)
 #+end_src
 
 
-We also have to select ~SharedMemory~ backend and ~SyncManager~ context.
+We also have to select ~SharedMemory~ backend and ~SyncManager~
+context. By this configuration, main data is placed on shared memory
+and synchronization objects (e.g. ~Lock~ and ~Event~) are accessed
+through ~SyncManager~ proxy.
 
 #+begin_src python
 import multiprocessing as mp
@@ -1493,7 +1496,7 @@ rb = MPReplayBuffer(buffer_size, {"done": {}},
 #+end_src
 
 
-Finnaly, (pseudo) example is as follows;
+In the end, (pseudo) example become like this;
 
 #+INCLUDE: "../example/multiprocessing-ray.py" src python
 
