@@ -1103,8 +1103,8 @@ serialized, so that it can work with pickle based multiprocessing like
 On Linux, ~SharedMemory~ are mapped under ~/dev/shm~ directory by
 ~shm_open~. If the directory doesn't have enough space, the program
 dies with ~Bus error~, which (as far as we know) cannot be handled by
-Python program correctly. This is often the case inside docker
-container. You can increase the size by
+Python program correctly (like ~segmentation fault~). This is
+often the case inside docker container. You can increase the size by
 ~docker run -it --shm-size 1G python3.9 bash~ etc.
 
 
