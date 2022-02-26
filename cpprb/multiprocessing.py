@@ -100,8 +100,6 @@ if _has_SharedMemory:
 
 class ctypesArray:
     def __init__(self, ctx, ctype, len):
-        if isinstance(ctx, SyncManager):
-            ctx = ctx._ctx
         self.shm = ctx.Array(ctype, len, lock=False)
         self.ndarray = np.ctypeslib.as_array(self.shm)
 
@@ -128,6 +126,8 @@ class ctypesArray:
         self.ndarray[start:stop] = values
 
 def RawArray(ctx, ctype, len, backend="sharedctypes"):
+    if isinstance(ctx, SyncManager):
+        ctx = ctx._ctx
     len = int(len)
     if not _has_SharedMemory and backend == "SharedMemory":
         backend = "sharedctypes"
@@ -142,6 +142,8 @@ def RawArray(ctx, ctype, len, backend="sharedctypes"):
 
 
 def RawValue(ctx, ctype, init, backend="sharedctypes"):
+    if isinstance(ctx, SyncManager):
+        ctx = ctx._ctx
     if not _has_SharedMemory and backend == "SharedMemory":
         backend = "sharedctypes"
         logger.warning("'SharedMemory' backend is supported only at Python 3.8+. " +
@@ -149,8 +151,6 @@ def RawValue(ctx, ctype, init, backend="sharedctypes"):
     if _has_SharedMemory and backend == "SharedMemory":
         return SharedMemoryValue(ctype, init)
     elif backend == "sharedctypes":
-        if isinstance(ctx, SyncManager):
-            ctx = ctx._ctx
         return ctx.Value(ctype, init, lock=False)
     else:
         raise ValueError(f"Unknown backend: {backend}")
