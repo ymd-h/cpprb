@@ -463,7 +463,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         rb = PrioritizedReplayBuffer(1e+2, {"done": {}})
         self.assertEqual(rb.get_buffer_size(), 100)
 
-        m = get_context().Manager():
+        m = get_context().Manager()
         rb  = PrioritizedReplayBuffer(1e+2, {"done": {}}, ctx=m)
         self.assertEqual(rb.get_buffer_size(), 100)
         m.shutdown()
