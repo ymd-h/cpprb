@@ -1,6 +1,7 @@
 import atexit
 import ctypes
 from logging import getLogger
+from multiprocessing.context import ProcessError
 from multiprocessing.managers import SyncManager, State
 import sys
 
@@ -157,5 +158,11 @@ def RawValue(ctx, ctype, init, backend):
 
 
 def try_start(ctx):
-    if isinstance(ctx, SyncManager) and ctx._state.value != State.STARTED:
-        ctx.start()
+    if isinstance(ctx, SyncManager):
+        if self._state.value == State.SHUTDOWN:
+            # Default behavior:
+            # - Python 3.6 : Assertion Failuer
+            # - Python 3.7+: Raise ProcessError
+            raise ProcessError("Manager has shut down")
+        if ctx._state.value == State.INITIAL:
+            ctx.start()
