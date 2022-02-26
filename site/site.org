@@ -1147,12 +1147,12 @@ have enough space.
 
 **** Combination Effect of Context and Backend
 
-| ~ctx~            | ~backend~      | internal data | synchronization objects |
-|------------------+----------------+---------------+-------------------------|
-| ~fork~ / ~spawn~ | ~sharedctypes~ | shared memory | OS semaphore            |
-| ~fork~ / ~spawn~ | ~SharedMemory~ | shared memory | OS semaphore            |
-| ~SyncManager~    | ~shreadctypes~ | proxy based   | proxy based             |
-| ~SyncManager~    | ~ShreadMemory~ | shared memory | proxy based             |
+| ~ctx~            | ~backend~      | internal data | synchronization objects | Comment         |
+|------------------+----------------+---------------+-------------------------+-----------------|
+| ~fork~ / ~spawn~ | ~sharedctypes~ | shared memory | OS semaphore            | Default         |
+| ~fork~ / ~spawn~ | ~SharedMemory~ | shared memory | OS semaphore            | Not recommended |
+| ~SyncManager~    | ~shreadctypes~ | proxy based   | proxy based             | Not recommended |
+| ~SyncManager~    | ~ShreadMemory~ | shared memory | proxy based             | For [[https://ray.io/][Ray]] etc.    |
 
 
 *** Example Code
