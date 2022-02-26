@@ -1123,7 +1123,8 @@ methods, then provides proxy objects to access the original objects
 placed at the process. Generally, ~SyncManager~ is slower than others
 because it requires interprocess communication. If you specifies
 ~SyncManager~, only synchronization objects (~Lock~ and ~Event~)
-become proxy based, and internal main data still placed on shared memory.
+become proxy based, and internal main data are still placed on shared
+memory.
 
 
 **** Backend Detail
