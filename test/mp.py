@@ -1,4 +1,6 @@
 from multiprocessing import Process, get_context
+from multiprocessing.context import ProcessError
+from multiprocessing.managers import SyncManager
 import unittest
 import sys
 
@@ -216,6 +218,17 @@ class TestReplayBuffer(unittest.TestCase):
     def test_unknown_backend(self):
         with self.assertRaises(ValueError):
             ReplayBuffer(1, {"done": {}}, backend="UNKNOWN_BACKEND")
+
+
+    def test_unstarted_manager(self):
+        ReplayBuffer(10, {"done": {}}, ctx=SyncManager())
+
+    def test_finished_manager(self):
+        with SyncManager() as m:
+            pass
+
+        with self.assertRaises(ProcessError):
+            ReplayBuffer(10, {"done": {}}, ctx=m)
 
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):
@@ -540,6 +553,15 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
         m.shutdown()
 
+    def test_unstarted_manager(self):
+        PrioritizedReplayBuffer(10, {"done": {}}, ctx=SyncManager())
+
+    def test_finished_manager(self):
+        with SyncManager() as m:
+            pass
+
+        with self.assertRaises(ProcessError):
+            PrioritizedReplayBuffer(10, {"done": {}}, ctx=m)
 
 if __name__ == '__main__':
     unittest.main()
