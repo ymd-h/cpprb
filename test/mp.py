@@ -470,12 +470,13 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
     @unittest.skipUnless(sys.version_info >= (3,8),
                          "SharedMemory is supported Python 3.8+")
-    def test_float_size(self):
+    def test_float_size_SharedMemory(self):
         rb = PrioritizedReplayBuffer(1e+2, {"done": {}}, backend="SharedMemory")
         self.assertEqual(rb.get_buffer_size(), 100)
 
         m = get_context().Manager()
-        rb = PrioritizedReplayBuffer(1e+2, {"done": {}}, backend="SharedMemory", ctx=m)
+        rb = PrioritizedReplayBuffer(1e+2, {"done": {}}, backend="SharedMemory",
+                                     ctx=m)
         self.assertEqual(rb.get_buffer_size(), 100)
         m.shutdown()
 
