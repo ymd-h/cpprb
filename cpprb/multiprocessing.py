@@ -159,7 +159,7 @@ def RawValue(ctx, ctype, init, backend):
 
 def try_start(ctx):
     if isinstance(ctx, SyncManager):
-        if self._state.value == State.SHUTDOWN:
+        if ctx._state.value == State.SHUTDOWN:
             # Default behavior:
             # - Python 3.6 : Assertion Failuer
             # - Python 3.7+: Raise ProcessError
