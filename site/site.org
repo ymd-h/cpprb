@@ -1112,9 +1112,9 @@ On the other hand, ~sharedctypes~ cannot be serialized. It can be
 passed to its subprocess only with process creation by ~fork~ and
 ~spawn~ (e.g. ~Process~).
 
-The advantage of ~sharedctypes~ is fallback mechanism which can create
-shared memory even when ~/dev/shm~ directory doesn't have enough
-space.
+The advantage of ~sharedctypes~ is that it has fallback mechanism
+which can create shared memory even when ~/dev/shm~ directory doesn't
+have enough space.
 
 *** Example Code
 #+INCLUDE: "../example/apex.py" src python
