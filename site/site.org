@@ -1439,6 +1439,11 @@ CLOSED: [2022-02-25 Fri 12:38]
 :EXPORT_FILE_NAME: mp_with_ray
 :END:
 
+#+HTML: {{% notice note %}} <p>
+Please see [[https://ymd_h.gitlab.io/cpprb/features/ape-x/#context-and-backend][this document]], too.
+#+HTML: </p>{{% /notice %}}
+
+
 [[https://ray.io/][Ray]] is a OSS framework which allows users to build distributed
 application easily.
 
