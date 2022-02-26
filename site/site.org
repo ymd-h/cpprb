@@ -1463,7 +1463,7 @@ ray.init()
 
 # Encode base64 to avoid following error:
 #   TypeError: Pickling an AuthenticationString object is disallowed for security reasons
-encoded = base64.b64encode(authkey)
+encoded = base64.b64encode(mp.current_process().authkey)
 
 def auth_fn(*args):
     mp.current_process().authkey = base64.b64decode(encoded)

@@ -1,5 +1,6 @@
 # See: https://ymd_h.gitlab.io/cpprb/examples/mp_with_ray/
 
+import base64
 import multiprocessing as mp
 import time
 
@@ -10,13 +11,15 @@ import ray
 
 
 class Model:
-    def __init__(self):
+    def __init__(self, env):
+        self.env = env
         self.w = None
 
     def train(self, transitions):
         """
         Update model weights and return |TD|
         """
+        absTD = np.zeros(shape=(transitions["obs"].shape[0],))
         # omit
         return absTD
 
@@ -25,16 +28,16 @@ class Model:
         Choose action from observation
         """
         # omit
+        act = self.env.action_space.sample()
         return act
 
 @ray.remote
-def explorer(global_rb, env_dict, q, stop):
+def explorer(env, global_rb, env_dict, q, stop):
     buffer_size = 100
 
     local_rb = ReplayBuffer(buffer_size, env_dict)
-    env = gym.make("CartPole-v1")
 
-    model = Model()
+    model = Model(env)
 
     obs = env.reset()
     while not stop.is_set():
@@ -61,15 +64,17 @@ def run():
     n_explorers = 4
 
     nwarmup = 100
-    ntrain = int(1e+6)
+    ntrain = int(1e+2)
     update_freq = 100
+    env_name = "CartPole-v1"
 
+    env = gym.make(env_name)
 
     buffer_size = 1e+6
-    env_dict = {"obs": {},
-                "act": {},
+    env_dict = {"obs": {"shape": env.observation_space.shape},
+                "act": {"shape": env.action_space.n},
                 "rew": {},
-                "next_obs": {},
+                "next_obs": {"shape": env.observation_space.shape},
                 "done": {}}
     alpha = 0.5
     beta = 0.4
@@ -77,12 +82,14 @@ def run():
 
 
     ray.init()
-
-    encoded = base64.b64encode(authkey)
+    encoded = base64.b64encode(mp.current_process().authkey)
     def auth_fn(*args):
         mp.current_process().authkey = base64.b64decode(encoded)
     ray.worker.global_worker.run_function_on_all_workers(auth_fn)
 
+
+    # `BaseContext.Manager()` automatically starts `SyncManager`
+    # Ref: https://github.com/python/cpython/blob/3.9/Lib/multiprocessing/context.py#L49-L58
     m = mp.get_context().Manager()
     q = m.Queue()
     stop = m.Event()
@@ -91,16 +98,17 @@ def run():
     rb = MPPrioritizedReplayBuffer(buffer_size, env_dict, alpha=alpha,
                                    ctx=m, backend="SharedMemory")
 
-    model = Model()
+    model = Model(env)
 
     explorers = []
 
     for _ in range(n_explorers):
-        explorers.append(explorer.remote(rb, env_dict, q, stop))
+        explorers.append(explorer.remote(env, rb, env_dict, q, stop))
 
 
     while rb.get_stored_size() < nwarmup:
         time.time(1)
+
 
     for i in range(ntrain):
         s = rb.sample(batch_size, beta)
@@ -109,6 +117,7 @@ def run():
 
         if i % update_freq == 0:
             q.put(model.w)
+
 
     stop.set()
     ray.get(explorers)
