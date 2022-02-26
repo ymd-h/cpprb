@@ -106,13 +106,16 @@ def run():
 
     explorers = []
 
+    print("Start Explorers")
     for _ in range(n_explorers):
         explorers.append(explorer.remote(env_name, rb, env_dict, q, stop))
 
 
+    print("Start Warmup")
     while rb.get_stored_size() < nwarmup and not stop.is_set():
         time.sleep(1)
 
+    print("Start Training")
     for i in range(ntrain):
         if stop.is_set():
             break
@@ -123,6 +126,7 @@ def run():
 
         if i % update_freq == 0:
             q.put(model.w)
+    print("Finish Training")
 
 
     stop.set()
