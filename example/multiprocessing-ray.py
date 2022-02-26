@@ -74,9 +74,9 @@ def run():
 
     env = gym.make(env_name)
 
-    buffer_size = 1e+6
+    buffer_size = 100
     env_dict = {"obs": {"shape": env.observation_space.shape},
-                "act": {"shape": env.action_space.n},
+                "act": {},
                 "rew": {},
                 "next_obs": {"shape": env.observation_space.shape},
                 "done": {}}
