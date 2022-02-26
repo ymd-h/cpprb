@@ -1510,6 +1510,12 @@ def auth_fn(*args):
 ray.worker.global_worker.run_function_on_all_workers(auth_fn)
 #+end_src
 
+#+HTML: {{% notice warning %}} <p>
+This trick overwrites process-wide ~authkey~, which might confilict if
+you use other processes in it.
+#+HTML: </p>{{% /notice %}}
+
+
 
 We also have to select ~SharedMemory~ backend and ~SyncManager~
 context. By this configuration, main data is placed on shared memory
