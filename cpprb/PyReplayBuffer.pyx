@@ -3,8 +3,7 @@
 
 import ctypes
 from logging import getLogger, StreamHandler, Formatter, INFO
-from multiprocessing import Event, Lock, Process
-from multiprocessing.sharedctypes import Value, RawValue, RawArray
+import multiprocessing as mp
 import time
 from typing import Any, Dict, Callable, Optional
 import warnings
@@ -15,11 +14,13 @@ import cython
 from cython.operator cimport dereference
 
 from cpprb.ReplayBuffer cimport *
+from cpprb.multiprocessing import RawArray, RawValue, _has_SharedMemory, try_start
 
 from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,
                             VectorInt,VectorSize_t,
                             VectorDouble,PointerDouble,VectorFloat)
+
 
 def default_logger(level=INFO):
     """
@@ -422,8 +423,11 @@ cdef class SharedBuffer:
     cdef data
     cdef data_ndarray
     cdef view
-    def __init__(self,shape,dtype,data=None):
+    cdef backend
+    def __init__(self, shape, dtype, data=None, ctx=None, backend="sharedctypes"):
         self.dtype = np.dtype(dtype)
+        ctx = ctx or mp.get_context()
+        self.backend = backend
 
         if data is None:
             try:
@@ -440,11 +444,11 @@ cdef class SharedBuffer:
                     raise
 
             len = int(np.array(shape,copy=False,dtype="int").prod())
-            self.data = RawArray(ctype,len)
+            self.data = RawArray(ctx,ctype,len,self.backend)
         else:
             self.data = data
 
-        self.data_ndarray = np.ctypeslib.as_array(self.data)
+        self.data_ndarray = self.data.ndarray
         self.data_ndarray.shape = shape
 
         # Reinterpretation
@@ -461,13 +465,14 @@ cdef class SharedBuffer:
         self.view[key] = value
 
     def __reduce__(self):
-        return (SharedBuffer,(self.view.shape,self.dtype,self.data))
+        return (SharedBuffer,(self.view.shape,self.dtype,self.data,None,self.backend))
 
 
 def dict2buffer(buffer_size: int,env_dict: Dict,*,
                 stack_compress = None, default_dtype = None,
                 mmap_prefix: Optional[str] = None,
-                shared: bool = False):
+                shared: Optional[str] = None,
+                ctx = None):
     """Create buffer from env_dict
 
     Parameters
@@ -495,7 +500,7 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
 
     def zeros(name,shape,dtype):
         if shared:
-            return SharedBuffer(shape,dtype)
+            return SharedBuffer(shape,dtype, ctx=ctx, backend=shared)
 
         if mmap_prefix:
             if not isinstance(shape,tuple):
@@ -527,6 +532,7 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
 
         shape[0] = -1
         defs["add_shape"] = shape
+
     return buffer
 
 def find_array(dict,key):
@@ -835,10 +841,11 @@ cdef class RingBufferIndex:
     cdef buffer_size
     cdef is_full
 
-    def __init__(self,buffer_size):
-        self.index = RawValue(ctypes.c_size_t,0)
-        self.buffer_size = RawValue(ctypes.c_size_t,buffer_size)
-        self.is_full = RawValue(ctypes.c_int,0)
+    def __init__(self, buffer_size, ctx = None, backend = "sharedctypes"):
+        ctx = ctx or mp.get_context()
+        self.index = RawValue(ctx, ctypes.c_size_t, 0, backend)
+        self.buffer_size = RawValue(ctx, ctypes.c_size_t, buffer_size, backend)
+        self.is_full = RawValue(ctx, ctypes.c_int, 0, backend)
 
     cdef size_t get_next_index(self):
         return self.index.value
@@ -884,9 +891,10 @@ cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
     """
     cdef lock
 
-    def __init__(self,buffer_size):
-        super().__init__(buffer_size)
-        self.lock = Lock()
+    def __init__(self, buffer_size, ctx=None, backend="sharedctypes"):
+        ctx = ctx or mp.get_context()
+        super().__init__(buffer_size, ctx, backend)
+        self.lock = ctx.Lock()
 
     cdef size_t get_next_index(self):
         with self.lock:
@@ -1843,9 +1851,14 @@ cdef class MPReplayBuffer:
     cdef StepChecker size_check
     cdef explorer_ready
     cdef explorer_count
+    cdef explorer_count_lock
     cdef learner_ready
+    cdef backend
 
-    def __init__(self,size,env_dict=None,*,default_dtype=None,logger=None,**kwargs):
+    def __init__(self, size, env_dict=None, *,
+                 default_dtype=None, logger=None,
+                 ctx=None, backend="sharedctypes",
+                 **kwargs):
         r"""Initialize ReplayBuffer
 
         Parameters
@@ -1858,37 +1871,52 @@ cdef class MPReplayBuffer:
             defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
+        ctx : ForkContext, SpawnContext, or SyncManager, optional
+            context created by `multiprocessing.get_context()` or `SyncManager`.
+            If None (default), the default context is used.
+        backend : "sharedctypes" or "SharedMemory", optional
+            shared memoery (shm) backend to map buffer. The default is "sharedctypes".
+            "SharedMemory" is available only for Python 3.8+.
         """
         self.env_dict = env_dict.copy() if env_dict else {}
+        ctx = ctx or mp.get_context()
+        try_start(ctx)
+
+        if not _has_SharedMemory and backend == "SharedMemory":
+            backend = "sharedctypes"
+        self.backend = backend
+
         cdef special_keys = []
 
         self.buffer_size = size
-        self.index = ProcessSafeRingBufferIndex(self.buffer_size)
+        self.index = ProcessSafeRingBufferIndex(self.buffer_size, ctx,
+                                                self.backend)
 
         self.default_dtype = default_dtype or np.single
 
         # side effect: Add "add_shape" key into self.env_dict
         self.buffer = dict2buffer(self.buffer_size,self.env_dict,
                                   default_dtype = self.default_dtype,
-                                  shared = True)
+                                  shared = self.backend,
+                                  ctx = ctx)
 
         self.size_check = StepChecker(self.env_dict,special_keys)
 
-        self.learner_ready = Event()
+        self.learner_ready = ctx.Event()
         self.learner_ready.clear()
-        self.explorer_ready = Event()
+        self.explorer_ready = ctx.Event()
         self.explorer_ready.set()
-
-        self.explorer_count = Value(ctypes.c_size_t,0)
+        self.explorer_count = RawValue(ctx, ctypes.c_size_t, 0, self.backend)
+        self.explorer_count_lock = ctx.Lock()
 
     cdef void _lock_explorer(self) except *:
         self.explorer_ready.wait() # Wait permission
         self.learner_ready.clear()  # Block learner
-        with self.explorer_count.get_lock():
+        with self.explorer_count_lock:
             self.explorer_count.value += 1
 
     cdef void _unlock_explorer(self) except *:
-        with self.explorer_count.get_lock():
+        with self.explorer_count_lock:
             self.explorer_count.value -= 1
         if self.explorer_count.value == 0:
             self.learner_ready.set()
@@ -2086,6 +2114,7 @@ cdef class ThreadSafePrioritizedSampler:
     cdef size_t size
     cdef float alpha
     cdef float eps
+    cdef backend
     cdef max_p
     cdef sum
     cdef sum_a#nychanged
@@ -2095,27 +2124,31 @@ cdef class ThreadSafePrioritizedSampler:
 
     def __init__(self,size,alpha,eps,max_p=None,
                  sum=None,sum_a=None,
-                 min=None,min_a=None):
+                 min=None,min_a=None,
+                 ctx = None,
+                 backend = "sharedctypes"):
+        ctx = ctx or mp.get_context()
         self.size = size
         self.alpha = alpha
         self.eps = eps
+        self.backend = backend
 
-        self.max_p = max_p or RawArray(ctypes.c_float,1)
-        cdef float [:] view_max_p = self.max_p
+        self.max_p = max_p or RawArray(ctx, ctypes.c_float,1,self.backend)
+        cdef float [:] view_max_p = self.max_p.ndarray
 
         cdef size_t pow2size = 1
         while pow2size < size:
             pow2size *= 2
 
-        self.sum   = sum   or RawArray(ctypes.c_float,2*pow2size-1)
-        self.sum_a = sum_a or RawArray(ctypes.c_bool ,1)
-        self.min   = min   or RawArray(ctypes.c_float,2*pow2size-1)
-        self.min_a = min_a or RawArray(ctypes.c_bool ,1)
+        self.sum   = sum   or RawArray(ctx, ctypes.c_float,2*pow2size-1, self.backend)
+        self.sum_a = sum_a or RawArray(ctx, ctypes.c_bool ,1           , self.backend)
+        self.min   = min   or RawArray(ctx, ctypes.c_float,2*pow2size-1, self.backend)
+        self.min_a = min_a or RawArray(ctx, ctypes.c_bool ,1           , self.backend)
 
-        cdef float [:] view_sum   = self.sum
-        cdef bool  [:] view_sum_a = self.sum_a
-        cdef float [:] view_min   = self.min
-        cdef bool  [:] view_min_a = self.min_a
+        cdef float [:] view_sum   = self.sum.ndarray
+        cdef bool  [:] view_sum_a = self.sum_a.ndarray
+        cdef float [:] view_min   = self.min.ndarray
+        cdef bool  [:] view_min_a = self.min_a.ndarray
 
         cdef bool init = ((max_p is None) and
                           (sum   is None) and
@@ -2137,9 +2170,9 @@ cdef class ThreadSafePrioritizedSampler:
 
     def __reduce__(self):
         return (ThreadSafePrioritizedSampler,
-                (self.size,self.alpha,self.eps,self.max_p,
-                 self.sum,self.sum_a,
-                 self.min,self.min_a))
+                (self.size, self.alpha, self.eps, self.max_p,
+                 self.sum, self.sum_a, self.min, self.min_a,
+                 None, self.backend))
 
 
 @cython.embedsignature(True)
@@ -2159,15 +2192,15 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef VectorSize_t indexes
     cdef ThreadSafePrioritizedSampler per
     cdef unchange_since_sample
-    cdef helper
     cdef terminate
     cdef explorer_per_count
+    cdef explorer_per_count_lock
     cdef learner_per_ready
     cdef explorer_per_ready
     cdef vector[size_t] idx_vec
     cdef vector[float] ps_vec
 
-    def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,**kwargs):
+    def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,ctx=None,**kwargs):
         r"""Initialize PrioritizedReplayBuffer
 
         Parameters
@@ -2196,39 +2229,40 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         :math:`(p_{i} + \epsilon )^{ \alpha }` are stored with segment tree, which
         enable fast sampling.
         """
-        super().__init__(size,env_dict,**kwargs)
+        ctx = ctx or mp.get_context()
+        super().__init__(size,env_dict,ctx=ctx,**kwargs)
 
-        self.per = ThreadSafePrioritizedSampler(size,alpha,eps)
+        self.per = ThreadSafePrioritizedSampler(size,alpha,eps,
+                                                ctx=ctx, backend=self.backend)
 
         self.weights = VectorFloat()
         self.indexes = VectorSize_t()
 
-        shm = RawArray(np.ctypeslib.as_ctypes_type(np.bool_),
-                       int(np.array(size,copy=False,dtype='int').prod()))
-        self.unchange_since_sample = np.ctypeslib.as_array(shm)
+        self.unchange_since_sample = RawArray(ctx, ctypes.c_bool, size, self.backend)
         self.unchange_since_sample[:] = True
 
-        self.helper = None
-        self.terminate = Value(ctypes.c_bool)
+        self.terminate = RawValue(ctx, ctypes.c_bool,0, self.backend)
         self.terminate.value = False
 
-        self.learner_per_ready = Event()
+        self.learner_per_ready = ctx.Event()
         self.learner_per_ready.clear()
-        self.explorer_per_ready = Event()
+        self.explorer_per_ready = ctx.Event()
         self.explorer_per_ready.set()
-        self.explorer_per_count = Value(ctypes.c_size_t,0)
+        self.explorer_per_count = RawValue(ctx, ctypes.c_size_t, 0, self.backend)
+        self.explorer_per_count_lock = ctx.Lock()
 
         self.idx_vec = vector[size_t]()
         self.ps_vec = vector[float]()
 
+
     cdef void _lock_explorer_per(self) except *:
         self.explorer_per_ready.wait() # Wait permission
         self.learner_per_ready.clear()  # Block learner
-        with self.explorer_per_count.get_lock():
+        with self.explorer_per_count_lock:
             self.explorer_per_count.value += 1
 
     cdef void _unlock_explorer_per(self) except *:
-        with self.explorer_per_count.get_lock():
+        with self.explorer_per_count_lock:
             self.explorer_per_count.value -= 1
         if self.explorer_per_count.value == 0:
             self.learner_per_ready.set()

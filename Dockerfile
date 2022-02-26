@@ -1,10 +1,11 @@
-FROM python:3.7
+FROM python:3.8
 
 RUN apt update \
     && apt install -y --no-install-recommends \
     build-essential \
     graphviz \
     python3-opengl \
+    swig \
     tk-dev \
     x11-utils \
     xvfb \
@@ -22,6 +23,7 @@ RUN pip3 install -U pip setuptools \
     matplotlib \
     'numpy<1.20.0' \
     pyvirtualdisplay \
+    ray \
     sphinx \
     sphinx-automodapi \
     sphinx_rtd_theme \

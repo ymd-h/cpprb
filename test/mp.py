@@ -1,5 +1,8 @@
-from multiprocessing import Process
+from multiprocessing import Process, get_context
+from multiprocessing.context import ProcessError
+from multiprocessing.managers import SyncManager
 import unittest
+import sys
 
 import numpy as np
 
@@ -160,6 +163,74 @@ class TestReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index() ,200)
         self.assertEqual(rb.get_stored_size(),200)
 
+    def test_context(self):
+        buffer_size = 256
+
+        ctx = get_context("spawn")
+        rb = ReplayBuffer(buffer_size, {"done": {}}, ctx=ctx)
+
+        self.assertEqual(rb.get_next_index(), 0)
+        self.assertEqual(rb.get_stored_size(), 0)
+
+        p = Process(target=add, args=[rb])
+        q = Process(target=add, args=[rb])
+        r = Process(target=sample, args=[rb, 32])
+
+        p.start()
+        p.join()
+
+        q.start()
+        r.start()
+
+        q.join()
+        r.join()
+
+        self.assertEqual(rb.get_next_index(), 200)
+        self.assertEqual(rb.get_stored_size(), 200)
+
+    @unittest.skipUnless(sys.version_info >= (3,8),
+                         "SharedMemory is supported Python 3.8+")
+    def test_backend(self):
+        buffer_size = 256
+
+        ctx = get_context("spawn")
+        rb = ReplayBuffer(buffer_size, {"done": {}}, ctx=ctx, backend="SharedMemory")
+
+        self.assertEqual(rb.get_next_index(), 0)
+        self.assertEqual(rb.get_stored_size(), 0)
+
+        p = Process(target=add, args=[rb])
+        q = Process(target=add, args=[rb])
+        r = Process(target=sample, args=[rb, 32])
+
+        p.start()
+        p.join()
+
+        q.start()
+        r.start()
+
+        q.join()
+        r.join()
+
+        self.assertEqual(rb.get_next_index(), 200)
+        self.assertEqual(rb.get_stored_size(), 200)
+
+    def test_unknown_backend(self):
+        with self.assertRaises(ValueError):
+            ReplayBuffer(1, {"done": {}}, backend="UNKNOWN_BACKEND")
+
+
+    def test_unstarted_manager(self):
+        ReplayBuffer(10, {"done": {}}, ctx=SyncManager())
+
+    def test_finished_manager(self):
+        with SyncManager() as m:
+            pass
+
+        with self.assertRaises(ProcessError):
+            ReplayBuffer(10, {"done": {}}, ctx=m)
+
+
 class TestPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
         buffer_size = 500
@@ -170,6 +241,86 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
                                                   "act": {"shape": act_dim},
                                                   "rew": {},
                                                   "done": {}})
+
+        obs = np.zeros(obs_shape)
+        act = np.ones(act_dim)
+        rew = 1
+        done = 0
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = 1.5
+
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+        self.assertAlmostEqual(rb.get_max_priority(),1.5)
+
+        obs = np.stack((obs,obs))
+        act = np.stack((act,act))
+        rew = (1,0)
+        done = (0.0,1.0)
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = (0.2,0.4)
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+
+        rb.clear()
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+    def test_context(self):
+        buffer_size = 500
+        obs_shape = (84,84,3)
+        act_dim = 10
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape},
+                                                  "act": {"shape": act_dim},
+                                                  "rew": {},
+                                                  "done": {}},
+                                     ctx=get_context("spawn"))
+
+        obs = np.zeros(obs_shape)
+        act = np.ones(act_dim)
+        rew = 1
+        done = 0
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = 1.5
+
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+        self.assertAlmostEqual(rb.get_max_priority(),1.5)
+
+        obs = np.stack((obs,obs))
+        act = np.stack((act,act))
+        rew = (1,0)
+        done = (0.0,1.0)
+
+        rb.add(obs=obs,act=act,rew=rew,done=done)
+
+        ps = (0.2,0.4)
+        rb.add(obs=obs,act=act,rew=rew,done=done,priorities=ps)
+
+
+        rb.clear()
+        self.assertEqual(rb.get_next_index(),0)
+        self.assertEqual(rb.get_stored_size(),0)
+
+    @unittest.skipUnless(sys.version_info >= (3,8),
+                         "SharedMemory is supported Python 3.8+")
+    def test_backend(self):
+        buffer_size = 500
+        obs_shape = (84,84,3)
+        act_dim = 10
+
+        rb = PrioritizedReplayBuffer(buffer_size,{"obs": {"shape": obs_shape},
+                                                  "act": {"shape": act_dim},
+                                                  "rew": {},
+                                                  "done": {}},
+                                     backend="SharedMemory")
 
         obs = np.zeros(obs_shape)
         act = np.ones(act_dim)
@@ -324,6 +475,93 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
         u, counts = np.unique(s["obs"],return_counts=True)
         self.assertEqual(u[counts.argmax()],one_hot)
+
+    def test_float_size(self):
+        rb = PrioritizedReplayBuffer(1e+2, {"done": {}})
+        self.assertEqual(rb.get_buffer_size(), 100)
+
+        m = get_context().Manager()
+        rb  = PrioritizedReplayBuffer(1e+2, {"done": {}}, ctx=m)
+        self.assertEqual(rb.get_buffer_size(), 100)
+        m.shutdown()
+
+    @unittest.skipUnless(sys.version_info >= (3,8),
+                         "SharedMemory is supported Python 3.8+")
+    def test_float_size_SharedMemory(self):
+        rb = PrioritizedReplayBuffer(1e+2, {"done": {}}, backend="SharedMemory")
+        self.assertEqual(rb.get_buffer_size(), 100)
+
+        m = get_context().Manager()
+        rb = PrioritizedReplayBuffer(1e+2, {"done": {}}, backend="SharedMemory",
+                                     ctx=m)
+        self.assertEqual(rb.get_buffer_size(), 100)
+        m.shutdown()
+
+    def test_unsampled_mask(self):
+        rb = PrioritizedReplayBuffer(1, {"done": {}})
+        rb.add(done=1.0)
+        self.assertEqual(rb.get_max_priority(), 1.0)
+
+        rb.update_priorities([0], [2.0])
+        self.assertEqual(rb.get_max_priority(), 1.0)
+
+        rb.sample(1)
+        rb.update_priorities([0], [2.0])
+        self.assertEqual(rb.get_max_priority(), 2.0)
+
+
+        m = get_context().Manager()
+        rb  = PrioritizedReplayBuffer(1, {"done": {}}, ctx=m)
+        rb.add(done=1.0)
+        self.assertEqual(rb.get_max_priority(), 1.0)
+
+        rb.update_priorities([0], [2.0])
+        self.assertEqual(rb.get_max_priority(), 1.0)
+
+        rb.sample(1)
+        rb.update_priorities([0], [2.0])
+        self.assertEqual(rb.get_max_priority(), 2.0)
+
+        m.shutdown()
+
+    @unittest.skipUnless(sys.version_info >= (3,8),
+                         "SharedMemory is supported Python 3.8+")
+    def test_unsampled_mask_SharedMemory(self):
+        rb = PrioritizedReplayBuffer(1, {"done": {}}, backend="SharedMemory")
+        rb.add(done=1.0)
+        self.assertEqual(rb.get_max_priority(), 1.0)
+
+        rb.update_priorities([0], [2.0])
+        self.assertEqual(rb.get_max_priority(), 1.0)
+
+        rb.sample(1)
+        rb.update_priorities([0], [2.0])
+        self.assertEqual(rb.get_max_priority(), 2.0)
+
+
+        m = get_context().Manager()
+        rb  = PrioritizedReplayBuffer(1, {"done": {}}, ctx=m, backend="SharedMemory")
+        rb.add(done=1.0)
+        self.assertEqual(rb.get_max_priority(), 1.0)
+
+        rb.update_priorities([0], [2.0])
+        self.assertEqual(rb.get_max_priority(), 1.0)
+
+        rb.sample(1)
+        rb.update_priorities([0], [2.0])
+        self.assertEqual(rb.get_max_priority(), 2.0)
+
+        m.shutdown()
+
+    def test_unstarted_manager(self):
+        PrioritizedReplayBuffer(10, {"done": {}}, ctx=SyncManager())
+
+    def test_finished_manager(self):
+        with SyncManager() as m:
+            pass
+
+        with self.assertRaises(ProcessError):
+            PrioritizedReplayBuffer(10, {"done": {}}, ctx=m)
 
 if __name__ == '__main__':
     unittest.main()
