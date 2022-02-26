@@ -1096,7 +1096,7 @@ accept two new keyword arguments at their constructors.
 
 
 **** Backend Detail
-~SharedMemory~ was introduced at Python 3.8. The backend can be
+~SharedMemory~ was introduced at Python 3.8 ([[https://docs.python.org/3/library/multiprocessing.shared_memory.html][Ref]]). The backend can be
 serialized, so that it can work with pickle based multiprocessing like
 [[https://ray.io/][Ray]]. (See [[https://ymd_h.gitlab.io/cpprb/examples/mp_with_ray/][example]])
 
