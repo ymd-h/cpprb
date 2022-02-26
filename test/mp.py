@@ -459,5 +459,26 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         u, counts = np.unique(s["obs"],return_counts=True)
         self.assertEqual(u[counts.argmax()],one_hot)
 
+    def test_float_size(self):
+        rb = PrioritizedReplayBuffer(1e+2, {"done": {}})
+        self.assertEqual(rb.get_buffer_size(), 100)
+
+        m = get_context().Manager():
+        rb  = PrioritizedReplayBuffer(1e+2, {"done": {}}, ctx=m)
+        self.assertEqual(rb.get_buffer_size(), 100)
+        m.shutdown()
+
+    @unittest.skipUnless(sys.version_info >= (3,8),
+                         "SharedMemory is supported Python 3.8+")
+    def test_float_size(self):
+        rb = PrioritizedReplayBuffer(1e+2, {"done": {}}, backend="SharedMemory")
+        self.assertEqual(rb.get_buffer_size(), 100)
+
+        m = get_context().Manager()
+        rb = PrioritizedReplayBuffer(1e+2, {"done": {}}, backend="SharedMemory", ctx=m)
+        self.assertEqual(rb.get_buffer_size(), 100)
+        m.shutdown()
+
+
 if __name__ == '__main__':
     unittest.main()
