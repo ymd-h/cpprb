@@ -66,6 +66,10 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.6.0][v10.6.0]]
+- Improve: ~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ works with [[https://ray.io/][Ray]] ([[https://github.com/ymd-h/cpprb/discussions/17][Request]], [[https://gitlab.com/ymd_h/cpprb/-/issues/141][141]]) (Thanks [[https://github.com/jamartinh][@jamartinh]])
+  - Add: Context parameter (~ctx~) at constructor. ~SyncManager~ can be used for ~Lock~ and ~Event~.
+  - Add: Backend parameter (~backend~) at constructor. ~SharedMemory~ can be used.
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.5.2][v10.5.2]]
 - Fix: Remove unused method from internal C++ sampler
 - Improve: Speed up Segment Tree implementation.
