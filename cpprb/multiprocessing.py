@@ -104,7 +104,10 @@ if _has_SharedMemory:
 class ctypesArray:
     def __init__(self, ctx, ctype, len):
         if isinstance(ctx, SyncManager):
+            # Ref: https://github.com/python/cpython/blob/3.9/Lib/multiprocessing/managers.py#L1015-L1016
+            # Ref: https://docs.python.org/3/library/array.html#array.array
             ctype = type_to_typecode.get(ctype, ctype)
+            len = [0] * len
         self.shm = ctx.Array(ctype, len, lock=False)
         self.ndarray = np.ctypeslib.as_array(self.shm)
 
