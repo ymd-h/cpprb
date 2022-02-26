@@ -1091,7 +1091,7 @@ accept two new keyword arguments at their constructors.
 | Name      | Default          | Type                                                    | Description                                                                                                                                                                                                                             |
 |-----------+------------------+---------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ~ctx~     | ~None~           | ~Optional[Union[ForkContext,SpawnContext,SyncManager]]~ | Context to be used for ~Event~, ~Lock~ etc. If ~None~ (default), default context is used. The context passed must match with the context of ~Process~. When ~SyncManager~ is passed, ~Event~ and ~Lock~ etc are accessed through proxy. |
-| ~backend~ | ~"sharedctypes"~ | ~"sharedctypes"~ or ~"SharedMemory"~ (only Python 3.8+) | Backend for shared memory. If ~"sharedctypes"~ (default), ~ctx~ also affects to shared memory management.                                                                                                                               |
+| ~backend~ | ~"sharedctypes"~ | ~"sharedctypes"~ or ~"SharedMemory"~ (only for Python 3.8+) | Backend for shared memory. If ~"sharedctypes"~ (default), ~ctx~ also affects to shared memory management.                                                                                                                               |
 
 
 
