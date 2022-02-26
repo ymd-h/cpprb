@@ -1512,7 +1512,10 @@ ray.worker.global_worker.run_function_on_all_workers(auth_fn)
 
 #+HTML: {{% notice warning %}} <p>
 This trick overwrites process-wide ~authkey~, which might confilict if
-you use other processes in it.
+you use other processes in it. Additionally,
+~run_function_on_all_workers()~ is not Ray ~PublicAPI~ nor
+~DeveloperAPI~, so that it is possible that this trick won't work in a
+future version.
 #+HTML: </p>{{% /notice %}}
 
 
