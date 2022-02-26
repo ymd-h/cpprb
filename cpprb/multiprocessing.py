@@ -1,11 +1,15 @@
 import atexit
 import ctypes
 from logging import getLogger
+from multiprocessing.managers import SyncManager
+from multiprocessing.sharedctypes import typecode_to_type
 import sys
 
 import numpy as np
 
 logger = getLogger(__name__)
+
+type_to_typecode = {v:k for k, v in type_to_typecode.items()}
 
 _has_SharedMemory = sys.version_info >= (3, 8)
 if _has_SharedMemory:
@@ -99,6 +103,8 @@ if _has_SharedMemory:
 
 class ctypesArray:
     def __init__(self, ctx, ctype, len):
+        if isinstance(ctx, SyncManager):
+            ctype = type_to_typecode.get(ctype, ctype)
         self.shm = ctx.Array(ctype, len, lock=False)
         self.ndarray = np.ctypeslib.as_array(self.shm)
 
