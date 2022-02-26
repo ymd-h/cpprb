@@ -2,14 +2,11 @@ import atexit
 import ctypes
 from logging import getLogger
 from multiprocessing.managers import SyncManager
-from multiprocessing.sharedctypes import typecode_to_type
 import sys
 
 import numpy as np
 
 logger = getLogger(__name__)
-
-type_to_typecode = {v:k for k, v in typecode_to_type.items()}
 
 _has_SharedMemory = sys.version_info >= (3, 8)
 if _has_SharedMemory:
@@ -104,10 +101,7 @@ if _has_SharedMemory:
 class ctypesArray:
     def __init__(self, ctx, ctype, len):
         if isinstance(ctx, SyncManager):
-            # Ref: https://github.com/python/cpython/blob/3.9/Lib/multiprocessing/managers.py#L1015-L1016
-            # Ref: https://docs.python.org/3/library/array.html#array.array
-            ctype = type_to_typecode.get(ctype, ctype)
-            len = [0] * len
+            ctx = ctx._ctx
         self.shm = ctx.Array(ctype, len, lock=False)
         self.ndarray = np.ctypeslib.as_array(self.shm)
 
@@ -155,6 +149,8 @@ def RawValue(ctx, ctype, init, backend="sharedctypes"):
     if _has_SharedMemory and backend == "SharedMemory":
         return SharedMemoryValue(ctype, init)
     elif backend == "sharedctypes":
+        if isinstance(ctx, SyncManager):
+            ctx = ctx._ctx
         return ctx.Value(ctype, init, lock=False)
     else:
         raise ValueError(f"Unknown backend: {backend}")
