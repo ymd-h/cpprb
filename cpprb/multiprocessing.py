@@ -125,7 +125,7 @@ class ctypesArray:
     def __setslice__(self, start, stop, values):
         self.ndarray[start:stop] = values
 
-def RawArray(ctx, ctype, len, backend="sharedctypes"):
+def RawArray(ctx, ctype, len, backend):
     if isinstance(ctx, SyncManager):
         ctx = ctx._ctx
     len = int(len)
@@ -141,7 +141,7 @@ def RawArray(ctx, ctype, len, backend="sharedctypes"):
         raise ValueError(f"Unknown backend: {backend}")
 
 
-def RawValue(ctx, ctype, init, backend="sharedctypes"):
+def RawValue(ctx, ctype, init, backend):
     if isinstance(ctx, SyncManager):
         ctx = ctx._ctx
     if not _has_SharedMemory and backend == "SharedMemory":
