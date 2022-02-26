@@ -486,6 +486,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
     def test_unsampled_mask(self):
         rb = PrioritizedReplayBuffer(1, {"done": {}})
+        rb.add(done=1.0)
         self.assertEqual(rb.get_max_priority(), 1.0)
 
         rb.update_priorities([0], [2.0])
@@ -498,6 +499,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
         m = get_context().Manager()
         rb  = PrioritizedReplayBuffer(1, {"done": {}}, ctx=m)
+        rb.add(done=1.0)
         self.assertEqual(rb.get_max_priority(), 1.0)
 
         rb.update_priorities([0], [2.0])
@@ -513,6 +515,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
                          "SharedMemory is supported Python 3.8+")
     def test_unsampled_mask_SharedMemory(self):
         rb = PrioritizedReplayBuffer(1, {"done": {}}, backend="SharedMemory")
+        rb.add(done=1.0)
         self.assertEqual(rb.get_max_priority(), 1.0)
 
         rb.update_priorities([0], [2.0])
@@ -525,6 +528,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
         m = get_context().Manager()
         rb  = PrioritizedReplayBuffer(1, {"done": {}}, ctx=m, backend="SharedMemory")
+        rb.add(done=1.0)
         self.assertEqual(rb.get_max_priority(), 1.0)
 
         rb.update_priorities([0], [2.0])
