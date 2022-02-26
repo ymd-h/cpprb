@@ -213,6 +213,10 @@ class TestReplayBuffer(unittest.TestCase):
         self.assertEqual(rb.get_next_index(), 200)
         self.assertEqual(rb.get_stored_size(), 200)
 
+    def test_unknown_backend(self):
+        with self.assertRaises(ValueError):
+            ReplayBuffer(1, {"done": {}}, backend="UNKNOWN_BACKEND")
+
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):
     def test_add(self):
