@@ -2240,14 +2240,14 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self.unchange_since_sample = RawArray(ctx, ctypes.c_bool, size, self.backend)
         self.unchange_since_sample[:] = True
 
-        self.terminate = RawValue(ctx, ctypes.c_bool,0)
+        self.terminate = RawValue(ctx, ctypes.c_bool,0, self.backend)
         self.terminate.value = False
 
         self.learner_per_ready = ctx.Event()
         self.learner_per_ready.clear()
         self.explorer_per_ready = ctx.Event()
         self.explorer_per_ready.set()
-        self.explorer_per_count = RawValue(ctx, ctypes.c_size_t, 0)
+        self.explorer_per_count = RawValue(ctx, ctypes.c_size_t, 0, self.backend)
         self.explorer_per_count_lock = ctx.Lock()
 
         self.idx_vec = vector[size_t]()
