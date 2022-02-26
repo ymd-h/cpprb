@@ -32,31 +32,35 @@ class Model:
         return act
 
 @ray.remote
-def explorer(env, global_rb, env_dict, q, stop):
-    buffer_size = 100
+def explorer(env_name, global_rb, env_dict, q, stop):
+    try:
+        buffer_size = 10
 
-    local_rb = ReplayBuffer(buffer_size, env_dict)
+        local_rb = ReplayBuffer(buffer_size, env_dict)
+        env = gym.make(env_name)
+        model = Model(env)
 
-    model = Model(env)
+        obs = env.reset()
+        while not stop.is_set():
+            if not q.empty():
+                w = q.get()
+                model.w = w
 
-    obs = env.reset()
-    while not stop.is_set():
-        if not q.empty():
-            w = q.get()
-            model.w = w
+            act = model(obs)
 
-        act = model(obs)
-        next_obs, rew, done = env.step(act)
-        local_rb.add(obs=obs, act=act, rew=rew, next_obs=next_obs, done=done)
+            next_obs, rew, done, _ = env.step(act)
 
-        if done or local_rb.get_stored_size() == buffer_size():
-            local_rb.on_episode_end()
-            global_rb.add(**local_rb.get_all_transitions())
-            local_rb.clear()
-            obs = env.reset()
-        else:
-            obs = next_obs
+            local_rb.add(obs=obs, act=act, rew=rew, next_obs=next_obs, done=done)
 
+            if done or local_rb.get_stored_size() == buffer_size():
+                local_rb.on_episode_end()
+                global_rb.add(**local_rb.get_all_transitions())
+                local_rb.clear()
+                obs = env.reset()
+            else:
+                obs = next_obs
+    finally:
+        stop.set()
     return None
 
 
@@ -103,14 +107,16 @@ def run():
     explorers = []
 
     for _ in range(n_explorers):
-        explorers.append(explorer.remote(env, rb, env_dict, q, stop))
+        explorers.append(explorer.remote(env_name, rb, env_dict, q, stop))
 
 
-    while rb.get_stored_size() < nwarmup:
-        time.time(1)
-
+    while rb.get_stored_size() < nwarmup and not stop.is_set():
+        time.sleep(1)
 
     for i in range(ntrain):
+        if stop.is_set():
+            break
+
         s = rb.sample(batch_size, beta)
         absTD = model.train(s)
         rb.update_priorities(s["indexes"], absTD)
