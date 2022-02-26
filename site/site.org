@@ -1095,6 +1095,35 @@ accept two new keyword arguments at their constructors.
 
 
 
+**** Context Detail
+Context specifies how cpprb manages shared data and synchronization.
+
+#+begin_src python
+import multiprocessing as mp
+
+default_context = mp.get_context()
+fork_context = mp.get_context("fork") # only at Linux and macOS
+spawn_context = mp.get_context("spawn")
+#+end_src
+
+On Linux, ~fork~ is the default context, where the parent process
+itself is reused with copy-on-write strategy, so that usually
+subprocess starts faster, but it might be problematic if some library
+like TensorFlow has already started background thread.
+
+On macOS and Linux, ~spawn~ is the default context, where only
+necessary objects are copied to a fresh new process. The disadvantage
+is not only slow start but also requiring users to define classes and
+functions at top-level of module (See [[https://docs.python.org/3/library/pickle.html#what-can-be-pickled-and-unpickled][pickle]]).
+
+
+Precisely speaking, ~SyncManager~ is not a start method like ~fork~
+and ~spawn~. Actually, it starts new process with one of these
+methods, then provides proxy objects to access the original objects
+placed at the process. Generally, ~SyncManager~ is slower than others
+because it requires interprocess communication.
+
+
 **** Backend Detail
 ~SharedMemory~ was introduced at Python 3.8 ([[https://docs.python.org/3/library/multiprocessing.shared_memory.html][Ref]]). The backend can be
 serialized, so that it can work with pickle based multiprocessing like
