@@ -1,7 +1,7 @@
 import atexit
 import ctypes
 from logging import getLogger
-from multiprocessing.managers import SyncManager
+from multiprocessing.managers import SyncManager, State
 import sys
 
 import numpy as np
@@ -154,3 +154,8 @@ def RawValue(ctx, ctype, init, backend):
         return ctx.Value(ctype, init, lock=False)
     else:
         raise ValueError(f"Unknown backend: {backend}")
+
+
+def try_start(ctx):
+    if isinstance(ctx, SyncManager) and ctx._state.value != State.STARTED:
+        ctx.start()

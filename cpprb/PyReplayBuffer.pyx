@@ -14,7 +14,7 @@ import cython
 from cython.operator cimport dereference
 
 from cpprb.ReplayBuffer cimport *
-from cpprb.multiprocessing import RawArray, RawValue, _has_SharedMemory
+from cpprb.multiprocessing import RawArray, RawValue, _has_SharedMemory, try_start
 
 from .VectorWrapper cimport *
 from .VectorWrapper import (VectorWrapper,
@@ -1880,6 +1880,7 @@ cdef class MPReplayBuffer:
         """
         self.env_dict = env_dict.copy() if env_dict else {}
         ctx = ctx or mp.get_context()
+        try_start(ctx)
 
         if not _has_SharedMemory:
             backend = "sharedctypes"
