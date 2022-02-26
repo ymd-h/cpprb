@@ -1482,8 +1482,8 @@ Please see [[https://ymd_h.gitlab.io/cpprb/features/ape-x/#context-and-backend][
 application easily.
 
 Ray can utilize multiple machines, so that Ray architecture doesn't
-use shared memory except for immutable ~numpy.ndarray~. However, if
-you use only a single machine, you might want to use shared memory for
+use shared memory except for immutable objects ([[https://ray-project.github.io/2017/08/08/plasma-in-memory-object-store.html][Ref]]). However, if you
+use only a single machine, you might want to use shared memory for
 replay buffer to avoid expensive inter process data sharing.
 
 With cpprb 10.6+ and Python 3.8+, you can use ~MPReplayBuffer~ and
