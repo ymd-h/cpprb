@@ -1478,7 +1478,7 @@ Please see [[https://ymd_h.gitlab.io/cpprb/features/ape-x/#context-and-backend][
 #+HTML: </p>{{% /notice %}}
 
 
-[[https://ray.io/][Ray]] is a OSS framework which allows users to build distributed
+[[https://ray.io/][Ray]] is a OSS framework which enables users to build distributed
 application easily.
 
 Ray can utilize multiple machines, so that Ray architecture doesn't
