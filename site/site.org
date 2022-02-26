@@ -1011,8 +1011,9 @@ From version 9.4.2, new classes ~MPReplayBuffer~ and
 efficiently.
 
 *** Shared Memory
-First of all, ~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ maps
-internal data on shared memory. This means you don't need to use proxy
+First of all, ~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ (Multi
+Process ReplayBuffer) maps internal data on shared memory. This means
+you don't need to use proxy
 (e.g. ~multiprocessing.managers.SyncManager~) or queue
 (e.g. ~multiprocessing.Queue~) for interproecss data sharing, but you
 can simply access the buffer object from different process.
