@@ -122,6 +122,7 @@ class ctypesArray:
         self.ndarray[start:stop] = values
 
 def RawArray(ctx, ctype, len, backend="sharedctypes"):
+    len = int(len)
     if _has_SharedMemory and backend == "SharedMemory":
         return SharedMemoryArray(ctype, len)
     else:
