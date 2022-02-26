@@ -34,7 +34,7 @@ class Model:
 @ray.remote
 def explorer(env_name, global_rb, env_dict, q, stop):
     try:
-        buffer_size = 10
+        buffer_size = 200
 
         local_rb = ReplayBuffer(buffer_size, env_dict)
         env = gym.make(env_name)
@@ -74,7 +74,7 @@ def run():
 
     env = gym.make(env_name)
 
-    buffer_size = 100
+    buffer_size = 1e+6
     env_dict = {"obs": {"shape": env.observation_space.shape},
                 "act": {},
                 "rew": {},
