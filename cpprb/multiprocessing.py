@@ -1,8 +1,11 @@
 import atexit
 import ctypes
+from logging import getLogger
 import sys
 
 import numpy as np
+
+logger = getLogger(__name__)
 
 _has_SharedMemory = sys.version_info >= (3, 8)
 if _has_SharedMemory:
@@ -123,14 +126,26 @@ class ctypesArray:
 
 def RawArray(ctx, ctype, len, backend="sharedctypes"):
     len = int(len)
+    if not _has_SharedMemory and backend == "SharedMemory":
+        backend = "sharedctypes"
+        logger.warning("'SharedMemory' backend is supported only at Python 3.8+. " +
+                       "Fail back to 'sharedctypes' backend")
     if _has_SharedMemory and backend == "SharedMemory":
         return SharedMemoryArray(ctype, len)
-    else:
+    elif backend == "sharedctypes":
         return ctypesArray(ctx, ctype, len)
+    else:
+        raise ValueError(f"Unknown backend: {backend}")
 
 
 def RawValue(ctx, ctype, init, backend="sharedctypes"):
+    if not _has_SharedMemory and backend == "SharedMemory":
+        backend = "sharedctypes"
+        logger.warning("'SharedMemory' backend is supported only at Python 3.8+. " +
+                       "Fail back to 'sharedctypes' backend")
     if _has_SharedMemory and backend == "SharedMemory":
         return SharedMemoryValue(ctype, init)
-    else:
+    elif backend == "sharedctypes":
         return ctx.Value(ctype, init, lock=False)
+    else:
+        raise ValueError(f"Unknown backend: {backend}")
