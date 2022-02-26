@@ -1882,7 +1882,7 @@ cdef class MPReplayBuffer:
         ctx = ctx or mp.get_context()
         try_start(ctx)
 
-        if not _has_SharedMemory:
+        if not _has_SharedMemory and backend == "SharedMemory":
             backend = "sharedctypes"
         self.backend = backend
 
