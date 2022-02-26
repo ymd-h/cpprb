@@ -9,7 +9,7 @@ import numpy as np
 
 logger = getLogger(__name__)
 
-type_to_typecode = {v:k for k, v in type_to_typecode.items()}
+type_to_typecode = {v:k for k, v in typecode_to_type.items()}
 
 _has_SharedMemory = sys.version_info >= (3, 8)
 if _has_SharedMemory:
