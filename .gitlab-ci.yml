@@ -190,6 +190,11 @@ mp_with_ray:
   script:
     - coverage run -m xmlrunner test/mp_with_ray.py
 
+shm:
+  <<: *py_setup
+  script:
+    - coverage run -m xmlrunner test/shm.py
+
 save_load:
   <<: *py_setup
   script:
