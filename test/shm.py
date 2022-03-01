@@ -30,5 +30,27 @@ class TestCtypesArray(unittest.TestCase):
                 np.testing.assert_equal(array[0:size], np.asarray([2,1,2], dtype=n))
 
 
+@unittest.skipUnless(_has_SharedMemory,"SharedMemory requires Python 3.8+")
+class TestSharedMemoryArray(unittest.TestCase):
+    def test_array(self):
+        cases = [[ctypes.c_float, np.single],
+                 [ctypes.c_double, np.double],
+                 [ctypes.c_uint8, np.uint8],
+                 [ctypes.c_uint16, np.uint16],
+                 [ctypes.c_uint32, np.uint32]]
+
+        size = 3
+
+        for c, n in cases:
+            with self.subTest(ctype=c):
+                array = SharedMemoryArray(c, size)
+                self.assertEqual(len(array), size)
+
+                array[0:size] = 2
+                array[1] = 1
+                self.assertEqual(array[1], 1)
+                np.testing.assert_equal(array[0:size], np.asarray([2,1,2], dtype=n))
+
+
 if __name__ == "__main__":
     unittest.main()
