@@ -33,6 +33,8 @@ if _has_SharedMemory:
                 try:
                     _posixshmem.shm_unlink(name)
                 except FileNotFoundError:
+                    # Sometimes, shm file has been desctucted
+                    # beforehand, we just ignore.
                     pass
 
 
