@@ -33,6 +33,8 @@ if _has_SharedMemory:
                 try:
                     _posixshmem.shm_unlink(name)
                 except FileNotFoundError:
+                    # Sometimes, shm file has been desctucted
+                    # beforehand, we just ignore.
                     pass
 
 
@@ -92,12 +94,6 @@ if _has_SharedMemory:
         def __setitem__(self, i, value):
             self.ndarray[i] = value
 
-        def __getslice__(self, start, stop):
-            return self.ndarray[start:stop]
-
-        def __setslice__(self, start, stop, values):
-            self.ndarray[start:stop] = values
-
 
 class ctypesArray:
     def __init__(self, ctx, ctype, len):
@@ -120,11 +116,6 @@ class ctypesArray:
     def __setitem__(self, i, value):
         self.ndarray[i] = value
 
-    def __getslice__(self, start, stop):
-        return self.ndarray[start:stop]
-
-    def __setslice__(self, start, stop, values):
-        self.ndarray[start:stop] = values
 
 def RawArray(ctx, ctype, len, backend):
     if isinstance(ctx, SyncManager):
