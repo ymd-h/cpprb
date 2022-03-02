@@ -67,9 +67,10 @@
 [[https://img.shields.io/pypi/l/cpprb.svg]]
 [[https://img.shields.io/pypi/status/cpprb.svg]]
 [[https://ymd_h.gitlab.io/cpprb/coverage/][https://gitlab.com/ymd_h/cpprb/badges/master/coverage.svg]]
-#+begin_html
-<img src="https://pepy.tech/badge/cpprb"><img src="https://pepy.tech/badge/cpprb/month"><img src="https://pepy.tech/badge/cpprb/week">
-#+end_html
+[[https://pypi.org/project/cpprb/][https://img.shields.io/pypi/dd/cpprb.svg]]
+[[https://pypi.org/project/cpprb/][https://img.shields.io/pypi/dw/cpprb.svg]]
+[[https://pypi.org/project/cpprb/][https://img.shields.io/pypi/dm/cpprb.svg]]
+
 
 #+attr_html: :width 100px
 [[./site/static/images/favicon.png]]
