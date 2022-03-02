@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.6.1][v10.6.1]]
+- Fix: Remove deprecated ~__getslice__~ / ~__setslice__~ custom methods
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.6.0][v10.6.0]]
 - Improve: ~MPReplayBuffer~ and ~MPPrioritizedReplayBuffer~ works with [[https://ray.io/][Ray]] ([[https://github.com/ymd-h/cpprb/discussions/17][Request]], [[https://gitlab.com/ymd_h/cpprb/-/issues/141][141]]) (Thanks [[https://github.com/jamartinh][@jamartinh]])
   - Add: Context parameter (~ctx~) at constructor. ~SyncManager~ can be used for ~Lock~ and ~Event~.
