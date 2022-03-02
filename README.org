@@ -74,7 +74,7 @@
 
 
 #+attr_html: :width 100px
-[[./site/static/images/favicon.png]]
+[[https://ymd_h.gitlab.io/cpprb/images/logo.png]]
 
 * Overview
 
