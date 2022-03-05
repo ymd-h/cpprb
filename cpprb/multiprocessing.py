@@ -15,7 +15,6 @@ if _has_SharedMemory:
     # serialization/deserialization by using unique name. This
     # capability allows users to use buffers in Ray (https://ray.io/).
     from multiprocessing.shared_memory import SharedMemory, _USE_POSIX
-    from multiprocessing.managers import SharedMemoryManager
 
     def setup_unlink(shm):
         # Work around a resource tracker issues;
@@ -45,7 +44,10 @@ if _has_SharedMemory:
             setup_unlink(self.shm)
 
             self.dtype = np.dtype(ctype)
-            assert self.dtype.itemsize == size, "BUG: data size mismutch"
+            if self.dtype.itemsize != size:
+                raise ValueError("BUG: data size mismutch. "+
+                                 f"cpprb failed to handle {ctype}. "+
+                                 "Please report to https://github.com/ymd-h/cpprb/discussions")
 
             self.ndarray = np.ndarray((1,), self.dtype, buffer=self.shm.buf)
             if init is not None:
