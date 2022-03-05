@@ -2569,7 +2569,7 @@ sampling, then updates transition data, and finally sets true
 priorities. This approach achieves lockless parallelism for transition
 data (not for the segment tree).
 
-The authors devide segment tree lock into global lock and last level
+The authors divide segment tree lock into global lock and last level
 lock in order to read priorities during intermediate update.
 
 Additionally, their program can decide the number of actors and
