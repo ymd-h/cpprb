@@ -11,7 +11,7 @@ logger = getLogger(__name__)
 
 _has_SharedMemory = sys.version_info >= (3, 8)
 if _has_SharedMemory:
-    # `SharedMemory` class is prefarable since it can work even after
+    # `SharedMemory` class is preferable since it can work even after
     # serialization/deserialization by using unique name. This
     # capability allows users to use buffers in Ray (https://ray.io/).
     from multiprocessing.shared_memory import SharedMemory, _USE_POSIX

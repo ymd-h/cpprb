@@ -671,7 +671,7 @@ transitions doesn't have immediate reward, random sampling is
 inefficient.
 
 In RER, equally strided transitions are sampled from the latest
-transition. The next sample containes one step older transions.
+transition. The next sample contains one step older transions.
 
 \[ \begin{align}
 B_1 &= \lbrace& T_{t}  &, T_{t-stride}  &, \dots &, T_{t-batch~size \times stride}     &\rbrace \\
@@ -1881,7 +1881,7 @@ distributed reinforcement learning.
 The source code is published with Apache-2.0 license.
 
 Currently (28th June 2020), Reverb officially says it is still
-non-production level and requries a development version of TensorFlow
+non-production level and requires a development version of TensorFlow
 (i.e. tf-nightly 2.3.0.dev20200604).
 
 Ordinary and prioritized experience replay are constructed by setting
@@ -2569,7 +2569,7 @@ sampling, then updates transition data, and finally sets true
 priorities. This approach achieves lockless parallelism for transition
 data (not for the segment tree).
 
-The authors devide segment tree lock into global lock and last level
+The authors divide segment tree lock into global lock and last level
 lock in order to read priorities during intermediate update.
 
 Additionally, their program can decide the number of actors and
@@ -2586,7 +2586,7 @@ We try to summarize similarities and differences between their framework and our
 | Multiple Actors                               | Yes                                                                   | Yes                                                                                                                                                                                                                                                                                                           |
 | Multiple Learners                             | Yes. Gradients are summarized at parameter server.                    | No                                                                                                                                                                                                                                                                                                            |
 | Segment Tree                                  | K-ary Tree on 1-d Contiguous Array. Propagate only diff value[fn:20]. | Binary Tree on 1-d Contiguous Array. Propagate value itself.                                                                                                                                                                                                                                                  |
-| Priority Update                               | Write the last level and update intermediate levels with lock.        | Write the last level parallelly. Update intermidiate levels with lock just before ~sample~ to avoid inconsistency.                                                                                                                                                                                            |
+| Priority Update                               | Write the last level and update intermediate levels with lock.        | Write the last level parallelly. Update intermediate levels with lock just before ~sample~ to avoid inconsistency.                                                                                                                                                                                                  |
 | Lock                                          | Segment Tree Global and Last Level Locks. (and Atomic Index?)         | Atomic Index, Transition Data Lock and Segment Tree Lock. (See [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Ape-X]])                                                                                                                                                                                                                                         |
 | Lock Architecture                             | (Maybe) Ordinary Exclusive Lock                                       | Parallel writing is allowed (because writing at different address) and the number of writers in the critical section is atomically traced. Reading has higher priority and prevents writers from entering the critical section again. Reader starts working after all writers exit from the critical section. |
 | Inconsistency of Sampling and Priority Update | Allow weight inconsistence because of little impact in practice       | Atomically extract weights, too. (Always consistent)                                                                                                                                                                                                                                                          |

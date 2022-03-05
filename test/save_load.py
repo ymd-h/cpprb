@@ -158,7 +158,7 @@ class TestReplayBuffer(unittest.TestCase):
         """
         Load next_of transitions with safe mode
 
-        For safe mode, next_of is not neccessary at loaded buffer.
+        For safe mode, next_of is not necessary at loaded buffer.
         """
         buffer_size = 10
         env_dict1 = {"a": {}}

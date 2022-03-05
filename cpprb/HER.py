@@ -57,7 +57,7 @@ class HindsightReplayBuffer:
             "episode" selects states in the same episode.
             "random" selects from the all states in replay buffer.
             "final" selects the final state in the episode. For "final",
-            ``additonal_goals`` is ignored.
+            ``additional_goals`` is ignored.
             The default is "future"
         additional_goals : int, optional
             Number of additional goals. The default is ``4``.
@@ -286,7 +286,7 @@ class HindsightReplayBuffer:
 
         Raises
         ------
-        ValueError: When this buffer is constructed with ``prioritied=False``
+        ValueError: When this buffer is constructed with ``prioritized=False``
         """
         if not self.prioritized:
             raise ValueError("Buffer is constructed without PER")

@@ -1875,7 +1875,7 @@ cdef class MPReplayBuffer:
             context created by `multiprocessing.get_context()` or `SyncManager`.
             If None (default), the default context is used.
         backend : "sharedctypes" or "SharedMemory", optional
-            shared memoery (shm) backend to map buffer. The default is "sharedctypes".
+            shared memory (shm) backend to map buffer. The default is "sharedctypes".
             "SharedMemory" is available only for Python 3.8+.
         """
         self.env_dict = env_dict.copy() if env_dict else {}
