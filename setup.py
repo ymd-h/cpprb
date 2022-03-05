@@ -101,6 +101,12 @@ setup(name="cpprb",
       extras_require=extras,
       cmdclass={'build_ext': LazyImportBuildExtCommand},
       url="https://ymd_h.gitlab.io/cpprb/",
+      project_urls={
+          "Source Code": "https://gitlab.com/ymd_h/cpprb",
+          "Mirror": "https://github.com/ymd-h/cpprb",
+          "Change Log": "https://ymd_h.gitlab.io/cpprb/changelog/",
+          "Bug Report & QA": "https://github.com/ymd-h/cpprb/discussions"
+      },
       ext_modules=ext_modules,
       include_dirs=["cpprb"],
       packages=["cpprb"],
