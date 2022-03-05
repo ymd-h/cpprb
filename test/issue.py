@@ -319,7 +319,7 @@ class TestIssue96(unittest.TestCase):
 
     Ref: https://gitlab.com/ymd_h/cpprb/-/issues/96
     """
-    def test_raise_imcompatible_priority_shape(self):
+    def test_raise_incompatible_priority_shape(self):
         rb = PrioritizedReplayBuffer(32, env_dict={'a': {'shape': 1}})
 
         with self.assertRaises(ValueError):
