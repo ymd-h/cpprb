@@ -1,5 +1,7 @@
+import time
+import unittest
+
 import numpy as np
-import unittest, time
 from cpprb import *
 
 class TestReplayBuffer(unittest.TestCase):
