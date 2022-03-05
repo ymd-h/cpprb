@@ -66,6 +66,10 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.6.2][v10.6.2]]
+- Improve: PyPI page
+- Fix: Some typos at docstring
+- Fix: Replace ~assert~ with ~ValueError~
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.6.1][v10.6.1]]
 - Fix: Remove deprecated ~__getslice__~ / ~__setslice__~ custom methods
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.6.0][v10.6.0]]
