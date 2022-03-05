@@ -313,7 +313,7 @@ class TestIssue61(unittest.TestCase):
 
 class TestIssue96(unittest.TestCase):
     """
-    Bug: PrioritizedReplayBuffer accepted imcompatible shape priority.
+    Bug: PrioritizedReplayBuffer accepted incompatible shape priority.
 
     Expected: Raise ValueError
 
