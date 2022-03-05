@@ -286,7 +286,7 @@ class HindsightReplayBuffer:
 
         Raises
         ------
-        ValueError: When this buffer is constructed with ``prioritied=False``
+        ValueError: When this buffer is constructed with ``prioritized=False``
         """
         if not self.prioritized:
             raise ValueError("Buffer is constructed without PER")
