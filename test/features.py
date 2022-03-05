@@ -1,7 +1,7 @@
 import os
+import unittest
 
 import numpy as np
-import unittest
 
 from cpprb import create_buffer, ReplayBuffer, PrioritizedReplayBuffer
 
