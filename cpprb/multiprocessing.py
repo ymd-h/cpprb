@@ -15,7 +15,6 @@ if _has_SharedMemory:
     # serialization/deserialization by using unique name. This
     # capability allows users to use buffers in Ray (https://ray.io/).
     from multiprocessing.shared_memory import SharedMemory, _USE_POSIX
-    from multiprocessing.managers import SharedMemoryManager
 
     def setup_unlink(shm):
         # Work around a resource tracker issues;
