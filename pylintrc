@@ -13,3 +13,4 @@ method-naming-style=any
 
 disable=
     too-few-public-methods
+    C0326
