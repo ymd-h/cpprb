@@ -310,8 +310,8 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
                                              "done": {}},
                                             alpha=cls.alpha,
                                             Nstep={"size": cls.nstep,
-                                                "rew": "rew",
-                                                "gamma": cls.discount})
+                                                   "rew": "rew",
+                                                   "gamma": cls.discount})
         cls.fill_ReplayBuffer()
         cls.s = cls.rb.sample(cls.batch_size,cls.beta)
 
