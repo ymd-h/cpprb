@@ -1881,7 +1881,7 @@ distributed reinforcement learning.
 The source code is published with Apache-2.0 license.
 
 Currently (28th June 2020), Reverb officially says it is still
-non-production level and requries a development version of TensorFlow
+non-production level and requires a development version of TensorFlow
 (i.e. tf-nightly 2.3.0.dev20200604).
 
 Ordinary and prioritized experience replay are constructed by setting
