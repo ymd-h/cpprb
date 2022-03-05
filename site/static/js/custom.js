@@ -1,5 +1,5 @@
 (function(){
-    const path = location.pathname
+    const path = location.pathname;
 
     var gl = $.get("https://gitlab.com/api/v4/projects/ymd_h%2Fcpprb");
     var gh = $.get("https://api.github.com/repos/ymd-h/cpprb");
