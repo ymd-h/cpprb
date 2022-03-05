@@ -1,0 +1,15 @@
+function-naming-style=any
+variable-naming-style=any
+const-naming-style=any
+attr-naming-style=any
+argument-naming-style=any
+class-attribute-naming-style=any
+class-const-naming-style=any
+inlinevar-naming-style=any
+class-naming-style=any
+module-naming-style=any
+method-naming-style=any
+
+
+disable=
+    too-few-public-methods
