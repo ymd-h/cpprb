@@ -300,8 +300,8 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
                                            "done": {}},
                                           alpha=cls.alpha,
                                           Nstep={"size": cls.nstep,
-                                                "rew": "rew",
-                                                "gamma": cls.discount})
+                                                 "rew": "rew",
+                                                 "gamma": cls.discount})
         cls.rb_ui = PrioritizedReplayBuffer(cls.buffer_size,
                                             {"obs": {"shape": cls.obs_dim},
                                              "act": {"shape": cls.act_dim},
