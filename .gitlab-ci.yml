@@ -398,7 +398,7 @@ manylinux2014:
   image: quay.io/pypa/manylinux2014_x86_64
   stage: binary_build
   script:
-    - for PIP in /opt/python/cp3{10}*/bin/pip; do ${PIP} wheel . -w wheelhouse/ --no-deps; done
+    - for PIP in /opt/python/cp310*/bin/pip; do ${PIP} wheel . -w wheelhouse/ --no-deps; done
     - for WHL in wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
   artifacts:
     paths:
