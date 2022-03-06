@@ -66,6 +66,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.6.3][v10.6.3]]
+- Add: Support Python 3.10
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.6.2][v10.6.2]]
 - Improve: PyPI page
 - Fix: Some typos at docstring
