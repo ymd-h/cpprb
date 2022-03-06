@@ -26,7 +26,7 @@ extras = {
     'dev': ["coverage","cython","gym[box2d]","ray","scipy","twine","unittest-xml-reporting"]
 }
 
-if sys.version_info < (3.10):
+if sys.version_info < (3,10):
     # gym-algorithmic/gym-legacy-toytext don't support Python 3.10
     extras['dev'].extend(["gym-algorithmic","gym-legacy-toytext"])
 
