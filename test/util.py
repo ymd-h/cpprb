@@ -11,7 +11,7 @@ has_legacy_toytext = sys.version_info < (3,10)
 if has_algorithmic:
     import gym_algorithmic
 
-if has_legacy_toytext
+if has_legacy_toytext:
     import gym_toytext
 
 if platform.system() == 'Linux':
