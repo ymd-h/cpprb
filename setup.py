@@ -1,5 +1,6 @@
 import os
 import platform
+import sys
 import warnings
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -7,7 +8,13 @@ from setuptools.command.build_ext import build_ext
 debug = os.getenv('DEBUG_CPPRB')
 
 requires = ["numpy"]
-setup_requires = ["numpy<1.20"]
+setup_requires = ["wheel"]
+
+if sys.version_info.minor <= 9:
+    setup_requires.append("numpy<1.20")
+else:
+    # Numpy 1.19.5 doesn't support Python 3.10
+    setup_requires.append("numpy")
 
 rb_source = "cpprb/PyReplayBuffer"
 cpp_ext = ".cpp"
@@ -16,8 +23,17 @@ pyx_ext = ".pyx"
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"],
     'api': ["sphinx","sphinx_rtd_theme","sphinx-automodapi"],
-    'dev': ["coverage","cython","gym[box2d]","twine","unittest-xml-reporting","wheel"]
+    'dev': ["coverage","cython","gym[box2d]","scipy","twine","unittest-xml-reporting"]
 }
+
+if sys.version_info < (3,10):
+    # gym-algorithmic/gym-legacy-toytext don't support Python 3.10
+    extras['dev'].extend(["gym-algorithmic","gym-legacy-toytext","ray"])
+
+if platform.system() != "Windows":
+    # jax doesn't support jax
+    extras['dev'].append("jax[cpu]")
+
 all_deps = []
 for group_name in extras:
     all_deps += extras[group_name]

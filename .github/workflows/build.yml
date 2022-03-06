@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         runs-on: [ubuntu-latest, macos-latest, windows-latest]
-        python: ['3.6', '3.7', '3.8', '3.9']
+        python: ['3.6', '3.7', '3.8', '3.9', '3.10']
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -35,12 +35,8 @@ jobs:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip${{ matrix.python }}
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
-      - run: pip install wheel
-      - run: pip install cython setuptools twine scipy gym gym-algorithmic gym-legacy-toytext 'numpy<1.20.0' ray
-      - run: pip install jax[cpu]
-        if: startsWith(runner.os, 'Windows') != true
       - name: Install cpprb
-        run: pip install '.[gym]'
+        run: pip install '.[all]'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - uses: actions/download-artifact@v1
@@ -62,7 +58,7 @@ jobs:
     needs: readme
     strategy:
       matrix:
-        py: ['cp36-cp36m', 'cp37-cp37m', 'cp38-cp38', 'cp39-cp39']
+        py: ['cp36-cp36m', 'cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310']
     runs-on: ubuntu-latest
     env:
       img: quay.io/pypa/manylinux2014_aarch64
@@ -79,7 +75,7 @@ jobs:
           name: README
       - run: mv README/README.md README.md
       - run: |
-          docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/'${{ matrix.py }}'/bin/pip; do ${PIP} install "numpy<1.20.0" && ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
+          docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/'${{ matrix.py }}'/bin/pip; do ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
       - run: |
           docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
       - uses: actions/upload-artifact@v1
