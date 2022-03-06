@@ -10,7 +10,7 @@ if sys.version_info < (3,10):
     import ray
 
 
-@unittest.skipUnless((3.8) <= sys.version_info < (3,10),
+@unittest.skipUnless((3,8) <= sys.version_info < (3,10),
                      "Support Ray only for Python 3.8-3.9")
 class TestRay(unittest.TestCase):
     @classmethod
