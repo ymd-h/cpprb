@@ -402,7 +402,7 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
 
     def sample(self,batch_size):
         """
-        Sample the stored environment randomly with speciped size
+        Sample the stored environment randomly with specified size
 
         Parameters
         ----------
@@ -1287,7 +1287,7 @@ cdef class ReplayBuffer:
         return sample
 
     def sample(self,batch_size):
-        r"""Sample the stored transitions randomly with speciped size
+        r"""Sample the stored transitions randomly with specified size
 
         Parameters
         ----------
@@ -1603,7 +1603,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         r"""Sample the stored transitions.
 
         Transitions are sampled depending on correspoinding priorities
-        with speciped size
+        with specified size
 
         Parameters
         ----------
@@ -2011,7 +2011,7 @@ cdef class MPReplayBuffer:
         return sample
 
     def sample(self,batch_size):
-        r"""Sample the stored transitions randomly with speciped size
+        r"""Sample the stored transitions randomly with specified size
 
         This method can be called from a single learner process.
 
@@ -2355,7 +2355,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         r"""Sample the stored transitions.
 
         Transitions are sampled depending on correspoinding priorities
-        with speciped size. This method can be called from single learner process.
+        with specified size. This method can be called from single learner process.
 
         Parameters
         ----------
