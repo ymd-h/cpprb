@@ -9,9 +9,11 @@ has_algorithmic = sys.version_info < (3,10)
 has_legacy_toytext = sys.version_info < (3,10)
 
 if has_algorithmic:
+    # Register Copy, DuplicatedInput, RepeatCopy, Reverse, ReversedAddition
     import gym_algorithmic
 
 if has_legacy_toytext:
+    # Register GuessingGame, NChain, Roulette, KellyCoinflip, KellyCoinflipGeneralized
     import gym_toytext
 
 if platform.system() == 'Linux':
