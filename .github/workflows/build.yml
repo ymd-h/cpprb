@@ -35,12 +35,8 @@ jobs:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip${{ matrix.python }}
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
-      - run: pip install wheel
-      - run: pip install cython setuptools twine scipy gym gym-algorithmic gym-legacy-toytext ray
-      - run: pip install jax[cpu]
-        if: startsWith(runner.os, 'Windows') != true
       - name: Install cpprb
-        run: pip install '.[gym]'
+        run: pip install '.[all]'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - uses: actions/download-artifact@v1
