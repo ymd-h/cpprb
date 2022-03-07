@@ -1734,8 +1734,8 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
 
     RER samples equally strided transitions reversely.
 
-    sample1: T_t    , T_{t-stride}  , ..., T_{t-batch_size*stride}
-    sample2: T_{t-1}, T_{t-stride-1}, ..., T_{t-batch_size*stride-1}
+    sample1: :math:`T_t    , T_{t-stride}  , ..., T_{t-batch_size*stride}`
+    sample2: :math:`T_{t-1}, T_{t-stride-1}, ..., T_{t-batch_size*stride-1}`
     ...
 
     When the first index ``t-i`` is delayed from the latest index more
