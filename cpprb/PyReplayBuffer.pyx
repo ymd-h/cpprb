@@ -917,7 +917,7 @@ cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
 cdef class ReplayBuffer:
     r"""Replay Buffer class to store transitions and to sample them randomly.
 
-    The transition can contain anything compatible with numpy data
+    The transition can contain anything compatible with NumPy data
     type. User can specify by ``env_dict`` parameters at constructor
     freely.
 
