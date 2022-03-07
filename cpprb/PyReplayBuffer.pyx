@@ -1228,7 +1228,8 @@ cdef class ReplayBuffer:
 
         Raises
         ------
-        ValueError : When file format is wrong.
+        ValueError
+            When file format is wrong.
 
         Warnings
         --------
@@ -1655,7 +1656,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         Raises
         ------
-        TypeError: When `indexes` or `priorities` are `None`
+        TypeError
+            When `indexes` or `priorities` are `None`
         """
 
         if priorities is None:
@@ -2410,7 +2412,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         Raises
         ------
-        TypeError: When `indexes` or `priorities` are `None`
+        TypeError
+            When `indexes` or `priorities` are `None`
         """
 
         if priorities is None:
