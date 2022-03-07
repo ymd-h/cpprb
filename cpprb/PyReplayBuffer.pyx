@@ -918,11 +918,12 @@ cdef class ReplayBuffer:
     r"""Replay Buffer class to store transitions and to sample them randomly.
 
     The transition can contain anything compatible with numpy data
-    type. User can specify by `env_dict` parameters at constructor
+    type. User can specify by ``env_dict`` parameters at constructor
     freely.
 
-    The possible standard transition contains observation (`obs`), action (`act`),
-    reward (`rew`), the next observation (`next_obs`), and done (`done`).
+    The possible standard transition contains observation (``obs``),
+    action (``act``), reward (``rew``), the next observation
+    (``next_obs``), and done (``done``).
 
     >>> env_dict = {"obs": {"shape": (4,4)},
                     "act": {"shape": 3, "dtype": np.int16},
@@ -1017,24 +1018,25 @@ cdef class ReplayBuffer:
         size : int
             buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also dict,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+            ``default_dtype``)
         next_of : str or array like of str, optional
-            next item of specified environemt variables (eg. next_obs for next) are
-            also sampled without duplicated values
+            next item of specified environemt variables (eg. ``next_obs`` for ``obs``)
+            are also sampled without duplicated values
         stack_compress : str or array like of str, optional
             compress memory of specified stacked values.
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in `env_dict`. default is numpy.single
         Nstep : dict, optional
-            `Nstep["size"]` is `int` specifying step size of Nstep reward.
-            `Nstep["rew"]` is `str` or array like of `str` specifying
-            Nstep reward to be summed. `Nstep["gamma"]` is float specifying
-            discount factor, its default is 0.99. `Nstep["next"]` is `str` or
-            list of `str` specifying next values to be moved.
+            ``Nstep["size"]`` is ``int`` specifying step size of Nstep reward.
+            ``Nstep["rew"]`` is ``str`` or array like of ``str`` specifying
+            Nstep reward to be summed. ``Nstep["gamma"]`` is float specifying
+            discount factor, its default is ``0.99``. ``Nstep["next"]`` is ``str`` or
+            list of ``str`` specifying next values to be moved.
         mmap_prefix : str, optional
-            File name prefix to save buffer data using mmap. If `None` (default),
+            File name prefix to save buffer data using mmap. If ``None`` (default),
             save only on memory.
         """
         pass
@@ -1115,7 +1117,7 @@ cdef class ReplayBuffer:
         Parameters
         ----------
         shuffle : bool, optional
-            When True, transitions are shuffled. The default value is False.
+            When ``True``, transitions are shuffled. The default value is ``False``.
 
         Returns
         -------
@@ -1138,8 +1140,8 @@ cdef class ReplayBuffer:
         file : str or file-like object
             File to write data
         safe : bool, optional
-            If `False`, we try more aggressive compression
-            which might encounter future incompatibility
+            If ``False``, we try more aggressive compression
+            which might encounter future incompatibility.
         """
         FORMAT_VERSION = 1
         if (safe or not (self.compress_any or self.has_next_of)):
@@ -1235,7 +1237,7 @@ cdef class ReplayBuffer:
         --------
         In order to avoid security vulnerability,
         you MUST NOT load untrusted file, since this method is
-        based on `pickle` through `joblib.load`.
+        based on ``pickle``.
         """
         with np.load(file, allow_pickle=True) as data:
             version = data["version"]
@@ -1307,7 +1309,7 @@ cdef class ReplayBuffer:
     cpdef void clear(self) except *:
         r"""Clear replay buffer.
 
-        Set `index` and `stored_size` to 0.
+        Set ``index`` and ``stored_size`` to ``0``.
 
         Example
         -------
@@ -1364,11 +1366,11 @@ cdef class ReplayBuffer:
     cdef void add_cache(self):
         r"""Add last items into cache
 
-        The last items for "next_of" and "stack_compress" optimization
+        The last items for ``next_of`` and ``stack_compress`` optimization
         are moved to cache area.
 
-        If `self.cache is None`, do nothing.
-        If `self.stored_size == 0`, do nothing.
+        If ``self.cache is None`, do nothing.
+        If ``self.stored_size == 0``, do nothing.
         """
 
         # If no cache configuration, do nothing
@@ -1425,7 +1427,7 @@ cdef class ReplayBuffer:
         -----
         Calling this function at episode end is the user responsibility,
         since episode exploration can be terminated at certain length
-        even though any `done` flags from environment is not set.
+        even though any ``done`` flags from environment is not set.
         """
         if self.use_nstep:
             self.use_nstep = False
