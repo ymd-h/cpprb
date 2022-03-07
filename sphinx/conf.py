@@ -1,6 +1,6 @@
 project = "cpprb"
 author = "Hiroyuki Yamada"
-copyright = "2020, Hiroyuki Yamada"
+copyright = "2019, Hiroyuki Yamada"
 
 extensions = ['sphinx.ext.napoleon','sphinx_automodapi.automodapi']
 html_theme = "sphinx_rtd_theme"
