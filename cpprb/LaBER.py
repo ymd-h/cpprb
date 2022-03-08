@@ -12,25 +12,25 @@ class LaBER:
         batch_size : int
             Batch size for neural network
         m : int, optional
-            Multiplication factor. `m * batch_size` transitions will be passed.
-            Default value is `4`.
+            Multiplication factor. ``m * batch_size`` transitions will be passed.
+            Default value is ``4``.
         eps : float, option
-            Small positive values to avoid 0 priority. Default value is `1e-6`.
+            Small positive values to avoid 0 priority. Default value is ``1e-6``.
         """
         self.rng = np.random.default_rng()
 
         self.batch_size = int(batch_size)
         if self.batch_size <= 0:
-            raise ValueError("`batch_size` must be positive integer.")
+            raise ValueError("``batch_size`` must be positive integer.")
 
         if m <= 0:
-            raise ValueError("`m` must be positive integer")
+            raise ValueError("``m`` must be positive integer")
 
         self.idx = np.arange(int(self.batch_size * m))
 
         self.eps = float(eps)
         if self.eps < 0:
-            raise ValueError("`eps` must be non negative")
+            raise ValueError("``eps`` must be non negative")
 
     def __call__(self, *, priorities, **kwargs):
         """
@@ -41,11 +41,11 @@ class LaBER:
         priorities : array-like of float
             Surrogate priorities.
         **kwargs : key-value
-            Large batch sampled from `ReplayBuffer`.
+            Large batch sampled from ``ReplayBuffer``.
         """
         p = np.asarray(priorities) + self.eps
         if p.shape != self.idx.shape:
-            raise ValueError("`priorities` size must be `batch_size * m`")
+            raise ValueError("``priorities`` size must be ``batch_size * m``")
 
         p = p / p.sum()
 
