@@ -1718,7 +1718,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         -----
         Calling this function at episode end is the user responsibility,
         since episode exploration can be terminated at certain length
-        even though any `done` flags from environment is not set.
+        even though any ``done`` flags from environment is not set.
         """
         if self.use_nstep:
             self.use_nstep = False
