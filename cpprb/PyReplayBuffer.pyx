@@ -1504,19 +1504,20 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         size : int
             buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"``
+            (fallback to ``default_dtype``)
         alpha : float, optional
             :math:`\alpha` the exponent of the priorities in stored whose
-            default value is 0.6
+            default value is ``0.6``.
         eps : float, optional
             :math:`\epsilon` small positive constant to ensure error-less state
-            will be sampled, whose default value is 1e-4.
+            will be sampled, whose default value is ``1e-4``.
         check_for_update : bool
-            If the value is `True` (default value is `False`),
+            If the value is ``True`` (default value is ``False``),
             this buffer traces updated indices after the last calling of
-            `sample()` method to avoid mis-updating priorities of already
+            ``sample()`` method to avoid mis-updating priorities of already
             overwritten values. This feature is designed for multiprocess learning.
 
         See Also
