@@ -17,7 +17,6 @@ numpy_show_class_members = False
 
 autodoc_default_options = {
     'member-order': 'bysource',
-    'inherited-members': None,
     'special-members': '__init__',
     'exclude-members': '__dict__, __weakref__, __module__, __new__, __pyx_vtable__, __reduce__, __setstate__'
 }
