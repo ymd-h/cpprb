@@ -16,6 +16,12 @@ class LaBER:
             Default value is ``4``.
         eps : float, option
             Small positive values to avoid 0 priority. Default value is ``1e-6``.
+
+
+        Raises
+        ------
+        ValueError
+            When ``batch_size <= 0``, ``m <= 0``, or ``eps <= 0``.
         """
         self.rng = np.random.default_rng()
 
