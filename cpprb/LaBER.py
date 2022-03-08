@@ -42,6 +42,11 @@ class LaBER:
             Surrogate priorities.
         **kwargs : key-value
             Large batch sampled from ``ReplayBuffer``.
+
+        Raises
+        ------
+        ValueError
+            If the size of ``priorities`` is not ``batch_size * m``.
         """
         p = np.asarray(priorities) + self.eps
         if p.shape != self.idx.shape:
