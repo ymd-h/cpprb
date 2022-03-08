@@ -1833,21 +1833,21 @@ cdef class MPReplayBuffer:
     type. User can specify by `env_dict` parameters at constructor
     freely.
 
-    The possible standard transition contains observation (`obs`), action (`act`),
-    reward (`rew`), the next observation (`next_obs`), and done (`done`).
+    The possible standard transition contains observation (``obs``), action (``act``),
+    reward (``rew``), the next observation (``next_obs``), and done (``done``).
 
     >>> env_dict = {"obs": {"shape": (4,4)},
-                    "act": {"shape": 3, "dtype": np.int16},
-                    "rew": {},
-                    "next_obs": {"shape": (4,4)},
-                    "done": {}}
+    ...             "act": {"shape": 3, "dtype": np.int16},
+    ...             "rew": {},
+    ...             "next_obs": {"shape": (4,4)},
+    ...             "done": {}}
 
     In this class, sampling is random sampling and the same transition
     can be chosen multiple times.
 
     Notes
     -----
-    This class assumes single learner (`sample`) and multiple explorers (`add`)
+    This class assumes single learner (``sample``) and multiple explorers (``add``)
     like Ape-X
     """
     cdef buffer
@@ -1873,17 +1873,19 @@ cdef class MPReplayBuffer:
         size : int
             buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+            ``default_dtype``)
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in `env_dict`. default is numpy.single
+            fallback dtype for not specified in ``env_dict``.
+            default is ``numpy.single``
         ctx : ForkContext, SpawnContext, or SyncManager, optional
-            context created by `multiprocessing.get_context()` or `SyncManager`.
-            If None (default), the default context is used.
-        backend : "sharedctypes" or "SharedMemory", optional
-            shared memory (shm) backend to map buffer. The default is "sharedctypes".
-            "SharedMemory" is available only for Python 3.8+.
+            context created by ``multiprocessing.get_context()`` or ``SyncManager``.
+            If ``None`` (default), the default context is used.
+        backend : {"sharedctypes", "SharedMemory"}
+            shared memory (shm) backend to map buffer. The default is
+            ``"sharedctypes"``. ``"SharedMemory"`` is available only for Python 3.8+.
         """
         self.env_dict = env_dict.copy() if env_dict else {}
         ctx = ctx or mp.get_context()
