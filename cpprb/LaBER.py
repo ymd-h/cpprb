@@ -1,29 +1,6 @@
 import numpy as np
 
 class LaBER:
-    """
-    Helper class for Large Batch Experience Replay (LaBER)
-
-    This helper class is a functor designed to be used together with ``ReplayBuffer``.
-    It takes surrogate priorities for large batch, then returns sub-sampled indexes
-    and weights.
-
-    See Also
-    --------
-    LaBERmean, LaBERmax, LaBERlazy
-
-    Notes
-    -----
-    In LaBER [1]_, first m-times larger batch (large bacth) is sampled from
-    Replay Buffer. The final mini-batch is sampled from the large batch based on
-    newly calculated surrogate priorities.
-
-    References
-    ----------
-    .. [1] T. Lahire et al, "Large Batch Experience Replay", CoRR (2021)
-       https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528
-       https://arxiv.org/abs/2110.01528
-    """
     def __init__(self, batch_size: int, m: int = 4, *, eps: float = 1e-6):
         """
         Initialize LaBER (sub-)class
@@ -105,16 +82,85 @@ class LaBER:
 
 
 class LaBERmean(LaBER):
+    """
+    Helper class for Large Batch Experience Replay (LaBER)
+
+    This helper class is a functor designed to be used together with ``ReplayBuffer``.
+    It takes surrogate priorities for large batch, then returns sub-sampled indexes
+    and weights.
+
+    See Also
+    --------
+    LaBERmax, LaBERlazy
+
+    Notes
+    -----
+    In LaBER [1]_, first m-times larger batch (large bacth) is sampled from
+    Replay Buffer. The final mini-batch is sampled from the large batch based on
+    newly calculated surrogate priorities.
+
+    References
+    ----------
+    .. [1] T. Lahire et al, "Large Batch Experience Replay", CoRR (2021)
+       https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528
+       https://arxiv.org/abs/2110.01528
+    """
     def _normalize_weight(self, p, _idx):
         return p.mean() / p[_idx]
 
 
 class LaBERlazy(LaBER):
+    """
+    Helper class for Large Batch Experience Replay (LaBER)
+
+    This helper class is a functor designed to be used together with ``ReplayBuffer``.
+    It takes surrogate priorities for large batch, then returns sub-sampled indexes
+    and weights.
+
+    See Also
+    --------
+    LaBERmean, LaBERmax
+
+    Notes
+    -----
+    In LaBER [1]_, first m-times larger batch (large bacth) is sampled from
+    Replay Buffer. The final mini-batch is sampled from the large batch based on
+    newly calculated surrogate priorities.
+
+    References
+    ----------
+    .. [1] T. Lahire et al, "Large Batch Experience Replay", CoRR (2021)
+       https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528
+       https://arxiv.org/abs/2110.01528
+    """
     def _normalize_weight(self, p, _idx):
         return 1.0 / p[_idx]
 
 
 class LaBERmax(LaBER):
+    """
+    Helper class for Large Batch Experience Replay (LaBER)
+
+    This helper class is a functor designed to be used together with ``ReplayBuffer``.
+    It takes surrogate priorities for large batch, then returns sub-sampled indexes
+    and weights.
+
+    See Also
+    --------
+    LaBERmean, LaBERlazy
+
+    Notes
+    -----
+    In LaBER [1]_, first m-times larger batch (large bacth) is sampled from
+    Replay Buffer. The final mini-batch is sampled from the large batch based on
+    newly calculated surrogate priorities.
+
+    References
+    ----------
+    .. [1] T. Lahire et al, "Large Batch Experience Replay", CoRR (2021)
+       https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528
+       https://arxiv.org/abs/2110.01528
+    """
     def _normalize_weight(self, p, _idx):
         p_idx = 1.0 / p[_idx]
         return p_idx / p_idx.max()
