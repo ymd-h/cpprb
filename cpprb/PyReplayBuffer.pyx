@@ -2206,7 +2206,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef vector[float] ps_vec
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,ctx=None,**kwargs):
-        r"""Initialize ``PrioritizedReplayBuffer``
+        r"""Initialize ``MPPrioritizedReplayBuffer``
 
         Parameters
         ----------
