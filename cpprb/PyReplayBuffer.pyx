@@ -1767,15 +1767,16 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
         stack_compress : str or array like of str, optional
             compress memory of specified stacked values.
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in `env_dict`. default is numpy.single
+            fallback dtype for not specified in ``env_dict``. default is
+            ``numpy.single``
         Nstep : dict, optional
-            `Nstep["size"]` is `int` specifying step size of Nstep reward.
-            `Nstep["rew"]` is `str` or array like of `str` specifying
+            ``Nstep["size"]`` is ``int`` specifying step size of Nstep reward.
+            ``Nstep["rew"]`` is ``str`` or array like of ``str`` specifying
             Nstep reward to be summed. `Nstep["gamma"]` is float specifying
-            discount factor, its default is 0.99. `Nstep["next"]` is `str` or
-            list of `str` specifying next values to be moved.
+            discount factor, its default is ``0.99``. ``Nstep["next"]`` is ``str`` or
+            list of ``str`` specifying next values to be moved.
         mmap_prefix : str, optional
-            File name prefix to save buffer data using mmap. If `None` (default),
+            File name prefix to save buffer data using mmap. If ``None`` (default),
             save only on memory.
         stride : int, optional
             stride size. The default is ``300``.
