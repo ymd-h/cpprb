@@ -41,7 +41,14 @@ class LaBER:
         priorities : array-like of float
             Surrogate priorities.
         **kwargs : key-value
-            Large batch sampled from ``ReplayBuffer``.
+            Large batch sampled from ``ReplayBuffer``. These values are also
+            included sub-sampled batch.
+
+        Returns
+        -------
+        dict
+            Sub-sampled batch, which includes ``"weights"``, ``"indexes"``,
+            and passed keys.
 
         Raises
         ------
