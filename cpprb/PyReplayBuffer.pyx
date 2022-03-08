@@ -1011,7 +1011,7 @@ cdef class ReplayBuffer:
                  next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
                  mmap_prefix =None,
                  **kwargs):
-        r"""Initialize ReplayBuffer
+        r"""Initialize ``ReplayBuffer``
 
         Parameters
         ----------
