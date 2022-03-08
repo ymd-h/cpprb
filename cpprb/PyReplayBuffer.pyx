@@ -2097,10 +2097,6 @@ cdef class MPReplayBuffer:
     cpdef void on_episode_end(self) except *:
         r"""Call on episode end
 
-        Finalize the current episode by moving remaining Nstep buffer transitions,
-        evacuating overlapped data for memory compression features, and resetting
-        episode length.
-
         Notes
         -----
         Calling this function at episode end is the user responsibility,
