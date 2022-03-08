@@ -926,10 +926,10 @@ cdef class ReplayBuffer:
     (``next_obs``), and done (``done``).
 
     >>> env_dict = {"obs": {"shape": (4,4)},
-                    "act": {"shape": 3, "dtype": np.int16},
-                    "rew": {},
-                    "next_obs": {"shape": (4,4)},
-                    "done": {}}
+    ...             "act": {"shape": 3, "dtype": np.int16},
+    ...             "rew": {},
+    ...             "next_obs": {"shape": (4,4)},
+    ...             "done": {}}
 
     In this class, sampling is random sampling and the same transition
     can be chosen multiple times."""
