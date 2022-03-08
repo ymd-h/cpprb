@@ -1991,7 +1991,7 @@ cdef class MPReplayBuffer:
         Parameters
         ----------
         shuffle : bool, optional
-            When True, transitions are shuffled. The default value is False.
+            When ``True``, transitions are shuffled. The default value is ``False``.
 
         Returns
         -------
@@ -2046,7 +2046,7 @@ cdef class MPReplayBuffer:
     cpdef void clear(self) except *:
         r"""Clear replay buffer.
 
-        Set `index` and `stored_size` to 0.
+        Set ``index`` and ``stored_size`` to ``0``.
 
         Example
         -------
@@ -2105,7 +2105,7 @@ cdef class MPReplayBuffer:
         -----
         Calling this function at episode end is the user responsibility,
         since episode exploration can be terminated at certain length
-        even though any `done` flags from environment is not set.
+        even though any ``done`` flags from environment is not set.
         """
         pass
 
