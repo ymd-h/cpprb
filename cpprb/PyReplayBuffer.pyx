@@ -1624,9 +1624,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         Notes
         -----
-        When 'beta' is 0, weights become uniform. Wen 'beta' is 1, weight becomes
-        usual importance sampling.
-        The 'weights' are also normalized by the weight for minimum priority
+        When ``beta`` is ``0``, weights become uniform. When ``beta`` is ``1``,
+        weight becomes usual importance sampling.
+        The ``weights`` are also normalized by the weight for minimum priority
         (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
         """
         self.per.sample(batch_size,beta,
@@ -2378,9 +2378,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         Notes
         -----
-        When 'beta' is 0, weights become uniform. Wen 'beta' is 1, weight becomes
-        usual importance sampling.
-        The 'weights' are also normalized by the weight for minimum priority
+        When ``beta`` is ``0``, weights become uniform. When ``beta`` is ``1``,
+        weight becomes usual importance sampling.
+        The ``weights`` are also normalized by the weight for minimum priority
         (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
         """
         self._lock_learner_per()
