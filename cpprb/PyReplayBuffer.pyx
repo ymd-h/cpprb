@@ -1646,9 +1646,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         r"""Update priorities
 
         Update priorities specified with indicies. If this
-        PrioritizedReplayBuffer is constructed with
-        `check_for_update=True`, then ignore indices which updated
-        values after the last calling of `sample()` method.
+        ``PrioritizedReplayBuffer`` is constructed with
+        ``check_for_update=True``, then ignore indices which updated
+        values after the last calling of ``sample()`` method.
 
         Parameters
         ----------
@@ -1660,11 +1660,11 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         Raises
         ------
         TypeError
-            When `indexes` or `priorities` are `None`
+            When ``indexes`` or ``priorities`` are ``None``
         """
 
         if priorities is None:
-            raise TypeError("`properties` must not be `None`")
+            raise TypeError("``properties`` must not be ``None``")
 
         cdef const size_t [:] idx = Csize(indexes)
         cdef const float [:] ps = Cfloat(priorities)
