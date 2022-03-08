@@ -1866,7 +1866,7 @@ cdef class MPReplayBuffer:
                  default_dtype=None, logger=None,
                  ctx=None, backend="sharedctypes",
                  **kwargs):
-        r"""Initialize ReplayBuffer
+        r"""Initialize ``MPReplayBuffer``
 
         Parameters
         ----------
