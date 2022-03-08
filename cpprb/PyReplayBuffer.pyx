@@ -2194,8 +2194,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
     Notes
     -----
-    This class assumes single learner (`sample`, `update_priorities`) and
-    multiple explorers (`add`).
+    This class assumes single learner (``sample``, ``update_priorities``) and
+    multiple explorers (``add``).
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
@@ -2210,22 +2210,23 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef vector[float] ps_vec
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,ctx=None,**kwargs):
-        r"""Initialize PrioritizedReplayBuffer
+        r"""Initialize ``PrioritizedReplayBuffer``
 
         Parameters
         ----------
         size : int
             buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+            ``default_dtype``)
         alpha : float, optional
             :math:`\alpha` the exponent of the priorities in stored whose
-            default value is 0.6
+            default value is ``0.6``
         eps : float, optional
             :math:`\epsilon` small positive constant to ensure error-less state
-            will be sampled, whose default value is 1e-4.
+            will be sampled, whose default value is ``1e-4``.
 
         See Also
         --------
@@ -2304,10 +2305,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         Returns
         -------
-        : int or None
-            The first index of stored position. If all transitions are stored
-            into NstepBuffer and no transtions are stored into the main buffer,
-            None is returned.
+        : int
+            The first index of stored position.
 
         Raises
         ------
@@ -2372,12 +2371,12 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
             Sampled batch size
         beta : float, optional
             The exponent of weight for relaxation of importance
-            sampling effect, whose default value is 0.4
+            sampling effect, whose default value is ``0.4``
 
         Returns
         -------
         sample : dict of ndarray
-            Batch size of samples which also includes 'weights' and 'indexes'
+            Batch size of samples which also includes ``"weights"`` and ``"indexes"``
 
         Notes
         -----
@@ -2407,7 +2406,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         r"""Update priorities
 
         Update priorities specified with indicies. Ignores indices
-        which updated values after the last calling of `sample()`
+        which updated values after the last calling of ``sample()``
         method. This method can be called from single learner process.
 
         Parameters
@@ -2420,7 +2419,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         Raises
         ------
         TypeError
-            When `indexes` or `priorities` are `None`
+            When ``indexes`` or ``priorities`` are ``None``
         """
 
         if priorities is None:
@@ -2470,7 +2469,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         -----
         Calling this function at episode end is the user responsibility,
         since episode exploration can be terminated at certain length
-        even though any `done` flags from environment is not set.
+        even though any ``done`` flags from environment is not set.
         """
         pass
 
