@@ -1497,7 +1497,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
                  check_for_update=False,**kwargs):
-        r"""Initialize PrioritizedReplayBuffer
+        r"""Initialize ``PrioritizedReplayBuffer``
 
         Parameters
         ----------
