@@ -147,7 +147,7 @@ class HindsightReplayBuffer:
         r"""
         Terminate the current episode and set hindsight goal
 
-        Paremeters
+        Parameters
         ----------
         goal : array-like
             Original goal state of this episode.

@@ -659,7 +659,7 @@ cdef class NstepBuffer:
     def add(self,*,**kwargs):
         r"""Add envronment into local buffer.
 
-        Paremeters
+        Parameters
         ----------
         **kwargs : keyword arguments
             Values to be added.
