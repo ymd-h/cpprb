@@ -35,40 +35,43 @@ class HindsightReplayBuffer:
                  additional_goals: int = 4,
                  prioritized = True,
                  **kwargs):
-        """
-        Initialize HindsightReplayBuffer
+        r"""
+        Initialize ``HindsightReplayBuffer``
 
         Parameters
         ----------
         size : int
             Buffer Size
         env_dict : dict of dict
-            Dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            Dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+            ``default_dtype``)
         max_episode_len : int
             Maximum episode length.
         reward_func : Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray]
-            Batch calculation of reward function SxAxG -> R.
+            Batch calculation of reward function:
+            :math:`\mathcal{S}\time \mathcal{A}\time \mathcal{G} \to \mathcal{R}`.
         goal_func : Callable[[np.ndarray], np.ndarray], optional
-            Batch extraction function for goal from state: S->G.
+            Batch extraction function for goal from state:
+            :math:`\mathcal{S}\to\mathcal{G}`.
             If ``None`` (default), identity function is used (goal = state).
         goal_shape : Iterable[int], optional
             Shape of goal. If ``None`` (default), state shape is used.
         state : str, optional
-            State name in ``env_dict``. The default is "obs".
+            State name in ``env_dict``. The default is ``"obs"``.
         action : str, optional
-            Action name in ``env_dict``. The default is "act".
+            Action name in ``env_dict``. The default is ``"act"``.
         next_state : str, optional
-            Next state name in ``env_dict``. The default is "next_obs".
-        strategy : ["future", "episode", "random", "final"], optional
+            Next state name in ``env_dict``. The default is ``"next_obs"``.
+        strategy : {"future", "episode", "random", "final"}, optional
             Goal sampling strategy.
-            "future" selects one of the future states in the same episode.
-            "episode" selects states in the same episode.
-            "random" selects from the all states in replay buffer.
-            "final" selects the final state in the episode. For "final",
-            ``additional_goals`` is ignored.
-            The default is "future"
+            ``"future"`` selects one of the future states in the same episode.
+            ``"episode"`` selects states in the same episode.
+            ``"random"`` selects from the all states in replay buffer.
+            ``"final"`` selects the final state in the episode.
+            For ``"final"`` strategy, ``additional_goals`` is ignored.
+            The default is ``"future"``.
         additional_goals : int, optional
             Number of additional goals. The default is ``4``.
         prioritized : bool, optional
