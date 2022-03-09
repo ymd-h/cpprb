@@ -144,7 +144,7 @@ class HindsightReplayBuffer:
 
 
     def on_episode_end(self, goal):
-        """
+        r"""
         Terminate the current episode and set hindsight goal
 
         Paremeters
