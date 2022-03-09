@@ -2513,15 +2513,17 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     size : int
         buffer size
     env_dict : dict of dict, optional
-        dictionary specifying environments. The keies of env_dict become
-        environment names. The values of env_dict, which are also dict,
-        defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+        dictionary specifying environments. The keys of ``env_dict`` become
+        environment names. The values of ``env_dict``, which are also ``dict``,
+        defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+        ``default_dtype``)
     prioritized : bool, optional
-        create prioritized version replay buffer, default = False
+        create prioritized version replay buffer. The default is ``False``.
 
     Returns
     -------
-    : one of the replay buffer classes
+    ReplayBuffer or PrioritizedReplayBuffer
+        Replay Buffer
 
     Raises
     ------
@@ -2572,39 +2574,40 @@ def train(buffer: ReplayBuffer,
     env: gym.Enviroment compatible
         Environment to learn
     get_action: Callable
-        Callable taking `obs` and returning `action`
+        Callable taking ``obs`` and returning ``action``
     update_policy: Callable
-        Callable taking `sample`, `step`, and `episode`, updating policy,
-        and returning |TD|.
+        Callable taking ``sample``, ``step``, and ``episode``, updating policy,
+        and returning :math:`|TD|`.
     max_steps: int (optional)
-        Maximum steps to learn. The default value is `1000000`
+        Maximum steps to learn. The default value is ``1000000``
     max_episodes: int (optional)
-        Maximum episodes to learn. The defaul value is `None`
+        Maximum episodes to learn. The defaul value is ``None``
     n_warmups: int (optional)
-        Warmup steps before sampling. The default value is `0` (No warmup)
+        Warmup steps before sampling. The default value is ``0`` (No warmup)
     after_step: Callable (optional)
-        Callable converting from `obs`, returns of `env.step(action)`,
-        `step`, and `episode` to `dict` of a transition for `ReplayBuffer.add`.
+        Callable converting from ``obs``, returns of ``env.step(action)``,
+        ``step``, and ``episode`` to ``dict`` of a transition for
+        ``ReplayBuffer.add``.
         This function can also be used for step summary callback.
-    done_check: Callable (optional)
+    done_check: Callable, optional
         Callable checking done
-    obs_update: Callable (optional)
+    obs_update: Callable, optional
         Callable updating obs
-    rew_sum: Callable[[float, Dict], float] (optional)
+    rew_sum: Callable[[float, Dict], float], optional
         Callable summarizing episode reward
-    episode_callback: Callable[[int, int, float], Any] (optional)
+    episode_callback: Callable[[int, int, float], Any], optional
         Callable for episode summarization
-    logger: logging.Logger (optional)
+    logger: logging.Logger, optional
         Custom Logger
 
     Raises
     ------
     ValueError:
-       When `max_step` is larger than `size_t` limit
+       When ``max_step`` is larger than ``size_t`` limit
 
     Warnings
     --------
-    `cpprb.train` is still beta release. API can be changed.
+    ``cpprb.train`` is still beta release. API can be changed.
     """
     warnings.warn("`cpprb.train` is still beta release. API can be changed.")
 
