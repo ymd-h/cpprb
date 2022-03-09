@@ -2236,7 +2236,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         See Also
         --------
-        MPReplayBuffer : Any optional parameters at ReplayBuffer are valid, too.
+        MPReplayBuffer : Any optional parameters at ``MPReplayBuffer`` are valid, too.
 
 
         Notes
