@@ -1028,7 +1028,8 @@ cdef class ReplayBuffer:
         stack_compress : str or array like of str, optional
             compress memory of specified stacked values.
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in `env_dict`. default is numpy.single
+            fallback dtype for not specified in ``env_dict``.
+            default is ``numpy.single``
         Nstep : dict, optional
             ``Nstep["size"]`` is ``int`` specifying step size of Nstep reward.
             ``Nstep["rew"]`` is ``str`` or array like of ``str`` specifying
