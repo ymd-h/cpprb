@@ -1629,12 +1629,12 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             Sampled batch size
         beta : float, optional
             The exponent of weight for relaxation of importance
-            sampling effect, whose default value is 0.4
+            sampling effect, whose default value is ``0.4``
 
         Returns
         -------
         sample : dict of ndarray
-            Batch size of samples which also includes 'weights' and 'indexes'
+            Batch size of samples which also includes ``"weights"`` and ``"indexes"``
 
         Notes
         -----
