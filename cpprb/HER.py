@@ -258,7 +258,7 @@ class HindsightReplayBuffer:
         Parameters
         ----------
         shuffle : bool, optional
-            When True, transitions are shuffled. The default value is False.
+            When ``True``, transitions are shuffled. The default value is ``False``.
 
         Returns
         -------
