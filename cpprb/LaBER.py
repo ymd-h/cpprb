@@ -98,6 +98,8 @@ class LaBERmean(LaBER):
     In LaBER[1]_, first m-times larger batch (large bacth) is sampled from
     Replay Buffer. The final mini-batch is sampled from the large batch based on
     newly calculated surrogate priorities.
+    This class implements LaBER-mean variant, where weights are normalized by
+    average over the large batch.
 
     References
     ----------
@@ -126,6 +128,7 @@ class LaBERlazy(LaBER):
     In LaBER[1]_, first m-times larger batch (large bacth) is sampled from
     Replay Buffer. The final mini-batch is sampled from the large batch based on
     newly calculated surrogate priorities.
+    This class implements LaBER-lazy variant, where weights are not normalized at all.
 
     References
     ----------
@@ -154,6 +157,8 @@ class LaBERmax(LaBER):
     In LaBER[1]_, first m-times larger batch (large bacth) is sampled from
     Replay Buffer. The final mini-batch is sampled from the large batch based on
     newly calculated surrogate priorities.
+    This class implements LaBER-max variant, where weights are normalized by
+    the maximum weight of selected mini-batch.
 
     References
     ----------
