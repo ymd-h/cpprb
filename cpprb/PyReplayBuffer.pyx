@@ -2103,6 +2103,11 @@ cdef class MPReplayBuffer:
         Calling this function at episode end is the user responsibility,
         since episode exploration can be terminated at certain length
         even though any ``done`` flags from environment is not set.
+
+        Warnings
+        --------
+        Although nothing happens for ``MPReplayBuffer``, it is better to call this
+        because some functionalities might be added in the future version.
         """
         pass
 
