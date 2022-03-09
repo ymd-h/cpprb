@@ -7,9 +7,19 @@ from cpprb import ReplayBuffer, PrioritizedReplayBuffer
 
 class HindsightReplayBuffer:
     """
-    Replay Buffer class for Hindsight Experience Replay
+    Replay Buffer class for Hindsight Experience Replay (HER)
 
-    Ref: https://arxiv.org/abs/1707.01495
+    Notes
+    -----
+    In Hindsight Experience Replay [1]_, failed transitions are considered
+    as success transitions by re-labelling goal.
+
+    References
+    ----------
+    .. [1] M. Andrychowicz et al, "Hindsight Experience Replay",
+       Advances in Neural Information Processing Systems 30 (NIPS 2017),
+       https://papers.nips.cc/paper/2017/hash/453fadbd8a1a3af50a9df4df899537b5-Abstract.html
+       https://arxiv.org/abs/1707.01495
     """
     def __init__(self,
                  size: int,
