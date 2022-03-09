@@ -127,7 +127,7 @@ class HindsightReplayBuffer:
 
 
     def sample(self, batch_size: int, **kwargs):
-        r"""Sample the stored transitions randomly with speciped size
+        r"""Sample the stored transitions randomly with specified size
 
         Parameters
         ----------
