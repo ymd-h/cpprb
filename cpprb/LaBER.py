@@ -119,6 +119,10 @@ class LaBERlazy(LaBER):
     It takes surrogate priorities for large batch, then returns sub-sampled indexes
     and weights.
 
+    Warnings
+    --------
+    According to the proposed paper[1]_, ``LaBERmean`` is more preferable.
+
     See Also
     --------
     LaBERmean, LaBERmax
@@ -147,6 +151,10 @@ class LaBERmax(LaBER):
     This helper class is a functor designed to be used together with ``ReplayBuffer``.
     It takes surrogate priorities for large batch, then returns sub-sampled indexes
     and weights.
+
+    Warnings
+    --------
+    According to the proposed paper[1]_, ``LaBERmean`` is more preferable.
 
     See Also
     --------
