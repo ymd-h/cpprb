@@ -1444,7 +1444,8 @@ cdef class ReplayBuffer:
 
         Returns
         -------
-        episode_len : size_t
+        size_t
+            Current episode length
         """
         return self.episode_len
 
@@ -1453,7 +1454,8 @@ cdef class ReplayBuffer:
 
         Returns
         -------
-        use_nstep : bool
+        bool
+            Whether Nstep is used
         """
         return self.use_nstep
 
