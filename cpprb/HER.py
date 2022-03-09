@@ -136,8 +136,8 @@ class HindsightReplayBuffer:
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of sampled transitions, which might contains
+        dict of ndarray
+            Sampled batch transitions, which might contains
             the same transition multiple times.
         """
         return self.rb.sample(batch_size, **kwargs)

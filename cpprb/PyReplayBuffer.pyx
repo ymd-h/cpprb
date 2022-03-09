@@ -411,8 +411,9 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
 
         Returns
         -------
-        sample : dict of ndarray
-            batch size of samples, which might contains the same event multiple times.
+        dict of ndarray
+            Sampled batch transitions, which might contains the same transition
+            multiple times.
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
@@ -1301,7 +1302,7 @@ cdef class ReplayBuffer:
         Returns
         -------
         sample : dict of ndarray
-            Batch size of sampled transitions, which might contains
+            Sampled batch transitions, which might contains
             the same transition multiple times.
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
@@ -1633,8 +1634,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of samples which also includes ``"weights"`` and ``"indexes"``
+        dict of ndarray
+            Sampled batch transitions which also includes
+            ``"weights"`` and ``"indexes"``
 
         Notes
         -----
@@ -1807,8 +1809,8 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of sampled transitions, which might contains
+        dict of ndarray
+            Sampled batch transitions, which might contains
             the same transition multiple times.
         """
         cdef size_t nidx = self.get_next_index()
@@ -2043,8 +2045,8 @@ cdef class MPReplayBuffer:
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of sampled transitions, which might contains
+        dict of ndarray
+            Sampled batch transitions, which might contains
             the same transition multiple times.
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
@@ -2392,8 +2394,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of samples which also includes ``"weights"`` and ``"indexes"``
+        dict of ndarray
+            Sampled batch transitions which also includes
+            ``"weights"`` and ``"indexes"``
 
         Notes
         -----
