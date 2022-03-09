@@ -1630,7 +1630,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         When ``beta`` is ``0``, weights become uniform. When ``beta`` is ``1``,
         weight becomes usual importance sampling.
         The ``weights`` are also normalized by the weight for minimum priority
-        (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
+        (:math:`= w_{i}/\max_{j}(w_{j})`), which ensures the weights :math:`\leq` 1.
         """
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
