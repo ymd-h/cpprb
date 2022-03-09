@@ -121,7 +121,7 @@ class LaBERlazy(LaBER):
 
     Warnings
     --------
-    According to the proposed paper[1]_, ``LaBERmean`` is more preferable.
+    According to the proposed paper [1]_, ``LaBERmean`` is more preferable.
 
     See Also
     --------
@@ -154,7 +154,7 @@ class LaBERmax(LaBER):
 
     Warnings
     --------
-    According to the proposed paper[1]_, ``LaBERmean`` is more preferable.
+    According to the proposed paper [1]_, ``LaBERmean`` is more preferable.
 
     See Also
     --------
