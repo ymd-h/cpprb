@@ -1751,17 +1751,27 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 cdef class ReverseReplayBuffer(ReplayBuffer):
     r"""Replay Buffer class for Reverse Experience Replay (RER)
 
-    RER samples equally strided transitions reversely.
+
+    Notes
+    -----
+    In Reverse Experience Replay (RER) [1]_, samples equally strided
+    transitions reversely.
 
     .. math::
-        sample1: T_t    , T_{t-stride}  , ..., T_{t-batch\_size*stride}\\
-        sample2: T_{t-1}, T_{t-stride-1}, ..., T_{t-batch\_size*stride-1}\\
+        \begin{align}
+        \text{sample-1}:& T_t    ,& T_{t-stride}  ,& \dots,& T_{t-batch\_size*stride}\\
+        \text{sample-2}:& T_{t-1},& T_{t-stride-1},& \dots,& T_{t-batch\_size*stride-1}\\
+        \end{align}
         \dots
 
     When the first index ``t-i`` is delayed from the latest index more
     than ``2*tride``, the first index will be reset to the latest one.
 
-    Ref: https://arxiv.org/abs/1910.08780
+
+    References
+    ----------
+    .. [1] E. Rotinov, "Reverse Experience Replay" (2019),
+       https://arxiv.org/abs/1910.08780
     """
     cdef size_t stride
     cdef size_t last_sampled_index
