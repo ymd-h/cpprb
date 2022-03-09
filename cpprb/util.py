@@ -18,7 +18,7 @@ def create_env_dict(env,*,int_type = None,float_type = None):
     """
     Create `env_dict` from Open AI `gym.space` for `ReplayBuffer.__init__`
 
-    Paremeters
+    Parameters
     ----------
     env : gym.Env
         Environment
