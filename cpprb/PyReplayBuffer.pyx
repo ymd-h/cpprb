@@ -1832,8 +1832,8 @@ cdef class MPReplayBuffer:
 
     This class works on multi-process without manual locking of entire buffer.
 
-    The transition can contain anything compatible with numpy data
-    type. User can specify by `env_dict` parameters at constructor
+    The transition can contain anything compatible with NumPy data
+    type. User can specify by ``env_dict`` parameters at constructor
     freely.
 
     The possible standard transition contains observation (``obs``), action (``act``),
