@@ -1237,7 +1237,7 @@ cdef class ReplayBuffer:
         Warnings
         --------
         In order to avoid security vulnerability,
-        you MUST NOT load untrusted file, since this method is
+        you **must not** load untrusted file, since this method is
         based on ``pickle``.
         """
         with np.load(file, allow_pickle=True) as data:
