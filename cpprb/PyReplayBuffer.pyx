@@ -1464,6 +1464,17 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
     r"""Prioritized Replay Buffer class to store transitions with priorities.
 
     In this class, these transitions are sampled with corresponding to priorities.
+
+    Notes
+    -----
+    In Prioritized Experience Replay (PER) [1]_, transitions are sampled
+    with probabilities calculated from TD error. This class implements
+    propotional variant where :math:`p_i = (|TD|_i + \varepsilon)^{\alpha}`.
+
+    References
+    ----------
+    .. [1] T. Schaul et al, "Prioritized Experience Replay", ICLR (2016),
+       https://arxiv.org/abs/1511.05952
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
