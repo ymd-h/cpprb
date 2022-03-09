@@ -1461,7 +1461,7 @@ cdef class ReplayBuffer:
 
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
-    r"""Prioritized replay buffer class to store transitions with priorities.
+    r"""Prioritized Replay Buffer class to store transitions with priorities.
 
     In this class, these transitions are sampled with corresponding to priorities.
     """
