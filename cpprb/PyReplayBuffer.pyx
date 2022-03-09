@@ -1037,8 +1037,8 @@ cdef class ReplayBuffer:
             discount factor, its default is ``0.99``. ``Nstep["next"]`` is ``str`` or
             list of ``str`` specifying next values to be moved.
         mmap_prefix : str, optional
-            File name prefix to save buffer data using mmap. If ``None`` (default),
-            save only on memory.
+            File name prefix to map buffer data using mmap. If ``None`` (default),
+            stores only on memory.
         """
         pass
 
