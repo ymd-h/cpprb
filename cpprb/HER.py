@@ -51,7 +51,7 @@ class HindsightReplayBuffer:
             Maximum episode length.
         reward_func : Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray]
             Batch calculation of reward function:
-            :math:`\mathcal{S}\time \mathcal{A}\time \mathcal{G} \to \mathcal{R}`.
+            :math:`\mathcal{S}\times \mathcal{A}\times \mathcal{G} \to \mathcal{R}`.
         goal_func : Callable[[np.ndarray], np.ndarray], optional
             Batch extraction function for goal from state:
             :math:`\mathcal{S}\to\mathcal{G}`.
