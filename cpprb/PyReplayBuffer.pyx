@@ -2109,9 +2109,13 @@ cdef class MPReplayBuffer:
     cpdef bool is_Nstep(self):
         r"""Get whether use Nstep or not
 
+        Since ``MPReplayBuffer`` doesn't supports Nstep feature,
+        return value is always ``False``.
+
         Returns
         -------
-        use_nstep : bool
+        bool
+            ``False``
         """
         return False
 
