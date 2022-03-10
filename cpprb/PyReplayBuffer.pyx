@@ -1369,6 +1369,17 @@ cdef class ReplayBuffer:
         sample : dict of ndarray
             Sampled batch transitions, which might contains
             the same transition multiple times.
+
+        Examples
+        --------
+        >>> rb = ReplayBuffer(1e+6, {"obs": {"shape": 3}})
+        >>> rb.add(obs=[1,2,3])
+        >>> rb.add(obs=[[1,2,3],[1,2,3]])
+        >>> rb.sample(4)
+        {'obs': array([[1., 2., 3.],
+                       [1., 2., 3.],
+                       [1., 2., 3.],
+                       [1., 2., 3.]], dtype=float32)}
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
