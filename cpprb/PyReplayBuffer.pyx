@@ -1044,6 +1044,55 @@ cdef class ReplayBuffer:
             File name prefix to map buffer data using mmap. If ``None`` (default),
             stores only on memory. This feature is designed for very large data
             which cannot be located on physical memory.
+
+
+        Examples
+        --------
+        Create simple replay buffer with buffer size of :math:`10^6`.
+
+        >>> rb = ReplayBuffer(1e+6,
+        ...                   {"obs": {"shape": 3}, "act": {}, "rew": {},
+        ...                    "next_obs": {"shape": 3}, "done": {}})
+
+
+        Create replay buffer with ``np.float64``, but only ``"act"`` is ``np.int8``.
+
+        >>> rb = ReplayBuffer(1e+6,
+        ...                   {"obs": {"shape": 3}, "act": {"dtype": np.int8},
+        ...                    "rew": {},
+        ...                    "next_obs": {"shape": 3}, "done": {}},
+        ...                    default_dtype = np.float64)
+
+
+        Create replay buffer with ``next_of`` memory compression for ``"obs"``.
+        In this example, ``"next_obs"`` is automatically added and shares the memory
+        with ``"obs"``.
+
+        >>> rb = ReplayBuffer(1e+6,
+        ...                   {"obs": {"shape": 3}, "act": {}, "rew": {}, "done": {}},
+        ...                   next_of="obs")
+
+
+        Create replay buffer with ``stack_compress`` memory compression for ``"obs"``.
+        The stacked data must be a sliding window of a sequential data, and the last
+        dimension is the stack dimension.
+
+        >>> rb = ReplayBuffer(1e+6,
+        ...                   {"obs": {"shape": (3,2)}},
+        ...                   stack_compress=["obs", "next_obs"])
+        >>> rb.add(obs=[[1,2],
+        ...             [1,2],
+        ...             [1,2]])
+        0
+        >>> rb.add(obs=[[2,3],
+        ...             [2,3],
+        ...             [2,3]])
+        1
+
+
+        Create very large replay buffer mapping on disk.
+
+        >>> rb = ReplayBuffer(1e+9, {"obs": "shape": 3}, mmap_prefix="rb_data")
         """
         pass
 
@@ -1073,6 +1122,22 @@ cdef class ReplayBuffer:
         --------
         All values must be passed by key-value style (keyword arguments).
         It is user responsibility that all the values have the same step-size.
+
+
+        Examples
+        --------
+        >>> rb = ReplayBuffer(1e+6, {"obs": {"shape": 3}})
+
+        Add a single transition: ``[1,2,3]``.
+
+        >>> rb.add(obs=[1,2,3])
+
+        Add three step sequential transitions: ``[1,2,3]``, ``[4,5,6]``,
+        and ``[7,8,9]`` simultaneously.
+
+        >>> rb.add(obs=[[1,2,3],
+        ...             [4,5,6],
+        ...             [7,8,9]])
         """
         if self.use_nstep:
             kwargs = self.nstep.add(**kwargs)
