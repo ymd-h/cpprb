@@ -1885,7 +1885,13 @@ cdef class MPReplayBuffer:
     Notes
     -----
     This class assumes single learner (``sample``) and multiple explorers (``add``)
-    like Ape-X
+    like Ape-X [1]_.
+
+    References
+    ----------
+    .. [1] D. Horgan et al., "Distributed Prioritized Experience Replay", ICLR (2018),
+       https://openreview.net/forum?id=H1Dy---0Z
+       https://arxiv.org/abs/1803.00933
     """
     cdef buffer
     cdef size_t buffer_size
@@ -2235,7 +2241,13 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     Notes
     -----
     This class assumes single learner (``sample``, ``update_priorities``) and
-    multiple explorers (``add``).
+    multiple explorers (``add``) like Ape-X [1]_.
+
+    References
+    ----------
+    .. [1] D. Horgan et al., "Distributed Prioritized Experience Replay", ICLR (2018),
+       https://openreview.net/forum?id=H1Dy---0Z
+       https://arxiv.org/abs/1803.00933
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
