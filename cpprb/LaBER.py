@@ -91,7 +91,7 @@ class LaBERmean(LaBER):
 
     See Also
     --------
-    LaBERmax, LaBERlazy
+    LaBERmax, LaBERlazy : Other variants
 
     Notes
     -----
@@ -125,7 +125,7 @@ class LaBERlazy(LaBER):
 
     See Also
     --------
-    LaBERmean, LaBERmax
+    LaBERmean, LaBERmax : Other variants
 
     Notes
     -----
@@ -158,7 +158,7 @@ class LaBERmax(LaBER):
 
     See Also
     --------
-    LaBERmean, LaBERlazy
+    LaBERmean, LaBERlazy : Other variants
 
     Notes
     -----
