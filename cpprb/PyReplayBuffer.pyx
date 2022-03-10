@@ -1059,7 +1059,7 @@ cdef class ReplayBuffer:
 
         Returns
         -------
-        : int or None
+        int or None
             The first index of stored position. If all transitions are stored
             into ``NstepBuffer`` and no transtions are stored into the main buffer,
             ``None`` is returned.
