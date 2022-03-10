@@ -2465,9 +2465,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         Parameters
         ----------
         indexes : array_like
-            indexes to update priorities
+            Indexes to update priorities
         priorities : array_like
-            priorities to update
+            Priorities to update
 
         Raises
         ------
@@ -2511,7 +2511,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         Returns
         -------
         max_priority : float
-            the max priority of stored priorities
+            The max priority of stored priorities
         """
         return self.per.ptr().get_max_priority()
 
@@ -2534,14 +2534,14 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     Parameters
     ----------
     size : int
-        buffer size
+        Buffer size
     env_dict : dict of dict, optional
-        dictionary specifying environments. The keys of ``env_dict`` become
+        Dictionary specifying environments. The keys of ``env_dict`` become
         environment names. The values of ``env_dict``, which are also ``dict``,
         defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
         ``default_dtype``)
     prioritized : bool, optional
-        create prioritized version replay buffer. The default is ``False``.
+        Whether create prioritized version replay buffer. The default is ``False``.
 
     Returns
     -------
