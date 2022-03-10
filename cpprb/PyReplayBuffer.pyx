@@ -2601,13 +2601,13 @@ def train(buffer: ReplayBuffer,
     update_policy: Callable
         Callable taking ``sample``, ``step``, and ``episode``, updating policy,
         and returning :math:`|TD|`.
-    max_steps: int (optional)
+    max_steps: int, optional
         Maximum steps to learn. The default value is ``1000000``
-    max_episodes: int (optional)
+    max_episodes: int, optional
         Maximum episodes to learn. The defaul value is ``None``
-    n_warmups: int (optional)
+    n_warmups: int, optional
         Warmup steps before sampling. The default value is ``0`` (No warmup)
-    after_step: Callable (optional)
+    after_step: Callable, optional
         Callable converting from ``obs``, returns of ``env.step(action)``,
         ``step``, and ``episode`` to ``dict`` of a transition for
         ``ReplayBuffer.add``.
