@@ -1790,12 +1790,14 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         next_of : str or array like of str, optional
-            next item of specified environemt variables (eg. next_obs for next) are
-            also sampled without duplicated values
+            Value names whose next items share memory region.
+            The ``"next_"`` prefixed items (eg. ``next_obs`` for ``obs``) are
+            automatically added to ``env_dict`` without duplicated memory.
         stack_compress : str or array like of str, optional
-            compress memory of specified stacked values.
+            Value names whose duplicated stack dimension is compressed.
+            The values must have stacked dimension at the last dimension.
         default_dtype : numpy.dtype, optional
             fallback dtype for not specified in ``env_dict``. default is
             ``numpy.single``
