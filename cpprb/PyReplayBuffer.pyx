@@ -2553,8 +2553,8 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     NotImplementedError
         If you specified not implemented version replay buffer
 
-    Note
-    ----
+    Notes
+    -----
     Any other keyword arguments are passed to replay buffer constructor.
     """
     per = "Prioritized" if prioritized else ""
