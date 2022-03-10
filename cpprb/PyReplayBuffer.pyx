@@ -1017,29 +1017,33 @@ cdef class ReplayBuffer:
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keys of ``env_dict`` become
-            environment names. The values of ``env_dict``, which are also dict,
+            Dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
             defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
             ``default_dtype``)
         next_of : str or array like of str, optional
-            next item of specified environemt variables (eg. ``next_obs`` for ``obs``)
-            are also sampled without duplicated values
+            Value names whose next items share memory region.
+            The ``"next_"`` prefixed items (eg. ``next_obs`` for ``obs``) are
+            automatically added to ``env_dict`` without duplicated memory.
         stack_compress : str or array like of str, optional
-            compress memory of specified stacked values.
+            Value names whose duplicated stack dimension is compressed.
+            The values must have stacked dimension at the last dimension.
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in ``env_dict``.
-            The default value is ``numpy.single``
+            Fallback dtype. The default value is ``numpy.single``
         Nstep : dict, optional
+            If this option is specified, Nstep reward is used.
             ``Nstep["size"]`` is ``int`` specifying step size of Nstep reward.
             ``Nstep["rew"]`` is ``str`` or array like of ``str`` specifying
             Nstep reward to be summed. ``Nstep["gamma"]`` is float specifying
             discount factor, its default is ``0.99``. ``Nstep["next"]`` is ``str`` or
             list of ``str`` specifying next values to be moved.
+            When this option is enabled, ``"done"`` is required at ``env_dict``.
         mmap_prefix : str, optional
             File name prefix to map buffer data using mmap. If ``None`` (default),
-            stores only on memory.
+            stores only on memory. This feature is designed for very large data
+            which cannot be located on physical memory.
         """
         pass
 
