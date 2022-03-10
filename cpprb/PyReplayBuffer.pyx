@@ -1521,9 +1521,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keys of ``env_dict`` become
+            Dictionary specifying environments. The keys of ``env_dict`` become
             environment names. The values of ``env_dict``, which are also ``dict``,
             defines ``"shape"`` (default ``1``) and ``"dtypes"``
             (fallback to ``default_dtype``)
