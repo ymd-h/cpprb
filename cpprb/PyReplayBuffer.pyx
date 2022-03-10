@@ -1812,6 +1812,11 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
             save only on memory.
         stride : int, optional
             stride size. The default is ``300``.
+
+
+        See Also
+        --------
+        ReplayBuffer : Any optional parameters at ReplayBuffer are valid, too.
         """
         super().__init__(size, env_dict, **kwargs)
 
