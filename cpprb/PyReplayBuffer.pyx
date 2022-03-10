@@ -1673,9 +1673,9 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         Parameters
         ----------
         indexes : array_like
-            indexes to update priorities
+            Indexes to update priorities
         priorities : array_like
-            priorities to update
+            Priorities to update
 
         Raises
         ------
