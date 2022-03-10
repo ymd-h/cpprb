@@ -1914,20 +1914,20 @@ cdef class MPReplayBuffer:
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keys of ``env_dict`` become
+            Dictionary specifying environments. The keys of ``env_dict`` become
             environment names. The values of ``env_dict``, which are also ``dict``,
             defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
             ``default_dtype``)
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in ``env_dict``.
+            Fallback dtype for not specified in ``env_dict``.
             default is ``numpy.single``
         ctx : ForkContext, SpawnContext, or SyncManager, optional
-            context created by ``multiprocessing.get_context()`` or ``SyncManager``.
+            Context created by ``multiprocessing.get_context()`` or ``SyncManager``.
             If ``None`` (default), the default context is used.
         backend : {"sharedctypes", "SharedMemory"}
-            shared memory (shm) backend to map buffer. The default is
+            Shared memory (shm) backend to map buffer. The default is
             ``"sharedctypes"``. ``"SharedMemory"`` is available only for Python 3.8+.
         """
         self.env_dict = env_dict.copy() if env_dict else {}
@@ -2111,7 +2111,7 @@ cdef class MPReplayBuffer:
         Returns
         -------
         size_t
-            stored size
+            Stored size
         """
         return self.index.get_stored_size()
 
@@ -2121,7 +2121,7 @@ cdef class MPReplayBuffer:
         Returns
         -------
         size_t
-            buffer size
+            Buffer size
         """
         return self.buffer_size
 
@@ -2131,7 +2131,7 @@ cdef class MPReplayBuffer:
         Returns
         -------
         size_t
-            the next index to store
+            Next index to store
         """
         return self.index.get_next_index()
 
@@ -2267,9 +2267,9 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keys of ``env_dict`` become
+            Dictionary specifying environments. The keys of ``env_dict`` become
             environment names. The values of ``env_dict``, which are also ``dict``,
             defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
             ``default_dtype``)
