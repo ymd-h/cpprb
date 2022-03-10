@@ -1824,8 +1824,8 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
 
     .. math::
         \begin{align}
-        \text{sample-1}: &T_t    , &T_{t-stride}  , &\dots, &T_{t-batch\_size*stride}\\
-        \text{sample-2}: &T_{t-1}, &T_{t-stride-1}, &\dots, &T_{t-batch\_size*stride-1}\\
+        \text{sample-1}: &T_t    , &T_{t-stride}  , &\dots, &T_{t-batch\_size\times stride}\\
+        \text{sample-2}: &T_{t-1}, &T_{t-stride-1}, &\dots, &T_{t-batch\_size\times stride-1}\\
         \dots&&&&
         \end{align}
 
