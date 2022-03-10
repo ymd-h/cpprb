@@ -2423,7 +2423,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         Returns
         -------
-        : int
+        int
             The first index of stored position.
 
         Raises
