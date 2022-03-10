@@ -411,8 +411,9 @@ cdef class SelectiveReplayBuffer(SelectiveEnvironment):
 
         Returns
         -------
-        sample : dict of ndarray
-            batch size of samples, which might contains the same event multiple times.
+        dict of ndarray
+            Sampled batch transitions, which might contains the same transition
+            multiple times.
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
@@ -659,7 +660,7 @@ cdef class NstepBuffer:
     def add(self,*,**kwargs):
         r"""Add envronment into local buffer.
 
-        Paremeters
+        Parameters
         ----------
         **kwargs : keyword arguments
             Values to be added.
@@ -917,18 +918,19 @@ cdef class ProcessSafeRingBufferIndex(RingBufferIndex):
 cdef class ReplayBuffer:
     r"""Replay Buffer class to store transitions and to sample them randomly.
 
-    The transition can contain anything compatible with numpy data
-    type. User can specify by `env_dict` parameters at constructor
+    The transition can contain anything compatible with NumPy data
+    type. User can specify by ``env_dict`` parameters at constructor
     freely.
 
-    The possible standard transition contains observation (`obs`), action (`act`),
-    reward (`rew`), the next observation (`next_obs`), and done (`done`).
+    The possible standard transition contains observation (``obs``),
+    action (``act``), reward (``rew``), the next observation
+    (``next_obs``), and done (``done``).
 
     >>> env_dict = {"obs": {"shape": (4,4)},
-                    "act": {"shape": 3, "dtype": np.int16},
-                    "rew": {},
-                    "next_obs": {"shape": (4,4)},
-                    "done": {}}
+    ...             "act": {"shape": 3, "dtype": np.int16},
+    ...             "rew": {},
+    ...             "next_obs": {"shape": (4,4)},
+    ...             "done": {}}
 
     In this class, sampling is random sampling and the same transition
     can be chosen multiple times."""
@@ -1010,32 +1012,83 @@ cdef class ReplayBuffer:
                  next_of=None,stack_compress=None,default_dtype=None,Nstep=None,
                  mmap_prefix =None,
                  **kwargs):
-        r"""Initialize ReplayBuffer
+        r"""Initialize ``ReplayBuffer``
 
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            Dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+            ``default_dtype``)
         next_of : str or array like of str, optional
-            next item of specified environemt variables (eg. next_obs for next) are
-            also sampled without duplicated values
+            Value names whose next items share memory region.
+            The ``"next_"`` prefixed items (eg. ``next_obs`` for ``obs``) are
+            automatically added to ``env_dict`` without duplicated memory.
         stack_compress : str or array like of str, optional
-            compress memory of specified stacked values.
+            Value names whose duplicated stack dimension is compressed.
+            The values must have stacked dimension at the last dimension.
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in `env_dict`. default is numpy.single
+            Fallback dtype. The default value is ``numpy.single``
         Nstep : dict, optional
-            `Nstep["size"]` is `int` specifying step size of Nstep reward.
-            `Nstep["rew"]` is `str` or array like of `str` specifying
-            Nstep reward to be summed. `Nstep["gamma"]` is float specifying
-            discount factor, its default is 0.99. `Nstep["next"]` is `str` or
-            list of `str` specifying next values to be moved.
+            If this option is specified, Nstep reward is used.
+            ``Nstep["size"]`` is ``int`` specifying step size of Nstep reward.
+            ``Nstep["rew"]`` is ``str`` or array like of ``str`` specifying
+            Nstep reward to be summed. ``Nstep["gamma"]`` is float specifying
+            discount factor, its default is ``0.99``. ``Nstep["next"]`` is ``str`` or
+            list of ``str`` specifying next values to be moved.
+            When this option is enabled, ``"done"`` is required at ``env_dict``.
         mmap_prefix : str, optional
-            File name prefix to save buffer data using mmap. If `None` (default),
-            save only on memory.
+            File name prefix to map buffer data using mmap. If ``None`` (default),
+            stores only on memory. This feature is designed for very large data
+            which cannot be located on physical memory.
+
+
+        Examples
+        --------
+        Create simple replay buffer with buffer size of :math:`10^6`.
+
+        >>> rb = ReplayBuffer(1e+6,
+        ...                   {"obs": {"shape": 3}, "act": {}, "rew": {},
+        ...                    "next_obs": {"shape": 3}, "done": {}})
+
+        Create replay buffer with ``np.float64``, but only ``"act"`` is ``np.int8``.
+
+        >>> rb = ReplayBuffer(1e+6,
+        ...                   {"obs": {"shape": 3}, "act": {"dtype": np.int8},
+        ...                    "rew": {},
+        ...                    "next_obs": {"shape": 3}, "done": {}},
+        ...                    default_dtype = np.float64)
+
+        Create replay buffer with ``next_of`` memory compression for ``"obs"``.
+        In this example, ``"next_obs"`` is automatically added and shares the memory
+        with ``"obs"``.
+
+        >>> rb = ReplayBuffer(1e+6,
+        ...                   {"obs": {"shape": 3}, "act": {}, "rew": {}, "done": {}},
+        ...                   next_of="obs")
+
+        Create replay buffer with ``stack_compress`` memory compression for ``"obs"``.
+        The stacked data must be a sliding window of a sequential data, and the last
+        dimension is the stack dimension.
+
+        >>> rb = ReplayBuffer(1e+6,
+        ...                   {"obs": {"shape": (3,2)}},
+        ...                   stack_compress="obs")
+        >>> rb.add(obs=[[1,2],
+        ...             [1,2],
+        ...             [1,2]])
+        0
+        >>> rb.add(obs=[[2,3],
+        ...             [2,3],
+        ...             [2,3]])
+        1
+
+        Create very large replay buffer mapping on disk.
+
+        >>> rb = ReplayBuffer(1e+9, {"obs": "shape": 3}, mmap_prefix="rb_data")
         """
         pass
 
@@ -1051,10 +1104,10 @@ cdef class ReplayBuffer:
 
         Returns
         -------
-        : int or None
+        int or None
             The first index of stored position. If all transitions are stored
-            into NstepBuffer and no transtions are stored into the main buffer,
-            None is returned.
+            into ``NstepBuffer`` and no transtions are stored into the main buffer,
+            ``None`` is returned.
 
         Raises
         ------
@@ -1065,6 +1118,22 @@ cdef class ReplayBuffer:
         --------
         All values must be passed by key-value style (keyword arguments).
         It is user responsibility that all the values have the same step-size.
+
+
+        Examples
+        --------
+        >>> rb = ReplayBuffer(1e+6, {"obs": {"shape": 3}})
+
+        Add a single transition: ``[1,2,3]``.
+
+        >>> rb.add(obs=[1,2,3])
+
+        Add three step sequential transitions: ``[1,2,3]``, ``[4,5,6]``,
+        and ``[7,8,9]`` simultaneously.
+
+        >>> rb.add(obs=[[1,2,3],
+        ...             [4,5,6],
+        ...             [7,8,9]])
         """
         if self.use_nstep:
             kwargs = self.nstep.add(**kwargs)
@@ -1115,7 +1184,7 @@ cdef class ReplayBuffer:
         Parameters
         ----------
         shuffle : bool, optional
-            When True, transitions are shuffled. The default value is False.
+            When ``True``, transitions are shuffled. The default value is ``False``.
 
         Returns
         -------
@@ -1138,8 +1207,8 @@ cdef class ReplayBuffer:
         file : str or file-like object
             File to write data
         safe : bool, optional
-            If `False`, we try more aggressive compression
-            which might encounter future incompatibility
+            If ``False``, we try more aggressive compression
+            which might encounter future incompatibility.
         """
         FORMAT_VERSION = 1
         if (safe or not (self.compress_any or self.has_next_of)):
@@ -1228,13 +1297,14 @@ cdef class ReplayBuffer:
 
         Raises
         ------
-        ValueError : When file format is wrong.
+        ValueError
+            When file format is wrong.
 
         Warnings
         --------
         In order to avoid security vulnerability,
-        you MUST NOT load untrusted file, since this method is
-        based on `pickle` through `joblib.load`.
+        you **must not** load untrusted file, since this method is
+        based on ``pickle``.
         """
         with np.load(file, allow_pickle=True) as data:
             version = data["version"]
@@ -1297,8 +1367,19 @@ cdef class ReplayBuffer:
         Returns
         -------
         sample : dict of ndarray
-            Batch size of sampled transitions, which might contains
+            Sampled batch transitions, which might contains
             the same transition multiple times.
+
+        Examples
+        --------
+        >>> rb = ReplayBuffer(1e+6, {"obs": {"shape": 3}})
+        >>> rb.add(obs=[1,2,3])
+        >>> rb.add(obs=[[1,2,3],[1,2,3]])
+        >>> rb.sample(4)
+        {'obs': array([[1., 2., 3.],
+                       [1., 2., 3.],
+                       [1., 2., 3.],
+                       [1., 2., 3.]], dtype=float32)}
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
         return self._encode_sample(idx)
@@ -1306,7 +1387,7 @@ cdef class ReplayBuffer:
     cpdef void clear(self) except *:
         r"""Clear replay buffer.
 
-        Set `index` and `stored_size` to 0.
+        Set ``index`` and ``stored_size`` to ``0``.
 
         Example
         -------
@@ -1363,11 +1444,11 @@ cdef class ReplayBuffer:
     cdef void add_cache(self):
         r"""Add last items into cache
 
-        The last items for "next_of" and "stack_compress" optimization
+        The last items for ``next_of`` and ``stack_compress`` optimization
         are moved to cache area.
 
-        If `self.cache is None`, do nothing.
-        If `self.stored_size == 0`, do nothing.
+        If ``self.cache is None`, do nothing.
+        If ``self.stored_size == 0``, do nothing.
         """
 
         # If no cache configuration, do nothing
@@ -1424,7 +1505,7 @@ cdef class ReplayBuffer:
         -----
         Calling this function at episode end is the user responsibility,
         since episode exploration can be terminated at certain length
-        even though any `done` flags from environment is not set.
+        even though any ``done`` flags from environment is not set.
         """
         if self.use_nstep:
             self.use_nstep = False
@@ -1440,7 +1521,8 @@ cdef class ReplayBuffer:
 
         Returns
         -------
-        episode_len : size_t
+        size_t
+            Current episode length
         """
         return self.episode_len
 
@@ -1449,15 +1531,27 @@ cdef class ReplayBuffer:
 
         Returns
         -------
-        use_nstep : bool
+        bool
+            Whether Nstep is used
         """
         return self.use_nstep
 
 @cython.embedsignature(True)
 cdef class PrioritizedReplayBuffer(ReplayBuffer):
-    r"""Prioritized replay buffer class to store transitions with priorities.
+    r"""Prioritized Replay Buffer class to store transitions with priorities.
 
     In this class, these transitions are sampled with corresponding to priorities.
+
+    Notes
+    -----
+    In Prioritized Experience Replay (PER) [1]_, transitions are sampled
+    with probabilities calculated from TD error. This class implements
+    propotional variant where :math:`p_i = (|TD|_i + \varepsilon)^{\alpha}`.
+
+    References
+    ----------
+    .. [1] T. Schaul et al, "Prioritized Experience Replay", ICLR (2016),
+       https://arxiv.org/abs/1511.05952
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
@@ -1494,26 +1588,27 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,Nstep=None,eps=1e-4,
                  check_for_update=False,**kwargs):
-        r"""Initialize PrioritizedReplayBuffer
+        r"""Initialize ``PrioritizedReplayBuffer``
 
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            Dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"``
+            (fallback to ``default_dtype``)
         alpha : float, optional
             :math:`\alpha` the exponent of the priorities in stored whose
-            default value is 0.6
+            default value is ``0.6``.
         eps : float, optional
             :math:`\epsilon` small positive constant to ensure error-less state
-            will be sampled, whose default value is 1e-4.
+            will be sampled, whose default value is ``1e-4``.
         check_for_update : bool
-            If the value is `True` (default value is `False`),
+            If the value is ``True`` (default value is ``False``),
             this buffer traces updated indices after the last calling of
-            `sample()` method to avoid mis-updating priorities of already
+            ``sample()`` method to avoid mis-updating priorities of already
             overwritten values. This feature is designed for multiprocess learning.
 
         See Also
@@ -1544,10 +1639,10 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 
         Returns
         -------
-        : int or None
+        int or None
             The first index of stored position. If all transitions are stored
-            into NstepBuffer and no transtions are stored into the main buffer,
-            None is returned.
+            into ``NstepBuffer`` and no transtions are stored into the main buffer,
+            ``None`` is returned.
 
         Raises
         ------
@@ -1611,19 +1706,20 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
             Sampled batch size
         beta : float, optional
             The exponent of weight for relaxation of importance
-            sampling effect, whose default value is 0.4
+            sampling effect, whose default value is ``0.4``
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of samples which also includes 'weights' and 'indexes'
+        dict of ndarray
+            Sampled batch transitions which also includes
+            ``"weights"`` and ``"indexes"``
 
         Notes
         -----
-        When 'beta' is 0, weights become uniform. Wen 'beta' is 1, weight becomes
-        usual importance sampling.
-        The 'weights' are also normalized by the weight for minimum priority
-        (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
+        When ``beta`` is ``0``, weights become uniform. When ``beta`` is ``1``,
+        weight becomes usual importance sampling.
+        The ``weights`` are also normalized by the weight for minimum priority
+        (:math:`= w_{i}/\max_{j}(w_{j})`), which ensures the weights :math:`\leq` 1.
         """
         self.per.sample(batch_size,beta,
                         self.weights.vec,self.indexes.vec,
@@ -1642,24 +1738,25 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         r"""Update priorities
 
         Update priorities specified with indicies. If this
-        PrioritizedReplayBuffer is constructed with
-        `check_for_update=True`, then ignore indices which updated
-        values after the last calling of `sample()` method.
+        ``PrioritizedReplayBuffer`` is constructed with
+        ``check_for_update=True``, then ignore indices which updated
+        values after the last calling of ``sample()`` method.
 
         Parameters
         ----------
         indexes : array_like
-            indexes to update priorities
+            Indexes to update priorities
         priorities : array_like
-            priorities to update
+            Priorities to update
 
         Raises
         ------
-        TypeError: When `indexes` or `priorities` are `None`
+        TypeError
+            When ``indexes`` or ``priorities`` are ``None``
         """
 
         if priorities is None:
-            raise TypeError("`properties` must not be `None`")
+            raise TypeError("``properties`` must not be ``None``")
 
         cdef const size_t [:] idx = Csize(indexes)
         cdef const float [:] ps = Cfloat(priorities)
@@ -1698,7 +1795,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         Returns
         -------
         max_priority : float
-            the max priority of stored priorities
+            Max priority of stored priorities
         """
         return self.per.get_max_priority()
 
@@ -1713,7 +1810,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         -----
         Calling this function at episode end is the user responsibility,
         since episode exploration can be terminated at certain length
-        even though any `done` flags from environment is not set.
+        even though any ``done`` flags from environment is not set.
         """
         if self.use_nstep:
             self.use_nstep = False
@@ -1730,16 +1827,27 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
 cdef class ReverseReplayBuffer(ReplayBuffer):
     r"""Replay Buffer class for Reverse Experience Replay (RER)
 
-    RER samples equally strided transitions reversely.
 
-    sample1: T_t    , T_{t-stride}  , ..., T_{t-batch_size*stride}
-    sample2: T_{t-1}, T_{t-stride-1}, ..., T_{t-batch_size*stride-1}
-    ...
+    Notes
+    -----
+    In Reverse Experience Replay (RER) [1]_, samples equally strided
+    transitions reversely.
+
+    .. math::
+        \begin{align}
+        \text{sample-1}: &T_t    , &T_{t-stride}  , &\dots, &T_{t-batch\_size\times stride}\\
+        \text{sample-2}: &T_{t-1}, &T_{t-stride-1}, &\dots, &T_{t-batch\_size\times stride-1}\\
+        \dots&&&&
+        \end{align}
 
     When the first index ``t-i`` is delayed from the latest index more
     than ``2*tride``, the first index will be reset to the latest one.
 
-    Ref: https://arxiv.org/abs/1910.08780
+
+    References
+    ----------
+    .. [1] E. Rotinov, "Reverse Experience Replay" (2019),
+       https://arxiv.org/abs/1910.08780
     """
     cdef size_t stride
     cdef size_t last_sampled_index
@@ -1754,25 +1862,33 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         next_of : str or array like of str, optional
-            next item of specified environemt variables (eg. next_obs for next) are
-            also sampled without duplicated values
+            Value names whose next items share memory region.
+            The ``"next_"`` prefixed items (eg. ``next_obs`` for ``obs``) are
+            automatically added to ``env_dict`` without duplicated memory.
         stack_compress : str or array like of str, optional
-            compress memory of specified stacked values.
+            Value names whose duplicated stack dimension is compressed.
+            The values must have stacked dimension at the last dimension.
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in `env_dict`. default is numpy.single
+            fallback dtype for not specified in ``env_dict``. default is
+            ``numpy.single``
         Nstep : dict, optional
-            `Nstep["size"]` is `int` specifying step size of Nstep reward.
-            `Nstep["rew"]` is `str` or array like of `str` specifying
+            ``Nstep["size"]`` is ``int`` specifying step size of Nstep reward.
+            ``Nstep["rew"]`` is ``str`` or array like of ``str`` specifying
             Nstep reward to be summed. `Nstep["gamma"]` is float specifying
-            discount factor, its default is 0.99. `Nstep["next"]` is `str` or
-            list of `str` specifying next values to be moved.
+            discount factor, its default is ``0.99``. ``Nstep["next"]`` is ``str`` or
+            list of ``str`` specifying next values to be moved.
         mmap_prefix : str, optional
-            File name prefix to save buffer data using mmap. If `None` (default),
+            File name prefix to save buffer data using mmap. If ``None`` (default),
             save only on memory.
         stride : int, optional
             stride size. The default is ``300``.
+
+
+        See Also
+        --------
+        ReplayBuffer : Any optional parameters at ReplayBuffer are valid, too.
         """
         super().__init__(size, env_dict, **kwargs)
 
@@ -1786,8 +1902,8 @@ cdef class ReverseReplayBuffer(ReplayBuffer):
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of sampled transitions, which might contains
+        dict of ndarray
+            Sampled batch transitions, which might contains
             the same transition multiple times.
         """
         cdef size_t nidx = self.get_next_index()
@@ -1822,26 +1938,36 @@ cdef class MPReplayBuffer:
 
     This class works on multi-process without manual locking of entire buffer.
 
-    The transition can contain anything compatible with numpy data
-    type. User can specify by `env_dict` parameters at constructor
+    The transition can contain anything compatible with NumPy data
+    type. User can specify by ``env_dict`` parameters at constructor
     freely.
 
-    The possible standard transition contains observation (`obs`), action (`act`),
-    reward (`rew`), the next observation (`next_obs`), and done (`done`).
+    The possible standard transition contains observation (``obs``), action (``act``),
+    reward (``rew``), the next observation (``next_obs``), and done (``done``).
 
     >>> env_dict = {"obs": {"shape": (4,4)},
-                    "act": {"shape": 3, "dtype": np.int16},
-                    "rew": {},
-                    "next_obs": {"shape": (4,4)},
-                    "done": {}}
+    ...             "act": {"shape": 3, "dtype": np.int16},
+    ...             "rew": {},
+    ...             "next_obs": {"shape": (4,4)},
+    ...             "done": {}}
 
     In this class, sampling is random sampling and the same transition
     can be chosen multiple times.
 
+    See Also
+    --------
+    ReplayBuffer : Single process version
+
     Notes
     -----
-    This class assumes single learner (`sample`) and multiple explorers (`add`)
-    like Ape-X
+    This class assumes single learner (``sample``) and multiple explorers (``add``)
+    like Ape-X [1]_.
+
+    References
+    ----------
+    .. [1] D. Horgan et al., "Distributed Prioritized Experience Replay", ICLR (2018),
+       https://openreview.net/forum?id=H1Dy---0Z
+       https://arxiv.org/abs/1803.00933
     """
     cdef buffer
     cdef size_t buffer_size
@@ -1859,24 +1985,26 @@ cdef class MPReplayBuffer:
                  default_dtype=None, logger=None,
                  ctx=None, backend="sharedctypes",
                  **kwargs):
-        r"""Initialize ReplayBuffer
+        r"""Initialize ``MPReplayBuffer``
 
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            Dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+            ``default_dtype``)
         default_dtype : numpy.dtype, optional
-            fallback dtype for not specified in `env_dict`. default is numpy.single
+            Fallback dtype for not specified in ``env_dict``.
+            default is ``numpy.single``
         ctx : ForkContext, SpawnContext, or SyncManager, optional
-            context created by `multiprocessing.get_context()` or `SyncManager`.
-            If None (default), the default context is used.
-        backend : "sharedctypes" or "SharedMemory", optional
-            shared memory (shm) backend to map buffer. The default is "sharedctypes".
-            "SharedMemory" is available only for Python 3.8+.
+            Context created by ``multiprocessing.get_context()`` or ``SyncManager``.
+            If ``None`` (default), the default context is used.
+        backend : {"sharedctypes", "SharedMemory"}
+            Shared memory (shm) backend to map buffer. The default is
+            ``"sharedctypes"``. ``"SharedMemory"`` is available only for Python 3.8+.
         """
         self.env_dict = env_dict.copy() if env_dict else {}
         ctx = ctx or mp.get_context()
@@ -1941,10 +2069,8 @@ cdef class MPReplayBuffer:
 
         Returns
         -------
-        : int or None
-            The first index of stored position. If all transitions are stored
-            into NstepBuffer and no transtions are stored into the main buffer,
-            None is returned.
+        int
+            The first index of stored position.
 
         Raises
         ------
@@ -1982,7 +2108,7 @@ cdef class MPReplayBuffer:
         Parameters
         ----------
         shuffle : bool, optional
-            When True, transitions are shuffled. The default value is False.
+            When ``True``, transitions are shuffled. The default value is ``False``.
 
         Returns
         -------
@@ -2022,8 +2148,8 @@ cdef class MPReplayBuffer:
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of sampled transitions, which might contains
+        dict of ndarray
+            Sampled batch transitions, which might contains
             the same transition multiple times.
         """
         cdef idx = np.random.randint(0,self.get_stored_size(),batch_size)
@@ -2037,7 +2163,7 @@ cdef class MPReplayBuffer:
     cpdef void clear(self) except *:
         r"""Clear replay buffer.
 
-        Set `index` and `stored_size` to 0.
+        Set ``index`` and ``stored_size`` to ``0``.
 
         Example
         -------
@@ -2061,7 +2187,7 @@ cdef class MPReplayBuffer:
         Returns
         -------
         size_t
-            stored size
+            Stored size
         """
         return self.index.get_stored_size()
 
@@ -2071,7 +2197,7 @@ cdef class MPReplayBuffer:
         Returns
         -------
         size_t
-            buffer size
+            Buffer size
         """
         return self.buffer_size
 
@@ -2081,31 +2207,36 @@ cdef class MPReplayBuffer:
         Returns
         -------
         size_t
-            the next index to store
+            Next index to store
         """
         return self.index.get_next_index()
 
     cpdef void on_episode_end(self) except *:
         r"""Call on episode end
 
-        Finalize the current episode by moving remaining Nstep buffer transitions,
-        evacuating overlapped data for memory compression features, and resetting
-        episode length.
-
         Notes
         -----
         Calling this function at episode end is the user responsibility,
         since episode exploration can be terminated at certain length
-        even though any `done` flags from environment is not set.
+        even though any ``done`` flags from environment is not set.
+
+        Warnings
+        --------
+        Although nothing happens for ``MPReplayBuffer``, it is better to call this
+        because some functionalities might be added in the future version.
         """
         pass
 
     cpdef bool is_Nstep(self):
         r"""Get whether use Nstep or not
 
+        Since ``MPReplayBuffer`` doesn't supports Nstep feature,
+        return value is always ``False``.
+
         Returns
         -------
-        use_nstep : bool
+        bool
+            ``False``
         """
         return False
 
@@ -2185,8 +2316,14 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
     Notes
     -----
-    This class assumes single learner (`sample`, `update_priorities`) and
-    multiple explorers (`add`).
+    This class assumes single learner (``sample``, ``update_priorities``) and
+    multiple explorers (``add``) like Ape-X [1]_.
+
+    References
+    ----------
+    .. [1] D. Horgan et al., "Distributed Prioritized Experience Replay", ICLR (2018),
+       https://openreview.net/forum?id=H1Dy---0Z
+       https://arxiv.org/abs/1803.00933
     """
     cdef VectorFloat weights
     cdef VectorSize_t indexes
@@ -2201,26 +2338,28 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
     cdef vector[float] ps_vec
 
     def __init__(self,size,env_dict=None,*,alpha=0.6,eps=1e-4,ctx=None,**kwargs):
-        r"""Initialize PrioritizedReplayBuffer
+        r"""Initialize ``MPPrioritizedReplayBuffer``
 
         Parameters
         ----------
         size : int
-            buffer size
+            Buffer size
         env_dict : dict of dict, optional
-            dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            Dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+            ``default_dtype``)
         alpha : float, optional
             :math:`\alpha` the exponent of the priorities in stored whose
-            default value is 0.6
+            default value is ``0.6``
         eps : float, optional
             :math:`\epsilon` small positive constant to ensure error-less state
-            will be sampled, whose default value is 1e-4.
+            will be sampled, whose default value is ``1e-4``.
 
         See Also
         --------
-        ReplayBuffer : Any optional parameters at ReplayBuffer are valid, too.
+        MPReplayBuffer : Any optional parameters at ``MPReplayBuffer`` are valid, too.
+        PrioritizedReplayBuffer : Single process version Prioritized Experience Replay
 
 
         Notes
@@ -2295,10 +2434,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
 
         Returns
         -------
-        : int or None
-            The first index of stored position. If all transitions are stored
-            into NstepBuffer and no transtions are stored into the main buffer,
-            None is returned.
+        int
+            The first index of stored position.
 
         Raises
         ------
@@ -2363,18 +2500,19 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
             Sampled batch size
         beta : float, optional
             The exponent of weight for relaxation of importance
-            sampling effect, whose default value is 0.4
+            sampling effect, whose default value is ``0.4``
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of samples which also includes 'weights' and 'indexes'
+        dict of ndarray
+            Sampled batch transitions which also includes
+            ``"weights"`` and ``"indexes"``
 
         Notes
         -----
-        When 'beta' is 0, weights become uniform. Wen 'beta' is 1, weight becomes
-        usual importance sampling.
-        The 'weights' are also normalized by the weight for minimum priority
+        When ``beta`` is ``0``, weights become uniform. When ``beta`` is ``1``,
+        weight becomes usual importance sampling.
+        The ``weights`` are also normalized by the weight for minimum priority
         (:math:`= w_{i}/\max_{j}(w_{j})`), which ensure the weights :math:`\leq` 1.
         """
         self._lock_learner_per()
@@ -2398,19 +2536,20 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         r"""Update priorities
 
         Update priorities specified with indicies. Ignores indices
-        which updated values after the last calling of `sample()`
+        which updated values after the last calling of ``sample()``
         method. This method can be called from single learner process.
 
         Parameters
         ----------
         indexes : array_like
-            indexes to update priorities
+            Indexes to update priorities
         priorities : array_like
-            priorities to update
+            Priorities to update
 
         Raises
         ------
-        TypeError: When `indexes` or `priorities` are `None`
+        TypeError
+            When ``indexes`` or ``priorities`` are ``None``
         """
 
         if priorities is None:
@@ -2449,7 +2588,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         Returns
         -------
         max_priority : float
-            the max priority of stored priorities
+            The max priority of stored priorities
         """
         return self.per.ptr().get_max_priority()
 
@@ -2460,7 +2599,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         -----
         Calling this function at episode end is the user responsibility,
         since episode exploration can be terminated at certain length
-        even though any `done` flags from environment is not set.
+        even though any ``done`` flags from environment is not set.
         """
         pass
 
@@ -2472,26 +2611,32 @@ def create_buffer(size,env_dict=None,*,prioritized = False,**kwargs):
     Parameters
     ----------
     size : int
-        buffer size
+        Buffer size
     env_dict : dict of dict, optional
-        dictionary specifying environments. The keies of env_dict become
-        environment names. The values of env_dict, which are also dict,
-        defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+        Dictionary specifying environments. The keys of ``env_dict`` become
+        environment names. The values of ``env_dict``, which are also ``dict``,
+        defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+        ``default_dtype``)
     prioritized : bool, optional
-        create prioritized version replay buffer, default = False
+        Whether create prioritized version replay buffer. The default is ``False``.
 
     Returns
     -------
-    : one of the replay buffer classes
+    ReplayBuffer or PrioritizedReplayBuffer
+        Replay Buffer
 
     Raises
     ------
     NotImplementedError
         If you specified not implemented version replay buffer
 
-    Note
-    ----
+    Notes
+    -----
     Any other keyword arguments are passed to replay buffer constructor.
+
+    See Also
+    --------
+    ReplayBuffer, PrioritizedReplayBuffer
     """
     per = "Prioritized" if prioritized else ""
 
@@ -2533,39 +2678,40 @@ def train(buffer: ReplayBuffer,
     env: gym.Enviroment compatible
         Environment to learn
     get_action: Callable
-        Callable taking `obs` and returning `action`
+        Callable taking ``obs`` and returning ``action``
     update_policy: Callable
-        Callable taking `sample`, `step`, and `episode`, updating policy,
-        and returning |TD|.
-    max_steps: int (optional)
-        Maximum steps to learn. The default value is `1000000`
-    max_episodes: int (optional)
-        Maximum episodes to learn. The defaul value is `None`
-    n_warmups: int (optional)
-        Warmup steps before sampling. The default value is `0` (No warmup)
-    after_step: Callable (optional)
-        Callable converting from `obs`, returns of `env.step(action)`,
-        `step`, and `episode` to `dict` of a transition for `ReplayBuffer.add`.
+        Callable taking ``sample``, ``step``, and ``episode``, updating policy,
+        and returning :math:`|TD|`.
+    max_steps: int, optional
+        Maximum steps to learn. The default value is ``1000000``
+    max_episodes: int, optional
+        Maximum episodes to learn. The defaul value is ``None``
+    n_warmups: int, optional
+        Warmup steps before sampling. The default value is ``0`` (No warmup)
+    after_step: Callable, optional
+        Callable converting from ``obs``, returns of ``env.step(action)``,
+        ``step``, and ``episode`` to ``dict`` of a transition for
+        ``ReplayBuffer.add``.
         This function can also be used for step summary callback.
-    done_check: Callable (optional)
+    done_check: Callable, optional
         Callable checking done
-    obs_update: Callable (optional)
+    obs_update: Callable, optional
         Callable updating obs
-    rew_sum: Callable[[float, Dict], float] (optional)
+    rew_sum: Callable[[float, Dict], float], optional
         Callable summarizing episode reward
-    episode_callback: Callable[[int, int, float], Any] (optional)
+    episode_callback: Callable[[int, int, float], Any], optional
         Callable for episode summarization
-    logger: logging.Logger (optional)
+    logger: logging.Logger, optional
         Custom Logger
 
     Raises
     ------
     ValueError:
-       When `max_step` is larger than `size_t` limit
+       When ``max_step`` is larger than ``size_t`` limit
 
     Warnings
     --------
-    `cpprb.train` is still beta release. API can be changed.
+    ``cpprb.train`` is still beta release. API can be changed.
     """
     warnings.warn("`cpprb.train` is still beta release. API can be changed.")
 

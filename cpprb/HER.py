@@ -7,9 +7,19 @@ from cpprb import ReplayBuffer, PrioritizedReplayBuffer
 
 class HindsightReplayBuffer:
     """
-    Replay Buffer class for Hindsight Experience Replay
+    Replay Buffer class for Hindsight Experience Replay (HER)
 
-    Ref: https://arxiv.org/abs/1707.01495
+    Notes
+    -----
+    In Hindsight Experience Replay [1]_, failed transitions are considered
+    as success transitions by re-labelling goal.
+
+    References
+    ----------
+    .. [1] M. Andrychowicz et al, "Hindsight Experience Replay",
+       Advances in Neural Information Processing Systems 30 (NIPS 2017),
+       https://papers.nips.cc/paper/2017/hash/453fadbd8a1a3af50a9df4df899537b5-Abstract.html
+       https://arxiv.org/abs/1707.01495
     """
     def __init__(self,
                  size: int,
@@ -25,40 +35,43 @@ class HindsightReplayBuffer:
                  additional_goals: int = 4,
                  prioritized = True,
                  **kwargs):
-        """
-        Initialize HindsightReplayBuffer
+        r"""
+        Initialize ``HindsightReplayBuffer``
 
         Parameters
         ----------
         size : int
             Buffer Size
         env_dict : dict of dict
-            Dictionary specifying environments. The keies of env_dict become
-            environment names. The values of env_dict, which are also dict,
-            defines "shape" (default 1) and "dtypes" (fallback to `default_dtype`)
+            Dictionary specifying environments. The keys of ``env_dict`` become
+            environment names. The values of ``env_dict``, which are also ``dict``,
+            defines ``"shape"`` (default ``1``) and ``"dtypes"`` (fallback to
+            ``default_dtype``)
         max_episode_len : int
             Maximum episode length.
         reward_func : Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray]
-            Batch calculation of reward function SxAxG -> R.
+            Batch calculation of reward function:
+            :math:`\mathcal{S}\times \mathcal{A}\times \mathcal{G} \to \mathcal{R}`.
         goal_func : Callable[[np.ndarray], np.ndarray], optional
-            Batch extraction function for goal from state: S->G.
+            Batch extraction function for goal from state:
+            :math:`\mathcal{S}\to\mathcal{G}`.
             If ``None`` (default), identity function is used (goal = state).
         goal_shape : Iterable[int], optional
             Shape of goal. If ``None`` (default), state shape is used.
         state : str, optional
-            State name in ``env_dict``. The default is "obs".
+            State name in ``env_dict``. The default is ``"obs"``.
         action : str, optional
-            Action name in ``env_dict``. The default is "act".
+            Action name in ``env_dict``. The default is ``"act"``.
         next_state : str, optional
-            Next state name in ``env_dict``. The default is "next_obs".
-        strategy : ["future", "episode", "random", "final"], optional
+            Next state name in ``env_dict``. The default is ``"next_obs"``.
+        strategy : {"future", "episode", "random", "final"}, optional
             Goal sampling strategy.
-            "future" selects one of the future states in the same episode.
-            "episode" selects states in the same episode.
-            "random" selects from the all states in replay buffer.
-            "final" selects the final state in the episode. For "final",
-            ``additional_goals`` is ignored.
-            The default is "future"
+            ``"future"`` selects one of the future states in the same episode.
+            ``"episode"`` selects states in the same episode.
+            ``"random"`` selects from the all states in replay buffer.
+            ``"final"`` selects the final state in the episode.
+            For ``"final"`` strategy, ``additional_goals`` is ignored.
+            The default is ``"future"``.
         additional_goals : int, optional
             Number of additional goals. The default is ``4``.
         prioritized : bool, optional
@@ -114,7 +127,7 @@ class HindsightReplayBuffer:
 
 
     def sample(self, batch_size: int, **kwargs):
-        r"""Sample the stored transitions randomly with speciped size
+        r"""Sample the stored transitions randomly with specified size
 
         Parameters
         ----------
@@ -123,18 +136,18 @@ class HindsightReplayBuffer:
 
         Returns
         -------
-        sample : dict of ndarray
-            Batch size of sampled transitions, which might contains
+        dict of ndarray
+            Sampled batch transitions, which might contains
             the same transition multiple times.
         """
         return self.rb.sample(batch_size, **kwargs)
 
 
     def on_episode_end(self, goal):
-        """
+        r"""
         Terminate the current episode and set hindsight goal
 
-        Paremeters
+        Parameters
         ----------
         goal : array-like
             Original goal state of this episode.
@@ -245,7 +258,7 @@ class HindsightReplayBuffer:
         Parameters
         ----------
         shuffle : bool, optional
-            When True, transitions are shuffled. The default value is False.
+            When ``True``, transitions are shuffled. The default value is ``False``.
 
         Returns
         -------

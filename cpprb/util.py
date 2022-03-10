@@ -16,21 +16,21 @@ def from_space(space,int_type,float_type):
 
 def create_env_dict(env,*,int_type = None,float_type = None):
     """
-    Create `env_dict` from Open AI `gym.space` for `ReplayBuffer.__init__`
+    Create ``env_dict`` from Open AI ``gym.space`` for ``ReplayBuffer`` constructor
 
-    Paremeters
+    Parameters
     ----------
     env : gym.Env
         Environment
     int_type: np.dtype, optional
-        Integer type. Default is `np.int32`
+        Integer type. Default is ``np.int32``
     float_type: np.dtype, optional
-        Floating point type. Default is `np.float32`
+        Floating point type. Default is ``np.float32``
 
     Returns
     -------
     env_dict : dict
-        env_dict parameter for `ReplayBuffer` class.
+        ``env_dict`` parameter for ``ReplayBuffer`` class.
     """
 
     int_type = int_type or np.int32
@@ -67,7 +67,7 @@ def create_env_dict(env,*,int_type = None,float_type = None):
 
 def create_before_add_func(env):
     """
-    Create function to be used before `ReplayBuffer.add`
+    Create function to be used before ``ReplayBuffer.add``
 
     Parameters
     ----------
@@ -77,7 +77,7 @@ def create_before_add_func(env):
     Returns
     -------
     before_add : callable
-        Function to be used before `ReplayBuffer.add`
+        Function to be used before ``ReplayBuffer.add``
     """
     def no_convert(name,v):
         return {f"{name}": v}
