@@ -1054,7 +1054,6 @@ cdef class ReplayBuffer:
         ...                   {"obs": {"shape": 3}, "act": {}, "rew": {},
         ...                    "next_obs": {"shape": 3}, "done": {}})
 
-
         Create replay buffer with ``np.float64``, but only ``"act"`` is ``np.int8``.
 
         >>> rb = ReplayBuffer(1e+6,
@@ -1063,7 +1062,6 @@ cdef class ReplayBuffer:
         ...                    "next_obs": {"shape": 3}, "done": {}},
         ...                    default_dtype = np.float64)
 
-
         Create replay buffer with ``next_of`` memory compression for ``"obs"``.
         In this example, ``"next_obs"`` is automatically added and shares the memory
         with ``"obs"``.
@@ -1071,7 +1069,6 @@ cdef class ReplayBuffer:
         >>> rb = ReplayBuffer(1e+6,
         ...                   {"obs": {"shape": 3}, "act": {}, "rew": {}, "done": {}},
         ...                   next_of="obs")
-
 
         Create replay buffer with ``stack_compress`` memory compression for ``"obs"``.
         The stacked data must be a sliding window of a sequential data, and the last
@@ -1088,7 +1085,6 @@ cdef class ReplayBuffer:
         ...             [2,3],
         ...             [2,3]])
         1
-
 
         Create very large replay buffer mapping on disk.
 
