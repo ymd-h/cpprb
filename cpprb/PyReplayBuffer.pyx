@@ -1947,6 +1947,10 @@ cdef class MPReplayBuffer:
     In this class, sampling is random sampling and the same transition
     can be chosen multiple times.
 
+    See Also
+    --------
+    ReplayBuffer : Single process version
+
     Notes
     -----
     This class assumes single learner (``sample``) and multiple explorers (``add``)
