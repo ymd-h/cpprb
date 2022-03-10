@@ -12,8 +12,9 @@ Replay Buffer classes can be imported from ``cpprb`` package.
 
 These buffer classes can be created by specifying ``env_dict``.
 
+>>> buffer_size = 1e+6
 >>> env_dict = {"obs": {}, "act": {}, "rew": {}, "next_obs": {}, "done": {}}
->>> rb = ReplayBuffer(1e+6, env_dict)
+>>> rb = ReplayBuffer(buffer_size, env_dict)
 
 When adding transitions, all values must be passed as keyword arguments.
 
