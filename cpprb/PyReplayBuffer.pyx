@@ -1723,7 +1723,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         Returns
         -------
         max_priority : float
-            the max priority of stored priorities
+            Max priority of stored priorities
         """
         return self.per.get_max_priority()
 
