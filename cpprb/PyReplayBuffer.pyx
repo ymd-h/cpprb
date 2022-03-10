@@ -2348,6 +2348,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         See Also
         --------
         MPReplayBuffer : Any optional parameters at ``MPReplayBuffer`` are valid, too.
+        PrioritizedReplayBuffer : Single process version Prioritized Experience Replay
 
 
         Notes
