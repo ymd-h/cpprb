@@ -1076,7 +1076,7 @@ cdef class ReplayBuffer:
 
         >>> rb = ReplayBuffer(1e+6,
         ...                   {"obs": {"shape": (3,2)}},
-        ...                   stack_compress=["obs", "next_obs"])
+        ...                   stack_compress="obs")
         >>> rb.add(obs=[[1,2],
         ...             [1,2],
         ...             [1,2]])
