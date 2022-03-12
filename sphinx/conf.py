@@ -9,6 +9,10 @@ html_logo = "../site/static/images/logo.png"
 html_favicon = "../site/static/images/favicon.png"
 html_show_sourcelink = False
 
+html_sidebars = {
+    "**": ['localtoc.html', 'relations.html', 'searchbox.html', 'links.html']
+}
+
 napoleon_include_init_with_doc = True
 napoleon_use_admonition_for_examples = True
 napoleon_use_admonition_for_notes = True
