@@ -1023,7 +1023,7 @@ class TestIssue143(unittest.TestCase):
                              stack_compress=["a", "b"])
         a = buffer["a"]
         self.assertEqual(a.shape, (10, 3, 3))
-        self.assertEqual(a.strides, (3*3*a.itemsize, a.itemsize, 3*a.itemsize))
+        self.assertEqual(a.strides, (3*a.itemsize, a.itemsize, 3*a.itemsize))
 
 if __name__ == '__main__':
     unittest.main()
