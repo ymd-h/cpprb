@@ -496,7 +496,7 @@ def dict2buffer(buffer_size: int,env_dict: Dict,*,
         buffer for environment specified by env_dict.
     """
     cdef buffer = {}
-    cdef bool compress_any = stack_compress
+    cdef bool compress_any = (stack_compress is not None)
     default_dtype = default_dtype or np.single
 
     def zeros(name,shape,dtype):

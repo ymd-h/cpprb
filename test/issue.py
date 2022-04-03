@@ -5,6 +5,7 @@ import unittest
 from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,
                    MPReplayBuffer,MPPrioritizedReplayBuffer)
 from cpprb import create_buffer
+from cpprb.PyReplayBuffer import dict2buffer
 
 
 class TestIssue39(unittest.TestCase):
@@ -994,6 +995,35 @@ class TestIssue137(unittest.TestCase):
         np.testing.assert_allclose(sample["next_obs"][sample["done"] == 0.0],
                                    np.asarray([4,5,6,10]))
 
+
+class TestIssue143(unittest.TestCase):
+    def test_multi_compress(self):
+        rb = ReplayBuffer(32,
+                          {"a": {"shape": (3,3)},
+                           "b": {"shape": (3,3)}},
+                          stack_compress=["a", "b"])
+
+        rb.add(a=np.zeros((3,3)),
+               b=np.zeros((3,3)))
+        rb.sample(2)
+
+    def test_multi_next_of(self):
+        rb = ReplayBuffer(32,
+                          {"a": {},
+                           "b": {}},
+                          next_of=["a", "b"])
+        rb.add(a=0, next_a=0,
+               b=1, next_b=1)
+        rb.sample(2)
+
+    def test_dict2buffer(self):
+        buffer = dict2buffer(10,
+                             {"a": {"shape": (3,3)},
+                              "b": {"shape": (3,3)}},
+                             stack_compress=["a", "b"])
+        a = buffer["a"]
+        self.assertEqual(a.shape, (10, 3, 3))
+        self.assertEqual(a.strides, (3*a.itemsize, a.itemsize, 3*a.itemsize))
 
 if __name__ == '__main__':
     unittest.main()
