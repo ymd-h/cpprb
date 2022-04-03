@@ -5,6 +5,7 @@ import unittest
 from cpprb import (ReplayBuffer,PrioritizedReplayBuffer,
                    MPReplayBuffer,MPPrioritizedReplayBuffer)
 from cpprb import create_buffer
+from cpprb.PyReplayBuffer import dict2buffer
 
 
 class TestIssue39(unittest.TestCase):
@@ -1014,6 +1015,13 @@ class TestIssue143(unittest.TestCase):
         rb.add(a=0, next_a=0,
                b=1, next_b=1)
         rb.sample(2)
+
+    def test_dict2buffer(self):
+        buffer = dict2buffer(10,
+                             {"a": {"shape": (3,3)},
+                              "b": {"shape": (3,3)}},
+                             stack_compress=["a", "b"])
+        self.assertEqual(buffer["a"].shape, (10 +3 -1, 3))
 
 if __name__ == '__main__':
     unittest.main()
