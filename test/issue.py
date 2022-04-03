@@ -995,5 +995,16 @@ class TestIssue137(unittest.TestCase):
                                    np.asarray([4,5,6,10]))
 
 
+class TestIssue143(unittest.TestCase):
+    def test_multi_compress(self):
+        rb = ReplayBuffer(32,
+                          {"a": {"shape": (3,3)},
+                           "b": {"shape": (3,3)}},
+                          stack_compress=["a", "b"])
+
+        rb.add(a=np.zeros((3,3)),
+               b=np.zeros((3,3)))
+        rb.sample(2)
+
 if __name__ == '__main__':
     unittest.main()
