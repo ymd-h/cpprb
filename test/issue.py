@@ -1006,5 +1006,14 @@ class TestIssue143(unittest.TestCase):
                b=np.zeros((3,3)))
         rb.sample(2)
 
+    def test_multi_next_of(self):
+        rb = ReplayBuffer(32,
+                          {"a": {},
+                           "b": {}},
+                          next_of=["a", "b"])
+        rb.add(a=0, next_a=0,
+               b=1, next_b=1)
+        rb.sample(2)
+
 if __name__ == '__main__':
     unittest.main()
