@@ -31,7 +31,7 @@ if sys.version_info < (3,10):
     extras['dev'].extend(["gym-algorithmic","gym-legacy-toytext","ray"])
 
 if platform.system() != "Windows":
-    # jax doesn't support jax
+    # jax doesn't support Windows
     extras['dev'].append("jax[cpu]")
 
 all_deps = []
