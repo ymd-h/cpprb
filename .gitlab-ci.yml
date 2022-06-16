@@ -234,7 +234,7 @@ emacs:
   image: iquiw/alpine-emacs
   stage: build
   script:
-    - emacs --batch README.org -l site/init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
+    - emacs --batch README.org -l site/init.el --eval '(setq debug-on-error t)' --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
     - emacs --batch CHANGELOG.org -l site/init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
     - cd site
     - emacs --batch site.org -l init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'

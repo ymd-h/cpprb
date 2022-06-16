@@ -1,54 +1,13 @@
 #+OPTIONS: ':nil -:nil ^:{} num:t toc:nil
 #+AUTHOR: Hiroyuki Yamada
 #+CREATOR: Emacs 26.1 (Org mode 9.1.14 + ox-hugo)
-#+HUGO_WITH_LOCALE:
 #+HUGO_FRONT_MATTER_FORMAT: toml
 #+HUGO_CUSTOM_FRONT_MATTER: :disableToc true
 #+HUGO_LEVEL_OFFSET: 1
-#+HUGO_PRESERVE_FILLING:
-#+HUGO_DELETE_TRAILING_WS:
 #+HUGO_SECTION: .
-#+HUGO_BUNDLE:
 #+HUGO_BASE_DIR: ./
-#+HUGO_CODE_FENCE:
-#+HUGO_USE_CODE_FOR_KBD:
-#+HUGO_PREFER_HYPHEN_IN_TAGS:
-#+HUGO_ALLOW_SPACES_IN_TAGS:
-#+HUGO_AUTO_SET_LASTMOD:
-#+HUGO_CUSTOM_FRONT_MATTER:
-#+HUGO_BLACKFRIDAY:
-#+HUGO_FRONT_MATTER_KEY_REPLACE:
 #+HUGO_DATE_FORMAT: %Y-%m-%dT%T+09:00
-#+HUGO_PAIRED_SHORTCODES:
-#+HUGO_PANDOC_CITATIONS:
-#+BIBLIOGRAPHY:
-#+HUGO_ALIASES:
-#+HUGO_AUDIO:
 #+DATE: <2019-02-10 Sun>
-#+DESCRIPTION:
-#+HUGO_DRAFT:
-#+HUGO_EXPIRYDATE:
-#+HUGO_HEADLESS:
-#+HUGO_IMAGES:
-#+HUGO_ISCJKLANGUAGE:
-#+KEYWORDS:
-#+HUGO_LAYOUT:
-#+HUGO_LASTMOD:
-#+HUGO_LINKTITLE:
-#+HUGO_LOCALE:
-#+HUGO_MARKUP:
-#+HUGO_MENU:
-#+HUGO_MENU_OVERRIDE:
-#+HUGO_OUTPUTS:
-#+HUGO_PUBLISHDATE:
-#+HUGO_SERIES:
-#+HUGO_SLUG:
-#+HUGO_TAGS:
-#+HUGO_CATEGORIES:
-#+HUGO_RESOURCES:
-#+HUGO_TYPE:
-#+HUGO_URL:
-#+HUGO_VIDEOS:
 #+HUGO_WEIGHT: auto
 
 #+STARTUP: showall logdone
@@ -166,13 +125,13 @@ to seeing your great work will show up.
 
 * Installation
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: installation
+:EXPORT_HUGO_SECTION_FRAG: installation
 :END:
 
 
 * Features
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: features
+:EXPORT_HUGO_SECTION_FRAG: features
 :END:
 
 ** DONE Flexible Environment
@@ -1213,7 +1172,7 @@ so that if you want to delete, please call ~clear()~ manually.
 
 * Contributing
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: contributing
+:EXPORT_HUGO_SECTION_FRAG: contributing
 :END:
 
 ** DONE Step by Step Merge Request
@@ -1415,7 +1374,7 @@ whether this analysis is meaningful for us.
 * DONE Examples
 CLOSED: [2020-02-15 Sat 09:23]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: examples
+:EXPORT_HUGO_SECTION_FRAG: examples
 :EXPORT_FILE_NAME: _index
 :EXPORT_HUGO_WEIGHT: 800
 :END:
@@ -1432,7 +1391,7 @@ CLOSED: [2020-02-15 Sat 09:23]
 * DONE DQN with ~PrioritizedReplayBuffer~
 CLOSED: [2022-02-25 Fri 07:45]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: examples
+:EXPORT_HUGO_SECTION_FRAG: examples
 :EXPORT_FILE_NAME: dqn_per
 :END:
 
@@ -1444,7 +1403,7 @@ Prioritized Experience Replay[fn:3].
 * DONE Loss Adjusted Prioritization
 CLOSED: [2022-02-25 Fri 07:48]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: examples
+:EXPORT_HUGO_SECTION_FRAG: examples
 :EXPORT_FILE_NAME: lap
 :END:
 
@@ -1457,7 +1416,7 @@ See [[https://ymd_h.gitlab.io/cpprb/understanding/#relation-between-loss-functio
 * DONE Multiprocess Learning (Ape-X) with ~MPPrioritizedReplayBuffer~
 CLOSED: [2022-02-25 Fri 07:48]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: examples
+:EXPORT_HUGO_SECTION_FRAG: examples
 :EXPORT_FILE_NAME: ape-x
 :END:
 This is a Ape-X[fn:12] example code.
@@ -1468,7 +1427,7 @@ See [[https://ymd_h.gitlab.io/cpprb/features/ape-x/][Multiprocess Learning (Ape-
 * DONE Use ~MPReplayBuffer~ with Ray
 CLOSED: [2022-02-25 Fri 12:38]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: examples
+:EXPORT_HUGO_SECTION_FRAG: examples
 :EXPORT_FILE_NAME: mp_with_ray
 :END:
 
@@ -1545,7 +1504,7 @@ In the end, (pseudo) example become like this;
 * DONE Large Batch Experience Replay (LaBER)
 CLOSED: [2022-02-25 Fri 07:49]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: examples
+:EXPORT_HUGO_SECTION_FRAG: examples
 :EXPORT_FILE_NAME: laber
 :END:
 The following is a LaBER[fn:17] example code.
@@ -1556,7 +1515,7 @@ See [[https://ymd_h.gitlab.io/cpprb/features/laber/][Large Batch Experience Repl
 * DONE Hindsight Experience Replay (HER)
 CLOSED: [2022-02-25 Fri 07:49]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: examples
+:EXPORT_HUGO_SECTION_FRAG: examples
 :EXPORT_FILE_NAME: her
 :END:
 The following is a HER[fn:22] example code.
@@ -1568,7 +1527,7 @@ See [[https://ymd_h.gitlab.io/cpprb/features/her/][Hindsight Experience Replay]]
 * DONE Create ~ReplayBuffer~ for non-simple =gym.Env= with helper functions
 CLOSED: [2022-02-25 Fri 07:50]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: examples
+:EXPORT_HUGO_SECTION_FRAG: examples
 :EXPORT_FILE_NAME: env_helper
 :END:
 
@@ -1576,7 +1535,7 @@ CLOSED: [2022-02-25 Fri 07:50]
 
 * Comparison
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: comparison
+:EXPORT_HUGO_SECTION_FRAG: comparison
 :EXPORT_HUGO_WEIGHT: 850
 :END:
 
@@ -2150,7 +2109,7 @@ The benchmark script is as follows;
 * DONE Misc
 CLOSED: [2020-01-17 Fri 22:31]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: misc
+:EXPORT_HUGO_SECTION_FRAG: misc
 :EXPORT_FILE_NAME: _index
 :EXPORT_HUGO_WEIGHT: 999
 :END:
@@ -2165,7 +2124,7 @@ In this section, cpprb related miscellaneous information are described.
 * DONE Logo
 CLOSED: [2020-08-04 Tue 09:19]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: misc
+:EXPORT_HUGO_SECTION_FRAG: misc
 :EXPORT_FILE_NAME: logo
 :END:
 
@@ -2182,7 +2141,7 @@ learning.
 CLOSED: [2020-06-06 Sat 13:50]
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
-:EXPORT_HUGO_SECTION*: faq
+:EXPORT_HUGO_SECTION_FRAG: faq
 :EXPORT_HUGO_WEIGHT: 900
 :END:
 
@@ -2216,7 +2175,7 @@ CLOSED: [2021-01-23 Sat 09:18]
 :PROPERTIES:
 :EXPORT_FILE_NAME: _index
 :EXPORT_HUGO_WEIGHT: 950
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :END:
 
 In this section, we try to survey papers related to experience replay.
@@ -2244,7 +2203,7 @@ If you have any ideas or requests, please post to [[https://github.com/ymd-h/cpp
 * DONE Experience Replay Optimization (ERO)
 CLOSED: [2021-01-23 Sat 09:28]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :EXPORT_FILE_NAME: ero
 :END:
 
@@ -2278,7 +2237,7 @@ Bernoulli masks.
 * DONE Remember and Forget for Experience Replay (ReF-ER)
 CLOSED: [2021-01-24 Sun 11:39]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :EXPORT_FILE_NAME: ref-er
 :END:
 
@@ -2320,7 +2279,7 @@ from replay buffer. We continue to investigate [[https://github.com/cselab/smart
 CLOSED: [2021-01-24 Sun 22:59]
 :PROPERTIES:
 :EXPORT_FILE_NAME: aer
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :END:
 
 ** Overview
@@ -2345,7 +2304,7 @@ sample enlarged batch size then compute similarity.
 CLOSED: [2021-01-30 Sat 12:55]
 :PROPERTIES:
 :EXPORT_FILE_NAME: cer
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :END:
 
 ** Overview
@@ -2380,7 +2339,7 @@ transitions.
 * DONE Dynamic Experience Replay (DER)
 CLOSED: [2021-02-01 Mon 08:25]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :EXPORT_FILE_NAME: der
 :END:
 
@@ -2423,7 +2382,7 @@ something like =JointPrioritizedReplayBuffer=.
 CLOSED: [2021-02-13 Sat 11:03]
 :PROPERTIES:
 :EXPORT_FILE_NAME: ners
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :END:
 
 ** Overview
@@ -2476,7 +2435,7 @@ to learn sampling probability.
 * DONE Combined Experience Replay (CER)
 CLOSED: [2021-09-19 Sun 11:37]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :EXPORT_FILE_NAME: combined_er
 :END:
 
@@ -2498,7 +2457,7 @@ add the latest transition to the batch.
 CLOSED: [2021-09-22 Wed 08:26]
 :PROPERTIES:
 :EXPORT_FILE_NAME: lfiw
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :END:
 
 ** Overview
@@ -2546,7 +2505,7 @@ sizes are required.
 * DONE Parallel Actors and Learners
 CLOSED: [2021-12-30 Thu 16:35]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :EXPORT_FILE_NAME: parallel
 :END:
 
@@ -2594,7 +2553,7 @@ We try to summarize similarities and differences between their framework and our
 * DONE Model-augmented Prioritized Experience Replay (MaPER)
 CLOSED: [2022-02-09 Wed 07:22]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: survey
+:EXPORT_HUGO_SECTION_FRAG: survey
 :EXPORT_FILE_NAME: maper
 :END:
 
@@ -2625,7 +2584,7 @@ You can implement MaPER with ~PrioritizedReplayBuffer~.
 * DONE Understanding of Experience Replay
 CLOSED: [2021-02-13 Sat 16:28]
 :PROPERTIES:
-:EXPORT_HUGO_SECTION*: understanding
+:EXPORT_HUGO_SECTION_FRAG: understanding
 :EXPORT_FILE_NAME: _index
 :EXPORT_HUGO_WEIGHT: 925
 :END:
