@@ -6,15 +6,14 @@ import sys
 from cpprb import MPReplayBuffer, MPPrioritizedReplayBuffer
 import numpy as np
 
-if sys.version_info < (3,10):
-    import ray
-
 
 @unittest.skipUnless((3,8) <= sys.version_info < (3,10),
                      "Support Ray only for Python 3.8-3.9")
 class TestRay(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        import ray
+
         cls.m = mp.get_context().Manager()
         ray.init()
 
@@ -27,10 +26,14 @@ class TestRay(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        import ray
+
         ray.shutdown()
         cls.m.shutdown()
 
     def test_er(self):
+        import ray
+
         rb = MPReplayBuffer(10, {"done": {}}, ctx=self.m, backend="SharedMemory")
 
         @ray.remote
@@ -52,6 +55,8 @@ class TestRay(unittest.TestCase):
         self.assertEqual(s["done"].shape[0], 2)
 
     def test_per(self):
+        import ray
+
         rb = MPPrioritizedReplayBuffer(10, {"done": {}},
                                        ctx=self.m, backend="SharedMemory")
 
@@ -76,6 +81,8 @@ class TestRay(unittest.TestCase):
         self.assertEqual(s["done"].shape[0], 2)
 
     def test_with_alpha(self):
+        import ray
+
         rb = MPPrioritizedReplayBuffer(10, {"done": {}}, alpha=0.2,
                                        ctx=self.m, backend="SharedMemory")
 
