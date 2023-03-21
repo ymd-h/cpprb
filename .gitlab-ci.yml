@@ -1,7 +1,6 @@
 variables: &global-variables
   CXX: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
   CC: "g++ -std=c++17 -O3 -march=native -Wall -Wextra -Icpprb -pthread"
-  COVERAGE_RCFILE: .coveragerc
   DOCKER_BUILDKIT: 1
   GIT_DEPTH: 10
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip"
@@ -9,13 +8,8 @@ variables: &global-variables
 stages:
   - build_image
   - build
-  - test
-  - test_coverage
-  - bench_mark_test
   - page_build
   - page_deploy
-  - binary_build
-  - upload
 
 .job_template: &setup
   image: &dev_image $CI_REGISTRY_IMAGE/build:latest
@@ -24,23 +18,6 @@ stages:
     - python3 --version
   except:
     - schedules
-
-.test_template: &py_setup
-  image: *dev_image
-  stage: test
-  before_script:
-    - g++ --version
-    - python3 --version
-    - DEBUG_CPPRB=1 pip3 install $(echo dist/*.whl)['all']
-  except:
-    - schedules
-  artifacts:
-    paths:
-      - .coverage.*
-      - "*.xml"
-    reports:
-      junit:
-        - "*.xml"
 
 docker_build:
   image: docker:latest
@@ -59,41 +36,6 @@ docker_build:
       when: manual
       allow_failure: true
 
-bench_mark:
-  image: docker:latest
-  stage: build_image
-  services:
-    - docker:dind
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE/bench:latest || true
-    - cd benchmark
-    - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/bench:latest -t $CI_REGISTRY_IMAGE/bench:latest .
-    - docker push $CI_REGISTRY_IMAGE/bench:latest
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
-      when: manual
-      allow_failure: true
-
-bench_mark2:
-  image: docker:latest
-  stage: build_image
-  services:
-    - docker:dind
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE/bench2:latest || true
-    - cd benchmark2
-    - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/bench2:latest -t $CI_REGISTRY_IMAGE/bench2:latest .
-    - docker push $CI_REGISTRY_IMAGE/bench2:latest
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
-      when: manual
-      allow_failure: true
 
 cpprb_build:
   <<: *setup
@@ -107,128 +49,6 @@ cpprb_build:
       - cpprb/*.cpp
       - cpprb/*.so
       - dist/*.whl
-
-ReplayBuffer.cpp:
-  <<: *setup
-  stage: test
-  script:
-    - $CXX -o test/ReplayBuffer test/ReplayBuffer.cpp
-    - test/ReplayBuffer
-
-SegmentTree.cpp:
-  <<: *setup
-  stage: test
-  script:
-    - $CXX -o test/SegmentTree test/SegmentTree.cpp
-    - test/SegmentTree
-
-
-cpp_bench:
-  image: *dev_image
-  stage: bench_mark_test
-  needs:
-    - job: ReplayBuffer.cpp
-      artifacts: false
-    - job: SegmentTree.cpp
-      artifacts: false
-  script:
-    - $CXX -o test/segmenttree_bench test/segmenttree_bench.cpp
-    - test/segmenttree_bench
-    - test/segmenttree_bench
-    - test/segmenttree_bench
-    - test/segmenttree_bench
-    - test/segmenttree_bench
-
-
-ReplayBuffer:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/PyReplayBuffer.py
-
-issue:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/issue.py
-
-multi_rew:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/multi_rew.py
-
-high_level_api:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/HighLevelAPI.py
-
-features:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/features.py
-
-v8:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/v8.py
-
-util:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/util.py
-
-train:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/train.py
-
-mp:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/mp.py
-
-mp_with_ray:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/mp_with_ray.py
-
-shm:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/shm.py
-
-save_load:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/save_load.py
-
-LaBER:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/LaBER.py
-
-jax:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/jax_test.py
-
-
-HER:
-  <<: *py_setup
-  script:
-    - coverage run -m xmlrunner test/HER.py
-
-
-coverage:
-  <<: *setup
-  stage: test_coverage
-  script:
-    - mkdir -p public/coverage
-    - coverage combine
-    - coverage report
-    - coverage html -d public/coverage
-  artifacts:
-    paths:
-      - public/coverage
-  coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 emacs:
   image: iquiw/alpine-emacs
@@ -254,36 +74,6 @@ README_MD:
       - README.md
   except:
     - schedules
-
-run_bench_mark:
-  image: $CI_REGISTRY_IMAGE/bench:latest
-  stage: bench_mark_test
-  script:
-    - pip install .
-    - cd benchmark
-    - python benchmark.py
-  artifacts:
-    paths:
-      - "benchmark/*.png"
-  needs:
-    - job: coverage
-      artifacts: false
-    - job: cpprb_build
-
-run_bench_mark2:
-  image: $CI_REGISTRY_IMAGE/bench2:latest
-  stage: bench_mark_test
-  script:
-    - pip install .
-    - cd benchmark2
-    - python benchmark.py
-  artifacts:
-    paths:
-      - "benchmark2/*.png"
-  needs:
-    - job: coverage
-      artifacts: false
-    - job: cpprb_build
 
 hugo:
   image: registry.gitlab.com/pages/hugo:latest
@@ -327,9 +117,6 @@ pages:
   script:
     - mkdir -p public/annotation
     - mv cpprb/*.html public/annotation/
-    - mkdir -p public/benchmark
-    - mv benchmark/*.png public/benchmark/
-    - mv benchmark2/*.png public/benchmark/
   artifacts:
     paths:
       - public
@@ -337,80 +124,3 @@ pages:
     - master
   except:
     - schedules
-
-pypi:
-  image: *dev_image
-  stage: upload
-  environment: production
-  script:
-    - rm -rf cpprb/*.cpp
-    - python3 setup.py clean
-    - python3 setup.py build_ext sdist
-    - twine upload dist/cpprb-*.tar.gz
-    - twine upload wheelhouse-fix/cpprb-*.whl
-  only:
-    - tags
-  except:
-    - branches
-    - schedules
-  needs:
-    - manylinux
-    - README_MD
-
-repo:
-  image: docker:latest
-  stage: upload
-  services:
-    - docker:dind
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE/build:latest
-    - docker tag $CI_REGISTRY_IMAGE/build:latest $CI_REGISTRY_IMAGE/build:$CI_COMMIT_TAG
-    - docker push $CI_REGISTRY_IMAGE/build:$CI_COMMIT_TAG
-  only:
-    - tags
-  except:
-    - branches
-    - schedules
-
-manylinux:
-  image: quay.io/pypa/manylinux2010_x86_64
-  stage: binary_build
-  script:
-    - for PIP in /opt/python/cp3{6..9}*/bin/pip; do ${PIP} wheel . -w wheelhouse/ --no-deps; done
-    - for WHL in wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
-  artifacts:
-    paths:
-      - "wheelhouse-fix/cpprb-*.whl"
-  except:
-    - schedules
-  needs:
-    - job: coverage
-      artifacts: false
-    - job: README_MD
-      artifacts: true
-  cache:
-    paths:
-      - "$CI_PROJECT_DIR/.pip"
-    key: "${CI_PROJECT_PATH}-BINARY-BUILD"
-
-manylinux2014:
-  image: quay.io/pypa/manylinux2014_x86_64
-  stage: binary_build
-  script:
-    - for PIP in /opt/python/cp310*/bin/pip; do ${PIP} wheel . -w wheelhouse/ --no-deps; done
-    - for WHL in wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
-  artifacts:
-    paths:
-      - "wheelhouse-fix/cpprb-*.whl"
-  except:
-    - schedules
-  needs:
-    - job: coverage
-      artifacts: false
-    - job: README_MD
-      artifacts: true
-  cache:
-    paths:
-      - "$CI_PROJECT_DIR/.pip"
-    key: "${CI_PROJECT_PATH}-BINARY-BUILD"

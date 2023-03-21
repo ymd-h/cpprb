@@ -23,12 +23,23 @@ pyx_ext = ".pyx"
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"],
     'api': ["sphinx","sphinx_rtd_theme","sphinx-automodapi"],
-    'dev': ["coverage","cython","gym[box2d]","scipy","twine","unittest-xml-reporting"]
+    'dev': ["coverage","cython", "scipy","twine","unittest-xml-reporting"]
 }
 
 if sys.version_info < (3,10):
     # gym-algorithmic/gym-legacy-toytext don't support Python 3.10
-    extras['dev'].extend(["gym-algorithmic","gym-legacy-toytext","ray"])
+    extras['dev'].extend(["gym-algorithmic","gym-legacy-toytext"])
+
+
+if sys.version_info < (3,11):
+    # pygame 2.1.0, which is required from gym, doesn't support Python 3.11, yet.
+    extras['dev'].append("gym[box2d]")
+
+    # ray doesn't support Python 3.11+, yet.
+    # Although ray v2.3.0 wheels for Python 3.11 are hosted at PyPI,
+    # classifier metadata rejects Python 3.11+.
+    # Milestones: https://github.com/ray-project/ray/milestone/104
+    extras['dev'].append("ray")
 
 if platform.system() != "Windows":
     # jax doesn't support Windows
@@ -46,7 +57,12 @@ if platform.system() == 'Windows':
     if debug:
         extra_compile_args.append('/DCYTHON_TRACE_NOGIL=1')
 else:
-    extra_compile_args = ["-std=c++17","-march=native"]
+    extra_compile_args = ["-std=c++17"]
+    if platform.system() != 'Darwin':
+        # '-march=native' is not supported on Apple M1/M2 with clang
+        # Ref: https://stackoverflow.com/questions/65966969/why-does-march-native-not-work-on-apple-m1
+        extra_compile_args.append("-march=native")
+
     extra_link_args = ["-std=c++17", "-pthread"]
     if debug:
         extra_compile_args.append('-DCYTHON_TRACE_NOGIL=1')

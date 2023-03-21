@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - run: emacs --batch README.org --eval '(org-md-export-to-markdown)'
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: README
           path: README.md
@@ -18,19 +18,20 @@ jobs:
     strategy:
       matrix:
         runs-on: [ubuntu-latest, macos-latest, windows-latest]
-        python: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        python: ['3.7', '3.8', '3.9', '3.10', '3.11']
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - name: Get pip cache dir
         id: pip-cache
-        run: echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+        shell: bash
       - name: pip cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip${{ matrix.python }}
@@ -39,13 +40,14 @@ jobs:
         run: pip install '.[all]'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v3
         with:
           name: README
+          path: README
       - run: mv README/README.md README.md
       - run: python setup.py bdist_wheel
         if: startsWith(runner.os, 'Linux') != true
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
@@ -54,31 +56,65 @@ jobs:
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v') && startsWith(runner.os, 'Linux') != true
         continue-on-error: true
-  build_aarch64:
+  build_manylinux:
     needs: readme
     strategy:
       matrix:
-        py: ['cp36-cp36m', 'cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310']
+        py: ['cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310', 'cp311-cp311']
     runs-on: ubuntu-latest
     env:
-      img: quay.io/pypa/manylinux2014_aarch64
+      img: quay.io/pypa/manylinux2014_x86_64
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-buildx-action@v2
         with:
           platforms: arm64
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v3
         with:
           name: README
+          path: README
       - run: mv README/README.md README.md
       - run: |
           docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/'${{ matrix.py }}'/bin/pip; do ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
       - run: |
           docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
+      - run: pip install twine
+      - name: Upload to PyPI
+        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
+  build_aarch64:
+    needs: readme
+    strategy:
+      matrix:
+        py: ['cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310', 'cp311-cp311']
+    runs-on: ubuntu-latest
+    env:
+      img: quay.io/pypa/manylinux2014_aarch64
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+      - uses: actions/download-artifact@v3
+        with:
+          name: README
+          path: README
+      - run: mv README/README.md README.md
+      - run: |
+          docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/'${{ matrix.py }}'/bin/pip; do ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
+      - run: |
+          docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
+      - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
