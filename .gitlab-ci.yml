@@ -11,7 +11,6 @@ stages:
   - bench_mark_test
   - page_build
   - page_deploy
-  - binary_build
   - upload
 
 .job_template: &setup
@@ -128,25 +127,6 @@ pages:
   except:
     - schedules
 
-pypi:
-  image: *dev_image
-  stage: upload
-  environment: production
-  script:
-    - rm -rf cpprb/*.cpp
-    - python3 setup.py clean
-    - python3 setup.py build_ext sdist
-    - twine upload dist/cpprb-*.tar.gz
-    - twine upload wheelhouse-fix/cpprb-*.whl
-  only:
-    - tags
-  except:
-    - branches
-    - schedules
-  needs:
-    - manylinux
-    - README_MD
-
 repo:
   image: docker:latest
   stage: upload
@@ -162,41 +142,3 @@ repo:
   except:
     - branches
     - schedules
-
-manylinux:
-  image: quay.io/pypa/manylinux2010_x86_64
-  stage: binary_build
-  script:
-    - for PIP in /opt/python/cp3{6..9}*/bin/pip; do ${PIP} wheel . -w wheelhouse/ --no-deps; done
-    - for WHL in wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
-  artifacts:
-    paths:
-      - "wheelhouse-fix/cpprb-*.whl"
-  except:
-    - schedules
-  needs:
-    - job: README_MD
-      artifacts: true
-  cache:
-    paths:
-      - "$CI_PROJECT_DIR/.pip"
-    key: "${CI_PROJECT_PATH}-BINARY-BUILD"
-
-manylinux2014:
-  image: quay.io/pypa/manylinux2014_x86_64
-  stage: binary_build
-  script:
-    - for PIP in /opt/python/cp310*/bin/pip; do ${PIP} wheel . -w wheelhouse/ --no-deps; done
-    - for WHL in wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w wheelhouse-fix; done
-  artifacts:
-    paths:
-      - "wheelhouse-fix/cpprb-*.whl"
-  except:
-    - schedules
-  needs:
-    - job: README_MD
-      artifacts: true
-  cache:
-    paths:
-      - "$CI_PROJECT_DIR/.pip"
-    key: "${CI_PROJECT_PATH}-BINARY-BUILD"

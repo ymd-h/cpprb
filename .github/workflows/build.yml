@@ -54,6 +54,38 @@ jobs:
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v') && startsWith(runner.os, 'Linux') != true
         continue-on-error: true
+  build_manylinux:
+    needs: readme
+    strategy:
+      matrix:
+        py: ['cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310']
+    runs-on: ubuntu-latest
+    env:
+      img: quay.io/pypa/manylinux2014_x86_64
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - uses: docker/setup-buildx-action@v2
+        with:
+          platforms: arm64
+      - uses: actions/download-artifact@v1
+        with:
+          name: README
+      - run: mv README/README.md README.md
+      - run: |
+          docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/'${{ matrix.py }}'/bin/pip; do ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
+      - run: |
+          docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
+      - uses: actions/upload-artifact@v1
+        with:
+          name: dist
+          path: dist
+      - run: pip install twine
+      - name: Upload to PyPI
+        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
   build_aarch64:
     needs: readme
     strategy:
