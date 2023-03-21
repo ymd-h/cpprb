@@ -11,6 +11,7 @@ has_legacy_toytext = sys.version_info < (3,10)
 
 if has_gym:
     import gym
+    from cpprb import create_env_dict, create_before_add_func
 
 if has_algorithmic:
     # Register Copy, DuplicatedInput, RepeatCopy, Reverse, ReversedAddition
@@ -23,7 +24,7 @@ if has_legacy_toytext:
 if platform.system() == 'Linux':
     import pyvirtualdisplay
 
-from cpprb import ReplayBuffer, create_env_dict, create_before_add_func
+from cpprb import ReplayBuffer
 
 if platform.system() == 'Linux':
     display = pyvirtualdisplay.Display()
