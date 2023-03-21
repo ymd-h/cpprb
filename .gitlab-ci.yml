@@ -8,7 +8,6 @@ variables: &global-variables
 stages:
   - build_image
   - build
-  - bench_mark_test
   - page_build
   - page_deploy
   - upload
