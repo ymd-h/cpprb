@@ -1440,8 +1440,8 @@ replay buffer to avoid expensive interprocess data sharing.
 With cpprb 10.6+ and Python 3.8+, you can use ~MPReplayBuffer~ and
 ~MPPrioritizedReplayBuffer~ with Ray.
 
-A key trick is to set ~authkey~ inside Ray process, which allows Ray
-workers to communicate with ~SyncManager~ process.
+A key trick is to set ~authkey~ inside [[https://docs.ray.io/en/latest/ray-core/actors.html][Ray Actors]], which allows the Ray
+worker to communicate with ~SyncManager~ process.
 
 #+begin_src python
 import base64
@@ -1451,22 +1451,24 @@ import ray
 
 ray.init()
 
-# Encode base64 to avoid following error:
-#   TypeError: Pickling an AuthenticationString object is disallowed for security reasons
-encoded = base64.b64encode(mp.current_process().authkey)
+@ray.remote
+class RemoteWorker:
+    # Encode base64 to avoid following error:
+    #   TypeError: Pickling an AuthenticationString object is disallowed for security reasons
+    encoded = base64.b64encode(mp.current_process().authkey)
 
-def auth_fn(*args):
-    mp.current_process().authkey = base64.b64decode(encoded)
+    def __init__(self):
+        mp.current_process().authkey = base64.b64decode(self.encoded)
 
-ray.worker.global_worker.run_function_on_all_workers(auth_fn)
+    def run(self, some_resource):
+        pass
+
+w = RemoteWorket.remote()
 #+end_src
 
 #+HTML: {{% notice warning %}} <p>
 This trick overwrites process-wide ~authkey~, which might confilict if
-you use other processes in it. Additionally,
-~run_function_on_all_workers()~ is not Ray ~PublicAPI~ nor
-~DeveloperAPI~, so that it is possible that this trick won't work in a
-future version.
+you use other processes in it.
 #+HTML: </p>{{% /notice %}}
 
 
@@ -1482,10 +1484,12 @@ import multiprocessing as mp
 from cpprb import MPReplayBuffer
 
 buffer_size = 1e+6
-m = mp.get_context().Manager()
+m = mp.get_context().Manager() # SyncManager
 
-rb = MPReplayBuffer(buffer_size, {"done": {}},
-                    ctx = m, backend="SharedMemory")
+rb = MPReplayBuffer(buffer_size,
+                    {"done": {}},
+                    ctx = m, # Context
+                    backend="SharedMemory")
 #+end_src
 
 
