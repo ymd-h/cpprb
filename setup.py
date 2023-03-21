@@ -23,7 +23,7 @@ pyx_ext = ".pyx"
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"],
     'api': ["sphinx","sphinx_rtd_theme","sphinx-automodapi"],
-    'dev': ["coverage","cython", "ray", "scipy","twine","unittest-xml-reporting"]
+    'dev': ["coverage","cython", "scipy","twine","unittest-xml-reporting"]
 }
 
 if sys.version_info < (3,10):
@@ -34,6 +34,12 @@ if sys.version_info < (3,10):
 if sys.version_info < (3,11):
     # pygame 2.1.0, which is required from gym, doesn't support Python 3.11, yet.
     extras['dev'].append("gym[box2d]")
+
+    # ray doesn't support Python 3.11+, yet.
+    # Although ray v2.3.0 wheels for Python 3.11 are hosted at PyPI,
+    # classifier metadata rejects Python 3.11+.
+    # Milestones: https://github.com/ray-project/ray/milestone/104
+    extras['dev'].append("ray")
 
 if platform.system() != "Windows":
     # jax doesn't support Windows
