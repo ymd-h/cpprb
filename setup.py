@@ -51,7 +51,12 @@ if platform.system() == 'Windows':
     if debug:
         extra_compile_args.append('/DCYTHON_TRACE_NOGIL=1')
 else:
-    extra_compile_args = ["-std=c++17","-march=native"]
+    extra_compile_args = ["-std=c++17"]
+    if platform.system() != 'Darwin':
+        # '-march=native' is not supported on Apple M1/M2 with clang
+        # Ref: https://stackoverflow.com/questions/65966969/why-does-march-native-not-work-on-apple-m1
+        extra_compile_args.append("-march=native")
+
     extra_link_args = ["-std=c++17", "-pthread"]
     if debug:
         extra_compile_args.append('-DCYTHON_TRACE_NOGIL=1')
