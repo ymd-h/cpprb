@@ -32,36 +32,65 @@ class Model:
         return act
 
 @ray.remote
-def explorer(env_name, global_rb, env_dict, q, stop):
-    try:
-        buffer_size = 200
+class Explorer:
+    encoded = base64.b64encode(mp.current_process().authkey)
 
-        local_rb = ReplayBuffer(buffer_size, env_dict)
-        env = gym.make(env_name)
-        model = Model(env)
+    def __init__(self):
+        mp.current_process().authkey = base64.b64decode(self.encoded)
 
-        obs = env.reset()
-        while not stop.is_set():
-            if not q.empty():
-                w = q.get()
-                model.w = w
+    def run(self, env_name, global_rb, env_dict, q, stop):
+        try:
+            buffer_size = 200
 
-            act = model(obs)
+            local_rb = ReplayBuffer(buffer_size, env_dict)
+            env = gym.make(env_name)
+            model = Model(env)
 
-            next_obs, rew, done, _ = env.step(act)
-
-            local_rb.add(obs=obs, act=act, rew=rew, next_obs=next_obs, done=done)
-
-            if done or local_rb.get_stored_size() == buffer_size:
-                local_rb.on_episode_end()
-                global_rb.add(**local_rb.get_all_transitions())
-                local_rb.clear()
-                obs = env.reset()
+            reset = env.reset()
+            if not isinstance(reset, tuple):
+                # Gym Old API
+                obs = reset
             else:
-                obs = next_obs
-    finally:
-        stop.set()
-    return None
+                # Gym New API
+                obs, _ = reset
+
+            while True:
+                if stop.is_set():
+                    print("Stop")
+                    break
+                if not q.empty():
+                    w = q.get()
+                    model.w = w
+
+                act = model(obs)
+
+                stepped = env.step(act)
+                if len(stepped) == 4:
+                    # Gym Old API
+                    next_obs, rew, done, _ = stepped
+                else:
+                    # Gym New API
+                    next_obs, rew, term, trunc, _ = stepped
+                    done = term | trunc
+
+                local_rb.add(obs=obs, act=act, rew=rew, next_obs=next_obs, done=done)
+
+                if done or local_rb.get_stored_size() == buffer_size:
+                    local_rb.on_episode_end()
+                    global_rb.add(**local_rb.get_all_transitions())
+                    local_rb.clear()
+                    reset = env.reset()
+                    if not isinstance(reset, tuple):
+                        # Gym Old API
+                        obs = reset
+                    else:
+                        # Gym New API
+                        obs, _ = reset
+                else:
+                    obs = next_obs
+        finally:
+            stop.set()
+        return None
 
 
 def run():
@@ -86,16 +115,12 @@ def run():
 
 
     ray.init()
-    encoded = base64.b64encode(mp.current_process().authkey)
-    def auth_fn(*args):
-        mp.current_process().authkey = base64.b64decode(encoded)
-    ray.worker.global_worker.run_function_on_all_workers(auth_fn)
 
 
     # `BaseContext.Manager()` automatically starts `SyncManager`
     # Ref: https://github.com/python/cpython/blob/3.9/Lib/multiprocessing/context.py#L49-L58
     m = mp.get_context().Manager()
-    q = m.Queue()
+    q = [m.Queue() for _ in range(n_explorers)]
     stop = m.Event()
     stop.clear()
 
@@ -105,10 +130,12 @@ def run():
     model = Model(env)
 
     explorers = []
+    jobs = []
 
     print("Start Explorers")
-    for _ in range(n_explorers):
-        explorers.append(explorer.remote(env_name, rb, env_dict, q, stop))
+    for i in range(n_explorers):
+        explorers.append(Explorer.remote())
+        jobs.append(explorers[-1].run.remote(env_name, rb, env_dict, q[i], stop))
 
 
     print("Start Warmup")
@@ -125,12 +152,12 @@ def run():
         rb.update_priorities(s["indexes"], absTD)
 
         if i % update_freq == 0:
-            q.put(model.w)
+            q[i].put(model.w)
+
     print("Finish Training")
 
-
     stop.set()
-    ray.get(explorers)
+    _, still_running = ray.wait(jobs, timeout=10)
 
     m.shutdown()
 
