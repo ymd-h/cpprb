@@ -209,7 +209,7 @@ class TestHER(unittest.TestCase):
         sample = hrb.sample(batch_size)
         hrb.update_priorities(indexes=sample["indexes"],
                               priorities=np.zeros_like(sample["indexes"],
-                                                       dtype=np.float))
+                                                       dtype=np.float64))
 
     def test_goal_func(self):
         rew_func = lambda s,a,g: -1*(s[:,:3]!=g).any(axis=1)
