@@ -1463,7 +1463,7 @@ class RemoteWorker:
     def run(self, some_resource):
         pass
 
-w = RemoteWorket.remote()
+w = RemoteWorker.remote()
 #+end_src
 
 #+HTML: {{% notice warning %}} <p>
