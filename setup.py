@@ -23,12 +23,17 @@ pyx_ext = ".pyx"
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"],
     'api': ["sphinx","sphinx_rtd_theme","sphinx-automodapi"],
-    'dev': ["coverage","cython","gym[box2d]","scipy","twine","unittest-xml-reporting"]
+    'dev': ["coverage","cython","scipy","twine","unittest-xml-reporting"]
 }
 
 if sys.version_info < (3,10):
     # gym-algorithmic/gym-legacy-toytext don't support Python 3.10
     extras['dev'].extend(["gym-algorithmic","gym-legacy-toytext","ray"])
+
+
+if sys.version_info < (3,11):
+    # pygame 2.1.0, which is required from gym, doesn't support Python 3.11, yet.
+    extras['dev'].append("gym[box2d]")
 
 if platform.system() != "Windows":
     # jax doesn't support Windows
