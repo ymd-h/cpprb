@@ -129,10 +129,10 @@ def RawArray(ctx, ctype, len_, backend):
                        "Fail back to 'sharedctypes' backend")
     if _has_SharedMemory and backend == "SharedMemory":
         return SharedMemoryArray(ctype, len_)
-    elif backend == "sharedctypes":
+    if backend == "sharedctypes":
         return ctypesArray(ctx, ctype, len_)
-    else:
-        raise ValueError(f"Unknown backend: {backend}")
+
+    raise ValueError(f"Unknown backend: {backend}")
 
 
 def RawValue(ctx, ctype, init, backend):
@@ -144,10 +144,10 @@ def RawValue(ctx, ctype, init, backend):
                        "Fail back to 'sharedctypes' backend")
     if _has_SharedMemory and backend == "SharedMemory":
         return SharedMemoryValue(ctype, init)
-    elif backend == "sharedctypes":
+    if backend == "sharedctypes":
         return ctx.Value(ctype, init, lock=False)
-    else:
-        raise ValueError(f"Unknown backend: {backend}")
+
+    raise ValueError(f"Unknown backend: {backend}")
 
 
 def try_start(ctx):
