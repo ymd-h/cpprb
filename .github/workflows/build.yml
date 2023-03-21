@@ -29,6 +29,7 @@ jobs:
       - name: Get pip cache dir
         id: pip-cache
         run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+        shell: bash
       - name: pip cache
         uses: actions/cache@v3
         with:
