@@ -51,8 +51,6 @@ Heavy calculation is implemented with C++ and [[https://cython.org/][Cython]]. c
 faster than Python naive implementation.
 #+html: {{% /markdownify %}}
 
-#+html: {{% button-center href="/cpprb/comparison/benchmark/" icon="fas fa-angle-double-right" icon-position="right" %}}Learn More{{% /button-center %}}
-
 #+html: {{< /col >}}{{< col size="md">}}
 
 #+html: {{% markdownify %}}
@@ -1280,11 +1278,6 @@ Under =site= directory, there are project site source and config file.
 documentation. These documentation system is described "Documentation"
 section below.
 
-=benchmark= and =benchmark2= directory contain benchmark script and
-Dockerfile using at [[https://ymd_h.gitlab.io/cpprb/comparison/benchmark/][Benchmark page]]. These benchmarks might be outdated
-and need to be updated.
-
-
 =example= directory has example codes. We need more examples.
 
 
@@ -2039,72 +2032,6 @@ The following table summarizes functionalities of replay buffers.
 | *Save/Load*               | Only transitions ([[https://ymd_h.gitlab.io/cpprb/features/save_load_transitions/][document]])           | No (Maybe can =pickle=)                   | No (Maybe can =pickle=. Trained policies can save/load.)   | Yes                        | Yes             |
 | *Deep Learning Framework* | Anything                              | TensorFlow 1.14 (only this version)       | Anything (Helper functions for [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-tensorflow][TensorFlow]] and [[https://ray.readthedocs.io/en/latest/rllib-concepts.html#building-policies-in-pytorch][PyTorch]])     | [[https://chainer.org/][Chainer]] ([[https://chainer.org/announcement/2019/12/05/released-v7.html][maintenance only]]) | TensorFlow 2.3  |
 
-
-** DONE Benchmark
-CLOSED: [2020-02-16 Sun 23:24]
-:PROPERTIES:
-:EXPORT_HUGO_WEIGHT: 20
-:EXPORT_FILE_NAME: benchmark
-:END:
-
-Because of dependant TensorFlow version incompatibility, two set of
-benchmarks are executed.
-
-*** Benchmark 1
-The first benchmark compares OpenAI/Baselines, Ray/RLlib,
-Chainer/ChainerRL, and cpprb.
-
-**** Settings
-
-We use following docker image to take benchmarks;
-
-#+INCLUDE: "../benchmark/Dockerfile" src dockerfile
-
-- OpenAI Baselines requires TensorFlow 1.14
-- OpenAI Baselines at PyPI seems to be obsolete and requires non-free MuJoCo.
-- RLlib requires Pandas, too.
-
-
-The benchmark script is as follows;
-
-#+INCLUDE: "../benchmark/benchmark.py" src python
-
-
-**** Results
-[[/cpprb/benchmark/ReplayBuffer_add.png]]
-
-[[/cpprb/benchmark/ReplayBuffer_sample.png]]
-
-[[/cpprb/benchmark/PrioritizedReplayBuffer_add.png]]
-
-
-[[/cpprb/benchmark/PrioritizedReplayBuffer_sample.png]]
-
-
-*** Benchmark 2
-The second benchmark compares DeepMind/Reverb and cpprb.
-Reverb has multiple ways of adding and sampling.
-
-**** Settings
-We use following docker image to take benchmarks;
-
-#+INCLUDE: "../benchmark2/Dockerfile" src dockerfile
-
-- DeepMind/Reverb requires development version TensorFlow 2.3.0.dev20200604
-
-The benchmark script is as follows;
-
-#+INCLUDE: "../benchmark2/benchmark.py" src python
-
-**** Results
-[[/cpprb/benchmark/ReplayBuffer_add2.png]]
-
-[[/cpprb/benchmark/ReplayBuffer_sample2.png]]
-
-[[/cpprb/benchmark/PrioritizedReplayBuffer_add2.png]]
-
-
-[[/cpprb/benchmark/PrioritizedReplayBuffer_sample2.png]]
 
 * DONE Misc
 CLOSED: [2020-01-17 Fri 22:31]

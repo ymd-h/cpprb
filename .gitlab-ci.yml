@@ -39,41 +39,6 @@ docker_build:
       when: manual
       allow_failure: true
 
-bench_mark:
-  image: docker:latest
-  stage: build_image
-  services:
-    - docker:dind
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE/bench:latest || true
-    - cd benchmark
-    - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/bench:latest -t $CI_REGISTRY_IMAGE/bench:latest .
-    - docker push $CI_REGISTRY_IMAGE/bench:latest
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
-      when: manual
-      allow_failure: true
-
-bench_mark2:
-  image: docker:latest
-  stage: build_image
-  services:
-    - docker:dind
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE/bench2:latest || true
-    - cd benchmark2
-    - docker build --pull=true --cache-from $CI_REGISTRY_IMAGE/bench2:latest -t $CI_REGISTRY_IMAGE/bench2:latest .
-    - docker push $CI_REGISTRY_IMAGE/bench2:latest
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
-      when: manual
-      allow_failure: true
 
 cpprb_build:
   <<: *setup
@@ -87,23 +52,6 @@ cpprb_build:
       - cpprb/*.cpp
       - cpprb/*.so
       - dist/*.whl
-
-cpp_bench:
-  image: *dev_image
-  stage: bench_mark_test
-  needs:
-    - job: ReplayBuffer.cpp
-      artifacts: false
-    - job: SegmentTree.cpp
-      artifacts: false
-  script:
-    - $CXX -o test/segmenttree_bench test/segmenttree_bench.cpp
-    - test/segmenttree_bench
-    - test/segmenttree_bench
-    - test/segmenttree_bench
-    - test/segmenttree_bench
-    - test/segmenttree_bench
-
 
 emacs:
   image: iquiw/alpine-emacs
@@ -129,32 +77,6 @@ README_MD:
       - README.md
   except:
     - schedules
-
-run_bench_mark:
-  image: $CI_REGISTRY_IMAGE/bench:latest
-  stage: bench_mark_test
-  script:
-    - pip install .
-    - cd benchmark
-    - python benchmark.py
-  artifacts:
-    paths:
-      - "benchmark/*.png"
-  needs:
-    - job: cpprb_build
-
-run_bench_mark2:
-  image: $CI_REGISTRY_IMAGE/bench2:latest
-  stage: bench_mark_test
-  script:
-    - pip install .
-    - cd benchmark2
-    - python benchmark.py
-  artifacts:
-    paths:
-      - "benchmark2/*.png"
-  needs:
-    - job: cpprb_build
 
 hugo:
   image: registry.gitlab.com/pages/hugo:latest
@@ -198,9 +120,6 @@ pages:
   script:
     - mkdir -p public/annotation
     - mv cpprb/*.html public/annotation/
-    - mkdir -p public/benchmark
-    - mv benchmark/*.png public/benchmark/
-    - mv benchmark2/*.png public/benchmark/
   artifacts:
     paths:
       - public
