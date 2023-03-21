@@ -23,12 +23,12 @@ pyx_ext = ".pyx"
 extras = {
     'gym': ["matplotlib", "pyvirtualdisplay"],
     'api': ["sphinx","sphinx_rtd_theme","sphinx-automodapi"],
-    'dev': ["coverage","cython","scipy","twine","unittest-xml-reporting"]
+    'dev': ["coverage","cython", "ray", "scipy","twine","unittest-xml-reporting"]
 }
 
 if sys.version_info < (3,10):
     # gym-algorithmic/gym-legacy-toytext don't support Python 3.10
-    extras['dev'].extend(["gym-algorithmic","gym-legacy-toytext","ray"])
+    extras['dev'].extend(["gym-algorithmic","gym-legacy-toytext"])
 
 
 if sys.version_info < (3,11):
