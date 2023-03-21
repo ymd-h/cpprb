@@ -10,7 +10,6 @@ stages:
   - build
   - page_build
   - page_deploy
-  - upload
 
 .job_template: &setup
   image: &dev_image $CI_REGISTRY_IMAGE/build:latest
@@ -124,20 +123,4 @@ pages:
   only:
     - master
   except:
-    - schedules
-
-repo:
-  image: docker:latest
-  stage: upload
-  services:
-    - docker:dind
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE/build:latest
-    - docker tag $CI_REGISTRY_IMAGE/build:latest $CI_REGISTRY_IMAGE/build:$CI_COMMIT_TAG
-    - docker push $CI_REGISTRY_IMAGE/build:$CI_COMMIT_TAG
-  only:
-    - tags
-  except:
-    - branches
     - schedules
