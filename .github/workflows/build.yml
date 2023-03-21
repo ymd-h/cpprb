@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - name: Get pip cache dir
@@ -96,7 +96,7 @@ jobs:
       img: quay.io/pypa/manylinux2014_aarch64
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
       - uses: docker/setup-qemu-action@v1
