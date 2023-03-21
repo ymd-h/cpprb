@@ -1,3 +1,9 @@
+"""
+Multiprocessing Module (mod:`cpprb.multiprocessing`)
+====================================================
+
+This module implements shared memory backends with compatible interface.
+"""
 import atexit
 import ctypes
 from logging import getLogger
@@ -38,6 +44,9 @@ if _has_SharedMemory:
 
 
     class SharedMemoryValue:
+        """
+        Compatible Value for SharedMemory
+        """
         def __init__(self, ctype, init=None):
             size = ctypes.sizeof(ctype)
             self.shm = SharedMemory(create=True, size=size)
@@ -70,6 +79,9 @@ if _has_SharedMemory:
 
 
     class SharedMemoryArray:
+        """
+        Compatible Array for SharedMemory
+        """
         def __init__(self, ctype, len_):
             self.len = len_
             self.dtype = np.dtype(ctype)
@@ -98,6 +110,9 @@ if _has_SharedMemory:
 
 
 class ctypesArray:
+    """
+    Compatible Array for sharedctypes
+    """
     def __init__(self, ctx, ctype, len_):
         self.shm = ctx.Array(ctype, len_, lock=False)
         self.ndarray = np.ctypeslib.as_array(self.shm)
@@ -120,6 +135,25 @@ class ctypesArray:
 
 
 def RawArray(ctx, ctype, len_, backend):
+    """
+    Get RawArray for backend
+
+    Parameters
+    ----------
+    ctx
+        Multiprocessing Context
+    ctype
+        C type
+    len_ : int
+        Length
+    backend : {"SharedMemory", "sharedctypes"}
+        Backend
+
+    Raises
+    ------
+    ValueError
+        If ``backend`` is unknown.
+    """
     if isinstance(ctx, SyncManager):
         ctx = ctx._ctx
     len_ = int(len_)
@@ -136,6 +170,25 @@ def RawArray(ctx, ctype, len_, backend):
 
 
 def RawValue(ctx, ctype, init, backend):
+    """
+    Get RawValue for backend
+
+    Parameters
+    ----------
+    ctx
+        Multiprocessing Context
+    ctype
+        C type
+    init
+        Init value
+    backend : {"SharedMemory", "sharedctypes"}
+        Backend
+
+    Raises
+    ------
+    ValueError
+        If ``backend`` is unknown.
+    """
     if isinstance(ctx, SyncManager):
         ctx = ctx._ctx
     if not _has_SharedMemory and backend == "SharedMemory":
@@ -151,6 +204,23 @@ def RawValue(ctx, ctype, init, backend):
 
 
 def try_start(ctx):
+    """
+    Try start SyncManager Server
+
+    Parameters
+    ----------
+    ctx
+        Multiprocessing Context
+
+    Raises
+    ------
+    ProcessError
+        If ``ctx`` is instance of ``SyncManager`` and it has been shutdowned.
+
+    Notes
+    -----
+    This function is compatible layer for multiple python versions and contexts.
+    """
     if isinstance(ctx, SyncManager):
         if ctx._state.value == State.SHUTDOWN:
             # Default behavior:
