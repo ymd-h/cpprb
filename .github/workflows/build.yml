@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - run: emacs --batch README.org --eval '(org-md-export-to-markdown)'
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: README
           path: README.md
@@ -40,13 +40,14 @@ jobs:
         run: pip install '.[all]'
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v3
         with:
           name: README
+          path: README
       - run: mv README/README.md README.md
       - run: python setup.py bdist_wheel
         if: startsWith(runner.os, 'Linux') != true
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
@@ -71,15 +72,16 @@ jobs:
       - uses: docker/setup-buildx-action@v2
         with:
           platforms: arm64
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v3
         with:
           name: README
+          path: README
       - run: mv README/README.md README.md
       - run: |
           docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/'${{ matrix.py }}'/bin/pip; do ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
       - run: |
           docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
@@ -100,18 +102,19 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v3
         with:
           name: README
+          path: README
       - run: mv README/README.md README.md
       - run: |
           docker run -v $(pwd):/cpprb ${img} bash -c 'for PIP in /opt/python/'${{ matrix.py }}'/bin/pip; do ${PIP} wheel /cpprb -w /cpprb/wheelhouse/ --no-deps; done'
       - run: |
           docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
