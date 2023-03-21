@@ -36,6 +36,8 @@ class Explorer:
     encoded = base64.b64encode(mp.current_process().authkey)
 
     def __init__(self):
+        # Set up 'authkey' to communicate with `SyncManager`.
+        # Important: Do not pass `MPReplayBuffer`, because it is not ready.
         mp.current_process().authkey = base64.b64decode(self.encoded)
 
     def run(self, env_name, global_rb, env_dict, q, stop):
