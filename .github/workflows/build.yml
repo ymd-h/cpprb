@@ -70,8 +70,6 @@ jobs:
         with:
           python-version: '3.8'
       - uses: docker/setup-buildx-action@v2
-        with:
-          platforms: arm64
       - uses: actions/download-artifact@v3
         with:
           name: README
