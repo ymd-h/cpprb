@@ -1,6 +1,11 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 3 * * 5' # Every Friday (3 o'clock)
+
 
 jobs:
   readme:
