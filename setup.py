@@ -26,15 +26,7 @@ extras = {
     'dev': ["coverage","cython", "scipy","twine","unittest-xml-reporting"]
 }
 
-if sys.version_info < (3,10):
-    # gym-algorithmic/gym-legacy-toytext don't support Python 3.10
-    extras['dev'].extend(["gym-algorithmic","gym-legacy-toytext"])
-
-
 if sys.version_info < (3,11):
-    # pygame 2.1.0, which is required from gym, doesn't support Python 3.11, yet.
-    extras['dev'].append("gym[box2d]")
-
     # ray doesn't support Python 3.11+, yet.
     # Although ray v2.3.0 wheels for Python 3.11 are hosted at PyPI,
     # classifier metadata rejects Python 3.11+.

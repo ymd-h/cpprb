@@ -19,6 +19,10 @@ jobs:
       matrix:
         runs-on: [ubuntu-latest, macos-latest, windows-latest]
         python: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        gym: ['gym', 'gymnasium']
+        exclude:
+          - python: "3.11"
+            gym: "gym"
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -38,6 +42,8 @@ jobs:
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
       - name: Install cpprb
         run: pip install '.[all]'
+      - name: Install Gym(nasium)
+        run: pip install ${{ matrix.gym }}[box2d]
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - uses: actions/download-artifact@v3

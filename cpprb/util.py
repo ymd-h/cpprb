@@ -1,12 +1,32 @@
+from __future__ import annotations
+from typing import Callable, Dict as DictType, Union
+
 import numpy as np
+from numpy.typing import DTypeLike
 
 try:
-    from gymnasium.spaces import Discrete, MultiDiscrete, Box, MultiBinary, Tuple, Dict
+    from gymnasium.core import Env
+    from gymnasium.spaces import (
+        Discrete,
+        MultiDiscrete,
+        Box,
+        MultiBinary,
+        Tuple,
+        Dict,
+    )
 except ImportError:
-    from gym.spaces import Discrete, MultiDiscrete, Box, MultiBinary, Tuple, Dict
+    from gym import Env
+    from gym.spaces import (
+        Discrete,
+        MultiDiscrete,
+        Box,
+        MultiBinary,
+        Tuple,
+        Dict,
+    )
 
 
-def from_space(space, int_type, float_type):
+def from_space(space, int_type: DTypeLike, float_type: DTypeLike) -> DictType:
     if isinstance(space, Discrete):
         return {"dtype": int_type, "shape": 1}
     elif isinstance(space, MultiDiscrete):
@@ -19,7 +39,10 @@ def from_space(space, int_type, float_type):
         raise NotImplementedError(f"Error: Unknown Space {space}")
 
 
-def create_env_dict(env, *, int_type=None, float_type=None):
+def create_env_dict(
+        env: Env, *,
+        int_type: DTypeLike=None,
+        float_type: DTypeLike=None) -> DictType:
     """
     Create ``env_dict`` from Open AI ``gym.space`` for ``ReplayBuffer`` constructor
 
@@ -80,7 +103,7 @@ def create_env_dict(env, *, int_type=None, float_type=None):
     return env_dict
 
 
-def create_before_add_func(env):
+def create_before_add_func(env: Env) -> Callable:
     """
     Create function to be used before ``ReplayBuffer.add``
 
