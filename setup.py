@@ -119,7 +119,7 @@ else:
 setup(name="cpprb",
       author="Yamada Hiroyuki",
       description=description,
-      version="10.6.4",
+      version="10.7.0",
       install_requires=requires,
       setup_requires=setup_requires,
       extras_require=extras,

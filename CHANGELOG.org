@@ -25,7 +25,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
-- WIP: Gymnasium support ([[https://github.com/ymd-h/cpprb/pull/24][PR #24]]) (Thanks [[https://github.com/jamartinh][@jamartinh]])
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.7.0][v10.7.0]]
+- Add: Gymnasium support ([[https://github.com/ymd-h/cpprb/pull/24][PR #24]]) (Thanks [[https://github.com/jamartinh][@jamartinh]])
 - Fix: Build on Apple Silicon
 - Improve: Ray support by using Actors instead of deprecated =run_function_on_all_workers()=
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.6.4][v10.6.4]]
