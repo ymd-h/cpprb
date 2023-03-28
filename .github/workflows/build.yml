@@ -67,6 +67,27 @@ jobs:
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v') && startsWith(runner.os, 'Linux') != true
         continue-on-error: true
+  build_targz:
+    needs: readme
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with: python-version: '3.8'
+      - uses: actions/download-artifact@v3
+        with:
+          name: README
+          path: README
+      - run: mv README/README.md README.md
+      - run: python setup.py build_ext sdist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
+      - run: pip install twine
+      - name: Upload to PyPI
+        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
   build_manylinux:
     needs: readme
     strategy:
