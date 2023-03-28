@@ -73,7 +73,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with: python-version: '3.8'
+        with:
+          python-version: '3.8'
       - uses: actions/download-artifact@v3
         with:
           name: README
