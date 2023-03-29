@@ -87,7 +87,7 @@ jobs:
           path: dist
       - run: pip install twine
       - name: Upload to PyPI
-        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*tar.gz
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
   build_manylinux:
     needs: readme
