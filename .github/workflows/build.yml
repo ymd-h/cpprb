@@ -104,11 +104,11 @@ jobs:
         with:
           python-version: '3.8'
       - uses: docker/setup-buildx-action@v2
-        if: ${{ matrix.img }} == 'x86_64'
+        if: ${{ matrix.img == 'x86_64' }}
       - uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
-        if: ${{ matrix.img }} == 'aarch64'
+        if: ${{ matrix.img  == 'aarch64' }}
       - uses: actions/download-artifact@v3
         with:
           name: README
