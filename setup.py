@@ -7,6 +7,12 @@ from setuptools.command.build_ext import build_ext
 
 debug = os.getenv('DEBUG_CPPRB')
 
+# https://stackoverflow.com/a/73973555
+on_CI = (os.getenv('GITHUB_ACTIONS') or
+         os.getenv('TRAVIS') or
+         os.getenv('CIRCLECI') or
+         os.getenv('GITLAB_CI'))
+
 requires = ["numpy"]
 setup_requires = ["wheel"]
 
@@ -50,7 +56,7 @@ if platform.system() == 'Windows':
         extra_compile_args.append('/DCYTHON_TRACE_NOGIL=1')
 else:
     extra_compile_args = ["-std=c++17"]
-    if platform.system() != 'Darwin':
+    if (platform.system() != 'Darwin') and not on_CI:
         # '-march=native' is not supported on Apple M1/M2 with clang
         # Ref: https://stackoverflow.com/questions/65966969/why-does-march-native-not-work-on-apple-m1
         extra_compile_args.append("-march=native")
