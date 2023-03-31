@@ -100,8 +100,8 @@ jobs:
       - uses: docker/build-push-actions@v4
         with:
           push: false
-          build-args:
-            - ON_CI: 1
+          build-args: |
+            ON_CI=1
           file: Dockerfile-manylinux
           cache-to: type=gha,mode=max,scope=${{github.ref_name}}
           cache-from: type=gha,scope=${{github.ref_name}}
