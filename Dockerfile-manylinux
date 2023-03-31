@@ -17,3 +17,4 @@ RUN ON_CI=${ON_CI} find /opt/python -name 'cp*' \
 
 FROM scratch AS results
 COPY --from=manylinux /dist/cpprb-* /dist/
+CMD [""]
