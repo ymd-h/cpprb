@@ -90,25 +90,50 @@ jobs:
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*tar.gz
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
   build_manylinux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3'
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/build-push-action@v4
+        with:
+          push: false
+          build-args: |
+            ON_CI=1
+          file: Dockerfile-manylinux
+          cache-to: type=gha,mode=max,scope=${{github.ref_name}}
+          cache-from: type=gha,scope=${{github.ref_name}}
+          load: true
+          tags: cpprb/wheel:latest
+      - run: |
+          docker create --name wheel cpprb/wheel:latest
+          docker cp wheel:/dist/. dist/
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
+      - run: pip install twine
+      - name: Upload to PyPI
+        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
+  build_aarch:
     needs: readme
     strategy:
       matrix:
         py: ['cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310', 'cp311-cp311']
-        img: ["x86_64", "aarch64"]
     runs-on: ubuntu-latest
     env:
-      img: quay.io/pypa/manylinux2014_${{ matrix.img }}
+      img: quay.io/pypa/manylinux2014_aarch64
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      - uses: docker/setup-buildx-action@v2
-        if: ${{ matrix.img == 'x86_64' }}
       - uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
-        if: ${{ matrix.img  == 'aarch64' }}
       - uses: actions/download-artifact@v3
         with:
           name: README
