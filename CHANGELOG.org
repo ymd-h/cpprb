@@ -25,6 +25,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.7.1][v10.7.1]]
+- Fix: PyPI binary ([[https://github.com/ymd-h/cpprb/discussions/25][Discussions #25]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.7.0][v10.7.0]]
 - Add: Gymnasium support ([[https://github.com/ymd-h/cpprb/pull/24][PR #24]]) (Thanks [[https://github.com/jamartinh][@jamartinh]])
 - Fix: Build on Apple Silicon
