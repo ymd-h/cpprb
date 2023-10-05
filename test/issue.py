@@ -1025,5 +1025,53 @@ class TestIssue143(unittest.TestCase):
         self.assertEqual(a.shape, (10, 3, 3))
         self.assertEqual(a.strides, (3*a.itemsize, a.itemsize, 3*a.itemsize))
 
+
+class TestGHDiscussion28(unittest.TestCase):
+    """
+    Ref: https://github.com/ymd-h/cpprb/discussions/28
+    """
+    def test_compress(self):
+        size = 5
+        a_dict = {"shape": (2,)}
+
+        rb = ReplayBuffer(size, {"a": a_dict, "next_a": a_dict})
+        rb_next_of = ReplayBuffer(size, {"a": a_dict}, next_of=["a"])
+        rb_stack = ReplayBuffer(size, {"a": a_dict, "next_a": a_dict},
+                                stack_compress=["a", "next_a"])
+        rb_both = ReplayBuffer(size, {"a": a_dict},
+                               next_of=["a"], stack_compress=["a"])
+
+        for i in range(10):
+            d = {
+                "a": [i, i+1],
+                "next_a": [i+1, i+2]
+            }
+
+            rb.add(**d)
+            idx = list(range(min(i+1, size)))
+
+            s = rb._encode_sample(idx)
+            with self.subTest(i=i, compress="next_of"):
+                rb_next_of.add(**d)
+                s_next_of = rb_next_of._encode_sample(idx)
+
+                np.testing.assert_allclose(s["a"], s_next_of["a"])
+                np.testing.assert_allclose(s["next_a"], s_next_of["next_a"])
+
+            with self.subTest(i=i, compress="stack"):
+                rb_stack.add(**d)
+                s_stack = rb_stack._encode_sample(idx)
+
+                np.testing.assert_allclose(s["a"], s_stack["a"])
+                np.testing.assert_allclose(s["next_a"], s_stack["next_a"])
+
+            with self.subTest(i=i, compress="both"):
+                rb_both.add(**d)
+                s_both = rb_both._encode_sample(idx)
+
+                np.testing.assert_allclose(s["a"], s_both["a"])
+                np.testing.assert_allclose(s["next_a"], s_both["next_a"])
+
+
 if __name__ == '__main__':
     unittest.main()
