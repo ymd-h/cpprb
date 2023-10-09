@@ -1485,6 +1485,9 @@ cdef class ReplayBuffer:
                 for name, value in self.next_.items():
                     cache_key[f"next_{name}"] = value.copy()
             else:
+                if next_key == self.buffer_size:
+                    # Fix: GitHub Discussion 28
+                    next_key = 0
                 for name in self.next_.keys():
                     cache_key[f"next_{name}"] = self.buffer[name][next_key].copy()
 
