@@ -1441,7 +1441,7 @@ cdef class ReplayBuffer:
         """
         return self.index.get_next_index()
 
-    cdef void add_cache(self):
+    cdef void add_cache(self) except *:
         r"""Add last items into cache
 
         The last items for ``next_of`` and ``stack_compress`` optimization
@@ -1472,7 +1472,7 @@ cdef class ReplayBuffer:
         for key in range(key_min, key_end): # key_end is excluded
             self.add_cache_i(key, key_end)
 
-    cdef void add_cache_i(self, size_t key, size_t key_end):
+    cdef void add_cache_i(self, size_t key, size_t key_end) except *:
         # If key is already cached, don't do anything
         if key in self.cache:
             return
