@@ -6,7 +6,7 @@ title = "cpprb"
 theme = "learn"
 themesdir = "themes"
 metaDataFormat = "yaml"
-defaultContentLanguageInSubdir= true
+defaultContentLanguageInSubdir= false
 publishDir = "../public"
 
 [params]
