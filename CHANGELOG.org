@@ -25,6 +25,8 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.7.2][v10.7.2]]
+- Fix: IndexError when specifying ~stack_compress~ and ~next_of~ simultanaously ([[https://github.com/ymd-h/cpprb/discussions/28][Discussions #28]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.7.1][v10.7.1]]
 - Fix: PyPI binary ([[https://github.com/ymd-h/cpprb/discussions/25][Discussions #25]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.7.0][v10.7.0]]
