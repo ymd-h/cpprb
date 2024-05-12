@@ -1,6 +1,7 @@
 import os
 import platform
 import sys
+import sysconfig
 import warnings
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -14,13 +15,20 @@ on_CI = (os.getenv("ON_CI") or
          os.getenv('CIRCLECI') or
          os.getenv('GITLAB_CI'))
 
+arm_mac = (
+    (sysconfig.get_platform().split("-")[0] == "macosx") and
+    (platform.machine() == "arm64")
+)
+
 requires = ["numpy"]
 setup_requires = ["wheel"]
 
-if sys.version_info.minor <= 9:
+if (sys.version_info.minor <= 9) and not arm_mac:
     setup_requires.append("numpy<1.20")
 else:
-    # Numpy 1.19.5 doesn't support Python 3.10
+    # NumPy 1.19.5 doesn't support Python 3.10
+    # NumPy 1.19.5 doesn't distribute wheel for macOS aarch64,
+    # which can safely compile with newer NumPy.
     setup_requires.append("numpy")
 
 rb_source = "cpprb/PyReplayBuffer"
@@ -33,11 +41,9 @@ extras = {
     'dev': ["coverage","cython", "scipy","twine","unittest-xml-reporting"]
 }
 
-if sys.version_info < (3,11):
-    # ray doesn't support Python 3.11+, yet.
-    # Although ray v2.3.0 wheels for Python 3.11 are hosted at PyPI,
-    # classifier metadata rejects Python 3.11+.
-    # Milestones: https://github.com/ray-project/ray/milestone/104
+if sys.version_info < (3,12):
+    # ray doesn't support Python 3.12+, yet.
+    # Issue: https://github.com/ray-project/ray/issues/40211
     extras['dev'].append("ray")
 
 if platform.system() != "Windows":

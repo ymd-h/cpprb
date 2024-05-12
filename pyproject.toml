@@ -1,2 +1,41 @@
 [build-system]
 requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+
+[tool.hatch.envs.test]
+dependencies = [
+    "coverage",
+    "cython",
+    "jax[cpu]",
+    "scipy",
+    "matplotlib",
+    "pyvirtualdisplay",
+]
+
+[tool.hatch.envs.test.scripts]
+run = "python -m unittest discover . '*.py'"
+run-cov = "coverage run -m unittest discover . '*.py'"
+cov-combine = "coverage combine"
+cov-report = "coverage report"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+gym = ["gym", "gymnasium"]
+
+[tool.hatch.envs.test.overrides]
+matrix.python.dependencies = [
+    { value = "ray", if = ["3.8", "3.9", "3.10", "3.11"] },
+]
+matrix.gym.dependencies = [
+    { value = "gym", if = ["gym"] },
+    { value = "gymnasium", if = ["gymnasium"] },
+]
+
+[tool.hatch.envs.docs]
+dependencies = [
+    "sphinx",
+    "sphinx-automodapi",
+    "sphinx_rtd_theme",
+]
