@@ -1,8 +1,0 @@
-[run]
-branch = True
-plugins = Cython.Coverage
-source = cpprb
-parallel = True
-
-[report]
-show_missing = true

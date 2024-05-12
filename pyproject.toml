@@ -15,8 +15,8 @@ dependencies = [
 ]
 
 [tool.hatch.envs.test.scripts]
-run = "python -m unittest discover . '*.py'"
-run-cov = "coverage run -m unittest discover . '*.py'"
+run = "python -m unittest discover"
+run-cov = "coverage run -m unittest discover"
 cov-combine = "coverage combine"
 cov-report = "coverage report"
 
@@ -39,3 +39,18 @@ dependencies = [
     "sphinx-automodapi",
     "sphinx_rtd_theme",
 ]
+
+
+[tool.coverage.run]
+branch = true
+plugins = "Cython.Coverage"
+parallel = true
+relative_files = true
+
+
+[tool.coverage.paths]
+source = [ "cpprb/" ]
+
+
+[tool.coverage.report]
+show_missing = true
