@@ -23,7 +23,6 @@ COPY pyproject.tom setup.py LICENSE MANIFEST.in .
 COPY cpprb cpprb/
 RUN hatch env create test
 COPY test test/
-WORKDIR /work/test
 RUN hatch run test:run-cov && \
     hatch run test:cov-combine && \
     hatch run test:cov-report

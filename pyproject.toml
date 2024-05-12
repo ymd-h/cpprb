@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.hatch.envs.test]
 dependencies = [
-    "coverage",
+    "coverage[toml]",
     "cython",
     "jax[cpu]",
     "scipy",
@@ -14,9 +14,12 @@ dependencies = [
     "pyvirtualdisplay",
 ]
 
+[tool.hatch.envs.test.env-vars]
+DEBUG_CPPRB = "1"
+
 [tool.hatch.envs.test.scripts]
-run = "python -m unittest discover"
-run-cov = "coverage run -m unittest discover"
+run = "python -m unittest discover test"
+run-cov = "coverage run -m unittest discover test"
 cov-combine = "coverage combine"
 cov-report = "coverage report"
 
@@ -43,13 +46,13 @@ dependencies = [
 
 [tool.coverage.run]
 branch = true
-plugins = "Cython.Coverage"
+plugins = ["Cython.Coverage"]
 parallel = true
 relative_files = true
-
+omit = ["test/test_*.py"]
 
 [tool.coverage.paths]
-source = [ "cpprb/" ]
+source = ["cpprb/"]
 
 
 [tool.coverage.report]
