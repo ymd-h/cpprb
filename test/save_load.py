@@ -1,4 +1,5 @@
 import os
+import tempfile
 import unittest
 
 import numpy as np
@@ -28,9 +29,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a)
 
         fname = "basic.npz"
-        rb1.save_transitions(fname)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname))
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -56,9 +58,10 @@ class TestReplayBuffer(unittest.TestCase):
         a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
         fname = "smaller.npz"
-        rb1.save_transitions(fname)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname))
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -88,9 +91,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb3.add(a=b)
 
         fname="filled.npz"
-        rb1.save_transitions(fname)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname))
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -117,9 +121,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.on_episode_end()
 
         fname="Nstep.npz"
-        rb1.save_transitions(fname)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname))
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -146,13 +151,14 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.on_episode_end()
 
         fname="Nstep_raise.npz"
-        rb1.save_transitions(fname)
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname))
+
+            with self.assertRaises(ValueError):
+                rb2.load_transitions(os.path.join(d, fname))
 
         with self.assertRaises(ValueError):
-            rb2.load_transitions(fname)
-
-        with self.assertRaises(ValueError):
-            rb3.load_transitions(v(1,fname))
+            rb3.load_transitions(v(1, fname))
 
     def test_next_of(self):
         """
@@ -173,8 +179,9 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a[:-1], next_a=a[1:])
 
         fname="next_of.npz"
-        rb1.save_transitions(fname)
-        rb2.load_transitions(fname)
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname))
+            rb2.load_transitions(os.path.join(d, fname))
         rb3.load_transitions(v(1,fname))
 
         t1 = rb1.get_all_transitions()
@@ -202,9 +209,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a[:-1], next_a=a[1:])
 
         fname="unsafe_next_of.npz"
-        rb1.save_transitions(fname, safe=False)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname), safe=False)
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -234,9 +242,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb3.add(a=b[:-1], next_a=b[1:])
 
         fname="unsafe_next_of_already.npz"
-        rb1.save_transitions(fname, safe=False)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname), safe=False)
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         self.assertEqual(rb1.get_stored_size()+len(b)-1, rb2.get_stored_size())
         self.assertEqual(rb1.get_stored_size()+len(b)-1, rb3.get_stored_size())
@@ -267,9 +276,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a[:-1], next_a=a[1:])
 
         fname="unsafe_incompatible_next_of.npz"
-        rb1.save_transitions(fname, safe=False)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname), safe=False)
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -296,9 +306,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a[:-1], next_a=a[1:])
 
         fname="fulled_unsafe_next_of.npz"
-        rb1.save_transitions(fname, safe=False)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname), safe=False)
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -328,9 +339,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a)
 
         fname="stack_compress.npz"
-        rb1.save_transitions(fname)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname))
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -358,9 +370,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a)
 
         fname="incompatible_stack_compress.npz"
-        rb1.save_transitions(fname)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(fname)
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname))
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -388,9 +401,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a)
 
         fname="incompatible_unsafe_stack_compress.npz"
-        rb1.save_transitions(fname, safe=False)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(fname)
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname), safe=False)
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -420,9 +434,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a[:-1], next_a=a[1:])
 
         fname="next_of_stack_compress.npz"
-        rb1.save_transitions(fname)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname))
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -454,9 +469,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a[:-1], next_a=a[1:])
 
         fname="unsafe_next_of_stack_compress.npz"
-        rb1.save_transitions(fname, safe=False)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname), safe=False)
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
@@ -493,9 +509,10 @@ class TestReplayBuffer(unittest.TestCase):
         rb1.add(a=a[:-1], next_a=a[1:])
 
         fname="unsafe_fulled_next_of_stack_compress.npz"
-        rb1.save_transitions(fname, safe=False)
-        rb2.load_transitions(fname)
-        rb3.load_transitions(v(1,fname))
+        with tempfile.TemporaryDirectory(prefix="cpprb-") as d:
+            rb1.save_transitions(os.path.join(d, fname), safe=False)
+            rb2.load_transitions(os.path.join(d, fname))
+        rb3.load_transitions(v(1, fname))
 
         t1 = rb1.get_all_transitions()
         t2 = rb2.get_all_transitions()
