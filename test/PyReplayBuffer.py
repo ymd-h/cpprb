@@ -319,8 +319,7 @@ class TestNstepPrioritizedReplayBuffer(TestReplayBuffer,
         for _ in range(cls.N_time):
             cls.rb.sample(cls.batch_size,cls.beta)
         end = time.perf_counter()
-        print("N-PER Sample {} time execution".format(cls.N_time))
-        print("{} s".format(end - start))
+        print("N-PER Sample {} time execution: {} s".format(cls.N_time, end - start))
 
 class TestSelectiveReplayBuffer(TestReplayBuffer):
     """=== SelectiveReplayBuffer ==="""
