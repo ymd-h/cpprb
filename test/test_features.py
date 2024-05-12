@@ -1,9 +1,22 @@
+from contextlib import contextmanager
 import os
+import tempfile
 import unittest
 
 import numpy as np
 
 from cpprb import create_buffer, ReplayBuffer, PrioritizedReplayBuffer
+
+
+@contextmanager
+def pushd(new_dir):
+    previous_dir = os.getcwd()
+    os.chdir(new_dir)
+    try:
+        yield
+    finally:
+        os.chdir(previous_dir)
+
 
 class TestFeatureHighDimensionalObs(unittest.TestCase):
     def test_RGB_screen_obs(self):
@@ -62,12 +75,15 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
 
 class TestMemmap(unittest.TestCase):
     def test_memmap(self):
-        rb = ReplayBuffer(32,{"done": {}},mmap_prefix="mmap")
+        with tempfile.TemporaryDirectory() as d:
+            with pushd(d):
+                rb = ReplayBuffer(32,{"done": {}},mmap_prefix="mmap")
 
-        for _ in range(1000):
-            rb.add(done=0.0)
+                for _ in range(1000):
+                    rb.add(done=0.0)
 
-        self.assertTrue(os.path.exists("mmap_done.dat"))
+                self.assertTrue(os.path.exists("mmap_done.dat"))
+
 
 class TestShuffleTransitions(unittest.TestCase):
     def test_shuffle_transitions(self):
