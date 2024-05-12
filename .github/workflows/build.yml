@@ -100,7 +100,7 @@ jobs:
           push: false
           build-args: |
             ON_CI=1
-          file: Dockerfile-manylinux
+          file: Dockerfile
           cache-to: type=gha,mode=max,scope=${{github.ref_name}}
           cache-from: type=gha,scope=${{github.ref_name}}
           load: true
