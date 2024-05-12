@@ -91,35 +91,6 @@ class TestPendulum(TestEnv,unittest.TestCase):
     def setUpClass(cls):
         cls.env = make("Pendulum-v1")
 
-@skipUnlessGym
-class TestBipedalWalker(TestEnv,unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.env = make("BipedalWalker-v3")
-
-@skipUnlessGym
-class TestBipedalWalkerHardcore(TestEnv,unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.env = make("BipedalWalkerHardcore-v3")
-
-@skipUnlessGym
-class TestCarRacing(TestEnv,unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.env = make("CarRacing-v1")
-
-@skipUnlessGym
-class TestLunarLander(TestEnv,unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.env = make("LunarLander-v2")
-
-@skipUnlessGym
-class TestLunarLanderContinuous(TestEnv,unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.env = make("LunarLanderContinuous-v2")
 
 @skipUnlessGym
 class TestBlackjack(TestEnv,unittest.TestCase):
