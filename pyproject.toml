@@ -20,8 +20,6 @@ DEBUG_CPPRB = "1"
 [tool.hatch.envs.test.scripts]
 run = "python -m unittest discover test"
 run-cov = "coverage run -m unittest discover test"
-cov-combine = "coverage combine"
-cov-report = "coverage report"
 
 [[tool.hatch.envs.test.matrix]]
 python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
@@ -35,6 +33,18 @@ matrix.gym.dependencies = [
     { value = "gym", if = ["gym"] },
     { value = "gymnasium", if = ["gymnasium"] },
 ]
+
+[tool.hatch.envs.cov]
+dependencies = [
+    "coverage[toml]",
+    "cython",
+]
+
+[tool.hatch.envs.cov.scripts]
+erase = "coverage erase"
+combine = "coverage combine"
+report = "coverage report"
+
 
 [tool.hatch.envs.docs]
 dependencies = [
