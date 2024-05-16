@@ -23,7 +23,7 @@ arm_mac = (
 requires = ["numpy"]
 setup_requires = ["wheel"]
 
-if (sys.version_info.minor <= 9) and not arm_mac:
+if (sys.version_info <= (3, 9)) and not arm_mac:
     setup_requires.append("numpy<1.20")
 else:
     # NumPy 1.19.5 doesn't support Python 3.10
