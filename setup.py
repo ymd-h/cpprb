@@ -9,7 +9,7 @@ from setuptools.command.build_ext import build_ext
 debug = os.getenv('DEBUG_CPPRB')
 
 # https://stackoverflow.com/a/73973555
-on_CI = (os.getenv("ON_CI") or
+on_CI = (os.getenv("ON_CI") or  # noqa: N816
          os.getenv('GITHUB_ACTIONS') or
          os.getenv('TRAVIS') or
          os.getenv('CIRCLECI') or

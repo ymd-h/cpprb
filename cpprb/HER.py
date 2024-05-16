@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict, Callable, Optional, Iterable
+from typing import Callable, Iterable
 
 import numpy as np
 
@@ -24,11 +24,11 @@ class HindsightReplayBuffer:
     """
     def __init__(self,
                  size: int,
-                 env_dict: Dict,
+                 env_dict: dict,
                  max_episode_len: int,
                  reward_func: Callable, *,
-                 goal_func: Optional[Callable] = None,
-                 goal_shape: Optional[Iterable[int]] = None,
+                 goal_func: Callable | None = None,
+                 goal_shape: Iterable[int] | None = None,
                  state: str = "obs",
                  action: str = "act",
                  next_state: str = "next_obs",
@@ -89,7 +89,7 @@ class HindsightReplayBuffer:
         self.strategy = strategy
         known_strategy = ["future", "episode", "random", "final"]
         if self.strategy not in known_strategy:
-            raise ValueError(f"Unknown Strategy: {strategy}. " +
+            raise ValueError(f"Unknown Strategy: {strategy}. "
                              f"Known Strategies: {known_strategy}")
 
         self.additional_goals = additional_goals
