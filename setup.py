@@ -125,7 +125,7 @@ if os.path.exists(README):
         long_description = f.read()
     long_description_content_type='text/markdown'
 else:
-    warnings.warn("No README.md")
+    warnings.warn("No README.md", stacklevel=2)
     long_description =  description
     long_description_content_type='text/plain'
 
