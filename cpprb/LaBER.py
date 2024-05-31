@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class LaBER:
     def __init__(self, batch_size: int, m: int = 4, *, eps: float = 1e-6):
         """
@@ -104,6 +105,7 @@ class LaBERmean(LaBER):
        https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528
        https://arxiv.org/abs/2110.01528
     """
+
     def _normalize_weight(self, p, _idx):
         return p.mean() / p[_idx]
 
@@ -137,6 +139,7 @@ class LaBERlazy(LaBER):
        https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528
        https://arxiv.org/abs/2110.01528
     """
+
     def _normalize_weight(self, p, _idx):
         return 1.0 / p[_idx]
 
@@ -171,6 +174,7 @@ class LaBERmax(LaBER):
        https://dblp.org/db/journals/corr/corr2110.html#journals/corr/abs-2110-01528
        https://arxiv.org/abs/2110.01528
     """
+
     def _normalize_weight(self, p, _idx):
         p_idx = 1.0 / p[_idx]
         return p_idx / p_idx.max()

@@ -67,3 +67,22 @@ source = ["cpprb/"]
 
 [tool.coverage.report]
 show_missing = true
+
+
+[tool.ruff]
+extend-exclude = [
+  "sphinx",
+  "example",
+  "test/test_*.py",
+]
+
+[tool.ruff.lint]
+ignore = [
+  "PT009",  # We still use standard unittest
+  "N999" ,  # This breaks API compatibility
+  "FBT001", # This breaks API compatibility
+  "FBT002", # This breaks API compatibility
+  "EM101",
+  "EM102",
+  "TRY003",
+]

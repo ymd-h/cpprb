@@ -1,48 +1,55 @@
 from __future__ import annotations
-from typing import Callable, Dict as DictType, Union
+
+from typing import TYPE_CHECKING, Callable
 
 import numpy as np
-from numpy.typing import DTypeLike
+
+if TYPE_CHECKING:
+    from numpy.typing import DTypeLike
 
 try:
-    from gymnasium.core import Env
+    if TYPE_CHECKING:
+        from gymnasium.core import Env
+
     from gymnasium.spaces import (
-        Discrete,
-        MultiDiscrete,
         Box,
-        MultiBinary,
-        Tuple,
         Dict,
+        Discrete,
+        MultiBinary,
+        MultiDiscrete,
+        Tuple,
     )
 except ImportError:
-    from gym import Env
+    if TYPE_CHECKING:
+        from gym import Env
+
     from gym.spaces import (
-        Discrete,
-        MultiDiscrete,
         Box,
-        MultiBinary,
-        Tuple,
         Dict,
+        Discrete,
+        MultiBinary,
+        MultiDiscrete,
+        Tuple,
     )
 
 
-def from_space(space, int_type: DTypeLike, float_type: DTypeLike) -> DictType:
+def from_space(space, int_type: DTypeLike, float_type: DTypeLike) -> dict:
     if isinstance(space, Discrete):
         return {"dtype": int_type, "shape": 1}
-    elif isinstance(space, MultiDiscrete):
+
+    if isinstance(space, MultiDiscrete):
         return {"dtype": int_type, "shape": space.nvec.shape}
-    elif isinstance(space, Box):
+
+    if isinstance(space, Box):
         return {"dtype": float_type, "shape": space.shape}
-    elif isinstance(space, MultiBinary):
+
+    if isinstance(space, MultiBinary):
         return {"dtype": int_type, "shape": space.n}
-    else:
-        raise NotImplementedError(f"Error: Unknown Space {space}")
+
+    raise NotImplementedError(f"Error: Unknown Space {space}")
 
 
-def create_env_dict(
-        env: Env, *,
-        int_type: DTypeLike=None,
-        float_type: DTypeLike=None) -> DictType:
+def create_env_dict(env: Env, *, int_type: DTypeLike = None, float_type: DTypeLike = None) -> dict:
     """
     Create ``env_dict`` from Open AI ``gym.space`` for ``ReplayBuffer`` constructor
 
@@ -64,16 +71,7 @@ def create_env_dict(
     int_type = int_type or np.int32
     float_type = float_type or np.float32
 
-    env_dict = {
-        "rew": {
-            "shape": 1,
-            "dtype": float_type
-        },
-        "done": {
-            "shape": 1,
-            "dtype": float_type
-        }
-    }
+    env_dict = {"rew": {"shape": 1, "dtype": float_type}, "done": {"shape": 1, "dtype": float_type}}
 
     observation_space = env.observation_space
     action_space = env.action_space
@@ -88,8 +86,7 @@ def create_env_dict(
             env_dict[f"next_{n}"] = from_space(s, int_type, float_type)
     else:
         env_dict["obs"] = from_space(observation_space, int_type, float_type)
-        env_dict["next_obs"] = from_space(observation_space, int_type,
-                                          float_type)
+        env_dict["next_obs"] = from_space(observation_space, int_type, float_type)
 
     if isinstance(action_space, Tuple):
         for i, s in enumerate(action_space.spaces):
@@ -148,8 +145,9 @@ def create_before_add_func(env: Env) -> Callable:
         return {
             **obs_func("obs", obs),
             **act_func("act", act),
-            **obs_func("next_obs", next_obs), "rew": rew,
-            "done": done
+            **obs_func("next_obs", next_obs),
+            "rew": rew,
+            "done": done,
         }
 
     return before_add
