@@ -16,8 +16,7 @@ jobs:
         with:
           name: README
           path: README.md
-  build:
-    needs: readme
+  test:
     strategy:
       matrix:
         runs-on: [ubuntu-latest, macos-11, windows-latest]
@@ -46,21 +45,45 @@ jobs:
         run: pip install ${{ matrix.gym }}
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
+  build_winmac:
+    needs: readme
+    strategy:
+      matrix:
+        runs-on: [macos-11, windows-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+        shell: bash
+      - name: pip cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip
+          restore-keys: ${{ runner.os }}-pip
       - uses: actions/download-artifact@v4
         with:
           name: README
           path: README
       - run: mv README/README.md README.md
-      - run: pip wheel . -w dist --no-deps
-        if: startsWith(runner.os, 'Linux') != true
+      - run: pip3.8 wheel . -w dist --no-deps
+      - run: pip3.9 wheel . -w dist --no-deps
+      - run: pip3.10 wheel . -w dist --no-deps
+      - run: pip3.11 wheel . -w dist --no-deps
+      - run: pip3.12 wheel . -w dist --no-deps
       - uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.runs-on }}-${{ matrix.python }}-${{ matrix.gym }}
+          name: dist-${{ matrix.runs-on }}
           path: dist
-        if: startsWith(runner.os, 'Linux') != true
       - name: Upload to PyPI
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
-        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v') && startsWith(runner.os, 'Linux') != true
+        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
         continue-on-error: true
   build_targz:
     needs: readme
