@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - run: emacs --batch README.org --eval '(org-md-export-to-markdown)'
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: README
           path: README.md
