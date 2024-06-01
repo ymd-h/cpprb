@@ -1,10 +1,12 @@
+ARG arch="x86_64"
+
 FROM iquiw/alpine-emacs AS README
 WORKDIR /work
 COPY README.org LICENSE .
 RUN emacs --batch README.org --eval '(org-md-export-to-markdown)'
 
 
-FROM quay.io/pypa/manylinux2014_x86_64 AS manylinux
+FROM quay.io/pypa/manylinux2014_${arch} AS manylinux
 WORKDIR /work
 COPY --from=README /work/README.md /work/README.md
 COPY pyproject.toml setup.py LICENSE MANIFEST.in .
