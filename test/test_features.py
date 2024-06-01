@@ -18,7 +18,7 @@ def TempDir(*args, **kwargs):
         yield
     finally:
         os.chdir(previous_dir)
-        with suppress(PermissionError):
+        with suppress(PermissionError, NotADirectoryError):
             d.cleanup()
 
 
