@@ -122,7 +122,7 @@ jobs:
     needs: readme
     strategy:
       matrix:
-        py: ['cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310', 'cp311-cp311', 'cp312-cp112']
+        py: ['cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310', 'cp311-cp311', 'cp312-cp312']
     runs-on: ubuntu-latest
     env:
       img: quay.io/pypa/manylinux2014_aarch64
