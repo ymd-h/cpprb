@@ -145,7 +145,7 @@ jobs:
           docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
       - uses: actions/upload-artifact@v4
         with:
-          name: dist-manylinux-aarch
+          name: dist-manylinux-aarch-${{ matrix.py }}
           path: dist
       - run: pip install twine
       - name: Upload to PyPI
