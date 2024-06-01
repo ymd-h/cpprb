@@ -23,11 +23,6 @@ jobs:
         runs-on: [ubuntu-latest, macos-11, windows-latest]
         python: ['3.8', '3.9', '3.10', '3.11', '3.12']
         gym: ['gym', 'gymnasium']
-        exclude:
-          - python: "3.11"
-            gym: "gym"
-          - python: "3.12"
-            gym: "gym"
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
     steps:
