@@ -56,7 +56,7 @@ jobs:
           name: README
           path: README
       - run: mv README/README.md README.md
-      - run: pip wheel -w dist
+      - run: pip wheel . -w dist
         if: startsWith(runner.os, 'Linux') != true
       - uses: actions/upload-artifact@v3
         with:
