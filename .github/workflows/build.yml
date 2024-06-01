@@ -21,10 +21,12 @@ jobs:
     strategy:
       matrix:
         runs-on: [ubuntu-latest, macos-11, windows-latest]
-        python: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
         gym: ['gym', 'gymnasium']
         exclude:
           - python: "3.11"
+            gym: "gym"
+          - python: "3.12"
             gym: "gym"
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
@@ -46,7 +48,7 @@ jobs:
       - name: Install cpprb
         run: pip install '.[all]'
       - name: Install Gym(nasium)
-        run: pip install ${{ matrix.gym }}[box2d]
+        run: pip install ${{ matrix.gym }}
       - run: python -m unittest discover . '*.py'
         working-directory: './test'
       - uses: actions/download-artifact@v3
@@ -72,7 +74,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.12'
       - uses: actions/download-artifact@v3
         with:
           name: README
@@ -120,7 +122,7 @@ jobs:
     needs: readme
     strategy:
       matrix:
-        py: ['cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310', 'cp311-cp311']
+        py: ['cp37-cp37m', 'cp38-cp38', 'cp39-cp39', 'cp310-cp310', 'cp311-cp311', 'cp312-cp112']
     runs-on: ubuntu-latest
     env:
       img: quay.io/pypa/manylinux2014_aarch64
@@ -128,7 +130,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3'
       - uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
