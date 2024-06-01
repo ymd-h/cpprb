@@ -122,12 +122,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3'
-      - uses: docker/setup-buildx-action@v2
-        if: ${{ matrix.arch }} == "x86_64"
-      - uses: docker/setup-qemu-action@v2
+      - uses: docker/setup-qemu-action@v3
         if: ${{ matrix.arch }} == "aarch64"
         with:
           platforms: arm64
+      - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v4
         with:
           push: false
