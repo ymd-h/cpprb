@@ -60,7 +60,7 @@ jobs:
         if: startsWith(runner.os, 'Linux') != true
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: dist-${{ matrix.runs-on }}-${{ matrix.python }}-${{ matrix.gym }}
           path: dist
         if: startsWith(runner.os, 'Linux') != true
       - name: Upload to PyPI
@@ -83,7 +83,7 @@ jobs:
       - run: python setup.py build_ext sdist
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: dist-sdist
           path: dist
       - run: pip install twine
       - name: Upload to PyPI
@@ -112,7 +112,7 @@ jobs:
           docker cp wheel:/dist/. dist/
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: dist-manylinux
           path: dist
       - run: pip install twine
       - name: Upload to PyPI
@@ -145,7 +145,7 @@ jobs:
           docker run -v $(pwd):/cpprb ${img} bash -c 'for WHL in /cpprb/wheelhouse/cpprb-*.whl; do auditwheel repair ${WHL} -w /cpprb/dist; done'
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: dist-manylinux-aarch
           path: dist
       - run: pip install twine
       - name: Upload to PyPI
