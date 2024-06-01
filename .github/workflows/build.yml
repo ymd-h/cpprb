@@ -56,7 +56,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+          python-version: |
+            3.8
+            3.9
+            3.10
+            3.11
+            3.12
       - name: Get pip cache dir
         id: pip-cache
         run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
