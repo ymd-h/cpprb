@@ -1,4 +1,4 @@
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 import os
 import tempfile
 import unittest
@@ -9,13 +9,17 @@ from cpprb import create_buffer, ReplayBuffer, PrioritizedReplayBuffer
 
 
 @contextmanager
-def pushd(new_dir):
+def TempDir(*args, **kwargs):
+    # `ignore_cleanup_errors` is only supported 3.10+
+    d = tempfile.TemporaryDirectory(*args, **kwargs)
     previous_dir = os.getcwd()
-    os.chdir(new_dir)
+    os.chdir(d.name)
     try:
         yield
     finally:
         os.chdir(previous_dir)
+        with suppress(PermissionError):
+            d.cleanup()
 
 
 class TestFeatureHighDimensionalObs(unittest.TestCase):
@@ -75,14 +79,13 @@ class TestFeatureHighDimensionalObs(unittest.TestCase):
 
 class TestMemmap(unittest.TestCase):
     def test_memmap(self):
-        with tempfile.TemporaryDirectory() as d:
-            with pushd(d):
-                rb = ReplayBuffer(32,{"done": {}},mmap_prefix="mmap")
+        with TempDir():
+            rb = ReplayBuffer(32,{"done": {}},mmap_prefix="mmap")
 
-                for _ in range(1000):
-                    rb.add(done=0.0)
+            for _ in range(1000):
+                rb.add(done=0.0)
 
-                self.assertTrue(os.path.exists("mmap_done.dat"))
+            self.assertTrue(os.path.exists("mmap_done.dat"))
 
 
 class TestShuffleTransitions(unittest.TestCase):
