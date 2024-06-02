@@ -570,7 +570,6 @@ class TestIssue112(unittest.TestCase):
                  np.half,
                  np.single,
                  np.double,
-                 np.float_,
                  np.longfloat,
                  np.float16,
                  np.float32,
