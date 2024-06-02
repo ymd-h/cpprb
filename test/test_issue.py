@@ -575,7 +575,6 @@ class TestIssue112(unittest.TestCase):
                  np.float32,
                  np.float64,
                  np.csingle,
-                 np.complex_,
                  np.clongfloat,
                  np.complex64,
                  np.complex128]
