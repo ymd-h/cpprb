@@ -584,7 +584,7 @@ cdef class StepChecker:
         kwargs: dict
             Added values.
         """
-        return np.reshape(np.array(kwargs[self.check_str], copy=False),
+        return np.reshape(np.asarray(kwargs[self.check_str]),
                           self.check_shape,order='A').shape[0]
 
 @cython.embedsignature(True)
