@@ -23,12 +23,20 @@ arm_mac = (sysconfig.get_platform().split("-")[0] == "macosx") and (platform.mac
 requires = ["numpy"]
 setup_requires = ["wheel"]
 
-if (sys.version_info <= (3, 9)) and not arm_mac:
+if sys.version_info >= (3, 9):
+    # NumPy 2.0 breaks ABI compatibility.
+    # To support both NumPy 1.x and 2.x, build with NumPy 2.x
+    # cf. https://numpy.org/devdocs/dev/depending_on_numpy.html#numpy-2-abi-handling
+    setup_requires.append("numpy>=2.0.0rc2")
+elif (sys.version_info < (3, 9)) and not arm_mac:
+    # NumPy 1.20 breaks ABI compatibility.
+    # To support both NumPy 1.19.x and 1.20+, build with NumPy 1.19
+    # This is necessary to work with old library which requires old NumPy.
+
+    # NumPy 1.19.5 doesn't support Python 3.10+
+    # NumPy 1.19.5 doesn't distribute wheel for macOS aarch64,
     setup_requires.append("numpy<1.20")
 else:
-    # NumPy 1.19.5 doesn't support Python 3.10
-    # NumPy 1.19.5 doesn't distribute wheel for macOS aarch64,
-    # which can safely compile with newer NumPy.
     setup_requires.append("numpy")
 
 rb_source = "cpprb/PyReplayBuffer"
@@ -80,7 +88,7 @@ use_cython = not os.path.exists(cpp_file) or (
 )
 if use_cython:
     suffix = pyx_ext
-    setup_requires.extend(["cython>=0.29"])
+    setup_requires.extend(["cython>=3.0.10"])
     compiler_directives = {"language_level": "3"}
 
     if debug:
