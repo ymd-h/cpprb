@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 
 
 [tool.hatch.envs.test]
-dev-mode = false
 dependencies = [
     "coverage[toml]",
     "cython",
@@ -19,6 +18,7 @@ dependencies = [
 DEBUG_CPPRB = "1"
 
 [tool.hatch.envs.test.scripts]
+install = "pip install -e ."
 run = "python -m unittest discover test"
 run-cov = "coverage run -m unittest discover test"
 
