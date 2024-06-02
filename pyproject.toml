@@ -18,21 +18,45 @@ dependencies = [
 DEBUG_CPPRB = "1"
 
 [tool.hatch.envs.test.scripts]
+install = "pip install -e ."
 run = "python -m unittest discover test"
 run-cov = "coverage run -m unittest discover test"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+python = ["3.9", "3.10", "3.11", "3.12"]
 gym = ["gym", "gymnasium"]
+numpy = ["numpy1", "numpy2"]
 
 [tool.hatch.envs.test.overrides]
 matrix.python.dependencies = [
-    { value = "ray", if = ["3.8", "3.9", "3.10", "3.11"] },
+    { value = "ray", if = ["3.9", "3.10", "3.11"] },
 ]
 matrix.gym.dependencies = [
     { value = "gym", if = ["gym"] },
     { value = "gymnasium", if = ["gymnasium"] },
 ]
+matrix.numpy.dependencies = [
+    { value = "numpy<2.0.0", if = ["numpy1"] },
+    { value = "numpy>=2.0.0rc2", if = ["numpy2"] },
+]
+
+[tool.hatch.envs.test-38]
+template = "test"
+python = "3.8"
+extra-dependencies = [
+    "numpy<2.0.0",
+    "ray",
+]
+
+[[tool.hatch.envs.test-38.matrix]]
+gym = ["gym", "gymnasium"]
+
+[tool.hatch.envs.test-38.overrides]
+matrix.gym.dependencies = [
+    { value = "gym", if = ["gym"] },
+    { value = "gymnasium", if = ["gymnasium"] },
+]
+
 
 [tool.hatch.envs.cov]
 dependencies = [
@@ -77,6 +101,7 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint]
+select = ["NPY201"]
 ignore = [
   "PT009",  # We still use standard unittest
   "N999" ,  # This breaks API compatibility

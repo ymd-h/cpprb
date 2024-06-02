@@ -117,8 +117,8 @@ class TestReplayBuffer(unittest.TestCase):
 
 
         for i in range(512):
-            obs = np.ones(obs_shape,dtype=np.ubyte) * i
-            rb.add(obs=obs,act=act,rew=rew,next_obs=obs+1,done=done)
+            obs = np.ones(obs_shape, dtype=np.ushort) * i
+            rb.add(obs=obs, act=act, rew=rew, next_obs=obs+1, done=done)
 
         sample = rb._encode_sample(range(buffer_size))
 

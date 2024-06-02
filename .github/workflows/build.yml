@@ -21,7 +21,11 @@ jobs:
       matrix:
         runs-on: [ubuntu-latest, macos-13, macos-14, windows-latest]
         python: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        numpy: ["numpy<2.0.0", "numpy>=2.0.0rc2"]
         gym: ['gym', 'gymnasium']
+        exclude:
+          - python: "3.8"
+            numpy: "numpy>=2.0.0rc2"
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -39,6 +43,8 @@ jobs:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip${{ matrix.python }}
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
+      - name: Install NumPy
+        run: pip install '${{ matrix.numpy }}'
       - name: Install cpprb
         run: pip install '.[all]'
       - name: Install Gym(nasium)
