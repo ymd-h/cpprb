@@ -12,7 +12,11 @@ COPY --from=README /work/README.md /work/README.md
 COPY pyproject.toml setup.py LICENSE MANIFEST.in .
 COPY cpprb cpprb/
 ARG ON_CI
-RUN ON_CI=${ON_CI} for v in $(seq 8 12); do /opt/python/cp3${v}-cp3${v}/bin/pip wheel . -w /work/wheel --no-deps; done && \
+RUN ON_CI=${ON_CI} /opt/python/cp38-cp38/bin/pip wheel . -w /work/wheel --no-deps && \
+    ON_CI=${ON_CI} /opt/python/cp39-cp39/bin/pip wheel . -w /work/wheel --no-deps && \
+    ON_CI=${ON_CI} /opt/python/cp310-cp310/bin/pip wheel . -w /work/wheel --no-deps && \
+    ON_CI=${ON_CI} /opt/python/cp311-cp311/bin/pip wheel . -w /work/wheel --no-deps && \
+    ON_CI=${ON_CI} /opt/python/cp312-cp312/bin/pip wheel . -w /work/wheel --no-deps && \
     auditwheel repair /work/wheel/cpprb-*.whl -w /dist
 
 
