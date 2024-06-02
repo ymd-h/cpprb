@@ -547,7 +547,6 @@ class TestIssue112(unittest.TestCase):
     """
     def test_dtype_check(self):
         types = [np.bool_,
-                 np.bool8,
                  np.byte,
                  np.short,
                  np.intc,
