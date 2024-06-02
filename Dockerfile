@@ -13,7 +13,7 @@ COPY pyproject.toml setup.py LICENSE MANIFEST.in .
 COPY cpprb cpprb/
 ARG ON_CI
 RUN ON_CI=${ON_CI} for v in {8..12}; \
-    do /opt/python/cp3${v}-cp3${v}*/bin/pip wheel . -w /work/wheel --no-deps; done && \
+    do /opt/python/cp3${v}-cp3${v}/bin/pip wheel . -w /work/wheel --no-deps; done && \
     auditwheel repair /work/wheel/cpprb-*.whl -w /dist
 
 
