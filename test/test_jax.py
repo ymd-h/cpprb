@@ -3,15 +3,16 @@ import unittest
 
 import numpy as np
 
-try:
-    import jax.numpy as jnp
-except ImportError:
-    pass
-
 from cpprb import ReplayBuffer
 from cpprb.PyReplayBuffer import NstepBuffer
 
-@unittest.skipIf(sys.platform.startswith("win"), "JAX doesn't support Windows")
+
+is_win = sys.platform.startswith("win")
+if not is_win:
+    import jax.numpy as jnp
+
+
+@unittest.skipIf(is_win, "JAX doesn't support Windows")
 class TestJAX(unittest.TestCase):
     def test_nstep_buffer(self):
         buffer = NstepBuffer({"obs": {}, "rew": {},  "done": {}, "next_obs": {}},

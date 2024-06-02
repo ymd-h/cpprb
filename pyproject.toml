@@ -1,2 +1,88 @@
 [build-system]
 requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+
+[tool.hatch.envs.test]
+dependencies = [
+    "coverage[toml]",
+    "cython",
+    "jax[cpu]",
+    "scipy",
+    "matplotlib",
+    "pyvirtualdisplay",
+]
+
+[tool.hatch.envs.test.env-vars]
+DEBUG_CPPRB = "1"
+
+[tool.hatch.envs.test.scripts]
+run = "python -m unittest discover test"
+run-cov = "coverage run -m unittest discover test"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+gym = ["gym", "gymnasium"]
+
+[tool.hatch.envs.test.overrides]
+matrix.python.dependencies = [
+    { value = "ray", if = ["3.8", "3.9", "3.10", "3.11"] },
+]
+matrix.gym.dependencies = [
+    { value = "gym", if = ["gym"] },
+    { value = "gymnasium", if = ["gymnasium"] },
+]
+
+[tool.hatch.envs.cov]
+dependencies = [
+    "coverage[toml]",
+    "cython",
+]
+
+[tool.hatch.envs.cov.scripts]
+erase = "coverage erase"
+combine = "coverage combine"
+report = "coverage report"
+
+
+[tool.hatch.envs.docs]
+dependencies = [
+    "sphinx",
+    "sphinx-automodapi",
+    "sphinx_rtd_theme",
+]
+
+
+[tool.coverage.run]
+branch = true
+plugins = ["Cython.Coverage"]
+parallel = true
+relative_files = true
+omit = ["test/test_*.py"]
+
+[tool.coverage.paths]
+source = ["cpprb/"]
+
+
+[tool.coverage.report]
+show_missing = true
+
+
+[tool.ruff]
+extend-exclude = [
+  "sphinx",
+  "example",
+  "test/test_*.py",
+]
+
+[tool.ruff.lint]
+ignore = [
+  "PT009",  # We still use standard unittest
+  "N999" ,  # This breaks API compatibility
+  "FBT001", # This breaks API compatibility
+  "FBT002", # This breaks API compatibility
+  "EM101",
+  "EM102",
+  "TRY003",
+]
