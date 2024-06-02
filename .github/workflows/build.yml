@@ -44,7 +44,7 @@ jobs:
           key: ${{ runner.os }}-pip${{ matrix.python }}
           restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
       - name: Install NumPy
-        run: pip install ${{ matrix.numpy }}
+        run: pip install '${{ matrix.numpy }}'
       - name: Install cpprb
         run: pip install '.[all]'
       - name: Install Gym(nasium)
