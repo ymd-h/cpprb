@@ -2098,7 +2098,7 @@ cdef class MPReplayBuffer:
         self._lock_explorer()
 
         for name, b in self.buffer.items():
-            b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+            b[add_idx] = np.reshape(np.array(kwargs[name], ndmin=2),
                                     self.env_dict[name]["add_shape"])
 
         self._unlock_explorer()
@@ -2454,8 +2454,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         cdef const float [:] ps
 
         if priorities is not None:
-            priorities = np.ravel(np.array(priorities,copy=False,
-                                           ndmin=1,dtype=np.single))
+            priorities = np.ravel(np.array(priorities, ndmin=1, dtype=np.single))
             if N != priorities.shape[0]:
                 raise ValueError("`priorities` shape is incompatible")
 
@@ -2485,7 +2484,7 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self._unlock_explorer_per()
 
         for name, b in self.buffer.items():
-            b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+            b[add_idx] = np.reshape(np.array(kwargs[name], ndmin=2),
                                     self.env_dict[name]["add_shape"])
 
         self._unlock_explorer()
