@@ -22,6 +22,9 @@ from .VectorWrapper import (VectorWrapper,
                             VectorDouble,PointerDouble,VectorFloat)
 
 
+COPY_ONLY_NECESSARY: bool | None = False if int(np.version.version[0]) < 2 else None
+
+
 def default_logger(level=INFO):
     """
     Create default logger for cpprb
@@ -43,14 +46,17 @@ def default_logger(level=INFO):
     return logger
 
 cdef double [::1] Cdouble(array):
-    return np.ravel(np.array(array,copy=False,dtype=np.double,ndmin=1,order='C'))
+    return np.ravel(np.array(array, copy=COPY_ONLY_NECESSARY,
+                             dtype=np.double, ndmin=1, order='C'))
 
 cdef inline const size_t [::1] Csize(array):
-    return np.ravel(np.array(array,copy=False,dtype=np.uint64,ndmin=1,order='C'))
+    return np.ravel(np.array(array, copy=COPY_ONLY_NECESSARY,
+                             dtype=np.uint64, ndmin=1, order='C'))
 
 @cython.embedsignature(True)
 cdef inline const float [::1] Cfloat(array):
-    return np.ravel(np.array(array,copy=False,dtype=np.single,ndmin=1,order='C'))
+    return np.ravel(np.array(array, copy=COPY_ONLY_NECESSARY,
+                             dtype=np.single, ndmin=1, order='C'))
 
 
 def unwrap(d):
@@ -444,7 +450,7 @@ cdef class SharedBuffer:
                 else:
                     raise
 
-            len = int(np.array(shape,copy=False,dtype="int").prod())
+            len = int(np.array(shape, copy=COPY_ONLY_NECESSARY, dtype="int").prod())
             self.data = RawArray(ctx,ctype,len,self.backend)
         else:
             self.data = data
@@ -552,7 +558,8 @@ def find_array(dict,key):
         If `dict` has `key`, returns the values with numpy.ndarray with the minimum
         dimension of 1. Otherwise, returns `None`.
     """
-    return None if not key in dict else np.array(dict[key],ndmin=1,copy=False)
+    return None if not key in dict else np.array(dict[key], ndmin=1,
+                                                 copy=COPY_ONLY_NECESSARY)
 
 @cython.embedsignature(True)
 cdef class StepChecker:
@@ -614,7 +621,7 @@ cdef class NstepBuffer:
         self.default_dtype = default_dtype or np.single
 
         if next_of is not None: # next_of is not support yet.
-            for name in np.array(next_of,copy=False,ndmin=1):
+            for name in np.array(next_of, copy=COPY_ONLY_NECESSARY, ndmin=1):
                 self.env_dict[f"next_{name}"] = self.env_dict[name]
 
         self.Nstep_size = Nstep["size"]
@@ -784,7 +791,7 @@ cdef class NstepBuffer:
 
     cdef _extract(self,kwargs,name):
         _dict = self.env_dict[name]
-        return np.reshape(np.array(kwargs[name],copy=False,ndmin=2,
+        return np.reshape(np.array(kwargs[name], copy=COPY_ONLY_NECESSARY, ndmin=2,
                                    dtype=_dict.get("dtype",self.default_dtype)),
                           _dict["add_shape"])
 
@@ -963,13 +970,13 @@ cdef class ReplayBuffer:
         self.episode_len = 0
 
         self.compress_any = stack_compress
-        self.stack_compress = np.array(stack_compress,ndmin=1,copy=False)
+        self.stack_compress = np.array(stack_compress, ndmin=1, copy=COPY_ONLY_NECESSARY)
 
         self.default_dtype = default_dtype or np.single
 
         self.has_next_of = next_of
-        self.next_of = np.array(next_of,
-                                ndmin=1,copy=False) if self.has_next_of else None
+        self.next_of = np.array(next_of, ndmin=1,
+                                copy=COPY_ONLY_NECESSARY) if self.has_next_of else None
         self.next_ = {}
         self.cache = {} if (self.has_next_of or self.compress_any) else None
 
@@ -1001,7 +1008,7 @@ cdef class ReplayBuffer:
             for name in self.stack_compress:
                 self.cache_size = max(self.cache_size,
                                       np.array(self.env_dict[name]["shape"],
-                                               ndmin=1,copy=False)[-1] -1)
+                                               ndmin=1, copy=COPY_ONLY_NECESSARY)[-1] -1)
 
         if self.has_next_of:
             self.cache_size += 1
@@ -1164,13 +1171,14 @@ cdef class ReplayBuffer:
                 self.add_cache_i(key, index)
 
         for name, b in self.buffer.items():
-            b[add_idx] = np.reshape(np.array(kwargs[name],copy=False,ndmin=2),
+            b[add_idx] = np.reshape(np.array(kwargs[name],
+                                             copy=COPY_ONLY_NECESSARY, ndmin=2),
                                     self.env_dict[name]["add_shape"])
 
         if self.has_next_of:
             for name in self.next_of:
                 self.next_[name][...]=np.reshape(np.array(kwargs[f"next_{name}"],
-                                                          copy=False,
+                                                          copy=COPY_ONLY_NECESSARY,
                                                           ndmin=2),
                                                  self.env_dict[name]["add_shape"])[-1]
 
@@ -1324,7 +1332,7 @@ cdef class ReplayBuffer:
         cdef cache_idx
         cdef bool use_cache
 
-        idx = np.array(idx,copy=False,ndmin=1)
+        idx = np.array(idx,copy=COPY_ONLY_NECESSARY, ndmin=1)
         for name, b in self.buffer.items():
             sample[name] = b[idx]
 
@@ -1582,7 +1590,7 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         self.check_for_update = check_for_update
         if self.check_for_update:
             self.unchange_since_sample = np.ones(np.array(size,
-                                                          copy=False,
+                                                          copy=COPY_ONLY_NECESSARY,
                                                           dtype='int'),
                                                  dtype='bool')
 
@@ -1659,8 +1667,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         """
         cdef size_t N = self.size_check.step_size(kwargs)
         if priorities is not None:
-            priorities = np.ravel(np.array(priorities,copy=False,
-                                           ndmin=1,dtype=np.single))
+            priorities = np.ravel(np.array(priorities, copy=COPY_ONLY_NECESSARY,
+                                           ndmin=1, dtype=np.single))
             if N != priorities.shape[0]:
                 raise ValueError("`priorities` shape is incompatible")
 
@@ -1683,7 +1691,8 @@ cdef class PrioritizedReplayBuffer(ReplayBuffer):
         cdef const float [:] ps
 
         if priorities is not None:
-            ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
+            ps = np.ravel(np.array(priorities, copy=COPY_ONLY_NECESSARY,
+                                   ndmin=1, dtype=np.single))
             self.per.set_priorities(index,&ps[0],N,self.get_buffer_size())
         else:
             self.per.set_priorities(index,N,self.get_buffer_size())
@@ -2098,7 +2107,8 @@ cdef class MPReplayBuffer:
         self._lock_explorer()
 
         for name, b in self.buffer.items():
-            b[add_idx] = np.reshape(np.array(kwargs[name], ndmin=2),
+            b[add_idx] = np.reshape(np.array(kwargs[name], ndmin=2,
+                                             copy=COPY_ONLY_NECESSARY),
                                     self.env_dict[name]["add_shape"])
 
         self._unlock_explorer()
@@ -2132,7 +2142,7 @@ cdef class MPReplayBuffer:
     def _encode_sample(self,idx):
         cdef sample = {}
 
-        idx = np.array(idx,copy=False,ndmin=1)
+        idx = np.array(idx, copy=COPY_ONLY_NECESSARY, ndmin=1)
 
         for name, b in self.buffer.items():
             sample[name] = b[idx]
@@ -2454,7 +2464,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         cdef const float [:] ps
 
         if priorities is not None:
-            priorities = np.ravel(np.array(priorities, ndmin=1, dtype=np.single))
+            priorities = np.ravel(np.array(priorities, ndmin=1, dtype=np.single,
+                                           copy=COPY_ONLY_NECESSARY))
             if N != priorities.shape[0]:
                 raise ValueError("`priorities` shape is incompatible")
 
@@ -2469,7 +2480,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self._lock_explorer_per()
 
         if priorities is not None:
-            ps = np.ravel(np.array(priorities,copy=False,ndmin=1,dtype=np.single))
+            ps = np.ravel(np.array(priorities, copy=COPY_ONLY_NECESSARY,
+                                   ndmin=1, dtype=np.single))
             self.per.ptr().set_priorities(index,&ps[0],N,self.get_buffer_size())
         else:
             self.per.ptr().set_priorities(index,N,self.get_buffer_size())
@@ -2484,7 +2496,8 @@ cdef class MPPrioritizedReplayBuffer(MPReplayBuffer):
         self._unlock_explorer_per()
 
         for name, b in self.buffer.items():
-            b[add_idx] = np.reshape(np.array(kwargs[name], ndmin=2),
+            b[add_idx] = np.reshape(np.array(kwargs[name], ndmin=2,
+                                             copy=COPY_ONLY_NECESSARY),
                                     self.env_dict[name]["add_shape"])
 
         self._unlock_explorer()
