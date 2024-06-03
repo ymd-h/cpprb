@@ -25,6 +25,11 @@
 :EXPORT_HUGO_SECTION: changelog
 :END:
 ** Unreleased
+** [[https://gitlab.com/ymd_h/cpprb/-/tree/v11.0.0][v11.0.0]]
+- Improve: Switch package system (except for build backend) to [[https://hatch.pypa.io/][Hatch]]
+- Improve: Refactoring internal code base with [[https://docs.astral.sh/ruff/][Ruff]]
+- Improve: Support NumPy 2.x
+- Break: PyPI wheel is probably incompatible with NumPy 1.19 and older
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.7.2][v10.7.2]]
 - Fix: IndexError when specifying ~stack_compress~ and ~next_of~ simultanaously ([[https://github.com/ymd-h/cpprb/discussions/28][Discussions #28]])
 ** [[https://gitlab.com/ymd_h/cpprb/-/tree/v10.7.1][v10.7.1]]
