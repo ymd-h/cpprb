@@ -33,16 +33,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Get pip cache dir
-        id: pip-cache
-        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
-        shell: bash
-      - name: pip cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip${{ matrix.python }}
-          restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
+          cache: 'pip'
       - name: Install NumPy
         run: pip install '${{ matrix.numpy }}'
       - name: Install cpprb
@@ -68,16 +59,7 @@ jobs:
             3.10
             3.11
             3.12
-      - name: Get pip cache dir
-        id: pip-cache
-        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
-        shell: bash
-      - name: pip cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip
-          restore-keys: ${{ runner.os }}-pip
+          cache: 'pip'
       - uses: actions/download-artifact@v4
         with:
           name: README
@@ -104,6 +86,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.8'
+          cache: 'pip'
       - uses: actions/download-artifact@v4
         with:
           name: README
@@ -128,6 +111,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3'
+          cache: 'pip'
       - uses: docker/setup-qemu-action@v3
         if: ${{ matrix.arch }} == "aarch64"
         with:
