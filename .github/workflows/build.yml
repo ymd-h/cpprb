@@ -40,8 +40,37 @@ jobs:
         run: pip install '.[all]'
       - name: Install Gym(nasium)
         run: pip install ${{ matrix.gym }}
-      - run: python -m unittest discover . '*.py'
-        working-directory: './test'
+      - name: Run Test
+        run: coverage run -m unittest discover test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python }}-${{ matrix.numpy }}-${{ matrix.gym }}
+          path: '.coverage.*'
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3'
+          cache: 'pip'
+      - uses: actions/download-artifact@v4
+        with:
+          path: '.'
+          pattern: 'coverage-*'
+          merge-multiple: true
+      - run: |
+          pip install 'coverage[toml]'
+          coverage combine
+          echo '## Test Coverage\n```' >> $GITHUB_STEP_SUMMARY
+          coverage report >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          coverage html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: htmlcov/index.html
   build_winmac:
     needs: readme
     strategy:
