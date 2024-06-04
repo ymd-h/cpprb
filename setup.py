@@ -46,7 +46,7 @@ pyx_ext = ".pyx"
 extras = {
     "gym": ["matplotlib", "pyvirtualdisplay"],
     "api": ["sphinx", "sphinx_rtd_theme", "sphinx-automodapi"],
-    "dev": ["coverage", "cython", "scipy", "twine", "unittest-xml-reporting"],
+    "dev": ["coverage[toml]", "cython", "scipy", "twine", "unittest-xml-reporting"],
 }
 
 if sys.version_info < (3, 12):
