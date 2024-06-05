@@ -25,7 +25,7 @@ WORKDIR /work
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install hatch
 COPY pyproject.tom setup.py LICENSE MANIFEST.in .
-COPY cpprb cpprb/
+COPY cpprb src/cpprb/
 RUN hatch env create test
 COPY test test/
 RUN hatch run test:run-cov && \
