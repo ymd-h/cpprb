@@ -35,11 +35,11 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: 'pip'
       - name: Install NumPy
-        run: pip install '${{ matrix.numpy }}'
+        run: pip --disable-pip-version-check install '${{ matrix.numpy }}'
       - name: Install cpprb
-        run: pip install '.[all]'
+        run: pip --disable-pip-version-check install '.[all]'
       - name: Install Gym(nasium)
-        run: pip install ${{ matrix.gym }}
+        run: pip --disable-pip-version-check install ${{ matrix.gym }}
       - name: Run Test
         run: coverage run -m unittest discover test
       - uses: actions/upload-artifact@v4
@@ -61,7 +61,7 @@ jobs:
           pattern: 'coverage-*'
           merge-multiple: true
       - run: |
-          pip install 'coverage[toml]'
+          pip --disable-pip-version-check install 'coverage[toml]'
           coverage combine
           echo '## Test Coverage\n```' >> $GITHUB_STEP_SUMMARY
           coverage report >> $GITHUB_STEP_SUMMARY
@@ -126,7 +126,7 @@ jobs:
         with:
           name: dist-sdist
           path: dist
-      - run: pip install twine
+      - run: pip --disable-pip-version-check install twine
       - name: Upload to PyPI
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*tar.gz
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
@@ -164,7 +164,7 @@ jobs:
         with:
           name: dist-manylinux-${{ matrix.arch }}
           path: dist
-      - run: pip install twine
+      - run: pip --disable-pip-version-check install twine
       - name: Upload to PyPI
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
