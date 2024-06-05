@@ -20,57 +20,21 @@ jobs:
     strategy:
       matrix:
         runs-on: [ubuntu-latest, macos-13, macos-14, windows-latest]
-        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        numpy: ["numpy<2.0.0", "numpy>=2.0.0rc2"]
-        gym: ['gym', 'gymnasium']
-        exclude:
-          - python: "3.8"
-            numpy: "numpy>=2.0.0rc2"
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-          cache: 'pip'
-      - name: Install NumPy
-        run: pip --disable-pip-version-check install '${{ matrix.numpy }}'
-      - name: Install cpprb
-        run: pip --disable-pip-version-check install '.[all]'
-      - name: Install Gym(nasium)
-        run: pip --disable-pip-version-check install ${{ matrix.gym }}
-      - name: Run Test
-        run: coverage run -m unittest discover test
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ matrix.runs-on }}-${{ matrix.python }}-${{ contains(matrix.numpy, '>') }}-${{ matrix.gym }}
-          path: '.coverage.*'
-  coverage:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3'
-          cache: 'pip'
-      - uses: actions/download-artifact@v4
-        with:
-          path: '.'
-          pattern: 'coverage-*'
-          merge-multiple: true
+      - name: Install Hatch
+        uses: pypa/hatch@install
       - run: |
-          pip --disable-pip-version-check install 'coverage[toml]' cython
-          coverage combine
-          echo '## Test Coverage\n```' >> $GITHUB_STEP_SUMMARY
-          coverage report >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          coverage html
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: htmlcov/index.html
+          hatch run test:install
+          hatch run test-38:install
+          hatch run test:run-cov
+          hatch run test-38:run-cov
+          hatch run cov:combine
+          echo '## Test Coverage on ${{ matrix.runs-on }}\n```' >> $GITHUB_STEP_SUMMARY
+          hatch -q run cov:report >> $GITHUB_STEP_SUMMARY
+          echo '```\n' >> $GITHUB_STEP_SUMMARY
   build_winmac:
     needs: readme
     strategy:
