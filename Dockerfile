@@ -10,7 +10,7 @@ FROM quay.io/pypa/manylinux2014_${arch} AS manylinux
 WORKDIR /work
 COPY --from=README /work/README.md /work/README.md
 COPY pyproject.toml setup.py LICENSE MANIFEST.in .
-COPY cpprb src/cpprb/
+COPY src src/
 ARG ON_CI
 RUN ON_CI=${ON_CI} /opt/python/cp38-cp38/bin/pip wheel . -w /work/wheel --no-deps && \
     ON_CI=${ON_CI} /opt/python/cp39-cp39/bin/pip wheel . -w /work/wheel --no-deps && \
@@ -25,7 +25,7 @@ WORKDIR /work
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install hatch
 COPY pyproject.tom setup.py LICENSE MANIFEST.in .
-COPY cpprb src/cpprb/
+COPY src src/
 RUN hatch env create test
 COPY test test/
 RUN hatch run test:run-cov && \
