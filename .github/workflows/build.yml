@@ -44,7 +44,7 @@ jobs:
         run: coverage run -m unittest discover test
       - uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.python }}-${{ matrix.numpy }}-${{ matrix.gym }}
+          name: coverage-${{ matrix.python }}-${{ contains(matrix.numpy, '>') }}-${{ matrix.gym }}
           path: '.coverage.*'
   coverage:
     needs: test
