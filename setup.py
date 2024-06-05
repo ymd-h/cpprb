@@ -39,7 +39,7 @@ elif (sys.version_info < (3, 9)) and not arm_mac:
 else:
     setup_requires.append("numpy")
 
-rb_source = "cpprb/PyReplayBuffer"
+rb_source = "src/cpprb/PyReplayBuffer"
 cpp_ext = ".cpp"
 pyx_ext = ".pyx"
 
@@ -100,7 +100,7 @@ ext = [["cpprb", "PyReplayBuffer"], ["cpprb", "VectorWrapper"]]
 ext_modules = [
     Extension(
         ".".join(e),
-        sources=["/".join(e) + suffix],
+        sources=["src/" + "/".join(e) + suffix],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         language="c++",
@@ -160,6 +160,7 @@ setup(
         "Change Log": "https://ymd_h.gitlab.io/cpprb/changelog/",
         "Bug Report & QA": "https://github.com/ymd-h/cpprb/discussions",
     },
+    package_dir={"": "src"},
     ext_modules=ext_modules,
     include_dirs=["cpprb"],
     packages=["cpprb"],

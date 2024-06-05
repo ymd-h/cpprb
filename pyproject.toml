@@ -86,7 +86,7 @@ relative_files = true
 omit = ["test/test_*.py"]
 
 [tool.coverage.paths]
-source = ["cpprb/"]
+source = ["src/cpprb/"]
 
 
 [tool.coverage.report]
