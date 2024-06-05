@@ -10,7 +10,7 @@ FROM quay.io/pypa/manylinux2014_${arch} AS manylinux
 WORKDIR /work
 COPY --from=README /work/README.md /work/README.md
 COPY pyproject.toml setup.py LICENSE MANIFEST.in .
-COPY cpprb cpprb/
+COPY cpprb src/cpprb/
 ARG ON_CI
 RUN ON_CI=${ON_CI} /opt/python/cp38-cp38/bin/pip wheel . -w /work/wheel --no-deps && \
     ON_CI=${ON_CI} /opt/python/cp39-cp39/bin/pip wheel . -w /work/wheel --no-deps && \
