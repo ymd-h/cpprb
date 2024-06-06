@@ -36,6 +36,7 @@ jobs:
         with:
           path: ./hatch
           key: hatch-${{ matrix.runs-on }}
+          save-always: true
       - run: |
           hatch run test:install
           hatch run test-38:install
