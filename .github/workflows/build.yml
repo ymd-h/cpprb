@@ -24,17 +24,28 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
+      - name: Set Hatch Environment
+        run: |
+          mkdir -p hatch/data
+          mkdir -p hatch/cache
+          echo 'HATCH_DATA_DIR=./hatch/data' >> $GITHUB_ENV
+          echo 'HATCH_CACHE_DIR=./hatch/cache' >> $GITHUB_ENV
       - name: Install Hatch
         uses: pypa/hatch@install
+      - uses: actions/cache@v4
+        with:
+          path: ./hatch
+          key: hatch-${{ matrix.runs-on }}
       - run: |
           hatch run test:install
           hatch run test-38:install
           hatch run test:run-cov
           hatch run test-38:run-cov
           hatch run cov:combine
-          echo '## Test Coverage on ${{ matrix.runs-on }}\n```' >> $GITHUB_STEP_SUMMARY
+          echo '## Test Coverage on ${{ matrix.runs-on }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           hatch -q run cov:report >> $GITHUB_STEP_SUMMARY
-          echo '```\n' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
   build_winmac:
     needs: readme
     strategy:
