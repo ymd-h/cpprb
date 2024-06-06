@@ -30,6 +30,7 @@ jobs:
           mkdir -p hatch/cache
           echo 'HATCH_DATA_DIR=./hatch/data' >> $GITHUB_ENV
           echo 'HATCH_CACHE_DIR=./hatch/cache' >> $GITHUB_ENV
+        shell: bash
       - name: Install Hatch
         uses: pypa/hatch@install
       - uses: actions/cache@v4
@@ -37,7 +38,8 @@ jobs:
           path: ./hatch
           key: hatch-${{ matrix.runs-on }}
           save-always: true
-      - run: |
+      - name: Run Test
+        run: |
           hatch run test:install
           hatch run test-38:install
           hatch run test:run-cov
@@ -47,6 +49,7 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           hatch -q run cov:report >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+        shell: bash
   build_winmac:
     needs: readme
     strategy:
