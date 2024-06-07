@@ -24,20 +24,8 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set Hatch Environment
-        run: |
-          mkdir -p hatch/data
-          mkdir -p hatch/cache
-          echo 'HATCH_DATA_DIR=./hatch/data' >> $GITHUB_ENV
-          echo 'HATCH_CACHE_DIR=./hatch/cache' >> $GITHUB_ENV
-        shell: bash
       - name: Install Hatch
         uses: pypa/hatch@install
-      - uses: actions/cache@v4
-        with:
-          path: ./hatch
-          key: hatch-${{ matrix.runs-on }}
-          save-always: true
       - name: Run Test
         run: |
           hatch run test:install
