@@ -84,9 +84,13 @@ plugins = ["Cython.Coverage"]
 parallel = true
 relative_files = true
 omit = ["test/test_*.py"]
+source = ["cpprb"]
 
 [tool.coverage.paths]
-source = ["src/cpprb/"]
+source = [
+    "src/cpprb",
+    "*/site-packages/cpprb",
+]
 
 
 [tool.coverage.report]
