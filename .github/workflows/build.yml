@@ -71,9 +71,10 @@ jobs:
           name: dist-${{ matrix.runs-on }}
           path: dist
       - name: Upload to PyPI
-        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        run: |
+          pip install twine
+          python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
-        continue-on-error: true
   build_targz:
     needs: readme
     runs-on: ubuntu-latest
