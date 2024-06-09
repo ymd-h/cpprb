@@ -24,7 +24,7 @@ cpprb_build:
   needs:
     - README_MD
   script:
-    - pip wheel -w dist --no-deps
+    - pip wheel . -w dist --no-deps
   artifacts:
     paths:
       - dist/*.whl
