@@ -38,17 +38,22 @@ docker_build:
 
 
 cpprb_build:
-  <<: *setup
+  image: python:3.12
   stage: build
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip"
   script:
-    - DEBUG_CPPRB=1 python3 setup.py build_ext --inplace --force
-    - DEBUG_CPPRB=1 python3 setup.py bdist_wheel
+    - pip wheel -w dist --no-deps
   artifacts:
     paths:
-      - cpprb/*.html
-      - cpprb/*.cpp
-      - cpprb/*.so
       - dist/*.whl
+  cache:
+    - key:
+        files:
+          - pyproject.toml
+          - setup.py
+      paths:
+        - "$PIP_CACHE_DIR"
 
 emacs:
   image: iquiw/alpine-emacs
