@@ -7,6 +7,7 @@ variables: &global-variables
 
 stages:
   - build_image
+  - export_org
   - build
   - page_build
   - page_deploy
@@ -57,7 +58,7 @@ cpprb_build:
 
 emacs:
   image: iquiw/alpine-emacs
-  stage: build
+  stage: export_org
   script:
     - emacs --batch README.org -l site/init.el --eval '(setq debug-on-error t)' --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
     - emacs --batch CHANGELOG.org -l site/init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
@@ -71,7 +72,7 @@ emacs:
 
 README_MD:
   image: iquiw/alpine-emacs
-  stage: build
+  stage: export_org
   script:
     - emacs --batch README.org --eval '(org-md-export-to-markdown)'
   artifacts:
