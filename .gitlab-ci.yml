@@ -41,6 +41,8 @@ docker_build:
 cpprb_build:
   image: python:3.12
   stage: build
+  needs:
+    - README_MD
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip"
   script:
