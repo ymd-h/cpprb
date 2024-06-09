@@ -6,10 +6,8 @@ dist
 *.c
 *.html
 *.md
-cpprb/PyReplayBuffer.cpp
-cpprb/PySegmentTree.cpp
-cpprb/VectorWrapper.cpp
-cpprb/experimental/*.cpp
+src/cpprb/PyReplayBuffer.cpp
+src/cpprb/VectorWrapper.cpp
 test/ReplayBuffer
 test/SegmentTree
 public

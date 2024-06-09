@@ -20,37 +20,24 @@ jobs:
     strategy:
       matrix:
         runs-on: [ubuntu-latest, macos-13, macos-14, windows-latest]
-        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        numpy: ["numpy<2.0.0", "numpy>=2.0.0rc2"]
-        gym: ['gym', 'gymnasium']
-        exclude:
-          - python: "3.8"
-            numpy: "numpy>=2.0.0rc2"
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Get pip cache dir
-        id: pip-cache
-        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+      - name: Install Hatch
+        uses: pypa/hatch@install
+      - name: Run Test
+        run: |
+          hatch run test:install
+          hatch run test-38:install
+          hatch run test:run-cov
+          hatch run test-38:run-cov
+          hatch run cov:combine
+          echo '## Test Coverage on ${{ matrix.runs-on }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          hatch -q run cov:report >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
         shell: bash
-      - name: pip cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip${{ matrix.python }}
-          restore-keys: ${{ runner.os }}-pip${{ matrix.python }}
-      - name: Install NumPy
-        run: pip install '${{ matrix.numpy }}'
-      - name: Install cpprb
-        run: pip install '.[all]'
-      - name: Install Gym(nasium)
-        run: pip install ${{ matrix.gym }}
-      - run: python -m unittest discover . '*.py'
-        working-directory: './test'
   build_winmac:
     needs: readme
     strategy:
@@ -68,16 +55,7 @@ jobs:
             3.10
             3.11
             3.12
-      - name: Get pip cache dir
-        id: pip-cache
-        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
-        shell: bash
-      - name: pip cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip
-          restore-keys: ${{ runner.os }}-pip
+          cache: 'pip'
       - uses: actions/download-artifact@v4
         with:
           name: README
@@ -93,9 +71,10 @@ jobs:
           name: dist-${{ matrix.runs-on }}
           path: dist
       - name: Upload to PyPI
-        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
+        run: |
+          pip install twine
+          python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
-        continue-on-error: true
   build_targz:
     needs: readme
     runs-on: ubuntu-latest
@@ -104,6 +83,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.8'
+          cache: 'pip'
       - uses: actions/download-artifact@v4
         with:
           name: README
@@ -114,7 +94,7 @@ jobs:
         with:
           name: dist-sdist
           path: dist
-      - run: pip install twine
+      - run: pip --disable-pip-version-check install twine
       - name: Upload to PyPI
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*tar.gz
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
@@ -128,6 +108,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3'
+          cache: 'pip'
       - uses: docker/setup-qemu-action@v3
         if: ${{ matrix.arch }} == "aarch64"
         with:
@@ -151,7 +132,7 @@ jobs:
         with:
           name: dist-manylinux-${{ matrix.arch }}
           path: dist
-      - run: pip install twine
+      - run: pip --disable-pip-version-check install twine
       - name: Upload to PyPI
         run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
         if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')

@@ -18,7 +18,7 @@ dependencies = [
 DEBUG_CPPRB = "1"
 
 [tool.hatch.envs.test.scripts]
-install = "pip install -e ."
+install = "pip install . {args}"
 run = "python -m unittest discover test"
 run-cov = "coverage run -m unittest discover test"
 
@@ -84,9 +84,13 @@ plugins = ["Cython.Coverage"]
 parallel = true
 relative_files = true
 omit = ["test/test_*.py"]
+source = ["cpprb"]
 
 [tool.coverage.paths]
-source = ["cpprb/"]
+source = [
+    "src/cpprb",
+    "*/site-packages/cpprb",
+]
 
 
 [tool.coverage.report]
