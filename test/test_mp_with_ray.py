@@ -7,7 +7,7 @@ from cpprb import MPReplayBuffer, MPPrioritizedReplayBuffer
 import numpy as np
 
 
-@unittest.skipUnless((3, 8) <= sys.version_info < (3, 12),
+@unittest.skipUnless((3, 8) <= sys.version_info <= (3, 12),
                      "Support Ray only for Python 3.8-3.11")
 class TestRay(unittest.TestCase):
     @classmethod

@@ -29,7 +29,7 @@ numpy = ["numpy1", "numpy2"]
 
 [tool.hatch.envs.test.overrides]
 matrix.python.dependencies = [
-    { value = "ray", if = ["3.9", "3.10", "3.11"] },
+    { value = "ray", if = ["3.9", "3.10", "3.11", "3.12"] },
 ]
 matrix.gym.dependencies = [
     { value = "gym", if = ["gym"] },
