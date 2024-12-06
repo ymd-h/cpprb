@@ -31,6 +31,8 @@ jobs:
           path: README
       - run: mv README/README.md README.md
       - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
       - run: uvx cibuildwheel
       - uses: actions/upload-artifact@v4
         with:
@@ -47,6 +49,8 @@ jobs:
           path: README
       - run: mv README/README.md README.md
       - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
       - run: uvx build --sdist
       - uses: actions/upload-artifact@v4
         with:
