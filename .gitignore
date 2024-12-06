@@ -1,6 +1,7 @@
 .coverage*
 build
 dist
+wheelhouse
 *egg-info
 *.so
 *.c

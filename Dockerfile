@@ -20,19 +20,6 @@ RUN ON_CI=${ON_CI} /opt/python/cp38-cp38/bin/pip wheel . -w /work/wheel --no-dep
     auditwheel repair /work/wheel/cpprb-*.whl -w /dist
 
 
-FROM python:latest AS test
-WORKDIR /work
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install hatch
-COPY pyproject.tom setup.py LICENSE MANIFEST.in .
-COPY src src/
-RUN hatch env create test
-COPY test test/
-RUN hatch run test:run-cov && \
-    hatch run cov:combine && \
-    hatch run cov:report
-
-
 FROM scratch AS results
 COPY --from=manylinux /dist/cpprb-* /dist/
 CMD [""]

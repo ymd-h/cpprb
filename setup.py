@@ -27,7 +27,7 @@ if sys.version_info >= (3, 9):
     # NumPy 2.0 breaks ABI compatibility.
     # To support both NumPy 1.x and 2.x, build with NumPy 2.x
     # cf. https://numpy.org/devdocs/dev/depending_on_numpy.html#numpy-2-abi-handling
-    setup_requires.append("numpy>=2.0.0rc2")
+    setup_requires.append("numpy>=2.0.0")
 elif (sys.version_info < (3, 9)) and not arm_mac:
     # NumPy 1.20 breaks ABI compatibility.
     # To support both NumPy 1.19.x and 1.20+, build with NumPy 1.19
@@ -86,7 +86,7 @@ use_cython = os.path.exists(pyx_file)
 
 if use_cython:
     suffix = pyx_ext
-    setup_requires.extend(["cython>=3.0.10"])
+    setup_requires.extend(["cython>=3.0.11"])
     compiler_directives = {"language_level": "3"}
 
     if debug:
