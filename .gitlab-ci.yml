@@ -64,7 +64,7 @@ hugo:
   script:
     - hugo version
     - cd site
-    - hugo -c content -v
+    - hugo -c content --logLevel info
   artifacts:
     paths:
       - public
