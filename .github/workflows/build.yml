@@ -37,6 +37,7 @@ jobs:
             **/pyproject.toml
             **/setup.py
       - run: uvx -p 3.12 cibuildwheel
+        shell: bash
       - uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.runs-on }}-${{ strategy.job-index }}
