@@ -31,4 +31,4 @@ test-command = "uv run --with 'numpy<2.0' python -m unittest discover {project}/
 [[tool.cibuildwheel.overrides]]
 select = "cp3{9,10,11,12}-win_*"
 inherit.test-command = "append"
-test-command = "uv run --with numpy<2.0 python -m unittest discover {project}/test"
+test-command = "uv run --with numpy^<2.0 python -m unittest discover {project}/test"
