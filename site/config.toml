@@ -3,7 +3,7 @@ languageCode = "en-US"
 defaultContentLanguage = "en"
 
 title = "cpprb"
-theme = "learn"
+theme = "hugo-theme-relearn"
 themesdir = "themes"
 metaDataFormat = "yaml"
 defaultContentLanguageInSubdir= false
@@ -21,7 +21,7 @@ publishDir = "../public"
   custom_css = ["css/custom.css"]
 
 [outputs]
-home = [ "HTML", "RSS", "JSON"]
+home = ['html', 'rss', 'print']
 
 [[menu.shortcuts]]
 name = "<i class='fab fa-fw fa-gitlab'></i> GitLab"
