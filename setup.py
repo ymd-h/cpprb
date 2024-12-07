@@ -43,25 +43,6 @@ rb_source = "src/cpprb/PyReplayBuffer"
 cpp_ext = ".cpp"
 pyx_ext = ".pyx"
 
-extras = {
-    "gym": ["matplotlib", "pyvirtualdisplay"],
-    "api": ["sphinx", "sphinx_rtd_theme", "sphinx-automodapi"],
-    "dev": ["coverage[toml]", "cython", "scipy", "twine", "unittest-xml-reporting"],
-}
-
-if sys.version_info < (3, 12):
-    # ray doesn't support Python 3.12+, yet.
-    # Issue: https://github.com/ray-project/ray/issues/40211
-    extras["dev"].append("ray")
-
-if platform.system() != "Windows":
-    # jax doesn't support Windows
-    extras["dev"].append("jax[cpu]")
-
-all_deps = []
-for group_name in extras:
-    all_deps += extras[group_name]
-extras["all"] = all_deps
 
 # Set compiler flags depending on platform
 if platform.system() == "Windows":
@@ -151,7 +132,6 @@ setup(
     version="11.0.0",
     install_requires=requires,
     setup_requires=setup_requires,
-    extras_require=extras,
     cmdclass={"build_ext": LazyImportBuildExtCommand},
     url="https://ymd_h.gitlab.io/cpprb/",
     project_urls={
