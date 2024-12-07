@@ -3,18 +3,24 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
-build = ["cp3{9,10,11,12,13}-{win,macosx,manylinux}_*"]
+build = ["cp3{9,10,11,12,13}-{macosx_*,{win,????linux}_*64}"]
 build-frontend = "build[uv]"
 
 test-command = ["uv run --with 'numpy>=2.0' python -m unittest discover {project}/test"]
 test-requires = [
-    "jax[cpu]",
-    "scipy",
-    "matplotlib",
-    "pyvirtualdisplay",
     "gymnasium",
-    "ray;python_version<'3.13'"
 ]
+
+[[tool.cibuildwheel.overrides]]
+select = "cp3{9,10,11,12}-{win,macosx,manylinux}_*"
+inherit.test-requires = "append"
+test-requires = "ray;python_version<'3.13'"
+
+[[tool.cibuildwheel.overrides]]
+select = "cp3{9,10,11,12}-{win,macosx,manylinux}_*"
+inherit.test-requires = "append"
+test-requires = "jax[cpu]"
+
 
 [[tool.cibuildwheel.overrides]]
 select = "cp3{9,10,11,12}-*"
