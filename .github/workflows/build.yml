@@ -57,7 +57,7 @@ jobs:
           cache-dependency-glob: |
             **/pyproject.toml
             **/setup.py
-      - run: uv run --with build python -m build --sdist
+      - run: uv run --no-project --with build python -m build --sdist
       - uses: actions/upload-artifact@v4
         with:
           name: dist-sdist
