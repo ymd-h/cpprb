@@ -14,7 +14,7 @@ test-requires = [
 [[tool.cibuildwheel.overrides]]
 select = "cp3{9,10,11,12}-{win,macosx,manylinux}_*"
 inherit.test-requires = "append"
-test-requires = "ray;python_version<'3.13'"
+test-requires = "ray"
 
 [[tool.cibuildwheel.overrides]]
 select = "cp3{9,10,11,12}-{win,macosx,manylinux}_*"
