@@ -36,7 +36,7 @@ jobs:
           cache-dependency-glob: |
             **/pyproject.toml
             **/setup.py
-      - run: uvx cibuildwheel
+      - run: uvx -p 3.12 cibuildwheel
       - uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.runs-on }}-${{ strategy.job-index }}
