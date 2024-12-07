@@ -33,6 +33,9 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/setup.py
       - run: uvx cibuildwheel
       - uses: actions/upload-artifact@v4
         with:
@@ -51,6 +54,9 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/setup.py
       - run: uvx build --sdist
       - uses: actions/upload-artifact@v4
         with:
