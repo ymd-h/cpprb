@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 build = ["cp3{9,10,11,12,13}-{macosx_*,{win,????linux}_*64}"]
 build-frontend = "build[uv]"
 
-test-command = ["uv run --with numpy>=2.0 python -m unittest discover {project}/test"]
+test-command = ["uv run python -m unittest discover {project}/test"]
 test-requires = [
     "gymnasium",
 ]
@@ -23,6 +23,12 @@ test-requires = "jax[cpu]"
 
 
 [[tool.cibuildwheel.overrides]]
-select = "cp3{9,10,11,12}-*"
+select = "cp3{9,10,11,12}-{macosx,manylinux}_*"
+inherit.test-command = "append"
+test-command = "uv run --with 'numpy<2.0' python -m unittest discover {project}/test"
+
+
+[[tool.cibuildwheel.overrides]]
+select = "cp3{9,10,11,12}-win_*"
 inherit.test-command = "append"
 test-command = "uv run --with numpy<2.0 python -m unittest discover {project}/test"
