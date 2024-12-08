@@ -630,7 +630,11 @@ inefficient.
 In RER, equally strided transitions are sampled from the latest
 transition. The next sample contains one step older transions.
 
-\[ \begin{align} B_1 &= \lbrace& T_{t}  &, T_{t-stride}  &, \dots &, T_{t-batch~size \times stride}  &\rbrace \\ B_2 &= \lbrace& T_{t-1}&, T_{t-stride-1}&, \dots &, T_{t-batch~size \times stride - 1} &\rbrace \\ &\vdots & & & & & & \end{align} \]
+\[ \begin{align}
+B_1 &= \lbrace& T_{t}  &, T_{t-stride}  &, \dots &, T_{t-batch~size \times stride}     &\rbrace \\
+B_2 &= \lbrace& T_{t-1}&, T_{t-stride-1}&, \dots &, T_{t-batch~size \times stride - 1} &\rbrace \\
+&\vdots&&&&&&
+\end{align} \]
 
 When the first sample index ($t-i$) becomes $2 \times stride$ old from
 the latest transition, the first sample index is reset to the latest
