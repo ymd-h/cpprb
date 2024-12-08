@@ -36,17 +36,43 @@ jobs:
           cache-dependency-glob: |
             **/pyproject.toml
             **/setup.py
-      - if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v3
+      - run: uvx -p 3.12 cibuildwheel
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.runs-on }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+  build_aarch64:
+    needs: readme
+    strategy:
+      matrix:
+        py: ['3.9', '3.10', '3.11', '3.12', '3.13']
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: README
+          path: README
+      - run: mv README/README.md README.md
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/setup.py
+      - uses: docker/setup-qemu-action@v3
         with:
           platforms: all
       - run: uvx -p 3.12 cibuildwheel
         shell: bash
         env:
-          CIBW_ARCHS_LINUX: auto aarch64
+          CIBW_BUILD: ${{'cp'}}${{ matrix.py }}${{'-????linux_*64'}}
+          CIBW_ARCHS_LINUX: aarch64
       - uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.runs-on }}-${{ strategy.job-index }}
+          name: dist-aarch64-${{ matrix.py }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
   build_targz:
     needs: readme
@@ -70,7 +96,7 @@ jobs:
           name: dist-sdist
           path: dist/*.tar.gz
   upload:
-    needs: [build_wheel, build_targz]
+    needs: [build_wheel, build_aarch64, build_targz]
     environment: pypi
     runs-on: ubuntu-latest
     permissions:
