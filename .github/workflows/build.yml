@@ -46,7 +46,7 @@ jobs:
     needs: readme
     strategy:
       matrix:
-        py: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        py: ['39', '310', '311', '312', '313']
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
