@@ -27,7 +27,7 @@ if sys.version_info >= (3, 9):
     # NumPy 2.0 breaks ABI compatibility.
     # To support both NumPy 1.x and 2.x, build with NumPy 2.x
     # cf. https://numpy.org/devdocs/dev/depending_on_numpy.html#numpy-2-abi-handling
-    setup_requires.append("numpy>=2.0.0rc2")
+    setup_requires.append("numpy>=2.0.0")
 elif (sys.version_info < (3, 9)) and not arm_mac:
     # NumPy 1.20 breaks ABI compatibility.
     # To support both NumPy 1.19.x and 1.20+, build with NumPy 1.19
@@ -43,25 +43,6 @@ rb_source = "src/cpprb/PyReplayBuffer"
 cpp_ext = ".cpp"
 pyx_ext = ".pyx"
 
-extras = {
-    "gym": ["matplotlib", "pyvirtualdisplay"],
-    "api": ["sphinx", "sphinx_rtd_theme", "sphinx-automodapi"],
-    "dev": ["coverage[toml]", "cython", "scipy", "twine", "unittest-xml-reporting"],
-}
-
-if sys.version_info < (3, 12):
-    # ray doesn't support Python 3.12+, yet.
-    # Issue: https://github.com/ray-project/ray/issues/40211
-    extras["dev"].append("ray")
-
-if platform.system() != "Windows":
-    # jax doesn't support Windows
-    extras["dev"].append("jax[cpu]")
-
-all_deps = []
-for group_name in extras:
-    all_deps += extras[group_name]
-extras["all"] = all_deps
 
 # Set compiler flags depending on platform
 if platform.system() == "Windows":
@@ -86,7 +67,7 @@ use_cython = os.path.exists(pyx_file)
 
 if use_cython:
     suffix = pyx_ext
-    setup_requires.extend(["cython>=3.0.10"])
+    setup_requires.extend(["cython>=3.0.11"])
     compiler_directives = {"language_level": "3"}
 
     if debug:
@@ -151,7 +132,6 @@ setup(
     version="11.0.0",
     install_requires=requires,
     setup_requires=setup_requires,
-    extras_require=extras,
     cmdclass={"build_ext": LazyImportBuildExtCommand},
     url="https://ymd_h.gitlab.io/cpprb/",
     project_urls={

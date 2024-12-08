@@ -64,7 +64,7 @@ hugo:
   script:
     - hugo version
     - cd site
-    - hugo -c content -v
+    - hugo -c content --logLevel info
   artifacts:
     paths:
       - public
@@ -78,7 +78,7 @@ sphinx:
   stage: page_build
   environment: production
   script:
-    - pip install $(echo dist/*.whl)['all']
+    - pip install $(echo dist/*.whl) "sphinx" "sphinx_rtd_theme" "sphinx-automodapi"
     - sphinx-build -b html sphinx public/api
   artifacts:
     paths:

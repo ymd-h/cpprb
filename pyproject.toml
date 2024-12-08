@@ -2,116 +2,33 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.cibuildwheel]
+build = ["cp3{9,10,11,12,13}-{macosx_*,{win,????linux}_*64}"]
+build-frontend = "build[uv]"
 
-
-[tool.hatch.envs.test]
-dependencies = [
-    "coverage[toml]",
-    "cython",
-    "jax[cpu]",
-    "scipy",
-    "matplotlib",
-    "pyvirtualdisplay",
+test-command = ["uv run python -m unittest discover {project}/test"]
+test-requires = [
+    "gymnasium",
 ]
 
-[tool.hatch.envs.test.env-vars]
-DEBUG_CPPRB = "1"
+[[tool.cibuildwheel.overrides]]
+select = "cp3{9,10,11,12}-{win,macosx,manylinux}_*"
+inherit.test-requires = "append"
+test-requires = "ray"
 
-[tool.hatch.envs.test.scripts]
-install = "pip install . {args}"
-run = "python -m unittest discover test"
-run-cov = "coverage run -m unittest discover test"
-
-[[tool.hatch.envs.test.matrix]]
-python = ["3.9", "3.10", "3.11", "3.12"]
-gym = ["gym", "gymnasium"]
-numpy = ["numpy1", "numpy2"]
-
-[tool.hatch.envs.test.overrides]
-matrix.python.dependencies = [
-    { value = "ray", if = ["3.9", "3.10", "3.11", "3.12"] },
-]
-matrix.gym.dependencies = [
-    { value = "gym", if = ["gym"] },
-    { value = "gymnasium", if = ["gymnasium"] },
-]
-matrix.numpy.dependencies = [
-    { value = "numpy<2.0.0", if = ["numpy1"] },
-    { value = "numpy>=2.0.0rc2", if = ["numpy2"] },
-]
-
-[tool.hatch.envs.test-38]
-template = "test"
-python = "3.8"
-extra-dependencies = [
-    "numpy<2.0.0",
-    "ray",
-]
-
-[[tool.hatch.envs.test-38.matrix]]
-gym = ["gym", "gymnasium"]
-
-[tool.hatch.envs.test-38.overrides]
-matrix.gym.dependencies = [
-    { value = "gym", if = ["gym"] },
-    { value = "gymnasium", if = ["gymnasium"] },
-]
+[[tool.cibuildwheel.overrides]]
+select = "cp3{9,10,11,12}-{win,macosx,manylinux}_*"
+inherit.test-requires = "append"
+test-requires = "jax[cpu]"
 
 
-[tool.hatch.envs.cov]
-dependencies = [
-    "coverage[toml]",
-    "cython",
-]
-
-[tool.hatch.envs.cov.scripts]
-erase = "coverage erase"
-combine = "coverage combine"
-report = "coverage report"
+[[tool.cibuildwheel.overrides]]
+select = "cp3{9,10,11,12}-{macosx,manylinux}_*"
+inherit.test-command = "append"
+test-command = "uv run --with 'numpy<2.0' python -m unittest discover {project}/test"
 
 
-[tool.hatch.envs.docs]
-dependencies = [
-    "sphinx",
-    "sphinx-automodapi",
-    "sphinx_rtd_theme",
-]
-
-
-[tool.coverage.run]
-branch = true
-plugins = ["Cython.Coverage"]
-parallel = true
-relative_files = true
-omit = ["test/test_*.py"]
-source = ["cpprb"]
-
-[tool.coverage.paths]
-source = [
-    "src/cpprb",
-    "*/site-packages/cpprb",
-]
-
-
-[tool.coverage.report]
-show_missing = true
-
-
-[tool.ruff]
-extend-exclude = [
-  "sphinx",
-  "example",
-  "test/test_*.py",
-]
-
-[tool.ruff.lint]
-select = ["NPY201"]
-ignore = [
-  "PT009",  # We still use standard unittest
-  "N999" ,  # This breaks API compatibility
-  "FBT001", # This breaks API compatibility
-  "FBT002", # This breaks API compatibility
-  "EM101",
-  "EM102",
-  "TRY003",
-]
+[[tool.cibuildwheel.overrides]]
+select = "cp3{9,10,11,12}-win_*"
+inherit.test-command = "append"
+test-command = "uv run --with numpy^<2.0 python -m unittest discover {project}/test"

@@ -16,123 +16,96 @@ jobs:
         with:
           name: README
           path: README.md
-  test:
-    strategy:
-      matrix:
-        runs-on: [ubuntu-latest, macos-13, macos-14, windows-latest]
-      fail-fast: false
-    runs-on: ${{ matrix.runs-on }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Hatch
-        uses: pypa/hatch@install
-      - name: Run Test
-        run: |
-          hatch run test:install
-          hatch run test-38:install
-          hatch run test:run-cov
-          hatch run test-38:run-cov
-          hatch run cov:combine
-          echo '## Test Coverage on ${{ matrix.runs-on }}' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          hatch -q run cov:report >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-        shell: bash
-  build_winmac:
+  build_wheel:
     needs: readme
     strategy:
       matrix:
-        runs-on: [macos-13, macos-14, windows-latest]
+        runs-on: [macos-13, macos-14, windows-latest, ubuntu-latest]
       fail-fast: false
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: |
-            3.8
-            3.9
-            3.10
-            3.11
-            3.12
-          cache: 'pip'
       - uses: actions/download-artifact@v4
         with:
           name: README
           path: README
       - run: mv README/README.md README.md
-      - run: pip3.8 wheel . -w dist --no-deps
-      - run: pip3.9 wheel . -w dist --no-deps
-      - run: pip3.10 wheel . -w dist --no-deps
-      - run: pip3.11 wheel . -w dist --no-deps
-      - run: pip3.12 wheel . -w dist --no-deps
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/setup.py
+      - run: uvx -p 3.12 cibuildwheel
+        shell: bash
       - uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.runs-on }}
-          path: dist
-      - name: Upload to PyPI
-        run: |
-          pip install twine
-          python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
-        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
+          name: dist-${{ matrix.runs-on }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+  build_aarch64:
+    needs: readme
+    strategy:
+      matrix:
+        py: ['39', '310', '311', '312', '313']
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: README
+          path: README
+      - run: mv README/README.md README.md
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/setup.py
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+      - run: uvx -p 3.12 cibuildwheel
+        shell: bash
+        env:
+          CIBW_BUILD: ${{'cp'}}${{ matrix.py }}${{'-????linux_*64'}}
+          CIBW_ARCHS_LINUX: aarch64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-aarch64-${{ matrix.py }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
   build_targz:
     needs: readme
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.8'
-          cache: 'pip'
       - uses: actions/download-artifact@v4
         with:
           name: README
           path: README
       - run: mv README/README.md README.md
-      - run: python setup.py build_ext sdist
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/setup.py
+      - run: uv run --no-project --with build python -m build --sdist
       - uses: actions/upload-artifact@v4
         with:
           name: dist-sdist
-          path: dist
-      - run: pip --disable-pip-version-check install twine
-      - name: Upload to PyPI
-        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*tar.gz
-        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
-  build_manylinux:
+          path: dist/*.tar.gz
+  upload:
+    needs: [build_wheel, build_aarch64, build_targz]
+    environment: pypi
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: ["x86_64", "aarch64"]
+    permissions:
+      id-token: write
+    if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/download-artifact@v4
         with:
-          python-version: '3'
-          cache: 'pip'
-      - uses: docker/setup-qemu-action@v3
-        if: ${{ matrix.arch }} == "aarch64"
-        with:
-          platforms: arm64
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v5
-        with:
-          push: false
-          build-args: |
-            ON_CI=1
-            arch=${{ matrix.arch }}
-          file: Dockerfile
-          cache-to: type=gha,mode=max,scope=${{github.ref_name}}
-          cache-from: type=gha,scope=${{github.ref_name}}
-          load: true
-          tags: cpprb/wheel:latest
-      - run: |
-          docker create --name wheel cpprb/wheel:latest
-          docker cp wheel:/dist/. dist/
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dist-manylinux-${{ matrix.arch }}
+          pattern: 'dist-*'
           path: dist
-      - run: pip --disable-pip-version-check install twine
-      - name: Upload to PyPI
-        run: python -m twine upload -u __token__ -p ${{ secrets.pypi_password }} --skip-existing dist/cpprb-*
-        if: github.event_name == 'push' && startsWith(github.event.ref,'refs/tags/v')
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1

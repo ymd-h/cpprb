@@ -1,1 +1,2 @@
-include cpprb/*.hh
+include src/cpprb/*.hh
+exclude test/*
