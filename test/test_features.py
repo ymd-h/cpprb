@@ -100,8 +100,8 @@ class TestShuffleTransitions(unittest.TestCase):
 
         self.assertFalse((s1 == s2).all())
 
-        s = np.intersect1d(s1,s2,assume_unique=True)
-        np.testing.assert_allclose(np.ravel(s),np.ravel(s1))
+        s = np.intersect1d(s1, s2)
+        np.testing.assert_allclose(np.ravel(s), np.ravel(s1))
 
 
 if __name__ == '__main__':
