@@ -1,6 +1,43 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "wheel", "numpy>=2.0.0", "cython>=3.0.11"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "cpprb"
+version = "11.0.0"
+license = { file = "LICENSE" }
+authors = [{ name = "Yamada Hiroyuki" }]
+classifiers=[
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries",
+]
+dependencies = ["numpy"]
+dynamic = [
+  "description",
+  "readme",
+]
+
+[project.urls]
+"Home Page" = "https://ymd_h.gitlab.io/cpprb/"
+"Source Code" = "https://gitlab.com/ymd_h/cpprb"
+"Mirror" = "https://github.com/ymd-h/cpprb"
+"Change Log" = "https://ymd_h.gitlab.io/cpprb/changelog/"
+"Bug Report & QA" = "https://github.com/ymd-h/cpprb/discussions"
+
+
+[tool.setuptools]
+packages = ["cpprb"]
+package-dir = { "" = "src" }
+include-package-data = false
+
 
 [tool.cibuildwheel]
 build = ["cp3{9,10,11,12,13}-{macosx_*,{win,????linux}_*64}"]
