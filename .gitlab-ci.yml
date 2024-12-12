@@ -93,9 +93,6 @@ pages:
   image: alpine
   stage: page_deploy
   environment: production
-  script:
-    - mkdir -p public/annotation
-    - mv src/cpprb/*.html public/annotation/
   artifacts:
     paths:
       - public
