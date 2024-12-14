@@ -12,8 +12,8 @@ site:
         files:
           - flake.nix
           - flake.lock
-        paths:
-          - /nix/store
+      paths:
+        - /nix/store
   script:
     - nix build .?submodules=1#site
   artifacts:
