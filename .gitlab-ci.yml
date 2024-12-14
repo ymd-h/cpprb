@@ -16,16 +16,17 @@ site:
         - /nix/store
   script:
     - nix --experimental-features 'nix-command flakes' build .?submodules=1#site
+    - cp -r result/public public
   artifacts:
     paths:
-      - result/public
+      - public
 
 pages:
   image: alpine
   stage: page_deploy
   environment: production
   script:
-    - mv result/public public
+    - echo ''
   artifacts:
     paths:
       - public
