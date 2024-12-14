@@ -15,7 +15,7 @@ site:
       paths:
         - /nix/store
   script:
-    - nix build .?submodules=1#site
+    - nix --experimental-features 'nix-command flakes' build .?submodules=1#site
   artifacts:
     paths:
       - result/public
