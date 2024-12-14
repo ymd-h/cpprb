@@ -68,6 +68,7 @@
             };
 
             nativeBuildInputs = [
+              pkgs.graphviz
               pkgs.hugo
               (pkgs.emacs.pkgs.withPackages (epkgs: (with epkgs.melpaStablePackages; [
                 ox-hugo
