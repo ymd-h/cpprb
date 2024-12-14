@@ -9,6 +9,7 @@
     let
       pkgs = nixpkgs.legacyPackages.${system};
       lib = nixpkgs.lib;
+      export = "(progn (require 'ox) (require 'ox-hugo) (setq org-src-preserve-indentation t) (org-hugo-export-wim-to-md :all-subtrees nil t))";
     in
       {
         packages = rec {
@@ -49,6 +50,53 @@
             inherit lib;
             ps = pkgs.python312Packages;
             readme = readme;
+          };
+
+          site = pkgs.stdenv.mkDerivation {
+            name = "cpprb-site";
+
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.unions [
+                ./README.org
+                ./CHANGELOG.org
+                ./LICENSE
+                ./site
+                ./sphinx
+                ./example
+              ];
+            };
+
+            nativeBuildInputs = [
+              pkgs.hugo
+              (pkgs.emacs.pkgs.withPackages (epkgs: (with epkgs.melpaStablePackages; [
+                ox-hugo
+              ])))
+              (pkgs.python312.withPackages (ps: (with ps; [
+                numpy
+                sphinx
+                sphinx-rtd-theme
+                sphinx-automodapi
+                python-312
+              ])))
+            ];
+
+            buildPhase = ''
+              emacs --batch README.org --eval "${export}"
+              emacs --batch CHANGELOG.org --eval "${export}"
+              cd site
+              emacs --batch site.org --eval "${export}"
+              hugo -c content --logLevel info
+              cd ../
+
+              mkdir -p public/api
+              sphinx-build -b html sphinx public/api
+            '';
+
+            installPhase = ''
+              mkdir -p $out/public
+              cp -r public $out/
+            '';
           };
         };
       }
