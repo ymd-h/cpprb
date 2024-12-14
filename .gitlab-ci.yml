@@ -1,104 +1,35 @@
 stages:
-  - export_org
-  - build
   - page_build
   - page_deploy
 
-
-.build_template: &build_env
-  image: python:3.12
+site:
+  stage: page_build
+  image: nixos/nix
   variables:
-    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip"
+    GIT_SUBMODULE_STRATEGY: recursive
   cache:
     - key:
         files:
-          - pyproject.toml
-          - setup.py
-      paths:
-        - "$PIP_CACHE_DIR"
-
-
-cpprb_build:
-  <<: *build_env
-  stage: build
-  needs:
-    - README_MD
+          - flake.nix
+          - flake.lock
+        paths:
+          - /nix/store
   script:
-    - pip wheel . -w dist --no-deps
+    - nix build .?submodules=1#site
   artifacts:
     paths:
-      - dist/*.whl
-      - src/cpprb/*.html
-
-emacs:
-  image: iquiw/alpine-emacs
-  stage: export_org
-  script:
-    - emacs --batch README.org -l site/init.el --eval '(setq debug-on-error t)' --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
-    - emacs --batch CHANGELOG.org -l site/init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
-    - cd site
-    - emacs --batch site.org -l init.el --eval '(org-hugo-export-wim-to-md :all-subtrees nil t)'
-  artifacts:
-    paths:
-      - site/content
-  except:
-    - schedules
-
-README_MD:
-  image: iquiw/alpine-emacs
-  stage: export_org
-  script:
-    - emacs --batch README.org --eval '(org-md-export-to-markdown)'
-  artifacts:
-    paths:
-      - README.md
-  except:
-    - schedules
-
-hugo:
-  image: registry.gitlab.com/pages/hugo:latest
-  stage: page_build
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-  environment: production
-  script:
-    - hugo version
-    - cd site
-    - hugo -c content --logLevel info
-  artifacts:
-    paths:
-      - public
-  needs:
-    - emacs
-  except:
-    - schedules
-
-sphinx:
-  <<: *build_env
-  stage: page_build
-  environment: production
-  script:
-    - pip install $(echo dist/*.whl) "sphinx" "sphinx_rtd_theme" "sphinx-automodapi"
-    - sphinx-build -b html sphinx public/api
-  artifacts:
-    paths:
-      - sphinx/*.rst
-      - public
-  needs:
-    - cpprb_build
-  except:
-    - schedules
+      - result/public
 
 pages:
   image: alpine
   stage: page_deploy
   environment: production
   script:
-    - echo ''
+    - mv result/public public
   artifacts:
     paths:
       - public
   only:
     - master
-  except:
-    - schedules
+  needs:
+    - site
