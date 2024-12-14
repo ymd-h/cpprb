@@ -2,6 +2,7 @@
 build
 dist
 wheelhouse
+result
 *egg-info
 *.so
 *.c
