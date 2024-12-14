@@ -93,6 +93,7 @@ pages:
   image: alpine
   stage: page_deploy
   environment: production
+  script: []
   artifacts:
     paths:
       - public
